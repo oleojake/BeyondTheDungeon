@@ -241,3 +241,139 @@ CREATE POLICY "Miembros ven tokens" ON public.map_tokens FOR SELECT USING (
 -- Policy: "Authenticated users can upload"
 -- Definition: bucket_id = 'campaign-assets' (INSERT)
 $$
+
+-- 1. SISTEMAS DE JUEGO (Definimos 2014 y 2024)
+CREATE TABLE IF NOT EXISTS public.game_systems (
+slug TEXT PRIMARY KEY,
+name TEXT NOT NULL,
+description TEXT,
+ruleset_json JSONB DEFAULT '{}'
+);
+
+-- Insertar o actualizar los sistemas
+INSERT INTO public.game_systems (slug, name, description) VALUES
+('dnd5e-2014', 'D&D 5th Edition (2014)', 'Reglas clásicas (Legacy SRD 5.1)'),
+('dnd5e-2024', 'D&D 5th Edition (2024)', 'Reglas revisadas (Free Rules)')
+ON CONFLICT (slug) DO NOTHING;
+
+-- 2. TABLAS DEL COMPENDIO (Soportan JSONB para flexibilidad)
+
+-- Clases
+CREATE TABLE IF NOT EXISTS public.compendium_classes (
+id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+system_id TEXT REFERENCES public.game_systems(slug),
+name TEXT NOT NULL,
+hit_die INT,
+full_data JSONB NOT NULL, -- Aquí va toda la info de niveles
+is_official BOOLEAN DEFAULT TRUE
+);
+
+-- Subclases
+CREATE TABLE IF NOT EXISTS public.compendium_subclasses (
+id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+system_id TEXT REFERENCES public.game_systems(slug),
+name TEXT NOT NULL,
+parent_class TEXT,
+full_data JSONB NOT NULL,
+is_official BOOLEAN DEFAULT TRUE
+);
+
+-- Razas (Species)
+CREATE TABLE IF NOT EXISTS public.compendium_races (
+id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+system_id TEXT REFERENCES public.game_systems(slug),
+name TEXT NOT NULL,
+speed INT,
+size TEXT,
+full_data JSONB NOT NULL,
+is_official BOOLEAN DEFAULT TRUE
+);
+
+-- Trasfondos (Backgrounds)
+CREATE TABLE IF NOT EXISTS public.compendium_backgrounds (
+id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+system_id TEXT REFERENCES public.game_systems(slug),
+name TEXT NOT NULL,
+full_data JSONB NOT NULL,
+is_official BOOLEAN DEFAULT TRUE
+);
+
+-- Hechizos
+CREATE TABLE IF NOT EXISTS public.compendium_spells (
+id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+system_id TEXT REFERENCES public.game_systems(slug),
+name TEXT NOT NULL,
+level INT,
+school TEXT,
+casting_time TEXT,
+range TEXT,
+components TEXT,
+duration TEXT,
+description TEXT,
+is_official BOOLEAN DEFAULT TRUE
+);
+
+-- Bestiario
+CREATE TABLE IF NOT EXISTS public.compendium_bestiary (
+id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+system_id TEXT REFERENCES public.game_systems(slug),
+name TEXT NOT NULL,
+type TEXT,
+cr_level FLOAT,
+stats JSONB NOT NULL DEFAULT '{}',
+image_url TEXT,
+is_official BOOLEAN DEFAULT TRUE
+);
+
+-- Objetos (Items y Magic Items)
+CREATE TABLE IF NOT EXISTS public.compendium_items (
+id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+system_id TEXT REFERENCES public.game_systems(slug),
+name TEXT NOT NULL,
+type TEXT,
+rarity TEXT,
+price TEXT,
+weight TEXT,
+effects_description TEXT,
+stats JSONB DEFAULT '{}',
+is_official BOOLEAN DEFAULT TRUE
+);
+
+-- Mecánicas (Feats, Conditions, Traits)
+CREATE TABLE IF NOT EXISTS public.compendium_mechanics (
+id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+system_id TEXT REFERENCES public.game_systems(slug),
+name TEXT NOT NULL,
+type TEXT,
+description TEXT,
+is_official BOOLEAN DEFAULT TRUE
+);
+
+-- 3. POLÍTICAS DE SEGURIDAD (RLS)
+-- Habilitamos lectura pública para todas
+ALTER TABLE public.compendium_classes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.compendium_subclasses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.compendium_races ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.compendium_backgrounds ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.compendium_spells ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.compendium_bestiary ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.compendium_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.compendium_mechanics ENABLE ROW LEVEL SECURITY;
+
+-- Crear políticas (si ya existen darán error, puedes ignorarlo o borrarlas antes)
+DO $$ BEGIN
+CREATE POLICY "Public Read Classes" ON public.compendium_classes FOR SELECT USING (true);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+
+DO $$ BEGIN
+CREATE POLICY "Public Read Subclasses" ON public.compendium_subclasses FOR SELECT USING (true);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+
+DO $$ BEGIN
+CREATE POLICY "Public Read Races" ON public.compendium_races FOR SELECT USING (true);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+
+DO $$ BEGIN
+CREATE POLICY "Public Read Backgrounds" ON public.compendium_backgrounds FOR SELECT USING (true);
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+-- (Repetir lógica para el resto si es necesario, Supabase suele ser permisivo en el SQL Editor si ejecutas varias veces)
