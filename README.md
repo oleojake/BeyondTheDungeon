@@ -8,25 +8,27 @@ Herramientas de apoyo para partidas de rol. Proyecto desarrollado con React, Typ
 - **Styling**: Tailwind CSS v3
 - **Routing**: React Router v7
 - **Database**: Supabase + PostgreSQL
-- **Backend**: Node.js + Express (próximamente)
+- **Backend**: APIs directas a Supabase (sin servidor Express)
 - **Deploy**: Vercel (automático en `main`)
 
 ## 📁 Estructura del Proyecto
 
 ```
 BeyondTheDungeon/
-├── frontend/
-│   └── src/
-│       ├── layout/          # Layouts principales (AppLayout)
-│       ├── router/          # Configuración de rutas
-│       ├── scenes/          # Scenes = Layout + Pods
-│       ├── global-css/      # Estilos globales (Tailwind)
-│       └── pods/            # Módulos funcionales (Pod Architecture)
-│           └── home/
-│               ├── home.container.tsx    # Lógica + Estado
-│               ├── home.component.tsx    # UI Pura
-│               └── index.ts
-└── backend/                 # (próximamente)
+├── src/
+│   ├── api/             # APIs de Supabase
+│   ├── layout/          # Layouts principales (AppLayout)
+│   ├── router/          # Configuración de rutas
+│   ├── scenes/          # Scenes = Layout + Pods
+│   ├── global-css/      # Estilos globales (Tailwind)
+│   └── pods/            # Módulos funcionales (Pod Architecture)
+│       └── home/
+│           ├── home.container.tsx    # Lógica + Estado
+│           ├── home.component.tsx    # UI Pura
+│           └── index.ts
+├── package.json
+├── vite.config.ts
+└── index.html
 ```
 
 ## 🧩 Arquitectura de Pods
@@ -191,7 +193,7 @@ git commit -m "feat(frontend): setup inicial (#6)"
 
 - ✅ **Deploy automático** solo cuando se mergea a `main`
 - ❌ **No deploy** en commits a `dev` o en PRs
-- 📦 Build desde `/frontend`
+- 📦 Build desde la raíz del proyecto
 
 ### Proceso:
 
@@ -199,17 +201,17 @@ git commit -m "feat(frontend): setup inicial (#6)"
 2. Vercel detecta el push a `main`
 3. Ejecuta:
    ```bash
-   cd frontend && npm install && npm run build
+   npm install && npm run build
    ```
-4. Despliega `frontend/dist` a producción
+4. Despliega `dist/` a producción
 
 ### Variables de Entorno:
 
 Para configurar en Vercel Dashboard:
 
 ```
-VITE_SUPABASE_URL=tu_url
-VITE_SUPABASE_ANON_KEY=tu_key
+SUPABASE_URL=tu_url
+SUPABASE_ANON_KEY=tu_key
 ```
 
 ---
@@ -221,20 +223,17 @@ VITE_SUPABASE_ANON_KEY=tu_key
 git clone https://github.com/oleojake/BeyondTheDungeon.git
 cd BeyondTheDungeon
 
-# 2. Ir a frontend
-cd frontend
-
-# 3. Instalar dependencias
+# 2. Instalar dependencias
 npm install
 
-# 4. Crear .env (copiar de .env.example)
+# 3. Crear .env (copiar de .env.example)
 cp .env.example .env
 
-# 5. Configurar variables en .env
-VITE_SUPABASE_URL=tu_url_aqui
-VITE_SUPABASE_ANON_KEY=tu_key_aqui
+# 4. Configurar variables en .env
+SUPABASE_URL=tu_url_aqui
+SUPABASE_ANON_KEY=tu_key_aqui
 
-# 6. Arrancar servidor de desarrollo
+# 5. Arrancar servidor de desarrollo
 npm run dev
 ```
 
