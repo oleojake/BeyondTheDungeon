@@ -1,4 +1,3 @@
-# Build stage
 FROM node:20-alpine AS build
 WORKDIR /app
 
@@ -12,13 +11,6 @@ ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 
 RUN npm run build
-
-# Production stage
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Custom nginx config for SPA
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
