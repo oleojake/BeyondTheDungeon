@@ -64,6 +64,13 @@ npm start
 
 El backend estará en http://localhost:3000
 
+**Endpoints disponibles:**
+
+- `GET /health` - Healthcheck
+- `GET /api/ping` - Test de conectividad
+- `GET /api/supabase-status` - Verifica config de Supabase
+- `GET /api/compendium-bestiary` - Obtiene bestiario (ejemplo real con Supabase)
+
 #### Terminal 2 - Frontend
 
 ```bash
@@ -73,6 +80,8 @@ npm run dev
 ```
 
 El frontend estará en http://localhost:5173
+
+**Nota:** Ambos servicios deben estar corriendo simultáneamente para que la aplicación funcione completa.
 
 ---
 
@@ -127,6 +136,10 @@ git push origin feature/nombre-de-tu-funcionalidad
 
 - Crea un PR de `dev` → `main`
 - Al mergear, GitHub Actions desplegará automáticamente al VPS
+- Los endpoints del backend estarán disponibles en:
+  - `https://beyondthedungeon.org/api/ping`
+  - `https://beyondthedungeon.org/api/compendium-bestiary`
+  - etc.
 
 ---
 
