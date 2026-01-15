@@ -8,8 +8,8 @@ Herramientas de apoyo para partidas de rol. Proyecto desarrollado con React, Typ
 - **Styling**: Tailwind CSS v3
 - **Routing**: React Router v7
 - **Database**: Supabase + PostgreSQL
-- **Backend**: APIs directas a Supabase (sin servidor Express)
-- **Deploy**: Vercel (automático en `main`)
+- **Backend**: Node.js + Express (API REST)
+- **Deploy**: Docker + VPS con GitHub Actions (automático en `main`)
 
 ## 📁 Estructura del Proyecto
 
@@ -187,32 +187,39 @@ git commit -m "feat(frontend): setup inicial (#6)"
 
 ---
 
-## 🚀 Deploy (Vercel)
+## 🚀 Deploy (Docker + VPS)
 
 ### Configuración Actual:
 
-- ✅ **Deploy automático** solo cuando se mergea a `main`
+- ✅ **Deploy automático** cuando se mergea a `main`
 - ❌ **No deploy** en commits a `dev` o en PRs
-- 📦 Build desde la raíz del proyecto
+- 🐳 Contenedores Docker orquestados con Docker Compose
+- 🔄 GitHub Actions ejecuta el deploy vía SSH al VPS
 
 ### Proceso:
 
 1. Se hace merge de `dev` → `main`
-2. Vercel detecta el push a `main`
-3. Ejecuta:
+2. GitHub Actions detecta el push a `main`
+3. Se conecta al VPS vía SSH
+4. Ejecuta en el VPS:
    ```bash
-   npm install && npm run build
+   git pull origin main
+   docker compose down
+   docker compose up -d --build
+   docker system prune -f
    ```
-4. Despliega `dist/` a producción
+5. Los contenedores se reconstruyen y reinician automáticamente
+
+### Servicios desplegados:
+
+- **Frontend**: Nginx en puerto 8080 (https://beyondthedungeon.org)
+- **Backend**: Express en puerto 3000 (https://beyondthedungeon.org/api/*)
 
 ### Variables de Entorno:
 
-Para configurar en Vercel Dashboard:
-
-```
-SUPABASE_URL=tu_url
-SUPABASE_ANON_KEY=tu_key
-```
+Configuradas en el VPS:
+- `.env` en raíz: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+- `backend/.env`: `PORT`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`
 
 ---
 
