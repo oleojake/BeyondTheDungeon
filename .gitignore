@@ -28,7 +28,7 @@ coverage/
 # Environment files
 # =====================
 .env
-.env.*
+!.env.example
 backend/.env
 frontend/.env
 *.local
