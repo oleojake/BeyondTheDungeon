@@ -15,7 +15,7 @@ export const Hero = () => {
 					<div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 border border-primary/30 rounded-full">
 						<span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
 						<span className="text-primary-light text-sm font-medium">
-							Herramientas para Masters y Jugadores
+							¿DESPLEGADO?
 						</span>
 					</div>
 
