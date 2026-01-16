@@ -7,6 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 // healthcheck para Docker / monitorización
 app.get("/health", (req, res) => {
 	res.json({ ok: true, service: "btd-backend" });

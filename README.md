@@ -2,6 +2,8 @@
 
 Herramientas de apoyo para partidas de rol. Proyecto desarrollado con React, TypeScript, Vite y Tailwind CSS.
 
+🌐 **Sitio web:** [www.beyondthedungeon.org](https://www.beyondthedungeon.org)
+
 ## 🚀 Tech Stack
 
 - **Frontend**: React 19 + TypeScript + Vite
@@ -69,11 +71,11 @@ import { AppLayout } from "@/layout";
 import { HomeContainer } from "@/pods/home";
 
 export const HomeScene = () => {
-	return (
-		<AppLayout>
-			<HomeContainer />
-		</AppLayout>
-	);
+  return (
+    <AppLayout>
+      <HomeContainer />
+    </AppLayout>
+  );
 };
 ```
 
@@ -218,6 +220,7 @@ git commit -m "feat(frontend): setup inicial (#6)"
 ### Variables de Entorno:
 
 Configuradas en el VPS:
+
 - `.env` en raíz: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 - `backend/.env`: `PORT`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`
 

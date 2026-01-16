@@ -1,36 +1,37 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Main brand colors
+        // D&D Themed colors
         primary: {
-          DEFAULT: "#8B5CF6", // Purple
-          light: "#A78BFA",
-          dark: "#7C3AED",
+          DEFAULT: "#8B4513", // Saddle Brown (D&D leather)
+          light: "#A0522D",
+          dark: "#654321",
         },
         secondary: {
-          DEFAULT: "#3B82F6", // Blue
-          light: "#60A5FA",
-          dark: "#2563EB",
+          DEFAULT: "#2F7D3E", // Forest Green
+          light: "#48A15C",
+          dark: "#1F5429",
         },
         accent: {
-          DEFAULT: "#EC4899", // Pink/Magenta
-          light: "#F472B6",
-          dark: "#DB2777",
+          DEFAULT: "#D4AF37", // Gold (treasure)
+          light: "#E6C84A",
+          dark: "#B8941F",
         },
-        // Dark theme
+        // Dark theme (parchment and dungeon)
         dark: {
-          DEFAULT: "#0F172A", // Slate-900
-          lighter: "#1E293B", // Slate-800
-          card: "#1E293B", // Card backgrounds
-          border: "#334155", // Borders
+          DEFAULT: "#1A1410", // Dark dungeon stone
+          lighter: "#2C2419", // Lighter stone
+          card: "#231C15", // Card backgrounds
+          border: "#3D3128", // Borders
         },
         // Functional colors
-        success: "#10B981",
-        warning: "#F59E0B",
-        error: "#EF4444",
+        success: "#2F7D3E",
+        warning: "#D4AF37",
+        error: "#8B2E2E",
       },
     },
   },

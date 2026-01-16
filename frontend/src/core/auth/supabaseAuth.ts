@@ -50,8 +50,8 @@ export async function signUp(params: {
         username: params.username,
         displayName: params.displayName,
       },
-      // opcional: si tienes url de la app para confirmar email
-      // emailRedirectTo: `${window.location.origin}/auth/callback`,
+      // URL para redirigir después de confirmar el email
+      emailRedirectTo: `${window.location.origin}/auth/callback`,
     },
   });
 
