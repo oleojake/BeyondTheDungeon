@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -153,75 +154,80 @@ export const DashboardBestiario = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredMonsters.map((monster) => (
-              <Card
+              <Link 
                 key={monster.id}
-                className="bg-dark-card border-dark-border hover:border-amber-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-600/10 cursor-pointer group"
+                to={`/dashboard/bestiario/${monster.id}`}
+                className="block transition-transform hover:scale-[1.02]"
               >
-                <CardHeader>
-                  { (monster.image || monster.image_url) && (
-                    <div className="w-full flex justify-center mb-2">
-                      <img
-                        src={
-                          (monster.image || monster.image_url).startsWith("/api/")
-                            ? `${BACKEND_URL}${monster.image || monster.image_url}`
-                            : monster.image || monster.image_url
-                        }
-                        alt={monster.name}
-                        className="h-28 object-contain rounded-md shadow-md bg-stone-900"
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-amber-100 group-hover:text-amber-300 transition-colors truncate">
-                        {monster.name}
-                      </CardTitle>
-                      <CardDescription className="text-gray-400 text-xs mt-1">
-                        {monster.size && monster.type && (
-                          <span>{monster.size} {monster.type}</span>
-                        )}
-                      </CardDescription>
-                    </div>
-                    {monster.challenge_rating !== undefined && (
-                      <Badge
-                        variant="outline"
-                        className="bg-amber-950/50 border-amber-600/50 text-amber-300 shrink-0"
-                      >
-                        CR {monster.challenge_rating}
-                      </Badge>
+                <Card
+                  className="bg-dark-card border-dark-border hover:border-amber-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-600/10 cursor-pointer group h-full"
+                >
+                  <CardHeader>
+                    { (monster.image || monster.image_url) && (
+                      <div className="w-full flex justify-center mb-2">
+                        <img
+                          src={
+                            (monster.image || monster.image_url || "").startsWith("/api/")
+                              ? `${BACKEND_URL}${monster.image || monster.image_url}`
+                              : monster.image || monster.image_url
+                          }
+                          alt={monster.name}
+                          className="h-28 object-contain rounded-md shadow-md bg-stone-900"
+                          loading="lazy"
+                        />
+                      </div>
                     )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {monster.alignment && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Alineamiento:</span>
-                      <span className="text-gray-200">{monster.alignment}</span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-amber-100 group-hover:text-amber-300 transition-colors truncate">
+                          {monster.name}
+                        </CardTitle>
+                        <CardDescription className="text-gray-400 text-xs mt-1">
+                          {monster.size && monster.type && (
+                            <span>{monster.size} {monster.type}</span>
+                          )}
+                        </CardDescription>
+                      </div>
+                      {monster.challenge_rating !== undefined && (
+                        <Badge
+                          variant="outline"
+                          className="bg-amber-950/50 border-amber-600/50 text-amber-300 shrink-0"
+                        >
+                          CR {monster.challenge_rating}
+                        </Badge>
+                      )}
                     </div>
-                  )}
-                  
-                  {monster.armor_class !== undefined && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Clase de Armadura:</span>
-                      <span className="text-gray-200 font-semibold">{monster.armor_class}</span>
-                    </div>
-                  )}
-                  
-                  {monster.hit_points !== undefined && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Puntos de Golpe:</span>
-                      <span className="text-gray-200 font-semibold">{monster.hit_points}</span>
-                    </div>
-                  )}
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {monster.alignment && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Alineamiento:</span>
+                        <span className="text-gray-200">{monster.alignment}</span>
+                      </div>
+                    )}
+                    
+                    {monster.armor_class !== undefined && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Clase de Armadura:</span>
+                        <span className="text-gray-200 font-semibold">{monster.armor_class}</span>
+                      </div>
+                    )}
+                    
+                    {monster.hit_points !== undefined && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Puntos de Golpe:</span>
+                        <span className="text-gray-200 font-semibold">{monster.hit_points}</span>
+                      </div>
+                    )}
 
-                  {!monster.alignment && !monster.armor_class && !monster.hit_points && (
-                    <p className="text-xs text-gray-500 italic">
-                      Sin datos adicionales disponibles
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
+                    {!monster.alignment && !monster.armor_class && !monster.hit_points && (
+                      <p className="text-xs text-gray-500 italic">
+                        Sin datos adicionales disponibles
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </>

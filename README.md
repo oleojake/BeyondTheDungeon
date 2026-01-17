@@ -1,6 +1,6 @@
 # 🎲 Beyond The Dungeon
 
-Herramientas de apoyo para partidas de rol. Proyecto desarrollado con React, TypeScript, Vite y Tailwind CSS.
+Herramientas de apoyo para partidas de rol con compendio completo de D&D 5e (bestiario, objetos y hechizos). Proyecto desarrollado con React, TypeScript, Vite y Tailwind CSS.
 
 🌐 **Sitio web:** [www.beyondthedungeon.org](https://www.beyondthedungeon.org)
 
@@ -223,6 +223,58 @@ Configuradas en el VPS:
 
 - `.env` en raíz: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 - `backend/.env`: `PORT`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+
+---
+
+## 📡 API Endpoints
+
+El backend expone los siguientes endpoints REST:
+
+### Compendio (Compendium)
+
+#### Bestiario (Bestiary)
+
+```
+GET /api/compendium-bestiary
+GET /api/compendium-bestiary/:id
+```
+
+Devuelve el listado completo de monstruos o un monstruo específico por ID.
+
+**Documentación**: Ver [BESTIARIO.md](./BESTIARIO.md)
+
+#### Objetos (Items/Equipment)
+
+```
+GET /api/compendium-items
+```
+
+Devuelve el catálogo completo de objetos, armas, armaduras y equipo.
+
+**Respuesta**: `{ items: [...], count: number }`
+
+**Documentación**: Ver [OBJETOS.md](./OBJETOS.md)
+
+#### Hechizos (Spells)
+
+```
+GET /api/compendium-spells
+GET /api/compendium-spells/:id
+```
+
+Devuelve el grimorio completo de hechizos o un hechizo específico por ID.
+
+**Respuesta**: `{ spells: [...], count: number }`
+
+**Documentación**: Ver [HECHIZOS.md](./HECHIZOS.md)
+
+### Utilidades
+
+```
+GET /health              # Health check
+GET /api/ping            # Ping test
+GET /api/supabase-status # Estado de Supabase
+```
 
 ---
 
