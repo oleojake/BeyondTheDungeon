@@ -1,5 +1,5 @@
 import * as React from "react";
-import { User, Dice1, Star, Package } from "lucide-react";
+import { User, Dice1, Package, Skull, Sparkles, Package2 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { cn } from "@/lib/utils";
@@ -15,8 +15,10 @@ import {
 const navMain = [
   { title: "Mi ficha", url: "/dashboard/mi-ficha", icon: User },
   { title: "Dados", url: "/dashboard/dados", icon: Dice1 },
-  { title: "Hechizos Favoritos", url: "/dashboard/hechizos", icon: Star },
+  { title: "Hechizos", url: "/dashboard/hechizos", icon: Sparkles },
   { title: "Inventario", url: "/dashboard/inventario", icon: Package },
+  { title: "Objetos", url: "/dashboard/objetos", icon: Package2 },
+  { title: "Bestiario", url: "/dashboard/bestiario", icon: Skull },
 ];
 
 function SidebarBrand() {

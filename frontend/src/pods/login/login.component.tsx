@@ -22,11 +22,11 @@ export const LoginComponent = ({
   onSubmit,
 }: LoginProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark via-dark-lighter to-dark flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-dark dark:via-dark-lighter dark:to-dark flex items-center justify-center p-6 transition-colors duration-300">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
         {/* Left Side - Decorative World Map */}
         <div className="hidden lg:block">
-          <div className="relative bg-dark-card border border-dark-border rounded-2xl p-8 overflow-hidden">
+          <div className="relative bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl p-8 overflow-hidden">
             {/* Animated background */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 animate-pulse"></div>
 
@@ -51,18 +51,18 @@ export const LoginComponent = ({
 
         {/* Right Side - Login Form */}
         <div className="w-full max-w-md mx-auto">
-          <div className="bg-dark-card border border-dark-border rounded-2xl p-8 shadow-2xl">
+          <div className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl p-8 shadow-2xl">
             {/* Header */}
             <div className="text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-2xl">🎲</span>
                 </div>
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Beyond the Dungeon
                 </h1>
               </div>
-              <p className="text-gray-400">Bienvenido de vuelta, aventurero</p>
+              <p className="text-gray-600 dark:text-gray-400">Bienvenido de vuelta, aventurero</p>
             </div>
 
             {/* Login Form */}
@@ -76,14 +76,14 @@ export const LoginComponent = ({
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-300 mb-2"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
                   Email
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg
-                      className="w-5 h-5 text-gray-500"
+                      className="w-5 h-5 text-gray-400 dark:text-gray-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -102,7 +102,7 @@ export const LoginComponent = ({
                     value={formData.email}
                     onChange={(e) => onChange("email", e.target.value)}
                     placeholder="tu@email.com"
-                    className="w-full pl-12 pr-4 py-3 bg-dark border border-dark-border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                    className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-dark border border-gray-300 dark:border-dark-border rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                   />
                 </div>
               </div>
@@ -111,14 +111,14 @@ export const LoginComponent = ({
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-300 mb-2"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
                   Contraseña
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg
-                      className="w-5 h-5 text-gray-500"
+                      className="w-5 h-5 text-gray-400 dark:text-gray-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -137,11 +137,11 @@ export const LoginComponent = ({
                     value={formData.password}
                     onChange={(e) => onChange("password", e.target.value)}
                     placeholder="Introduce tu contraseña"
-                    className="w-full pl-12 pr-12 py-3 bg-dark border border-dark-border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                    className="w-full pl-12 pr-12 py-3 bg-gray-50 dark:bg-dark border border-gray-300 dark:border-dark-border rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-primary transition-colors"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 dark:text-gray-500 hover:text-primary transition-colors"
                   >
                     <svg
                       className="w-5 h-5"
@@ -188,7 +188,7 @@ export const LoginComponent = ({
 
             {/* Register Link */}
             <div className="mt-6 text-center">
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
                 ¿No tienes cuenta?{" "}
                 <Link
                   to={routes.register}
@@ -204,7 +204,7 @@ export const LoginComponent = ({
           <div className="mt-6 text-center">
             <Link
               to={routes.root}
-              className="text-gray-500 hover:text-gray-300 text-sm transition-colors inline-flex items-center gap-2"
+              className="text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm transition-colors inline-flex items-center gap-2"
             >
               <svg
                 className="w-4 h-4"

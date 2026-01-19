@@ -3,6 +3,7 @@ interface SwitchRoutes {
   login: string;
   register: string;
   dashboard: string;
+  authCallback: string;
 }
 
 export const switchRoutes: SwitchRoutes = {
@@ -10,6 +11,7 @@ export const switchRoutes: SwitchRoutes = {
   login: "/login",
   register: "/registro",
   dashboard: "/dashboard",
+  authCallback: "/auth/callback",
 };
 
 type Routes = SwitchRoutes;

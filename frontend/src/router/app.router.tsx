@@ -1,12 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { HomeScene } from "@/scenes";
+import { HomeScene, AuthCallbackScene } from "@/scenes";
 import { LoginScene } from "@/scenes/login.scene";
 import { RegisterScene } from "@/scenes/register.scene";
 import { DashboardScene } from "@/scenes/dashboard.scene";
 import DashboardMiFicha from "@/scenes/dashboard.mi-ficha";
 import DashboardDados from "@/scenes/dashboard.dados";
 import DashboardHechizos from "@/scenes/dashboard.hechizos";
+import DashboardHechizosDetalle from "@/scenes/dashboard.hechizos-detalle";
 import DashboardInventario from "@/scenes/dashboard.inventario";
+import DashboardBestiario from "@/scenes/dashboard.bestiario";
+import DashboardBestiarioDetalle from "@/scenes/dashboard.bestiario-detalle";
+import DashboardObjetos from "@/scenes/dashboard.objetos";
 import { DashboardHome } from "@/scenes/dashboard.home";
 import { ProtectedRoute } from "@/core/auth/ProtectedRoute";
 import { switchRoutes } from "./routes";
@@ -18,6 +22,7 @@ export const AppRouter = () => {
         <Route path={switchRoutes.root} element={<HomeScene />} />
         <Route path={switchRoutes.login} element={<LoginScene />} />
         <Route path={switchRoutes.register} element={<RegisterScene />} />
+        <Route path={switchRoutes.authCallback} element={<AuthCallbackScene />} />
         <Route
           path={switchRoutes.dashboard}
           element={
@@ -30,7 +35,11 @@ export const AppRouter = () => {
           <Route path="mi-ficha" element={<DashboardMiFicha />} />
           <Route path="dados" element={<DashboardDados />} />
           <Route path="hechizos" element={<DashboardHechizos />} />
+          <Route path="hechizos/:id" element={<DashboardHechizosDetalle />} />
           <Route path="inventario" element={<DashboardInventario />} />
+          <Route path="objetos" element={<DashboardObjetos />} />
+          <Route path="bestiario" element={<DashboardBestiario />} />
+          <Route path="bestiario/:id" element={<DashboardBestiarioDetalle />} />
         </Route>
       </Routes>
     </Router>
