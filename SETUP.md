@@ -136,10 +136,12 @@ git push origin feature/nombre-de-tu-funcionalidad
 
 - Crea un PR de `dev` → `main`
 - Al mergear, GitHub Actions desplegará automáticamente al VPS
+- La aplicación estará disponible en: **https://www.beyondthedungeon.org**
 - Los endpoints del backend estarán disponibles en:
-  - `https://beyondthedungeon.org/api/ping`
-  - `https://beyondthedungeon.org/api/compendium-bestiary`
-  - etc.
+  - `https://www.beyondthedungeon.org/api/ping`
+  - `https://www.beyondthedungeon.org/api/compendium-bestiary`
+  - `https://www.beyondthedungeon.org/api/supabase-status`
+  - `https://www.beyondthedungeon.org/health`
 
 ---
 
