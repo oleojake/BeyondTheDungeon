@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Search, AlertCircle, BookOpen, Package } from "lucide-react";
 import { fetchItems, type Item } from "@/core/api/backend.service";
 
-export const DashboardObjetos = () => {
+export const ObjetosScene = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +91,7 @@ export const DashboardObjetos = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
         <div className="flex items-center gap-3 mb-2">
@@ -346,4 +346,4 @@ export const DashboardObjetos = () => {
   );
 };
 
-export default DashboardObjetos;
+export default ObjetosScene;

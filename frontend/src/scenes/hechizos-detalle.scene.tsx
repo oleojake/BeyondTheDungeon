@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, ArrowLeft, Sparkles } from "lucide-react";
 import { fetchSpellById, type Spell } from "@/core/api/backend.service";
 
-export const DashboardHechizosDetalle = () => {
+export const HechizosDetalleScene = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [spell, setSpell] = useState<Spell | null>(null);
@@ -83,7 +83,7 @@ export const DashboardHechizosDetalle = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 gap-4">
+      <div className="container mx-auto p-6 flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="h-12 w-12 animate-spin text-amber-500" />
         <p className="text-sm text-gray-400">Cargando hechizo...</p>
       </div>
@@ -92,8 +92,8 @@ export const DashboardHechizosDetalle = () => {
 
   if (error || !spell) {
     return (
-      <div className="space-y-6">
-        <Button onClick={() => navigate("/dashboard/hechizos")} variant="outline" className="gap-2">
+      <div className="container mx-auto p-6 space-y-6">
+        <Button onClick={() => navigate("/hechizos")} variant="outline" className="gap-2">
           <ArrowLeft className="h-4 w-4" />
           Volver a Hechizos
         </Button>
@@ -106,8 +106,8 @@ export const DashboardHechizosDetalle = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <Button onClick={() => navigate("/dashboard/hechizos")} variant="outline" className="gap-2 border-amber-600/30 text-amber-200 hover:bg-amber-950/30 hover:text-amber-100">
+    <div className="container mx-auto p-6 space-y-6">
+      <Button onClick={() => navigate("/hechizos")} variant="outline" className="gap-2 border-amber-600/30 text-amber-200 hover:bg-amber-950/30 hover:text-amber-100">
         <ArrowLeft className="h-4 w-4" />
         Volver a Hechizos
       </Button>
@@ -277,4 +277,4 @@ export const DashboardHechizosDetalle = () => {
   );
 };
 
-export default DashboardHechizosDetalle;
+export default HechizosDetalleScene;

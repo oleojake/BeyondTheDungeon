@@ -8,7 +8,7 @@ import { Loader2, Search, AlertCircle, BookOpen, Skull } from "lucide-react";
 import { fetchBestiary, type Monster } from "@/core/api/backend.service";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
-export const DashboardBestiario = () => {
+export const BestiarioScene = () => {
   const [monsters, setMonsters] = useState<Monster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export const DashboardBestiario = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
         <div className="flex items-center gap-3 mb-2">
@@ -156,7 +156,7 @@ export const DashboardBestiario = () => {
             {filteredMonsters.map((monster) => (
               <Link 
                 key={monster.id}
-                to={`/dashboard/bestiario/${monster.id}`}
+                to={`/bestiario/${monster.id}`}
                 className="block transition-transform hover:scale-[1.02]"
               >
                 <Card
@@ -236,4 +236,4 @@ export const DashboardBestiario = () => {
   );
 };
 
-export default DashboardBestiario;
+export default BestiarioScene;
