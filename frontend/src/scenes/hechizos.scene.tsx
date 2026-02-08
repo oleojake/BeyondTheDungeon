@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Search, AlertCircle, BookOpen, Sparkles } from "lucide-react";
 import { fetchSpells, type Spell } from "@/core/api/backend.service";
 
-export const DashboardHechizos = () => {
+export const HechizosScene = () => {
   const [spells, setSpells] = useState<Spell[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +98,7 @@ export const DashboardHechizos = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
         <div className="flex items-center gap-3 mb-2">
@@ -220,7 +220,7 @@ export const DashboardHechizos = () => {
             {filteredSpells.map((spell) => (
               <Link
                 key={spell.id}
-                to={`/dashboard/hechizos/${spell.id}`}
+                to={`/hechizos/${spell.id}`}
                 className="block transition-transform hover:scale-[1.02]"
               >
                 <Card className="bg-dark-card border-dark-border hover:border-amber-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-600/10 cursor-pointer group h-full">
@@ -293,4 +293,4 @@ export const DashboardHechizos = () => {
   );
 };
 
-export default DashboardHechizos;
+export default HechizosScene;

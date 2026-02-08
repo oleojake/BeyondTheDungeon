@@ -1,68 +1,67 @@
 import * as React from "react";
-import { User, Dice1, Package, Skull, Sparkles, Package2 } from "lucide-react";
+import { Settings, User } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar-context";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarRail,
+	Sidebar,
+	SidebarContent,
+	SidebarHeader,
+	SidebarRail,
 } from "@/components/ui/sidebar";
 
-// Datos de ejemplo
+// Opciones de gestión de cuenta/perfil
 const navMain = [
-  { title: "Mi ficha", url: "/dashboard/mi-ficha", icon: User },
-  { title: "Dados", url: "/dashboard/dados", icon: Dice1 },
-  { title: "Hechizos", url: "/dashboard/hechizos", icon: Sparkles },
-  { title: "Inventario", url: "/dashboard/inventario", icon: Package },
-  { title: "Objetos", url: "/dashboard/objetos", icon: Package2 },
-  { title: "Bestiario", url: "/dashboard/bestiario", icon: Skull },
+	{ title: "Mi Perfil", url: "/profile", icon: User },
+	{ title: "Configuración", url: "/profile/settings", icon: Settings },
 ];
 
 function SidebarBrand() {
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
+	const { state } = useSidebar();
+	const isCollapsed = state === "collapsed";
 
-  return (
-    <div className="flex items-center gap-3">
-      <div>
-        <img
-          src="/logo.png"
-          alt="Beyond the Dungeon"
-          className={cn(
-            "object-contain transition-all duration-200",
-            isCollapsed ? "h-10 w-10" : "h-16 w-16"
-          )}
-          loading="lazy"
-        />
-      </div>
-      {!isCollapsed && (
-        <div className="flex flex-col">
-          <span
-            className="text-lg font-semibold tracking-tight bg-gradient-to-r from-orange-200 via-amber-200 to-yellow-200 bg-clip-text text-transparent"
-            style={{ animation: "flameFlicker 2.4s ease-in-out infinite" }}
-          >
-            Beyond the Dungeon
-          </span>
-        </div>
-      )}
-    </div>
-  );
+	return (
+		<div className="flex items-center gap-3">
+			<div>
+				<img
+					src="/logo.png"
+					alt="Beyond the Dungeon"
+					className={cn(
+						"object-contain transition-all duration-200",
+						isCollapsed ? "h-10 w-10" : "h-16 w-16",
+					)}
+					loading="lazy"
+				/>
+			</div>
+			{!isCollapsed && (
+				<div className="flex flex-col">
+					<span
+						className="text-lg font-semibold tracking-tight bg-gradient-to-r from-orange-200 via-amber-200 to-yellow-200 bg-clip-text text-transparent"
+						style={{ animation: "flameFlicker 2.4s ease-in-out infinite" }}
+					>
+						Beyond the Dungeon
+					</span>
+				</div>
+			)}
+		</div>
+	);
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  return (
-    <Sidebar
-      collapsible="icon"
-      {...props}
-      className={cn("custom-sidebar-bg", props.className)}
-    >
-      <style>
-        {`
+	return (
+		<Sidebar
+			collapsible="icon"
+			{...props}
+			className={cn("custom-sidebar-bg", props.className)}
+		>
+			<style>
+				{`
           .custom-sidebar-bg [data-sidebar="sidebar"] {
-            background-color: #0d0813 !important;
+            background-color: #f9fafb;
+          }
+          .dark .custom-sidebar-bg [data-sidebar="sidebar"] {
+            background-color: #0d0813;
           }
           @keyframes flameFlicker {
             0% { text-shadow: 0 0 8px rgba(255,120,40,0.6), 0 0 16px rgba(255,80,20,0.4); }
@@ -72,14 +71,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             100% { text-shadow: 0 0 8px rgba(255,120,40,0.6), 0 0 16px rgba(255,80,20,0.4); }
           }
         `}
-      </style>
-      <SidebarHeader>
-        <SidebarBrand />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={navMain} />
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
-  );
+			</style>
+			<SidebarHeader>
+				<SidebarBrand />
+			</SidebarHeader>
+			<SidebarContent>
+				<NavMain items={navMain} />
+			</SidebarContent>
+			<SidebarRail />
+		</Sidebar>
+	);
 }

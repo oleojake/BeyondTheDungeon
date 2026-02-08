@@ -2,46 +2,126 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HomeScene, AuthCallbackScene } from "@/scenes";
 import { LoginScene } from "@/scenes/login.scene";
 import { RegisterScene } from "@/scenes/register.scene";
-import { DashboardScene } from "@/scenes/dashboard.scene";
-import DashboardMiFicha from "@/scenes/dashboard.mi-ficha";
-import DashboardDados from "@/scenes/dashboard.dados";
-import DashboardHechizos from "@/scenes/dashboard.hechizos";
-import DashboardHechizosDetalle from "@/scenes/dashboard.hechizos-detalle";
-import DashboardInventario from "@/scenes/dashboard.inventario";
-import DashboardBestiario from "@/scenes/dashboard.bestiario";
-import DashboardBestiarioDetalle from "@/scenes/dashboard.bestiario-detalle";
-import DashboardObjetos from "@/scenes/dashboard.objetos";
-import { DashboardHome } from "@/scenes/dashboard.home";
+import { ProfileScene } from "@/scenes/profile.scene";
+import ProfileSettingsScene from "@/scenes/profile-settings.scene";
+import MiFichaScene from "@/scenes/mi-ficha.scene";
+import DadosScene from "@/scenes/dados.scene";
+import HechizosScene from "@/scenes/hechizos.scene";
+import HechizosDetalleScene from "@/scenes/hechizos-detalle.scene";
+import InventarioScene from "@/scenes/inventario.scene";
+import BestiarioScene from "@/scenes/bestiario.scene";
+import BestiarioDetalleScene from "@/scenes/bestiario-detalle.scene";
+import ObjetosScene from "@/scenes/objetos.scene";
 import { ProtectedRoute } from "@/core/auth/ProtectedRoute";
+import { AppLayout } from "@/layout/app.layout";
 import { switchRoutes } from "./routes";
 
 export const AppRouter = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path={switchRoutes.root} element={<HomeScene />} />
-        <Route path={switchRoutes.login} element={<LoginScene />} />
-        <Route path={switchRoutes.register} element={<RegisterScene />} />
-        <Route path={switchRoutes.authCallback} element={<AuthCallbackScene />} />
-        <Route
-          path={switchRoutes.dashboard}
-          element={
-            <ProtectedRoute>
-              <DashboardScene />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<DashboardHome />} />
-          <Route path="mi-ficha" element={<DashboardMiFicha />} />
-          <Route path="dados" element={<DashboardDados />} />
-          <Route path="hechizos" element={<DashboardHechizos />} />
-          <Route path="hechizos/:id" element={<DashboardHechizosDetalle />} />
-          <Route path="inventario" element={<DashboardInventario />} />
-          <Route path="objetos" element={<DashboardObjetos />} />
-          <Route path="bestiario" element={<DashboardBestiario />} />
-          <Route path="bestiario/:id" element={<DashboardBestiarioDetalle />} />
-        </Route>
-      </Routes>
-    </Router>
-  );
+	return (
+		<Router>
+			<Routes>
+				<Route path={switchRoutes.root} element={<HomeScene />} />
+				<Route path={switchRoutes.login} element={<LoginScene />} />
+				<Route path={switchRoutes.register} element={<RegisterScene />} />
+				<Route
+					path={switchRoutes.authCallback}
+					element={<AuthCallbackScene />}
+				/>
+
+				{/* Profile with sidebar */}
+				<Route
+					path={switchRoutes.profile}
+					element={
+						<ProtectedRoute>
+							<ProfileScene />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.profileSettings}
+					element={
+						<ProtectedRoute>
+							<ProfileSettingsScene />
+						</ProtectedRoute>
+					}
+				/>
+
+				{/* Public routes - no auth required */}
+				<Route
+					path={switchRoutes.hechizos}
+					element={
+						<AppLayout>
+							<HechizosScene />
+						</AppLayout>
+					}
+				/>
+				<Route
+					path={switchRoutes.hechizosDetalle}
+					element={
+						<AppLayout>
+							<HechizosDetalleScene />
+						</AppLayout>
+					}
+				/>
+				<Route
+					path={switchRoutes.bestiario}
+					element={
+						<AppLayout>
+							<BestiarioScene />
+						</AppLayout>
+					}
+				/>
+				<Route
+					path={switchRoutes.bestiarioDetalle}
+					element={
+						<AppLayout>
+							<BestiarioDetalleScene />
+						</AppLayout>
+					}
+				/>
+
+				{/* Protected routes - auth required */}
+				<Route
+					path={switchRoutes.miFicha}
+					element={
+						<ProtectedRoute>
+							<AppLayout>
+								<MiFichaScene />
+							</AppLayout>
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.dados}
+					element={
+						<ProtectedRoute>
+							<AppLayout>
+								<DadosScene />
+							</AppLayout>
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.inventario}
+					element={
+						<ProtectedRoute>
+							<AppLayout>
+								<InventarioScene />
+							</AppLayout>
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.objetos}
+					element={
+						<ProtectedRoute>
+							<AppLayout>
+								<ObjetosScene />
+							</AppLayout>
+						</ProtectedRoute>
+					}
+				/>
+			</Routes>
+		</Router>
+	);
 };

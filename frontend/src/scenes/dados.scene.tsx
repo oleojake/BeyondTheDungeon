@@ -1,4 +1,4 @@
-export default function DashboardDados() {
+export const DadosScene = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold">Dados</h1>
@@ -7,4 +7,6 @@ export default function DashboardDados() {
       </p>
     </div>
   );
-}
+};
+
+export default DadosScene;

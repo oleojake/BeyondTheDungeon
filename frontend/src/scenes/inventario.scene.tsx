@@ -1,4 +1,4 @@
-export default function DashboardInventario() {
+export const InventarioScene = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold">Inventario</h1>
@@ -7,4 +7,6 @@ export default function DashboardInventario() {
       </p>
     </div>
   );
-}
+};
+
+export default InventarioScene;

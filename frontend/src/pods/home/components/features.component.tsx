@@ -6,50 +6,52 @@ const FEATURES = [
 		title: "Gestión de Campañas",
 		description: "Crea y administra tus aventuras con facilidad.",
 		color: "from-primary to-primary-dark",
-		url: "/dashboard",
+		url: "/profile",
 	},
 	{
 		icon: "/characters.png",
 		title: "Fichas de Personaje",
 		description: "Fichas digitales activas para tus héroes.",
 		color: "from-secondary to-secondary-dark",
-		url: "/dashboard/mi-ficha",
+		url: "/mi-ficha",
 	},
 	{
 		icon: "/dice.png",
 		title: "Dados Virtuales",
 		description: "Tira dados en todas las formas y tamaños.",
 		color: "from-accent to-accent-dark",
-		url: "/dashboard/dados",
+		url: "/dados",
 	},
 	{
 		icon: "/maps.png",
 		title: "Mapas de Batalla",
 		description: "Visualiza combates con mapas simples y claros.",
 		color: "from-primary to-accent",
-		url: "/dashboard",
+		url: "/profile",
 	},
 	{
 		icon: "/creatures.png",
 		title: "Consulta de Bestiario",
 		description: "Accede a estadísticas de criaturas al instante.",
 		color: "from-secondary to-primary",
-		url: "/dashboard/bestiario",
+		url: "/bestiario",
 	},
 	{
 		icon: "/magic.png",
 		title: "Hechizos y Reglas",
 		description: "Consulta hechizos y reglas rápidamente.",
 		color: "from-accent to-secondary",
-		url: "/dashboard/hechizos",
+		url: "/hechizos",
 	},
 ];
 
 export const Features = () => {
 	return (
-		<section id="herramientas" className="py-20 px-6 bg-stone-50 dark:bg-dark-lighter/50 transition-colors duration-300">
+		<section
+			id="herramientas"
+			className="py-20 px-6 bg-stone-50 dark:bg-dark-lighter/50 transition-colors duration-300"
+		>
 			<div className="container mx-auto max-w-6xl">
-				
 				<div className="text-center mb-16 space-y-4">
 					<h1 className="text-5xl md:text-6xl font-bold text-stone-800 dark:text-amber-50">
 						Organiza y juega rol
@@ -59,7 +61,8 @@ export const Features = () => {
 						</span>
 					</h1>
 					<p className="text-xl text-stone-700 dark:text-stone-300 max-w-2xl mx-auto">
-						Campañas, fichas, dados, mapas simples y comunidad. Todo en un solo lugar.
+						Campañas, fichas, dados, mapas simples y comunidad. Todo en un solo
+						lugar.
 					</p>
 					<h2 className="text-3xl font-bold text-stone-800 dark:text-amber-50 pt-8">
 						Todas tus herramientas en un solo lugar
@@ -80,13 +83,13 @@ export const Features = () => {
 							<div
 								className={`relative w-full h-64 bg-gradient-to-br ${feature.color} overflow-hidden`}
 							>
-								<img 
-									src={feature.icon} 
-									alt={feature.title} 
+								<img
+									src={feature.icon}
+									alt={feature.title}
 									className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 								/>
 							</div>
-							
+
 							{/* Content */}
 							<div className="p-6">
 								<h3 className="text-xl font-bold text-stone-800 dark:text-amber-50 mb-3">

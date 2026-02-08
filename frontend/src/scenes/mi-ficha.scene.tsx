@@ -1,4 +1,4 @@
-export default function DashboardMiFicha() {
+export const MiFichaScene = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold">Mi ficha</h1>
@@ -7,4 +7,6 @@ export default function DashboardMiFicha() {
       </p>
     </div>
   );
-}
+};
+
+export default MiFichaScene;

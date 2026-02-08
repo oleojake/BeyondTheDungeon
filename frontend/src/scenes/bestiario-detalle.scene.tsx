@@ -9,7 +9,7 @@ import { fetchMonsterById, type Monster } from "@/core/api/backend.service";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
-export const DashboardBestiarioDetalle = () => {
+export const BestiarioDetalleScene = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [monster, setMonster] = useState<Monster | null>(null);
@@ -112,9 +112,9 @@ export const DashboardBestiarioDetalle = () => {
 
   if (error || !monster) {
     return (
-      <div className="space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         <Button
-          onClick={() => navigate("/dashboard/bestiario")}
+          onClick={() => navigate("/bestiario")}
           variant="outline"
           className="gap-2"
         >
@@ -132,10 +132,10 @@ export const DashboardBestiarioDetalle = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       {/* Back Button */}
       <Button
-        onClick={() => navigate("/dashboard/bestiario")}
+        onClick={() => navigate("/bestiario")}
         variant="outline"
         className="gap-2 border-amber-600/30 text-amber-200 hover:bg-amber-950/30 hover:text-amber-100"
       >
@@ -470,4 +470,4 @@ export const DashboardBestiarioDetalle = () => {
   );
 };
 
-export default DashboardBestiarioDetalle;
+export default BestiarioDetalleScene;
