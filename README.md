@@ -268,6 +268,121 @@ Devuelve el grimorio completo de hechizos o un hechizo específico por ID.
 
 **Documentación**: Ver [HECHIZOS.md](./HECHIZOS.md)
 
+### Fichas de Personaje (Character Sheets)
+
+**⚠️ Requieren autenticación**: Enviar token JWT en header `Authorization: Bearer <token>`
+
+#### Obtener mi ficha
+
+```
+GET /api/character-sheet
+```
+
+Obtiene la ficha del personaje del usuario autenticado.
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Respuesta**:
+
+```json
+{
+  "character": {
+    "id": "uuid",
+    "user_id": "uuid",
+    "name": "Thorin Escudo de Roble",
+    "race": "Enano de las Montañas",
+    "class_level": "Guerrero 5",
+    "background": "Soldado",
+    "alignment": "Legal Bueno",
+    "experience_points": 6500,
+    "stats": {
+      "strength": 16,
+      "dexterity": 12,
+      "constitution": 14,
+      "max_hp": 45,
+      ...
+    },
+    "inventory": "...",
+    "spells_known": "...",
+    "equipment": "...",
+    "notes": "...",
+    "is_public": false,
+    "created_at": "2026-01-15T10:30:00Z",
+    "updated_at": "2026-03-04T14:20:00Z"
+  }
+}
+```
+
+Si el usuario no tiene ficha aún: `{ "character": null }`
+
+#### Crear ficha
+
+```
+POST /api/character-sheet
+```
+
+Crea una nueva ficha de personaje para el usuario autenticado.
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Body**:
+
+```json
+{
+  "name": "Thorin Escudo de Roble",
+  "race": "Enano de las Montañas",
+  "class_level": "Guerrero 5",
+  "background": "Soldado",
+  "alignment": "Legal Bueno",
+  "experience_points": 6500,
+  "stats": { ... },
+  "inventory": "...",
+  "spells_known": "...",
+  "equipment": "...",
+  "notes": "...",
+  "is_public": false
+}
+```
+
+**Respuesta**: `{ "character": { ... } }` (ficha creada)
+
+#### Actualizar ficha
+
+```
+PUT /api/character-sheet/:id
+```
+
+Actualiza la ficha de personaje existente.
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Body**: Mismo formato que POST
+
+**Respuesta**: `{ "character": { ... } }` (ficha actualizada)
+
+**Restricciones**:
+
+- Solo el dueño puede editar su ficha
+- El campo `user_id` no puede modificarse
+- Retorna `403 Forbidden` si se intenta editar la ficha de otro usuario
+
+#### Campos de la Ficha
+
+La ficha incluye todos los campos estándar de D&D 5e:
+
+- **Información básica**: nombre, raza, clase, nivel, trasfondo, alineamiento
+- **Atributos**: STR, DEX, CON, INT, WIS, CHA
+- **Combate**: HP (max/actual/temp), CA, iniciativa, velocidad
+- **Habilidades**: 18 skills con competencias
+- **Salvaciones**: Competencias en 6 atributos
+- **Rasgos**: personalidad, ideales, vínculos, defectos
+- **Equipo**: Campo de texto libre
+- **Inventario**: Campo de texto libre
+- **Hechizos**: Campo de texto libre
+- **Notas**: Campo de texto libre
+
+**Nota**: Los campos de equipo, inventario y hechizos son de texto libre. En futuras versiones se vincularán con las tablas de compendio.
+
 ### Utilidades
 
 ```
@@ -275,6 +390,45 @@ GET /health              # Health check
 GET /api/ping            # Ping test
 GET /api/supabase-status # Estado de Supabase
 ```
+
+---
+
+## 🎮 Funcionalidades
+
+### 🧙 Fichas de Personaje
+
+Los usuarios registrados pueden crear y gestionar su ficha de personaje de D&D 5e.
+
+#### Características:
+
+- **Ficha completa de D&D 5e**: Todos los campos estándar (atributos, habilidades, salvaciones, HP, CA, etc.)
+- **Guardado automático**: Pulsa "Guardar Ficha" para almacenar tus cambios
+- **Organización por pestañas**:
+  - 📋 **Info**: Datos básicos y rasgos de personalidad
+  - ⚔️ **Stats**: Atributos y bonificadores
+  - 🛡️ **Combate**: HP, CA, iniciativa, tiradas de salvación
+  - 💪 **Habilidades**: Skills y características especiales
+  - 🎒 **Equipo**: Armas, armaduras e inventario
+  - 📜 **Hechizos**: Lista de hechizos y notas
+- **Privacidad**: Opción de hacer la ficha pública o privada
+- **Campos de texto libre**: Equipo, inventario, hechizos y notas son campos editables libremente
+
+#### Uso:
+
+1. Inicia sesión con tu cuenta
+2. Ve a "Mi Ficha" en el menú
+3. Rellena los campos de tu personaje
+4. Pulsa "Guardar Ficha" para almacenar los cambios
+
+#### Acceso del Dungeon Master:
+
+Cuando el sistema de campañas esté implementado:
+
+- El DM podrá ver las fichas de los jugadores de su campaña
+- Los jugadores solo pueden editar su propia ficha
+- Si un usuario es DM de una campaña, no podrá ver su propia ficha como jugador en esa misma campaña
+
+**⚠️ Pendiente**: Sistema de campañas y asignación de jugadores
 
 ---
 
