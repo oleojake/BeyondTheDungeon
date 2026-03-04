@@ -8,6 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ==============================================================================
 CREATE TABLE public.profiles (
 id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+email TEXT,
 username TEXT UNIQUE,
 display_name TEXT,
 avatar_url TEXT,
@@ -30,8 +31,14 @@ USING (auth.uid() = id);
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-INSERT INTO public.profiles (id, username, display_name)
-VALUES (new.id, new.email, split_part(new.email, '@', 1));
+INSERT INTO public.profiles (id, email, username, display_name, avatar_url)
+VALUES (
+new.id,
+new.email,
+new.raw_user_meta_data->>'username',
+new.raw_user_meta_data->>'displayName',
+new.raw_user_meta_data->>'avatarUrl'
+);
 RETURN new;
 END;
 

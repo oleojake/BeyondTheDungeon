@@ -79,6 +79,14 @@ export const AppRouter = () => {
 						</AppLayout>
 					}
 				/>
+				<Route
+					path={switchRoutes.dados}
+					element={
+						<AppLayout>
+							<DadosScene />
+						</AppLayout>
+					}
+				/>
 
 				{/* Protected routes - auth required */}
 				<Route
@@ -87,16 +95,6 @@ export const AppRouter = () => {
 						<ProtectedRoute>
 							<AppLayout>
 								<MiFichaScene />
-							</AppLayout>
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path={switchRoutes.dados}
-					element={
-						<ProtectedRoute>
-							<AppLayout>
-								<DadosScene />
 							</AppLayout>
 						</ProtectedRoute>
 					}
