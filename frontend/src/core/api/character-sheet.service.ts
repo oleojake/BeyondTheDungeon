@@ -3,7 +3,7 @@
  */
 
 import { supabase } from "@/lib/supabase";
-import type { Character, CharacterFormData } from "@/interfaces/character";
+import type { Character, CharacterFormData, CharacterClass } from "@/interfaces/character";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
@@ -24,25 +24,84 @@ export interface CharacterSheetResponse {
   character: Character | null;
 }
 
+export interface CharacterSheetListItem {
+  id: string;
+  name: string;
+  classes: CharacterClass | CharacterClass[];
+  race: string;
+  level: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CharacterSheetListResponse {
+  characters: CharacterSheetListItem[];
+}
+
 /**
  * Obtiene la ficha del usuario autenticado
  */
 export async function fetchCharacterSheet(): Promise<CharacterSheetResponse> {
   const token = await getAuthToken();
   
-  const response = await fetch(`${BACKEND_URL}/api/character-sheet`, {
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.details || error.error || `Error ${response.status}`);
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/character-sheet`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`El servidor backend no respondió correctamente. ¿Está arrancado en ${BACKEND_URL}?`);
+    }
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.details || error.error || `Error ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (err: unknown) {
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      throw new Error(`No se pudo conectar con el backend en ${BACKEND_URL}. ¿Está el servidor arrancado?`);
+    }
+    throw err;
   }
+}
+
+/**
+ * Obtiene una ficha específica por ID
+ */
+export async function fetchCharacterSheetById(id: string): Promise<CharacterSheetResponse> {
+  const token = await getAuthToken();
   
-  return response.json();
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/character-sheet/${id}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`El servidor backend no respondió correctamente. ¿Está arrancado en ${BACKEND_URL}?`);
+    }
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.details || error.error || `Error ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (err: unknown) {
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      throw new Error(`No se pudo conectar con el backend en ${BACKEND_URL}. ¿Está el servidor arrancado?`);
+    }
+    throw err;
+  }
 }
 
 /**
@@ -51,21 +110,33 @@ export async function fetchCharacterSheet(): Promise<CharacterSheetResponse> {
 export async function createCharacterSheet(data: CharacterFormData): Promise<CharacterSheetResponse> {
   const token = await getAuthToken();
   
-  const response = await fetch(`${BACKEND_URL}/api/character-sheet`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.details || error.error || `Error ${response.status}`);
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/character-sheet`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`El servidor backend no respondió correctamente. ¿Está arrancado en ${BACKEND_URL}?`);
+    }
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.details || error.error || `Error ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (err: unknown) {
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      throw new Error(`No se pudo conectar con el backend en ${BACKEND_URL}. ¿Está el servidor arrancado?`);
+    }
+    throw err;
   }
-  
-  return response.json();
 }
 
 /**
@@ -74,19 +145,96 @@ export async function createCharacterSheet(data: CharacterFormData): Promise<Cha
 export async function updateCharacterSheet(id: string, data: CharacterFormData): Promise<CharacterSheetResponse> {
   const token = await getAuthToken();
   
-  const response = await fetch(`${BACKEND_URL}/api/character-sheet/${id}`, {
-    method: "PUT",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.details || error.error || `Error ${response.status}`);
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/character-sheet/${id}`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`El servidor backend no respondió correctamente. ¿Está arrancado en ${BACKEND_URL}?`);
+    }
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.details || error.error || `Error ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (err: unknown) {
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      throw new Error(`No se pudo conectar con el backend en ${BACKEND_URL}. ¿Está el servidor arrancado?`);
+    }
+    throw err;
   }
+}
+
+/**
+ * Obtiene la lista de todas las fichas del usuario autenticado
+ */
+export async function listCharacterSheets(): Promise<CharacterSheetListResponse> {
+  const token = await getAuthToken();
   
-  return response.json();
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/character-sheets`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`El servidor backend no respondió correctamente. ¿Está arrancado en ${BACKEND_URL}?`);
+    }
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.details || error.error || `Error ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (err: unknown) {
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      throw new Error(`No se pudo conectar con el backend en ${BACKEND_URL}. ¿Está el servidor arrancado?`);
+    }
+    throw err;
+  }
+}
+
+/**
+ * Elimina una ficha de personaje
+ */
+export async function deleteCharacterSheet(id: string): Promise<void> {
+  const token = await getAuthToken();
+  
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/character-sheet/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`El servidor backend no respondió correctamente. ¿Está arrancado en ${BACKEND_URL}?`);
+    }
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.details || error.error || `Error ${response.status}`);
+    }
+  } catch (err: unknown) {
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      throw new Error(`No se pudo conectar con el backend en ${BACKEND_URL}. ¿Está el servidor arrancado?`);
+    }
+    throw err;
+  }
 }

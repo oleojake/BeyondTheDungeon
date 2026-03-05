@@ -1,5 +1,10 @@
 // Interfaz para la ficha de personaje de D&D 5e
 
+export type CharacterClass = {
+  name: string;
+  level: number;
+};
+
 export type CharacterStats = {
   // Atributos básicos
   strength: number;
@@ -69,7 +74,7 @@ export type CharacterStats = {
 
   // Otros
   languages: string;
-  proficiencies: string;
+  proficiencies: string[]; // Array de competencias seleccionadas
   features_traits: string;
 }
 
@@ -79,10 +84,9 @@ export type Character = {
   campaign_id?: string | null;
   name: string;
   race: string;
-  class_level: string; // Ej: "Fighter 5"
+  classes: CharacterClass[]; // Array para soportar multiclase
   background: string;
-  alignment?: string;
-  experience_points?: number;
+  experience_points: number;
   stats: CharacterStats;
   inventory: string; // Campo de texto libre
   spells_known: string; // Campo de texto libre
@@ -98,9 +102,8 @@ export type Character = {
 export type CharacterFormData = {
   name: string;
   race: string;
-  class_level: string;
+  classes: CharacterClass[];
   background: string;
-  alignment: string;
   experience_points: number;
   stats: CharacterStats;
   inventory: string;
@@ -163,16 +166,15 @@ export const defaultCharacterStats: CharacterStats = {
   bonds: "",
   flaws: "",
   languages: "",
-  proficiencies: "",
+  proficiencies: [],
   features_traits: "",
 };
 
 export const defaultCharacter: Partial<Character> = {
   name: "",
   race: "",
-  class_level: "",
+  classes: [{ name: "", level: 1 }],
   background: "",
-  alignment: "Neutral",
   experience_points: 0,
   stats: defaultCharacterStats,
   inventory: "",

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Settings, User } from "lucide-react";
+import { Settings, User, ScrollText } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,8 @@ import {
 
 // Opciones de gestión de cuenta/perfil
 const navMain = [
-	{ title: "Mi Perfil", url: "/profile", icon: User },
+	{ title: "Mis Campañas", url: "/profile", icon: User },
+	{ title: "Mis Fichas", url: "/mis-fichas", icon: ScrollText },
 	{ title: "Configuración", url: "/profile/settings", icon: Settings },
 ];
 

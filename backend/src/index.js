@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { createClient } from "@supabase/supabase-js";
 import { supabase } from "./supabase.js";
 
 const app = express();
@@ -224,6 +225,58 @@ const requireAuth = async (req, res, next) => {
 	}
 };
 
+// 🆕 Endpoint: listar todas las fichas del usuario autenticado
+app.get("/api/character-sheets", requireAuth, async (req, res) => {
+	try {
+		// Crear cliente autenticado con el token del usuario
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		const { data, error } = await authenticatedSupabase
+			.from("characters")
+			.select("id, name, classes, race, created_at, updated_at")
+			.eq("user_id", req.user.id)
+			.eq("is_npc", false)
+			.order("created_at", { ascending: false });
+
+		if (error) {
+			console.error("❌ Error al listar fichas:", error);
+			return res.status(500).json({
+				error: "Error al consultar fichas",
+				details: error.message,
+			});
+		}
+
+		// Calcular nivel total de cada personaje
+		const charactersWithLevel = (data || []).map(char => {
+			const level = Array.isArray(char.classes) 
+				? char.classes.reduce((sum, cls) => sum + (cls.level || 0), 0)
+				: (char.classes?.level || 1);
+			return { ...char, level };
+		});
+
+		console.log("✅ Fichas encontradas:", charactersWithLevel.length);
+		res.json({ characters: charactersWithLevel });
+	} catch (err) {
+		console.error("💥 Exception listando fichas:", err);
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
 // 🆕 Endpoint: obtener la ficha del usuario autenticado
 app.get("/api/character-sheet", requireAuth, async (req, res) => {
 	try {
@@ -254,6 +307,55 @@ app.get("/api/character-sheet", requireAuth, async (req, res) => {
 	}
 });
 
+// 🆕 Endpoint: obtener una ficha específica por ID
+app.get("/api/character-sheet/:id", requireAuth, async (req, res) => {
+	try {
+		const { id } = req.params;
+		
+		// Crear cliente autenticado con el token del usuario
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+		
+		const { data, error } = await authenticatedSupabase
+			.from("characters")
+			.select("*")
+			.eq("id", id)
+			.eq("user_id", req.user.id)
+			.eq("is_npc", false)
+			.single();
+
+		if (error) {
+			if (error.code === "PGRST116") {
+				return res.status(404).json({
+					error: "Ficha no encontrada",
+				});
+			}
+			return res.status(500).json({
+				error: "Error al consultar ficha",
+				details: error.message,
+			});
+		}
+
+		res.json({ character: data });
+	} catch (err) {
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
 // 🆕 Endpoint: crear ficha de personaje
 app.post("/api/character-sheet", requireAuth, async (req, res) => {
 	try {
@@ -263,21 +365,51 @@ app.post("/api/character-sheet", requireAuth, async (req, res) => {
 			is_npc: false,
 		};
 
-		const { data, error } = await supabase
+		console.log("🔍 Intentando crear personaje para user_id:", req.user.id);
+		console.log("📝 Datos del personaje:", JSON.stringify(characterData, null, 2));
+
+		// Crear cliente autenticado con el token del usuario
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		// Verificar el usuario autenticado
+		const { data: { user }, error: authError } = await authenticatedSupabase.auth.getUser();
+		console.log("👤 Usuario autenticado:", user?.id, "Error:", authError?.message);
+
+		const { data, error } = await authenticatedSupabase
 			.from("characters")
 			.insert([characterData])
 			.select()
 			.single();
 
 		if (error) {
+			console.error("❌ Error creating character:", error);
+			console.error("   Code:", error.code);
+			console.error("   Message:", error.message);
+			console.error("   Details:", error.details);
+			console.error("   Hint:", error.hint);
 			return res.status(500).json({
 				error: "Error al crear ficha",
 				details: error.message,
+				code: error.code,
 			});
 		}
 
+		console.log("✅ Personaje creado exitosamente:", data.id);
 		res.status(201).json({ character: data });
 	} catch (err) {
+		console.error("💥 Exception creating character:", err);
 		res.status(500).json({
 			error: "Error interno",
 			details: err.message,
@@ -287,6 +419,72 @@ app.post("/api/character-sheet", requireAuth, async (req, res) => {
 
 // 🆕 Endpoint: actualizar ficha de personaje
 app.put("/api/character-sheet/:id", requireAuth, async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		// Crear cliente autenticado con el token del usuario
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		// Verificar que el usuario sea dueño de la ficha
+		const { data: existing, error: checkError } = await authenticatedSupabase
+			.from("characters")
+			.select("user_id")
+			.eq("id", id)
+			.single();
+
+		if (checkError || !existing) {
+			return res.status(404).json({
+				error: "Ficha no encontrada",
+			});
+		}
+
+		if (existing.user_id !== req.user.id) {
+			return res.status(403).json({
+				error: "No autorizado",
+				details: "No puedes editar esta ficha",
+			});
+		}
+
+		const { data, error } = await authenticatedSupabase
+			.from("characters")
+			.update({
+				...req.body,
+				updated_at: new Date().toISOString(),
+			})
+			.eq("id", id)
+			.select()
+			.single();
+
+		if (error) {
+			return res.status(500).json({
+				error: "Error al actualizar ficha",
+				details: error.message,
+			});
+		}
+
+		res.json({ character: data });
+	} catch (err) {
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
+// 🆕 Endpoint: eliminar ficha de personaje
+app.delete("/api/character-sheet/:id", requireAuth, async (req, res) => {
 	try {
 		const { id } = req.params;
 
@@ -306,28 +504,23 @@ app.put("/api/character-sheet/:id", requireAuth, async (req, res) => {
 		if (existing.user_id !== req.user.id) {
 			return res.status(403).json({
 				error: "No autorizado",
-				details: "No puedes editar esta ficha",
+				details: "No puedes eliminar esta ficha",
 			});
 		}
 
-		const { data, error } = await supabase
+		const { error } = await supabase
 			.from("characters")
-			.update({
-				...req.body,
-				updated_at: new Date().toISOString(),
-			})
-			.eq("id", id)
-			.select()
-			.single();
+			.delete()
+			.eq("id", id);
 
 		if (error) {
 			return res.status(500).json({
-				error: "Error al actualizar ficha",
+				error: "Error al eliminar ficha",
 				details: error.message,
 			});
 		}
 
-		res.json({ character: data });
+		res.json({ success: true, message: "Ficha eliminada correctamente" });
 	} catch (err) {
 		res.status(500).json({
 			error: "Error interno",

@@ -5,6 +5,7 @@ import { RegisterScene } from "@/scenes/register.scene";
 import { ProfileScene } from "@/scenes/profile.scene";
 import ProfileSettingsScene from "@/scenes/profile-settings.scene";
 import MiFichaScene from "@/scenes/mi-ficha.scene";
+import { MisFichasScene } from "@/scenes/mis-fichas.scene";
 import DadosScene from "@/scenes/dados.scene";
 import HechizosScene from "@/scenes/hechizos.scene";
 import HechizosDetalleScene from "@/scenes/hechizos-detalle.scene";
@@ -95,6 +96,16 @@ export const AppRouter = () => {
 						<ProtectedRoute>
 							<AppLayout>
 								<MiFichaScene />
+							</AppLayout>
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.misFichas}
+					element={
+						<ProtectedRoute>
+							<AppLayout>
+								<MisFichasScene />
 							</AppLayout>
 						</ProtectedRoute>
 					}
