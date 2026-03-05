@@ -291,7 +291,9 @@ Obtiene la ficha del personaje del usuario autenticado.
     "user_id": "uuid",
     "name": "Thorin Escudo de Roble",
     "race": "Enano de las Montañas",
-    "class_level": "Guerrero 5",
+    "classes": [
+      {"name": "Guerrero", "level": 5}
+    ],
     "background": "Soldado",
     "alignment": "Legal Bueno",
     "experience_points": 6500,
@@ -309,6 +311,22 @@ Obtiene la ficha del personaje del usuario autenticado.
     "is_public": false,
     "created_at": "2026-01-15T10:30:00Z",
     "updated_at": "2026-03-04T14:20:00Z"
+  }
+}
+```
+
+**Ejemplo con multiclase**:
+
+```json
+{
+  "character": {
+    "name": "Aria Sombra",
+    "race": "Semielfo",
+    "classes": [
+      {"name": "Pícaro", "level": 3},
+      {"name": "Mago", "level": 2}
+    ],
+    ...
   }
 }
 ```
@@ -331,7 +349,9 @@ Crea una nueva ficha de personaje para el usuario autenticado.
 {
   "name": "Thorin Escudo de Roble",
   "race": "Enano de las Montañas",
-  "class_level": "Guerrero 5",
+  "classes": [
+    {"name": "Guerrero", "level": 5}
+  ],
   "background": "Soldado",
   "alignment": "Legal Bueno",
   "experience_points": 6500,
@@ -370,16 +390,41 @@ Actualiza la ficha de personaje existente.
 
 La ficha incluye todos los campos estándar de D&D 5e:
 
-- **Información básica**: nombre, raza, clase, nivel, trasfondo, alineamiento
-- **Atributos**: STR, DEX, CON, INT, WIS, CHA
-- **Combate**: HP (max/actual/temp), CA, iniciativa, velocidad
-- **Habilidades**: 18 skills con competencias
-- **Salvaciones**: Competencias en 6 atributos
-- **Rasgos**: personalidad, ideales, vínculos, defectos
-- **Equipo**: Campo de texto libre
-- **Inventario**: Campo de texto libre
-- **Hechizos**: Campo de texto libre
-- **Notas**: Campo de texto libre
+- **Información básica**:
+  - Nombre, raza (desplegable con 18 opciones), trasfondo (desplegable con 14 opciones), alineamiento (desplegable con 9 opciones)
+  - Puntos de experiencia
+- **Sistema de Clases** (campo `classes` JSONB):
+  - Clase simple: Un objeto con nombre y nivel
+  - Multiclase: Array con hasta 3 objetos {name, level}
+  - Desplegable con 12 clases de D&D 5e en español
+- **Atributos** (en español):
+  - Fuerza, Destreza, Constitución, Inteligencia, Sabiduría, Carisma
+  - Modificadores calculados automáticamente
+- **Combate**:
+  - HP (máximos/actuales/temporales), CA, iniciativa, velocidad
+  - Tiradas de salvación contra la muerte (éxitos/fallos)
+  - Dados de golpe
+- **Habilidades** (18 skills en español):
+  - Acrobacias, Trato con Animales, Arcano, Atletismo, Engaño, Historia, Perspicacia, Intimidación, Investigación, Medicina, Naturaleza, Percepción, Interpretación, Persuasión, Religión, Juego de Manos, Sigilo, Supervivencia
+  - Checkboxes de competencia
+- **Salvaciones** (6 atributos en español):
+  - Checkboxes de competencia para cada atributo
+- **Rasgos de personalidad**:
+  - Personalidad, ideales, vínculos, defectos
+  - Idiomas, competencias, características especiales
+- **Campos de texto libre**:
+  - **Equipo**: Armas, armaduras y herramientas
+  - **Inventario**: Objetos, monedas y tesoros
+  - **Hechizos**: Lista de hechizos conocidos/preparados
+  - **Notas**: Notas generales y historia del personaje
+
+**Características del formulario**:
+
+- Interfaz completamente en español
+- Desplegables (Select) para razas, clases, alineamientos y trasfondos
+- Botón "Multiclase" para activar clases adicionales
+- Botón de guardado adaptativo al tema (modo claro/oscuro)
+- Organización en 6 pestañas (Info, Stats, Combate, Habilidades, Equipo, Hechizos)
 
 **Nota**: Los campos de equipo, inventario y hechizos son de texto libre. En futuras versiones se vincularán con las tablas de compendio.
 
@@ -402,14 +447,24 @@ Los usuarios registrados pueden crear y gestionar su ficha de personaje de D&D 5
 #### Características:
 
 - **Ficha completa de D&D 5e**: Todos los campos estándar (atributos, habilidades, salvaciones, HP, CA, etc.)
-- **Guardado automático**: Pulsa "Guardar Ficha" para almacenar tus cambios
+- **Sistema de Multiclase**:
+  - Opción de activar multiclase con checkbox
+  - Hasta 3 clases simultáneas con niveles independientes
+  - Botones para agregar/quitar clases adicionales
+- **Selección mediante desplegables**:
+  - **Razas**: 18 razas de D&D 5e en español (Humano, Elfo, Enano, etc.)
+  - **Clases**: 12 clases base en español (Guerrero, Mago, Pícaro, etc.)
+  - **Alineamientos**: 9 alineamientos estándar (Legal Bueno, Caótico Neutral, etc.)
+  - **Trasfondos**: 14 trasfondos comunes (Soldado, Noble, Sabio, etc.)
+- **Interfaz traducida**: Todos los atributos, habilidades y salvaciones en español
+- **Guardado con tema adaptativo**: Botón de guardado que se adapta al modo claro/oscuro
 - **Organización por pestañas**:
-  - 📋 **Info**: Datos básicos y rasgos de personalidad
-  - ⚔️ **Stats**: Atributos y bonificadores
-  - 🛡️ **Combate**: HP, CA, iniciativa, tiradas de salvación
-  - 💪 **Habilidades**: Skills y características especiales
-  - 🎒 **Equipo**: Armas, armaduras e inventario
-  - 📜 **Hechizos**: Lista de hechizos y notas
+  - 📋 **Info**: Datos básicos, multiclase y rasgos de personalidad
+  - ⚔️ **Stats**: Atributos y bonificadores calculados automáticamente
+  - 🛡️ **Combate**: HP, CA, iniciativa, tiradas de salvación contra la muerte
+  - 💪 **Habilidades**: 18 skills en español con checkboxes de competencia
+  - 🎒 **Equipo**: Armas, armaduras e inventario (texto libre)
+  - 📜 **Hechizos**: Lista de hechizos y notas generales (texto libre)
 - **Privacidad**: Opción de hacer la ficha pública o privada
 - **Campos de texto libre**: Equipo, inventario, hechizos y notas son campos editables libremente
 
@@ -417,8 +472,35 @@ Los usuarios registrados pueden crear y gestionar su ficha de personaje de D&D 5
 
 1. Inicia sesión con tu cuenta
 2. Ve a "Mi Ficha" en el menú
-3. Rellena los campos de tu personaje
+3. Rellena los campos de tu personaje:
+   - Selecciona raza, clase, alineamiento y trasfondo desde los desplegables
+   - Marca "Multiclase" si quieres combinar varias clases
+   - Introduce tus atributos (los modificadores se calculan automáticamente)
+   - Marca las habilidades y salvaciones en las que eres competente
 4. Pulsa "Guardar Ficha" para almacenar los cambios
+
+#### Sistema de Multiclase:
+
+- **Clase simple**: Por defecto, un solo campo de clase y nivel
+- **Activar multiclase**: Marca el checkbox "Multiclase" para activar clases adicionales
+- **Agregar clases**: Click en "+ Agregar Clase" (máximo 3 clases)
+- **Eliminar clases**: Click en la X al lado de cada clase adicional
+- **Ejemplo**: Guerrero nivel 5, Pícaro nivel 3 (multiclase nivel 8 total)
+
+#### Estructura de Datos:
+
+**Campo `classes`** (JSONB):
+
+```json
+[
+  { "name": "Guerrero", "level": 5 },
+  { "name": "Pícaro", "level": 3 }
+]
+```
+
+**Campo `stats`** (JSONB): Contiene todos los atributos, habilidades, salvaciones, HP, rasgos de personalidad, etc.
+
+**Campos de texto libre**: `inventory`, `spells_known`, `equipment`, `notes`
 
 #### Acceso del Dungeon Master:
 

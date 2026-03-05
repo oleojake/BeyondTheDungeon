@@ -40,7 +40,7 @@ export const ProfileLayout = ({ children }: PropsWithChildren) => {
 									</BreadcrumbItem>
 									<BreadcrumbSeparator />
 									<BreadcrumbItem className="text-stone-900 dark:text-white font-semibold">
-										Mi Perfil
+									Dashboard
 									</BreadcrumbItem>
 								</BreadcrumbList>
 							</Breadcrumb>

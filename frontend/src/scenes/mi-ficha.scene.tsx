@@ -1,27 +1,36 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  fetchCharacterSheet, 
+  fetchCharacterSheet,
+  fetchCharacterSheetById,
   createCharacterSheet, 
   updateCharacterSheet 
 } from "@/core/api/character-sheet.service";
 import type { 
   Character, 
   CharacterFormData, 
-  CharacterStats
+  CharacterStats,
+  CharacterClass
 } from "@/interfaces/character";
 import { defaultCharacterStats } from "@/interfaces/character";
-import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, StickyNote } from "lucide-react";
+import { DND_RACES, DND_CLASSES, DND_ALIGNMENTS, DND_BACKGROUNDS, DND_SKILLS, DND_ABILITIES, DND_PROFICIENCIES } from "@/constants/dnd5e";
+import { switchRoutes } from "@/router/routes";
+import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X } from "lucide-react";
 
 export const MiFichaScene = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const characterId = searchParams.get("id");
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
@@ -30,9 +39,8 @@ export const MiFichaScene = () => {
   // Estados del formulario
   const [name, setName] = useState("");
   const [race, setRace] = useState("");
-  const [classLevel, setClassLevel] = useState("");
+  const [classes, setClasses] = useState<CharacterClass[]>([{ name: "", level: 1 }]);
   const [background, setBackground] = useState("");
-  const [alignment, setAlignment] = useState("Neutral");
   const [experiencePoints, setExperiencePoints] = useState(0);
   const [isPublic, setIsPublic] = useState(false);
   
@@ -45,23 +53,26 @@ export const MiFichaScene = () => {
   const [equipment, setEquipment] = useState("");
   const [notes, setNotes] = useState("");
 
+  const isMulticlass = classes.length > 1;
+
   useEffect(() => {
     loadCharacter();
-  }, []);
+  }, [characterId]);
 
   const loadCharacter = async () => {
     try {
       setLoading(true);
-      const response = await fetchCharacterSheet();
+      const response = characterId 
+        ? await fetchCharacterSheetById(characterId)
+        : await fetchCharacterSheet();
       
       if (response.character) {
         const char = response.character;
         setCharacter(char);
         setName(char.name);
         setRace(char.race);
-        setClassLevel(char.class_level);
+        setClasses(char.classes && char.classes.length > 0 ? char.classes : [{ name: "", level: 1 }]);
         setBackground(char.background);
-        setAlignment(char.alignment || "Neutral");
         setExperiencePoints(char.experience_points || 0);
         setIsPublic(char.is_public);
         setStats(char.stats);
@@ -85,9 +96,8 @@ export const MiFichaScene = () => {
       const formData: CharacterFormData = {
         name,
         race,
-        class_level: classLevel,
+        classes,
         background,
-        alignment,
         experience_points: experiencePoints,
         stats,
         inventory,
@@ -99,16 +109,45 @@ export const MiFichaScene = () => {
 
       if (character?.id) {
         await updateCharacterSheet(character.id, formData);
+        alert("¡Ficha actualizada correctamente!");
       } else {
         await createCharacterSheet(formData);
+        alert("¡Ficha creada correctamente!");
       }
 
-      await loadCharacter();
-      alert("¡Ficha guardada correctamente!");
+      // Redirigir a Mis Fichas después de un breve delay
+      setTimeout(() => {
+        navigate(switchRoutes.misFichas);
+      }, 500);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Funciones para gestionar clases
+  const addClass = () => {
+    setClasses([...classes, { name: "", level: 1 }]);
+  };
+
+  const removeClass = (index: number) => {
+    if (classes.length > 1) {
+      setClasses(classes.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateClass = (index: number, field: keyof CharacterClass, value: string | number) => {
+    const newClasses = [...classes];
+    newClasses[index] = { ...newClasses[index], [field]: value };
+    setClasses(newClasses);
+  };
+
+  const toggleMulticlass = (checked: boolean) => {
+    if (checked && classes.length === 1) {
+      addClass();
+    } else if (!checked && classes.length > 1) {
+      setClasses([classes[0]]);
     }
   };
 
@@ -124,6 +163,14 @@ export const MiFichaScene = () => {
   };
 
   const updateSavingThrow = (attr: keyof CharacterStats["saving_throws"], value: boolean) => {
+    // Contar cuántas tiradas de salvación están activas
+    const currentCount = Object.values(stats.saving_throws).filter(Boolean).length;
+    
+    // Si se intenta activar y ya hay 2, no permitir
+    if (value && currentCount >= 2) {
+      return;
+    }
+    
     setStats(prev => ({
       ...prev,
       saving_throws: { ...prev.saving_throws, [attr]: value }
@@ -151,7 +198,11 @@ export const MiFichaScene = () => {
             Ficha de D&D 5ª Edición
           </p>
         </div>
-        <Button onClick={handleSave} disabled={saving}>
+        <Button 
+          onClick={handleSave} 
+          disabled={saving}
+          className="bg-primary text-white hover:bg-primary/90"
+        >
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -180,7 +231,7 @@ export const MiFichaScene = () => {
           </TabsTrigger>
           <TabsTrigger value="stats">
             <Sword className="mr-2 h-4 w-4" />
-            Stats
+            Atributos
           </TabsTrigger>
           <TabsTrigger value="combat">
             <Shield className="mr-2 h-4 w-4" />
@@ -220,51 +271,110 @@ export const MiFichaScene = () => {
                 </div>
                 <div>
                   <Label htmlFor="race">Raza</Label>
-                  <Input
-                    id="race"
-                    value={race}
-                    onChange={(e) => setRace(e.target.value)}
-                    placeholder="Ej: Enano de las Montañas"
-                  />
+                  <Select value={race} onValueChange={setRace}>
+                    <SelectTrigger id="race">
+                      <SelectValue placeholder="Selecciona una raza" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DND_RACES.map((r) => (
+                        <SelectItem key={r} value={r}>{r}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="class">Clase y Nivel</Label>
-                  <Input
-                    id="class"
-                    value={classLevel}
-                    onChange={(e) => setClassLevel(e.target.value)}
-                    placeholder="Ej: Guerrero 5"
-                  />
+              {/* Sistema de Clases */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Clase y Nivel</Label>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="multiclass"
+                      checked={isMulticlass}
+                      onCheckedChange={toggleMulticlass}
+                    />
+                    <Label htmlFor="multiclass" className="text-sm font-normal">Multiclase</Label>
+                  </div>
                 </div>
+
+                {classes.map((cls, index) => (
+                  <div key={index} className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <Label htmlFor={`class-${index}`}>Clase {index + 1}</Label>
+                      <Select 
+                        value={cls.name} 
+                        onValueChange={(value) => updateClass(index, "name", value)}
+                      >
+                        <SelectTrigger id={`class-${index}`}>
+                          <SelectValue placeholder="Selecciona una clase" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DND_CLASSES.map((c) => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="w-24">
+                      <Label htmlFor={`level-${index}`}>Nivel</Label>
+                      <Input
+                        id={`level-${index}`}
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={cls.level}
+                        onChange={(e) => updateClass(index, "level", parseInt(e.target.value) || 1)}
+                      />
+                    </div>
+                    {isMulticlass && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeClass(index)}
+                        disabled={classes.length === 1}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+
+                {isMulticlass && classes.length < 3 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addClass}
+                    className="w-full"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Agregar Clase
+                  </Button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="background">Trasfondo</Label>
-                  <Input
-                    id="background"
-                    value={background}
-                    onChange={(e) => setBackground(e.target.value)}
-                    placeholder="Ej: Soldado"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="alignment">Alineamiento</Label>
-                  <Input
-                    id="alignment"
-                    value={alignment}
-                    onChange={(e) => setAlignment(e.target.value)}
-                    placeholder="Ej: Legal Bueno"
-                  />
+                  <Select value={background} onValueChange={setBackground}>
+                    <SelectTrigger id="background">
+                      <SelectValue placeholder="Selecciona un trasfondo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DND_BACKGROUNDS.map((b) => (
+                        <SelectItem key={b} value={b}>{b}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="xp">Puntos de Experiencia</Label>
                   <Input
                     id="xp"
                     type="number"
+                    min="0"
                     value={experiencePoints}
                     onChange={(e) => setExperiencePoints(parseInt(e.target.value) || 0)}
                   />
@@ -331,11 +441,43 @@ export const MiFichaScene = () => {
                 </div>
                 <div>
                   <Label>Competencias</Label>
-                  <Input
-                    value={stats.proficiencies}
-                    onChange={(e) => updateStat("proficiencies", e.target.value)}
-                    placeholder="Armas marciales, armaduras pesadas..."
-                  />
+                  <div className="space-y-2">
+                    <Select
+                      value=""
+                      onValueChange={(value) => {
+                        if (value && !stats.proficiencies.includes(value)) {
+                          updateStat("proficiencies", [...stats.proficiencies, value]);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona competencias..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DND_PROFICIENCIES.map((prof) => (
+                          <SelectItem key={prof} value={prof}>{prof}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {stats.proficiencies.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {stats.proficiencies.map((prof) => (
+                          <Badge key={prof} variant="secondary" className="gap-1">
+                            {prof}
+                            <X
+                              className="h-3 w-3 cursor-pointer"
+                              onClick={() => {
+                                updateStat(
+                                  "proficiencies",
+                                  stats.proficiencies.filter((p) => p !== prof)
+                                );
+                              }}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -347,7 +489,7 @@ export const MiFichaScene = () => {
           <Card>
             <CardHeader>
               <CardTitle>Atributos</CardTitle>
-              <CardDescription>Puntuaciones de características</CardDescription>
+              <CardDescription>Puntuaciones de características (8-20)</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
@@ -357,13 +499,23 @@ export const MiFichaScene = () => {
                   return (
                     <Card key={attr}>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm uppercase">{attr}</CardTitle>
+                        <CardTitle className="text-sm uppercase">{DND_ABILITIES[attr]}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-2">
                         <Input
                           type="number"
+                          min="8"
+                          max="20"
                           value={value}
-                          onChange={(e) => updateStat(attr, parseInt(e.target.value) || 10)}
+                          onChange={(e) => {
+                            const newValue = Math.min(20, Math.max(8, parseInt(e.target.value) || 10));
+                            updateStat(attr, newValue);
+                            // Auto-calcular iniciativa cuando cambie destreza
+                            if (attr === "dexterity") {
+                              const newInitiative = calculateModifier(newValue);
+                              updateStat("initiative", newInitiative);
+                            }
+                          }}
                           className="text-center text-2xl font-bold"
                         />
                         <div className="text-center text-muted-foreground">
@@ -379,10 +531,16 @@ export const MiFichaScene = () => {
                 <Label>Bonificador de Competencia</Label>
                 <Input
                   type="number"
+                  min="2"
+                  max="6"
                   value={stats.proficiency_bonus}
-                  onChange={(e) => updateStat("proficiency_bonus", parseInt(e.target.value) || 2)}
+                  onChange={(e) => {
+                    const newValue = Math.min(6, Math.max(2, parseInt(e.target.value) || 2));
+                    updateStat("proficiency_bonus", newValue);
+                  }}
                   className="w-32"
                 />
+                <p className="text-xs text-muted-foreground mt-1">Rango: +2 a +6 (según nivel)</p>
               </div>
             </CardContent>
           </Card>
@@ -390,7 +548,7 @@ export const MiFichaScene = () => {
           <Card>
             <CardHeader>
               <CardTitle>Tiradas de Salvación</CardTitle>
-              <CardDescription>Marca las competencias</CardDescription>
+              <CardDescription>Marca las competencias (máximo 2)</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
@@ -401,7 +559,7 @@ export const MiFichaScene = () => {
                       checked={stats.saving_throws[attr]}
                       onCheckedChange={(checked) => updateSavingThrow(attr, checked as boolean)}
                     />
-                    <Label htmlFor={`save-${attr}`} className="capitalize">{attr}</Label>
+                    <Label htmlFor={`save-${attr}`}>{DND_ABILITIES[attr]}</Label>
                   </div>
                 ))}
               </div>
@@ -467,6 +625,9 @@ export const MiFichaScene = () => {
                 </div>
                 <div>
                   <Label>Iniciativa</Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Base: +{calculateModifier(stats.dexterity)} (Destreza)
+                  </p>
                   <Input
                     type="number"
                     value={stats.initiative}
@@ -538,8 +699,8 @@ export const MiFichaScene = () => {
                       checked={stats.skills[skill as keyof typeof stats.skills]}
                       onCheckedChange={(checked) => updateSkill(skill as keyof typeof stats.skills, checked as boolean)}
                     />
-                    <Label htmlFor={`skill-${skill}`} className="capitalize">
-                      {skill.replace(/_/g, " ")}
+                    <Label htmlFor={`skill-${skill}`}>
+                      {DND_SKILLS[skill as keyof typeof DND_SKILLS]}
                     </Label>
                   </div>
                 ))}
