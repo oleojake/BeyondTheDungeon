@@ -428,6 +428,108 @@ La ficha incluye todos los campos estándar de D&D 5e:
 
 **Nota**: Los campos de equipo, inventario y hechizos son de texto libre. En futuras versiones se vincularán con las tablas de compendio.
 
+### Mapas de Batalla (Battle Maps)
+
+**⚠️ Requieren autenticación**: Enviar token JWT en header `Authorization: Bearer <token>`
+
+#### Listar mapas
+
+```
+GET /api/battle-maps
+```
+
+Obtiene todos los mapas de batalla del usuario autenticado.
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Respuesta**:
+
+```json
+{
+  "maps": [
+    {
+      "id": "uuid",
+      "user_id": "uuid",
+      "name": "Cueva del Dragón",
+      "image_data": "data:image/png;base64,...",
+      "grid_size": 50,
+      "grid_color": "rgba(255, 255, 255, 0.3)",
+      "created_at": "2026-03-15T10:30:00Z",
+      "updated_at": "2026-03-15T14:20:00Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+#### Obtener mapa específico
+
+```
+GET /api/battle-maps/:id
+```
+
+Obtiene un mapa de batalla específico por ID.
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Respuesta**: `{ "map": { ... } }`
+
+#### Crear mapa
+
+```
+POST /api/battle-maps
+```
+
+Crea un nuevo mapa de batalla.
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Body**:
+
+```json
+{
+  "name": "Cueva del Dragón",
+  "image_data": "data:image/png;base64,iVBORw0KGgo...",
+  "grid_size": 50,
+  "grid_color": "rgba(255, 255, 255, 0.3)"
+}
+```
+
+**Respuesta**: `{ "map": { ... } }` (mapa creado)
+
+**Nota**: El campo `image_data` debe ser una imagen codificada en Base64 (máximo 50MB).
+
+#### Actualizar mapa
+
+```
+PUT /api/battle-maps/:id
+```
+
+Actualiza un mapa de batalla existente.
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Body**: Mismo formato que POST
+
+**Respuesta**: `{ "map": { ... } }` (mapa actualizado)
+
+#### Eliminar mapa
+
+```
+DELETE /api/battle-maps/:id
+```
+
+Elimina un mapa de batalla.
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Respuesta**: `{ "message": "Mapa eliminado correctamente" }`
+
+**Restricciones**:
+
+- Solo el dueño puede ver, editar y eliminar sus mapas
+- Retorna `403 Forbidden` si se intenta acceder al mapa de otro usuario
+
 ### Utilidades
 
 ```
@@ -511,6 +613,100 @@ Cuando el sistema de campañas esté implementado:
 - Si un usuario es DM de una campaña, no podrá ver su propia ficha como jugador en esa misma campaña
 
 **⚠️ Pendiente**: Sistema de campañas y asignación de jugadores
+
+---
+
+### 🗺️ Mapas de Batalla
+
+Los usuarios registrados pueden cargar y gestionar mapas de batalla interactivos con cuadrícula personalizable.
+
+#### Características:
+
+- **Carga de imágenes**: Arrastra y suelta o selecciona una imagen desde tu dispositivo
+- **Cuadrícula personalizable**:
+  - **Tamaño ajustable**: Desde 20px hasta 200px por celda
+  - **Color personalizado**: Selector de color con opacidad ajustable
+  - **Mostrar/ocultar**: Toggle para activar o desactivar la cuadrícula
+- **Controles de visualización**:
+  - **Zoom**: Rueda del ratón o botones +/- (25% - 300%)
+  - **Paneo**: Arrastra el mapa para moverte por él
+  - **Pantalla completa**: Visualización inmersiva del mapa
+- **Guardado persistente**: Los mapas se almacenan en la base de datos vinculados al usuario
+- **Gestión de mapas**: Lista de todos tus mapas guardados con opciones de apertura y eliminación
+
+#### Uso:
+
+1. **Crear un nuevo mapa**:
+   - Accede a "Mapa de Batalla" desde el menú
+   - Arrastra una imagen al área designada o haz click para seleccionarla
+   - Ajusta el tamaño de la cuadrícula con el slider (20-200px)
+   - Personaliza el color de la cuadrícula con el selector de color
+   - Ajusta la opacidad de la cuadrícula (0-100%)
+   - Usa la rueda del ratón o los botones para hacer zoom
+   - Arrastra el mapa para moverte por él
+   - Introduce un nombre para el mapa
+   - Click en "Guardar Mapa" para almacenarlo
+
+2. **Gestionar mapas guardados**:
+   - Ve a "Mis Mapas" en el menú del perfil
+   - Visualiza la lista de todos tus mapas con información de tamaño de cuadrícula
+   - Click en un mapa para abrirlo en el visor
+   - Click en el icono de papelera para eliminarlo (con confirmación)
+
+3. **Abrir un mapa existente**:
+   - Accede desde "Mis Mapas" o directamente con la URL `/mapa-batalla?mapId=<id>`
+   - El mapa se cargará con la configuración guardada (imagen, tamaño de cuadrícula, color)
+   - Puedes modificar la cuadrícula y guardar los cambios
+
+#### Controles del visor:
+
+- **Zoom In/Out**: Botones `+` y `-` o rueda del ratón
+- **Reset Zoom**: Botón "↻" para volver al 100%
+- **Toggle Cuadrícula**: Checkbox "Mostrar cuadrícula"
+- **Tamaño de cuadrícula**: Slider de 20 a 200 píxeles
+- **Color de cuadrícula**: Selector de color + slider de opacidad
+- **Paneo**: Click y arrastra el mapa con el ratón
+
+#### Estructura de Datos:
+
+**Tabla `battle_maps`**:
+
+```json
+{
+  "id": "uuid",
+  "user_id": "uuid",
+  "name": "Cueva del Dragón",
+  "image_data": "data:image/png;base64,...",
+  "grid_size": 50,
+  "grid_color": "rgba(255, 255, 255, 0.3)",
+  "created_at": "timestamp",
+  "updated_at": "timestamp"
+}
+```
+
+**Formato de color**: `rgba(R, G, B, A)` donde R, G, B son 0-255 y A es 0-1 (opacidad)
+
+#### Rutas:
+
+- `/mapa-batalla`: Visor de mapas de batalla
+- `/mapa-batalla?mapId=<uuid>`: Abrir mapa específico
+- `/mis-mapas`: Gestión de mapas guardados (requiere autenticación)
+
+#### Consideraciones técnicas:
+
+- **Formato de imagen**: PNG, JPG, JPEG, WebP
+- **Tamaño máximo**: 50MB (codificado en Base64)
+- **Renderizado**: Canvas HTML5 con renderizado optimizado
+- **Persistencia**: Imágenes almacenadas en Base64 en PostgreSQL
+- **Seguridad**: Row Level Security (RLS) - cada usuario solo puede ver/editar sus mapas
+
+#### Funcionalidades futuras:
+
+- **Tokens de personajes**: Arrastrar y colocar tokens sobre el mapa
+- **Medición de distancia**: Herramienta para medir distancias en casillas
+- **Capas**: Sistema de capas para tokens, efectos y anotaciones
+- **Compartir mapas**: Compartir mapas entre el DM y los jugadores de una campaña
+- **Integración con campañas**: Vincular mapas con sesiones de juego específicas
 
 ---
 

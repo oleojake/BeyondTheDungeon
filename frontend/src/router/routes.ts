@@ -13,6 +13,8 @@ interface SwitchRoutes {
 	objetos: string;
 	miFicha: string;
 	misFichas: string;
+	mapaBatalla: string;
+	misMapas: string;
 	authCallback: string;
 }
 
@@ -31,6 +33,8 @@ export const switchRoutes: SwitchRoutes = {
 	objetos: "/objetos",
 	miFicha: "/mi-ficha",
 	misFichas: "/mis-fichas",
+	mapaBatalla: "/mapa-batalla",
+	misMapas: "/mis-mapas",
 	authCallback: "/auth/callback",
 };
 

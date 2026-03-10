@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Settings, User, ScrollText } from "lucide-react";
+import { Settings, User, ScrollText, Map } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ import {
 const navMain = [
 	{ title: "Mis Campañas", url: "/profile", icon: User },
 	{ title: "Mis Fichas", url: "/mis-fichas", icon: ScrollText },
+	{ title: "Mis Mapas", url: "/mis-mapas", icon: Map },
 	{ title: "Configuración", url: "/profile/settings", icon: Settings },
 ];
 

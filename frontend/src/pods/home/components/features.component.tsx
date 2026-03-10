@@ -27,7 +27,7 @@ const FEATURES = [
 		title: "Mapas de Batalla",
 		description: "Visualiza combates con mapas simples y claros.",
 		color: "from-primary to-accent",
-		url: "/profile",
+		url: "/mapa-batalla",
 	},
 	{
 		icon: "/creatures.png",

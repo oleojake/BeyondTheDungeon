@@ -6,7 +6,8 @@ import { supabase } from "./supabase.js";
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 
 // healthcheck para Docker / monitorización
@@ -266,7 +267,6 @@ app.get("/api/character-sheets", requireAuth, async (req, res) => {
 			return { ...char, level };
 		});
 
-		console.log("✅ Fichas encontradas:", charactersWithLevel.length);
 		res.json({ characters: charactersWithLevel });
 	} catch (err) {
 		console.error("💥 Exception listando fichas:", err);
@@ -437,23 +437,24 @@ app.put("/api/character-sheet/:id", requireAuth, async (req, res) => {
 			}
 		);
 
-		// Verificar que el usuario sea dueño de la ficha
+		// Verificar que la ficha existe y pertenece al usuario
 		const { data: existing, error: checkError } = await authenticatedSupabase
 			.from("characters")
-			.select("user_id")
+			.select("id")
 			.eq("id", id)
+			.eq("user_id", req.user.id)
+			.eq("is_npc", false)
 			.single();
 
-		if (checkError || !existing) {
-			return res.status(404).json({
-				error: "Ficha no encontrada",
-			});
-		}
-
-		if (existing.user_id !== req.user.id) {
-			return res.status(403).json({
-				error: "No autorizado",
-				details: "No puedes editar esta ficha",
+		if (checkError) {
+			if (checkError.code === "PGRST116") {
+				return res.status(404).json({
+					error: "Ficha no encontrada",
+				});
+			}
+			return res.status(500).json({
+				error: "Error al verificar ficha",
+				details: checkError.message,
 			});
 		}
 
@@ -488,30 +489,47 @@ app.delete("/api/character-sheet/:id", requireAuth, async (req, res) => {
 	try {
 		const { id } = req.params;
 
-		// Verificar que el usuario sea dueño de la ficha
-		const { data: existing, error: checkError } = await supabase
+		// Crear cliente autenticado con el token del usuario
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		// Verificar que la ficha existe y pertenece al usuario
+		const { data: existing, error: checkError } = await authenticatedSupabase
 			.from("characters")
-			.select("user_id")
+			.select("id")
 			.eq("id", id)
+			.eq("user_id", req.user.id)
+			.eq("is_npc", false)
 			.single();
 
-		if (checkError || !existing) {
-			return res.status(404).json({
-				error: "Ficha no encontrada",
+		if (checkError) {
+			if (checkError.code === "PGRST116") {
+				return res.status(404).json({
+					error: "Ficha no encontrada",
+				});
+			}
+			return res.status(500).json({
+				error: "Error al verificar ficha",
+				details: checkError.message,
 			});
 		}
 
-		if (existing.user_id !== req.user.id) {
-			return res.status(403).json({
-				error: "No autorizado",
-				details: "No puedes eliminar esta ficha",
-			});
-		}
-
-		const { error } = await supabase
+		const { error } = await authenticatedSupabase
 			.from("characters")
 			.delete()
-			.eq("id", id);
+			.eq("id", id)
+			.eq("user_id", req.user.id);
 
 		if (error) {
 			return res.status(500).json({
@@ -521,6 +539,286 @@ app.delete("/api/character-sheet/:id", requireAuth, async (req, res) => {
 		}
 
 		res.json({ success: true, message: "Ficha eliminada correctamente" });
+	} catch (err) {
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
+// ==============================================================================
+// BATTLE MAPS ENDPOINTS
+// ==============================================================================
+
+// 📍 Endpoint: listar mapas del usuario autenticado
+app.get("/api/battle-maps", requireAuth, async (req, res) => {
+	try {
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		const { data, error } = await authenticatedSupabase
+			.from("battle_maps")
+			.select("id, name, grid_size, created_at, updated_at")
+			.eq("user_id", req.user.id)
+			.order("created_at", { ascending: false });
+
+		if (error) {
+			console.error("❌ Error al listar mapas:", error);
+			return res.status(500).json({
+				error: "Error al consultar mapas",
+				details: error.message,
+			});
+		}
+
+		res.json({ maps: data || [] });
+	} catch (err) {
+		console.error("💥 Exception listando mapas:", err);
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
+// 📍 Endpoint: obtener un mapa específico
+app.get("/api/battle-maps/:id", requireAuth, async (req, res) => {
+	try {
+		const { id } = req.params;
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		const { data, error } = await authenticatedSupabase
+			.from("battle_maps")
+			.select("*")
+			.eq("id", id)
+			.eq("user_id", req.user.id)
+			.single();
+
+		if (error) {
+			if (error.code === "PGRST116") {
+				return res.status(404).json({
+					error: "Mapa no encontrado",
+				});
+			}
+			return res.status(500).json({
+				error: "Error al consultar mapa",
+				details: error.message,
+			});
+		}
+
+		res.json({ map: data });
+	} catch (err) {
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
+// 📍 Endpoint: crear nuevo mapa
+app.post("/api/battle-maps", requireAuth, async (req, res) => {
+	try {
+		console.log("📍 POST /api/battle-maps - Datos recibidos:", {
+			name: req.body.name,
+			grid_size: req.body.grid_size,
+			grid_color: req.body.grid_color,
+			image_data: req.body.image_data ? `${req.body.image_data.substring(0, 50)}...` : null
+		});
+
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		const mapData = {
+			user_id: req.user.id,
+			name: req.body.name,
+			image_data: req.body.image_data,
+			grid_size: req.body.grid_size || 50,
+			grid_color: req.body.grid_color || "rgba(255, 255, 255, 0.3)",
+		};
+
+		console.log("📍 Guardando mapa con datos:", {
+			user_id: mapData.user_id,
+			name: mapData.name,
+			grid_size: mapData.grid_size,
+			grid_color: mapData.grid_color,
+		});
+
+		const { data, error } = await authenticatedSupabase
+			.from("battle_maps")
+			.insert(mapData)
+			.select()
+			.single();
+
+		if (error) {
+			console.error("❌ Error de Supabase:", error);
+			return res.status(500).json({
+				error: "Error al guardar mapa",
+				details: error.message,
+			});
+		}
+
+		console.log("✅ Mapa guardado correctamente:", data.id);
+		res.status(201).json({ map: data });
+	} catch (err) {
+		console.error("💥 Exception en POST /api/battle-maps:", err);
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
+// 📍 Endpoint: actualizar mapa
+app.put("/api/battle-maps/:id", requireAuth, async (req, res) => {
+	try {
+		const { id } = req.params;
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		// Verificar que el mapa existe y pertenece al usuario
+		const { data: existing, error: checkError } = await authenticatedSupabase
+			.from("battle_maps")
+			.select("id")
+			.eq("id", id)
+			.eq("user_id", req.user.id)
+			.single();
+
+		if (checkError) {
+			if (checkError.code === "PGRST116") {
+				return res.status(404).json({
+					error: "Mapa no encontrado",
+				});
+			}
+			return res.status(500).json({
+				error: "Error al verificar mapa",
+				details: checkError.message,
+			});
+		}
+
+		const { data, error } = await authenticatedSupabase
+			.from("battle_maps")
+			.update({
+				name: req.body.name,
+				grid_size: req.body.grid_size,
+				grid_color: req.body.grid_color,
+			})
+			.eq("id", id)
+			.select()
+			.single();
+
+		if (error) {
+			return res.status(500).json({
+				error: "Error al  actualizar mapa",
+				details: error.message,
+			});
+		}
+
+		res.json({ map: data });
+	} catch (err) {
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
+// 📍 Endpoint: eliminar mapa
+app.delete("/api/battle-maps/:id", requireAuth, async (req, res) => {
+	try {
+		const { id } = req.params;
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		// Verificar que el mapa existe y pertenece al usuario
+		const { data: existing, error: checkError } = await authenticatedSupabase
+			.from("battle_maps")
+			.select("id")
+			.eq("id", id)
+			.eq("user_id", req.user.id)
+			.single();
+
+		if (checkError) {
+			if (checkError.code === "PGRST116") {
+				return res.status(404).json({
+					error: "Mapa no encontrado",
+				});
+			}
+			return res.status(500).json({
+				error: "Error al verificar mapa",
+				details: checkError.message,
+			});
+		}
+
+		const { error } = await authenticatedSupabase
+			.from("battle_maps")
+			.delete()
+			.eq("id", id)
+			.eq("user_id", req.user.id);
+
+		if (error) {
+			return res.status(500).json({
+				error: "Error al eliminar mapa",
+				details: error.message,
+			});
+		}
+
+		res.json({ success: true, message: "Mapa eliminado correctamente" });
 	} catch (err) {
 		res.status(500).json({
 			error: "Error interno",
