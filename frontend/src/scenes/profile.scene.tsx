@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ProfileLayout } from "@/layout/profile.layout";
 import { Users, Plus, ArrowRight } from "lucide-react";
 import {
@@ -10,6 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { listCampaigns, type Campaign } from "@/core/api/campaign.service";
+import { supabase } from "@/lib/supabase";
 
 export const ProfileScene: React.FC = () => {
 	return (
@@ -20,38 +24,36 @@ export const ProfileScene: React.FC = () => {
 };
 
 const ProfileContent: React.FC = () => {
-	const campaigns = [
-		{
-			id: 1,
-			title: "The Sunless Citadel",
-			role: "Dungeon Master",
-			image:
-				"https://images.unsplash.com/photo-1505761671935-60b3a7427bad?auto=format&fit=crop&w=400&q=80",
-			players: ["Ana", "Bob", "Carlos", "Diana"],
-			sessions: 12,
-			lastPlayed: "Hace 2 días",
-		},
-		{
-			id: 2,
-			title: "Curse of Strahd",
-			role: "Jugador",
-			image:
-				"https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?auto=format&fit=crop&w=400&q=80",
-			players: ["Emma", "Frank", "Grace"],
-			sessions: 8,
-			lastPlayed: "Hace 5 días",
-		},
-		{
-			id: 3,
-			title: "Lost Mine of Phandelver",
-			role: "Jugador",
-			image:
-				"https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=400&q=80",
-			players: ["Henry", "Iris", "Jack", "Kate"],
-			sessions: 15,
-			lastPlayed: "Hace 1 semana",
-		},
-	];
+	const navigate = useNavigate();
+	const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [userId, setUserId] = useState<string>("");
+
+	useEffect(() => {
+		loadCampaigns();
+	}, []);
+
+	const loadCampaigns = async () => {
+		setLoading(true);
+		try {
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
+			if (user) {
+				setUserId(user.id);
+			}
+
+			const campaignsData = await listCampaigns();
+			setCampaigns(campaignsData);
+		} catch (error) {
+			console.error("Error al cargar campañas:", error);
+			setCampaigns([]);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const isDM = (campaign: Campaign) => campaign.dm_id === userId;
 
 	return (
 		<div className="container mx-auto p-6 space-y-6">
@@ -70,14 +72,35 @@ const ProfileContent: React.FC = () => {
 
 			{/* Create Campaign Button */}
 			<div className="flex justify-end">
-				<Button className="inline-flex items-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 px-6 py-3 text-sm font-semibold text-white shadow-lg transition">
+				<Button 
+					onClick={() => navigate("/mis-campanas")}
+					className="inline-flex items-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 px-6 py-3 text-sm font-semibold text-white shadow-lg transition"
+				>
 					<Plus className="h-5 w-5" />
 					Crear Campaña
 				</Button>
 			</div>
 
+			{/* Loading State */}
+			{loading && (
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+					{[1, 2, 3].map((i) => (
+						<Card key={i} className="bg-dark-card border-dark-border">
+							<CardHeader>
+								<Skeleton className="h-32 w-full mb-4" />
+								<Skeleton className="h-6 w-3/4" />
+								<Skeleton className="h-4 w-1/2 mt-2" />
+							</CardHeader>
+							<CardContent>
+								<Skeleton className="h-10 w-full" />
+							</CardContent>
+						</Card>
+					))}
+				</div>
+			)}
+
 			{/* Results count */}
-			{campaigns.length > 0 && (
+			{!loading && campaigns.length > 0 && (
 				<div className="flex items-center justify-between">
 					<p className="text-sm text-gray-400">
 						{campaigns.length}{" "}
@@ -87,62 +110,45 @@ const ProfileContent: React.FC = () => {
 			)}
 
 			{/* Campaigns Grid */}
-			{campaigns.length > 0 && (
+			{!loading && campaigns.length > 0 && (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{campaigns.map((campaign) => (
 						<Card
 							key={campaign.id}
+							onClick={() => navigate(`/editar-campana/${campaign.id}`)}
 							className="bg-dark-card border-dark-border hover:border-amber-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-600/10 cursor-pointer group h-full"
 						>
 							<CardHeader>
-								{campaign.image && (
-									<div className="w-full flex justify-center mb-2">
-										<img
-											src={campaign.image}
-											alt={campaign.title}
-											className="h-32 w-full object-cover rounded-md shadow-md"
-											loading="lazy"
-										/>
-									</div>
-								)}
 								<div className="flex items-start justify-between gap-2">
 									<div className="flex-1 min-w-0">
 										<CardTitle className="text-amber-100 group-hover:text-amber-300 transition-colors truncate">
 											{campaign.title}
 										</CardTitle>
-										<CardDescription className="text-gray-400 text-xs mt-1">
-											{campaign.role}
-										</CardDescription>
+										{campaign.description && (
+											<CardDescription className="text-gray-400 text-sm mt-1 line-clamp-2">
+												{campaign.description}
+											</CardDescription>
+										)}
 									</div>
 									<Badge
 										variant="outline"
 										className="bg-amber-950/50 border-amber-600/50 text-amber-300 shrink-0"
 									>
-										{campaign.sessions} sesiones
+										{isDM(campaign) ? "DM" : "Jugador"}
 									</Badge>
 								</div>
 							</CardHeader>
 							<CardContent className="space-y-3">
-								<div className="flex items-center justify-between text-sm">
-									<span className="text-gray-400">Jugadores:</span>
-									<span className="text-gray-200">
-										{campaign.players.length}
-									</span>
-								</div>
-
-								<div className="flex items-center justify-between text-sm">
-									<span className="text-gray-400">Última sesión:</span>
-									<span className="text-gray-200 font-semibold">
-										{campaign.lastPlayed}
-									</span>
-								</div>
-
 								<div className="pt-2">
 									<Button
 										className="w-full bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition group-hover:shadow-lg"
 										size="sm"
+										onClick={(e) => {
+											e.stopPropagation();
+											navigate(`/editar-campana/${campaign.id}`);
+										}}
 									>
-										<span>Ver Campaña</span>
+										<span>{isDM(campaign) ? "Editar Campaña" : "Ver Campaña"}</span>
 										<ArrowRight className="ml-2 h-4 w-4" />
 									</Button>
 								</div>
@@ -153,7 +159,7 @@ const ProfileContent: React.FC = () => {
 			)}
 
 			{/* Empty State */}
-			{campaigns.length === 0 && (
+			{!loading && campaigns.length === 0 && (
 				<Card className="bg-dark-card border-dark-border">
 					<CardContent className="py-12">
 						<div className="flex flex-col items-center gap-4 text-center">
@@ -166,7 +172,10 @@ const ProfileContent: React.FC = () => {
 									Crea tu primera campaña para comenzar tu aventura.
 								</p>
 							</div>
-							<Button className="mt-4 bg-amber-600 hover:bg-amber-700 text-white">
+							<Button 
+								onClick={() => navigate("/mis-campanas")}
+								className="mt-4 bg-amber-600 hover:bg-amber-700 text-white"
+							>
 								<Plus className="mr-2 h-4 w-4" />
 								Crear Primera Campaña
 							</Button>

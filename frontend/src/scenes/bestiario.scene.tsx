@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, AlertCircle, BookOpen, Skull } from "lucide-react";
+import { Loader2, Search, AlertCircle, BookOpen, Skull, Info } from "lucide-react";
 import { fetchBestiary, type Monster } from "@/core/api/backend.service";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 export const BestiarioScene = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const selectMode = location.state?.selectMode || false;
+  const sceneId = location.state?.sceneId;
+  const campaignId = location.state?.campaignId;
+
   const [monsters, setMonsters] = useState<Monster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,9 +73,19 @@ export const BestiarioScene = () => {
           </h1>
         </div>
         <p className="mt-2 text-sm text-amber-100/90">
-          Consulta las estadísticas de criaturas y monstruos para tus aventuras.
+          {selectMode ? "Selecciona un monstruo para añadir a la escena." : "Consulta las estadísticas de criaturas y monstruos para tus aventuras."}
         </p>
       </section>
+
+      {/* Selection Mode Alert */}
+      {selectMode && (
+        <Alert className="bg-blue-950/50 border-blue-600/50">
+          <Info className="h-4 w-4 text-blue-400" />
+          <AlertDescription className="text-blue-200">
+            Haz clic en un monstruo para añadirlo a tu escena.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Search Bar */}
       <Card className="bg-dark-card border-dark-border">
@@ -153,12 +169,8 @@ export const BestiarioScene = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredMonsters.map((monster) => (
-              <Link 
-                key={monster.id}
-                to={`/bestiario/${monster.id}`}
-                className="block transition-transform hover:scale-[1.02]"
-              >
+            {filteredMonsters.map((monster) => {
+              const MonsterCard = (
                 <Card
                   className="bg-dark-card border-dark-border hover:border-amber-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-600/10 cursor-pointer group h-full"
                 >
@@ -227,8 +239,42 @@ export const BestiarioScene = () => {
                     )}
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              );
+
+              if (selectMode) {
+                return (
+                  <div
+                    key={monster.id}
+                    onClick={() => {
+                      navigate(`/editar-campana/${campaignId}`, {
+                        state: {
+                          selectedEntity: {
+                            id: monster.id,
+                            name: monster.name,
+                            entityType: "monster",
+                            data: monster,
+                          },
+                          sceneId,
+                        },
+                      });
+                    }}
+                    className="block transition-transform hover:scale-[1.02]"
+                  >
+                    {MonsterCard}
+                  </div>
+                );
+              }
+
+              return (
+                <Link 
+                  key={monster.id}
+                  to={`/bestiario/${monster.id}`}
+                  className="block transition-transform hover:scale-[1.02]"
+                >
+                  {MonsterCard}
+                </Link>
+              );
+            })}
           </div>
         </>
       )}

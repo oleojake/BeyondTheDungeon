@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Settings, User, ScrollText, Map } from "lucide-react";
+import { Settings, ScrollText, Map, Scroll, Dices } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { NavMain } from "@/components/nav-main";
 import { cn } from "@/lib/utils";
@@ -13,9 +14,10 @@ import {
 
 // Opciones de gestión de cuenta/perfil
 const navMain = [
-	{ title: "Mis Campañas", url: "/profile", icon: User },
+	{ title: "Mis Campañas", url: "/mis-campanas", icon: Scroll },
 	{ title: "Mis Fichas", url: "/mis-fichas", icon: ScrollText },
 	{ title: "Mis Mapas", url: "/mis-mapas", icon: Map },
+	{ title: "Tirada de Dados", url: "/dados", icon: Dices },
 	{ title: "Configuración", url: "/profile/settings", icon: Settings },
 ];
 
@@ -24,7 +26,7 @@ function SidebarBrand() {
 	const isCollapsed = state === "collapsed";
 
 	return (
-		<div className="flex items-center gap-3">
+		<Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
 			<div>
 				<img
 					src="/logo.png"
@@ -46,7 +48,7 @@ function SidebarBrand() {
 					</span>
 				</div>
 			)}
-		</div>
+		</Link>
 	);
 }
 
