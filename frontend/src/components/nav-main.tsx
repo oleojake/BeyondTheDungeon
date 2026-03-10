@@ -47,21 +47,25 @@ export function NavMain({
                 <Link
                   to={item.url}
                   className={cn(
-                    "nav-item w-full",
+                    "nav-item w-full flex items-center",
                     isActive && "nav-item-active",
                   )}
                   aria-current={isActive ? "true" : undefined}
                 >
-                  <div className="nav-item-icon text-black">
+                  <div className="nav-item-icon text-black w-12 group-data-[collapsible=icon]:w-16 flex items-center justify-center">
                     {item.icon ? <item.icon /> : <ChevronRight />}
                   </div>
                   <div className="flex-1">
-                    <div className="nav-item-title">{item.title}</div>
+                    <div className="nav-item-title group-data-[collapsible=icon]:hidden">
+                      {item.title}
+                    </div>
                   </div>
                   {item.badge && (
-                    <div className="text-xs font-medium">{item.badge}</div>
+                    <div className="text-xs font-medium group-data-[collapsible=icon]:hidden">
+                      {item.badge}
+                    </div>
                   )}
-                  <ChevronRight className="ml-3 opacity-60" />
+                  <ChevronRight className="ml-3 opacity-60 group-data-[collapsible=icon]:hidden" />
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

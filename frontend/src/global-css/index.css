@@ -20,18 +20,23 @@ h3 {
     --border-color: 214 211 209; /* stone-300 */
   }
 
-  .dark {
-    /* Dark mode colors (dungeon theme) */
-    --bg-primary: 26 20 16; /* dark dungeon stone */
-    --bg-secondary: 44 36 25; /* lighter dungeon stone */
-    --bg-card: 35 28 21; /* card backgrounds */
-    --text-primary: 250 245 230; /* warm light */
-    --text-secondary: 168 162 158; /* stone-400 */
-    --border-color: 61 49 40; /* dark borders */
-  }
+  /* No dark mode override: colors are fixed for the dashboard design */
 
   body {
     @apply bg-[rgb(var(--bg-primary))] text-[rgb(var(--text-primary))] transition-colors duration-300;
+  }
+
+  /* Map semantic utility-like classes to our design tokens so components
+     that use `text-muted-foreground`, `text-foreground` or `bg-background`
+     pick the intended fixed colors. */
+  .text-foreground {
+    color: rgb(var(--text-primary));
+  }
+  .text-muted-foreground {
+    color: rgb(var(--text-secondary));
+  }
+  .bg-background {
+    background-color: rgb(var(--bg-primary));
   }
 
   /* Nav item titles inside the sidebar */
