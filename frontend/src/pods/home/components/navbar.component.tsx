@@ -48,6 +48,12 @@ export const Navbar = () => {
 						>
 							Dados
 						</Link>
+						<Link
+							to={routes.mapaBatalla}
+							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium"
+						>
+							Mapas
+						</Link>
 					</div>
 
 					{/* Auth Buttons */}

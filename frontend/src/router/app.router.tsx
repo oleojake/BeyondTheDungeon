@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { HomeScene, AuthCallbackScene } from "@/scenes";
+import { HomeScene, AuthCallbackScene, MapaBatallaScene, MisMapasScene } from "@/scenes";
 import { LoginScene } from "@/scenes/login.scene";
 import { RegisterScene } from "@/scenes/register.scene";
 import { ProfileScene } from "@/scenes/profile.scene";
@@ -88,6 +88,10 @@ export const AppRouter = () => {
 						</AppLayout>
 					}
 				/>
+				<Route
+					path={switchRoutes.mapaBatalla}
+					element={<MapaBatallaScene />}
+				/>
 
 				{/* Protected routes - auth required */}
 				<Route
@@ -107,6 +111,14 @@ export const AppRouter = () => {
 							<AppLayout>
 								<MisFichasScene />
 							</AppLayout>
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.misMapas}
+					element={
+						<ProtectedRoute>
+							<MisMapasScene />
 						</ProtectedRoute>
 					}
 				/>
