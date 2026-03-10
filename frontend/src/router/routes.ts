@@ -15,6 +15,8 @@ interface SwitchRoutes {
 	misFichas: string;
 	mapaBatalla: string;
 	misMapas: string;
+	misCampanas: string;
+	editarCampana: string;
 	authCallback: string;
 }
 
@@ -35,6 +37,8 @@ export const switchRoutes: SwitchRoutes = {
 	misFichas: "/mis-fichas",
 	mapaBatalla: "/mapa-batalla",
 	misMapas: "/mis-mapas",
+	misCampanas: "/mis-campanas",
+	editarCampana: "/editar-campana/:id",
 	authCallback: "/auth/callback",
 };
 

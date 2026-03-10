@@ -37,7 +37,7 @@ export const LoginContainer = () => {
 		setLoading(true);
 		try {
 			await signIn(formData.email, formData.password);
-			navigate(routes.profile);
+			navigate(routes.misCampanas);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Error desconocido");
 		} finally {

@@ -6,7 +6,7 @@ const FEATURES = [
 		title: "Gestión de Campañas",
 		description: "Crea y administra tus aventuras con facilidad.",
 		color: "from-primary to-primary-dark",
-		url: "/profile",
+		url: "/mis-campanas",
 	},
 	{
 		icon: "/characters.png",

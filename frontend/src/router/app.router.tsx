@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { HomeScene, AuthCallbackScene, MapaBatallaScene, MisMapasScene } from "@/scenes";
+import { HomeScene, AuthCallbackScene, MapaBatallaScene, MisMapasScene, MisCampanasScene, EditarCampanaScene } from "@/scenes";
 import { LoginScene } from "@/scenes/login.scene";
 import { RegisterScene } from "@/scenes/register.scene";
-import { ProfileScene } from "@/scenes/profile.scene";
 import ProfileSettingsScene from "@/scenes/profile-settings.scene";
 import MiFichaScene from "@/scenes/mi-ficha.scene";
 import { MisFichasScene } from "@/scenes/mis-fichas.scene";
@@ -29,15 +28,7 @@ export const AppRouter = () => {
 					element={<AuthCallbackScene />}
 				/>
 
-				{/* Profile with sidebar */}
-				<Route
-					path={switchRoutes.profile}
-					element={
-						<ProtectedRoute>
-							<ProfileScene />
-						</ProtectedRoute>
-					}
-				/>
+				{/* Protected routes - auth required */}
 				<Route
 					path={switchRoutes.profileSettings}
 					element={
@@ -139,6 +130,22 @@ export const AppRouter = () => {
 							<AppLayout>
 								<ObjetosScene />
 							</AppLayout>
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.misCampanas}
+					element={
+						<ProtectedRoute>
+							<MisCampanasScene />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.editarCampana}
+					element={
+						<ProtectedRoute>
+							<EditarCampanaScene />
 						</ProtectedRoute>
 					}
 				/>

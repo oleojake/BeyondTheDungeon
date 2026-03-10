@@ -13,6 +13,22 @@ Herramientas de apoyo para partidas de rol con compendio completo de D&D 5e (bes
 - **Backend**: Node.js + Express (API REST)
 - **Deploy**: Docker + VPS con GitHub Actions (automático en `main`)
 
+## ✨ Características Destacadas
+
+- **📚 Compendio Completo de D&D 5e**: Bestiario, objetos y hechizos con búsqueda y filtros
+- **📝 Fichas de Personaje**: Sistema completo con soporte para multiclase y todos los campos estándar de D&D 5e
+- **🗺️ Mapas de Batalla Interactivos**: Carga imágenes, cuadrícula personalizable, zoom y paneo
+- **🎭 Sistema de Campañas para DMs**:
+  - Organización jerárquica: Campaña → Capítulos → Escenas
+  - Invitaciones por email con sistema de tokens
+  - Editor de texto rico con formato markdown
+  - **Modo de selección en compendios**: Navega directamente al bestiario/objetos/hechizos y selecciona elementos con un click
+  - **Sistema de entidades**: Añade monstruos, objetos, hechizos, NPCs y mapas a tus escenas
+  - **Alias personalizables**: Reutiliza entidades del compendio con nombres únicos (ej: "Goblin" → "Goblin Centinela 1")
+- **🎲 Tirada de Dados**: Simulador de dados para D&D
+- **🔐 Autenticación segura**: Sistema de usuarios con Supabase Auth
+- **🌓 Modo Oscuro**: Interfaz adaptada para sesiones nocturnas
+
 ## 📁 Estructura del Proyecto
 
 ```
@@ -530,6 +546,183 @@ Elimina un mapa de batalla.
 - Solo el dueño puede ver, editar y eliminar sus mapas
 - Retorna `403 Forbidden` si se intenta acceder al mapa de otro usuario
 
+### Campañas (Campaigns)
+
+**⚠️ Requieren autenticación**: Enviar token JWT en header `Authorization: Bearer <token>`
+
+#### Listar campañas
+
+```
+GET /api/campaigns
+```
+
+Obtiene todas las campañas donde el usuario es DM o jugador.
+
+**Respuesta**:
+
+```json
+{
+  "campaigns": [
+    {
+      "id": "uuid",
+      "dm_id": "uuid",
+      "title": "La Mina Perdida de Phandelver",
+      "description": "Aventura para niveles 1-5",
+      "notes": "Notas privadas del DM...",
+      "created_at": "2026-03-10T10:00:00Z",
+      "updated_at": "2026-03-10T14:00:00Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+#### Crear campaña
+
+```
+POST /api/campaigns
+```
+
+Crea una nueva campaña. El usuario creador se convierte automáticamente en DM.
+
+**Body**:
+
+```json
+{
+  "title": "Mi Campaña",
+  "description": "Descripción...",
+  "notes": "Notas del DM..."
+}
+```
+
+#### Actualizar campaña
+
+```
+PUT /api/campaigns/:id
+```
+
+Actualiza los datos de una campaña (solo DM).
+
+#### Eliminar campaña
+
+```
+DELETE /api/campaigns/:id
+```
+
+Elimina una campaña y todo su contenido (solo DM).
+
+#### Transferir rol de DM
+
+```
+PUT /api/campaigns/:id/transfer-dm
+```
+
+Transfiere el rol de DM a otro miembro de la campaña.
+
+**Body**: `{ "new_dm_id": "uuid" }`
+
+#### Miembros de campaña
+
+```
+GET /api/campaigns/:id/members        # Listar miembros
+DELETE /api/campaigns/:campaignId/members/:userId  # Expulsar jugador
+```
+
+#### Invitaciones
+
+```
+GET /api/campaign-invitations                      # Mis invitaciones pendientes
+POST /api/campaigns/:id/invitations                # Crear invitación
+PUT /api/campaign-invitations/:token/accept        # Aceptar invitación
+PUT /api/campaign-invitations/:token/reject        # Rechazar invitación
+DELETE /api/campaign-invitations/:id               # Eliminar invitación (DM)
+```
+
+**Crear invitación**:
+
+```json
+{
+  "email": "jugador@ejemplo.com"
+}
+```
+
+#### Capítulos
+
+```
+GET /api/campaigns/:campaignId/chapters          # Listar capítulos
+POST /api/campaigns/:campaignId/chapters         # Crear capítulo
+PUT /api/chapters/:id                            # Actualizar capítulo
+DELETE /api/chapters/:id                         # Eliminar capítulo
+```
+
+**Crear capítulo**:
+
+```json
+{
+  "title": "Capítulo 1: El Inicio",
+  "content": "Texto del capítulo con **negrita** y > diálogos",
+  "order_index": 0
+}
+```
+
+#### Escenas
+
+```
+GET /api/chapters/:chapterId/scenes              # Listar escenas
+POST /api/chapters/:chapterId/scenes             # Crear escena
+PUT /api/scenes/:id                              # Actualizar escena
+DELETE /api/scenes/:id                           # Eliminar escena
+```
+
+**Crear escena**:
+
+```json
+{
+  "title": "La Emboscada",
+  "content": "Descripción general",
+  "narration_text": "**Os encontráis** en un claro del bosque cuando...\n> ¡Alto ahí, viajeros!",
+  "dm_notes": "3 goblins escondidos, DC 12 Percepción",
+  "battle_map_id": "uuid-del-mapa",
+  "order_index": 0
+}
+```
+
+#### Entidades de Escena
+
+```
+GET /api/scenes/:sceneId/entities                # Listar entidades
+POST /api/scenes/:sceneId/entities               # Añadir entidad
+DELETE /api/scene-entities/:id                   # Eliminar entidad
+```
+
+**Añadir entidad**:
+
+```json
+{
+  "entity_type": "monster",
+  "entity_id": "goblin",
+  "entity_name": "Goblin Líder"
+}
+```
+
+**Tipos de entidad**: `monster`, `item`, `spell`, `npc`, `map`
+
+**Flujo de añadir entidades**:
+
+1. **Desde el compendio** (monster, item, spell):
+   - El usuario navega al compendio correspondiente en "modo de selección"
+   - Selecciona el elemento deseado
+   - Es redirigido de vuelta al editor de campaña con los datos de la entidad
+   - Puede añadir un alias opcional antes de confirmar
+
+2. **NPCs personalizados**:
+   - El usuario introduce el nombre del NPC directamente
+   - Puede añadir notas adicionales sobre el NPC
+
+3. **Mapas de batalla**:
+   - El usuario selecciona de un desplegable con sus mapas guardados
+   - El mapa se asocia a la escena
+
 ### Utilidades
 
 ```
@@ -707,6 +900,362 @@ Los usuarios registrados pueden cargar y gestionar mapas de batalla interactivos
 - **Capas**: Sistema de capas para tokens, efectos y anotaciones
 - **Compartir mapas**: Compartir mapas entre el DM y los jugadores de una campaña
 - **Integración con campañas**: Vincular mapas con sesiones de juego específicas
+
+---
+
+### 📜 Campañas
+
+Sistema completo de gestión de campañas de D&D para Dungeon Masters y jugadores.
+
+#### Características:
+
+- **Gestión de campañas como DM**:
+  - Crear campañas con título, descripción y notas privadas
+  - Invitar jugadores por email con sistema de tokens
+  - Transferir rol de DM a otro jugador
+  - Expulsar jugadores de la campaña
+  - Organización jerárquica: Campaña → Capítulos → Escenas
+
+- **Sistema de invitaciones**:
+  - Invitar jugadores por email
+  - Notificaciones de invitaciones pendientes
+  - Aceptar/rechazar invitaciones
+  - Expiración automática (7 días)
+
+- **Capítulos**:
+  - Crear capítulos con título y contenido
+  - Editor de texto rico con formato markdown
+  - Ordenar capítulos (order_index)
+  - Cada capítulo contiene múltiples escenas
+
+- **Escenas**:
+  - **Texto de narración**: Texto formateado para leer a los jugadores
+    - `**negrita**` para énfasis (se mostrará destacado)
+    - `> texto` para diálogos de personajes (formato de cita)
+  - **Notas privadas del DM**: Solo visibles para el Dungeon Master
+  - **Asociar mapa de batalla**: Vincular un mapa a la escena
+  - **Entidades asociadas**: Añadir monstruos, objetos, hechizos o NPCs
+  - Ordenar escenas dentro del capítulo
+
+- **Entidades en escenas**:
+  - Asociar **monstruos** del bestiario navegando al compendio
+  - Asociar **objetos** del compendio de equipo y armas
+  - Asociar **hechizos** del grimorio completo
+  - Crear **NPCs personalizados** con nombre y notas
+  - Asociar **mapas de batalla** a la escena
+  - Sistema de **alias**: Personalizar el nombre de entidades del compendio
+  - **Modo de selección**: Los compendios detectan cuando estás añadiendo entidades y te permiten seleccionar directamente
+
+- **Editor de texto rico**:
+  - Botón para aplicar **negrita** al texto seleccionado
+  - Botón para convertir línea en > diálogo
+  - Vista previa en tiempo real del formato
+  - Sintaxis markdown simple y clara
+
+#### Uso:
+
+**1. Crear una campaña (DM)**:
+
+- Accede a "Mis Campañas" desde el sidebar
+- Click en "Nueva Campaña"
+- Introduce título, descripción y notas privadas del DM
+- Click en "Crear Campaña" → Te conviertes en DM automáticamente
+- Serás redirigido al editor de la campaña
+
+**2. Invitar jugadores**:
+
+- En el editor de campaña, ve a la pestaña "Jugadores"
+- Introduce el email del jugador
+- Click en "Enviar Invitación"
+- El jugador recibirá una invitación que aparecerá en su "Mis Campañas"
+
+**3. Organizar la campaña**:
+
+- **Pestaña General**: Edita título, descripción y notas DM
+- **Pestaña Capítulos y Escenas**:
+  - Click en "+ Nuevo Capítulo"
+  - Escribe el título y contenido del capítulo
+  - Dentro del capítulo, click en "+ Nueva Escena"
+  - Completa los datos de la escena:
+    - **Título**: Nombre de la escena
+    - **Narración**: Texto para leer a los jugadores
+      - Usa `**texto**` para destacar cosas importantes
+      - Usa `> Diálogo` para palabras de NPCs
+    - **Notas DM**: Recordatorios, DCs, tesoros ocultos, etc.
+    - **Mapa**: Selecciona un mapa de batalla (opcional)
+  - Click en "Añadir Entidad" para asociar contenido a la escena
+
+**4. Añadir entidades a una escena**:
+
+El sistema te permite añadir 5 tipos de entidades:
+
+- **Monstruos, Objetos y Hechizos** (del compendio):
+  1. En el diálogo de "Añadir Entidad", selecciona el tipo (Monstruo/Objeto/Hechizo)
+  2. Click en "Ir al Compendio" → Se abrirá el compendio correspondiente
+  3. El compendio mostrará una alerta azul indicando el modo de selección
+  4. Busca y haz click en el elemento que deseas añadir
+  5. Volverás automáticamente a la campaña con la entidad seleccionada
+  6. Se mostrará un card con información de la entidad (tamaño/CR para monstruos, nivel/escuela para hechizos)
+  7. _(Opcional)_ Añade un alias/nombre personalizado (ej: "Dragón Rojo Adulto" → "Smaug el Terrible")
+  8. Click en "Añadir Entidad" para confirmar
+
+- **NPCs personalizados**:
+  1. Selecciona tipo "NPC"
+  2. Introduce el nombre del NPC (ej: "Tabernero Willem")
+  3. _(Opcional)_ Añade notas sobre el NPC (descripción, motivaciones, estadísticas)
+  4. Click en "Añadir Entidad"
+
+- **Mapas de batalla**:
+  1. Selecciona tipo "Mapa de Batalla"
+  2. Elige uno de tus mapas guardados del desplegable
+  3. Click en "Añadir Entidad"
+
+**Ventajas del sistema de alias**:
+
+- Puedes usar el mismo monstruo múltiples veces con nombres diferentes
+  - Ejemplo: "Goblin" → "Goblin Centinela 1", "Goblin Centinela 2"
+- Personaliza objetos genéricos
+  - Ejemplo: "Espada Larga" → "Espada del Alba"
+- Si no añades alias, se usará el nombre original del compendio
+
+**5. Durante la partida** (funcionalidad futura):
+
+- El DM abrirá la escena correspondiente
+- Verá el texto de narración formateado
+- Podrá abrir el mapa de batalla asociado
+- Las entidades de la escena estarán disponibles como tokens
+
+#### Ejemplo de narración:
+
+```markdown
+**Os adentráis** en la oscura cueva. El olor a azufre es insoportable.
+
+> ¿Quién osa entrar en mi guarida? - retumba una voz grave
+
+Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón rojo**.
+```
+
+**Vista previa renderizada**:
+
+**Os adentráis** en la oscura cueva. El olor a azufre es insoportable.
+
+> ¿Quién osa entrar en mi guarida? - retumba una voz grave
+
+Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón rojo**.
+
+#### Estructura de datos:
+
+**Campaña**:
+
+```json
+{
+  "id": "uuid",
+  "dm_id": "uuid",
+  "title": "La Mina Perdida de Phandelver",
+  "description": "Aventura inicial para nuevos jugadores",
+  "notes": "Recordar: Gundren está capturado en Cragmaw Castle"
+}
+```
+
+**Capítulo**:
+
+```json
+{
+  "id": "uuid",
+  "campaign_id": "uuid",
+  "title": "Capítulo 1: El Camino a Phandalin",
+  "content": "Los personajes son contratados para escoltar un carro...",
+  "order_index": 0
+}
+```
+
+**Escena**:
+
+```json
+{
+  "id": "uuid",
+  "chapter_id": "uuid",
+  "title": "Emboscada Goblin",
+  "narration_text": "**Veis dos caballos** muertos en el camino...\n> ¡Atacad!",
+  "dm_notes": "4 goblins (HP:7 cada uno). DC 15 Percepción para detectar la trampa.",
+  "battle_map_id": "uuid",
+  "order_index": 0
+}
+```
+
+**Entidad de Escena**:
+
+```json
+{
+  "id": "uuid",
+  "scene_id": "uuid",
+  "entity_type": "monster",
+  "entity_id": "goblin",
+  "entity_name": "Goblin Arquero",
+  "entity_data": {
+    "quantity": 4,
+    "hp_current": 7,
+    "notes": "Escondidos detrás de las rocas"
+  }
+}
+```
+
+**Tipos de entidad**: `monster`, `item`, `spell`, `npc`, `map`
+
+**Ejemplos de entidades**:
+
+1. **Monstruo con alias**:
+
+   ```json
+   {
+     "entity_type": "monster",
+     "entity_id": "ancient-red-dragon",
+     "entity_name": "Smaug el Terrible"
+   }
+   ```
+
+2. **NPC personalizado**:
+
+   ```json
+   {
+     "entity_type": "npc",
+     "entity_id": "tabernero-willem",
+     "entity_name": "Tabernero Willem"
+   }
+   ```
+
+3. **Objeto del compendio**:
+
+   ```json
+   {
+     "entity_type": "item",
+     "entity_id": "longsword",
+     "entity_name": "Espada Larga"
+   }
+   ```
+
+4. **Mapa de batalla**:
+   ```json
+   {
+     "entity_type": "map",
+     "entity_id": "uuid-del-mapa",
+     "entity_name": "Cueva del Dragón"
+   }
+   ```
+
+#### Rutas:
+
+- `/`: Página principal pública (información del proyecto)
+- `/mis-campanas`: Listado de campañas (como DM o jugador) - **Ruta por defecto después del login**
+- `/editar-campana/:id`: Editor completo de campaña (solo DM)
+- `/bestiario`: Compendio de monstruos (público)
+- `/objetos`: Compendio de objetos y equipo (público)
+- `/hechizos`: Compendio de hechizos (público)
+- `/dados`: Tirada de dados (accesible desde el sidebar)
+
+**Navegación**:
+
+- El **logo "Beyond the Dungeon"** en el sidebar siempre redirige a la página principal pública (`/`)
+- Después de **iniciar sesión o confirmar email**, se redirige automáticamente a `/mis-campanas`
+- El sidebar incluye acceso directo a "Tirada de Dados" para una experiencia rápida durante las partidas
+
+#### Roles y permisos:
+
+- **Dungeon Master (DM)**:
+  - Crear, editar y eliminar la campaña
+  - Invitar y expulsar jugadores
+  - Crear y editar capítulos y escenas
+  - Ver y editar todas las notas
+  - Transferir rol de DM a otro jugador
+
+- **Jugador**:
+  - Ver la campaña en la lista
+  - Ver contenido público (futuro: durante la partida)
+  - No puede editar ni ver notas del DM
+
+#### Consideraciones técnicas:
+
+- **Base de datos**: PostgreSQL con RLS estricto
+- **Seguridad**: Solo el DM puede modificar la campaña
+- **Formato de texto**: Markdown simple (**negrita** y > diálogos)
+- **Cascada**: Eliminar campaña → elimina capítulos → elimina escenas → elimina entidades
+- **Ordenamiento**: `order_index` para mantener orden de capítulos y escenas
+
+#### Funcionalidades futuras:
+
+- **Sesiones de juego en vivo**: Sistema de chat y narración en tiempo real
+- **Arrastrar entidades al mapa**: Durante la partida, mover tokens al mapa de batalla
+- **Dados compartidos**: Todos ven las tiradas del DM
+- **Notas de jugador**: Los jugadores pueden tomar notas en cada sesión
+- **Historial de sesiones**: Registro de qué escenas se jugaron y cuándo
+- **Compartir campañas**: Exportar/importar campañas entre DMs
+- **Notificaciones por email**: Emails reales cuando te invitan a una campaña
+
+---
+
+### 🔗 Modo de Selección en Compendios
+
+Los compendios (Bestiario, Objetos, Hechizos) tienen un **modo de selección** integrado que simplifica el proceso de añadir entidades a las escenas de campaña.
+
+#### ¿Cómo funciona?
+
+Cuando accedes a un compendio desde el editor de campaña (al añadir una entidad), el compendio entra automáticamente en **modo de selección**:
+
+1. **Indicador visual**: Se muestra una alerta azul en la parte superior indicando que estás en modo de selección
+2. **Comportamiento cambiado**: Al hacer click en un elemento, en lugar de ver su detalle, vuelves automáticamente a la campaña con ese elemento seleccionado
+3. **Flujo continuo**: No necesitas copiar IDs ni buscar manualmente - todo es visual e intuitivo
+
+#### Características del modo de selección:
+
+- **Sin cambio de contexto**: El compendio mantiene tu búsqueda y filtros mientras seleccionas
+- **Información previa**: Puedes ver las estadísticas básicas antes de seleccionar (CR, nivel, tipo, etc.)
+- **Cancela fácilmente**: Si cambias de opinión, simplemente navega de vuelta a la campaña sin seleccionar nada
+- **Vista previa en campaña**: Una vez seleccionado, ves un resumen de la entidad antes de confirmar
+
+#### Parámetros de navegación:
+
+Cuando navegas al compendio en modo selección, se pasan estos parámetros vía `state`:
+
+```javascript
+{
+  selectMode: true,           // Activa el modo de selección
+  sceneId: "uuid",           // ID de la escena
+  campaignId: "uuid"         // ID de la campaña
+}
+```
+
+Al seleccionar una entidad, se navega de vuelta con:
+
+```javascript
+{
+  selectedEntity: {
+    id: "ancient-red-dragon",
+    name: "Dragón Rojo Ancestral",
+    entityType: "monster",
+    data: { /* datos completos del monstruo */ }
+  },
+  sceneId: "uuid"
+}
+```
+
+#### Ejemplo de uso:
+
+1. Estás editando la escena "Emboscada en el Bosque"
+2. Click en "Añadir Entidad" → Seleccionas tipo "Monstruo"
+3. Click en "Ir al Compendio" → Se abre el bestiario con alerta azul
+4. Buscas "goblin" en la barra de búsqueda
+5. Click en "Goblin" → Vuelves a la campaña automáticamente
+6. Ves el card con "Goblin" seleccionado (Tamaño: Small, CR: 0.25)
+7. Añades alias "Goblin Centinela 1" (opcional)
+8. Click en "Añadir Entidad" → ¡Listo!
+
+#### Beneficios:
+
+- ✅ **Navegación fluida**: No pierdes el contexto de lo que estabas haciendo
+- ✅ **Visual e intuitivo**: Ves las opciones antes de seleccionar
+- ✅ **Sin errores**: No necesitas copiar/pegar IDs manualmente
+- ✅ **Búsqueda completa**: Acceso a todo el compendio con filtros y búsqueda
+- ✅ **Reutilizable**: El mismo sistema funciona para monstruos, objetos y hechizos
 
 ---
 
