@@ -43,6 +43,13 @@ const FEATURES = [
 		color: "from-accent to-secondary",
 		url: "/hechizos",
 	},
+	{
+		icon: "",
+		title: "Objetos y Equipo",
+		description: "Armas, armaduras y objetos mágicos del SRD.",
+		color: "from-yellow-700 to-amber-900",
+		url: "/objetos",
+	},
 ];
 
 export const Features = () => {
@@ -83,14 +90,14 @@ export const Features = () => {
 							<div
 								className={`relative w-full h-64 bg-gradient-to-br ${feature.color} overflow-hidden`}
 							>
-								<img
-									src={feature.icon}
-									alt={feature.title}
-									className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-								/>
+								{feature.icon && (
+									<img
+										src={feature.icon}
+										alt={feature.title}
+										className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+									/>
+								)}
 							</div>
-
-							{/* Content */}
 							<div className="p-6">
 								<h3 className="text-xl font-bold text-stone-800 dark:text-amber-50 mb-3">
 									{feature.title}
