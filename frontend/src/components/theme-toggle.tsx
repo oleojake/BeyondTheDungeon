@@ -8,7 +8,7 @@ export const ThemeToggle = () => {
       if (stored) {
         return stored === "dark";
       }
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      return true; // dark by default
     }
     return false;
   });
