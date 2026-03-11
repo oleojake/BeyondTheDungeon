@@ -82,6 +82,7 @@ export const MapaBatallaScene = () => {
   const [imageObj, setImageObj] = useState<HTMLImageElement | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
 
   // Verificar autenticación
   useEffect(() => {
@@ -99,6 +100,7 @@ export const MapaBatallaScene = () => {
   }, [searchParams, isAuthenticated]);
 
   const loadExistingMap = async (id: string) => {
+    setIsLoadingImage(true);
     try {
       const { map } = await getBattleMap(id);
       setMapState({
@@ -123,6 +125,7 @@ export const MapaBatallaScene = () => {
       const img = new Image();
       img.onload = () => {
         setImageObj(img);
+        setIsLoadingImage(false);
       };
       img.src = mapState.image;
     }
@@ -213,6 +216,7 @@ export const MapaBatallaScene = () => {
 
     const reader = new FileReader();
     reader.onload = (event) => {
+      setIsLoadingImage(true);
       setMapState((prev) => ({
         ...prev,
         image: event.target?.result as string,
@@ -299,6 +303,26 @@ export const MapaBatallaScene = () => {
 
   return (
     <div className="fixed inset-0 bg-background flex">
+      {/* Loading image overlay */}
+      {isLoadingImage && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm font-medium text-muted-foreground">Cargando imagen...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Saving overlay */}
+      {isSaving && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm font-medium text-muted-foreground">Guardando mapa...</p>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar */}
       <aside className="w-80 bg-card border-r border-border p-6 overflow-y-auto">
         <div className="space-y-6">
