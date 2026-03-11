@@ -1,5 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { HomeScene, AuthCallbackScene, MapaBatallaScene, MisMapasScene, MisCampanasScene, EditarCampanaScene } from "@/scenes";
+import {
+	HomeScene,
+	AuthCallbackScene,
+	MapaBatallaScene,
+	MisMapasScene,
+	MisCampanasScene,
+	EditarCampanaScene,
+} from "@/scenes";
 import { LoginScene } from "@/scenes/login.scene";
 import { RegisterScene } from "@/scenes/register.scene";
 import ProfileSettingsScene from "@/scenes/profile-settings.scene";
@@ -79,10 +86,7 @@ export const AppRouter = () => {
 						</AppLayout>
 					}
 				/>
-				<Route
-					path={switchRoutes.mapaBatalla}
-					element={<MapaBatallaScene />}
-				/>
+				<Route path={switchRoutes.mapaBatalla} element={<MapaBatallaScene />} />
 
 				{/* Protected routes - auth required */}
 				<Route
@@ -126,11 +130,9 @@ export const AppRouter = () => {
 				<Route
 					path={switchRoutes.objetos}
 					element={
-						<ProtectedRoute>
-							<AppLayout>
-								<ObjetosScene />
-							</AppLayout>
-						</ProtectedRoute>
+						<AppLayout>
+							<ObjetosScene />
+						</AppLayout>
 					}
 				/>
 				<Route
