@@ -8,6 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ==============================================================================
 CREATE TABLE public.profiles (
 id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+email TEXT,
 username TEXT UNIQUE,
 display_name TEXT,
 avatar_url TEXT,
@@ -30,8 +31,14 @@ USING (auth.uid() = id);
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-INSERT INTO public.profiles (id, username, display_name)
-VALUES (new.id, new.email, split_part(new.email, '@', 1));
+INSERT INTO public.profiles (id, email, username, display_name, avatar_url)
+VALUES (
+new.id,
+new.email,
+new.raw_user_meta_data->>'username',
+new.raw_user_meta_data->>'displayName',
+new.raw_user_meta_data->>'avatarUrl'
+);
 RETURN new;
 END;
 
@@ -153,11 +160,14 @@ CREATE TABLE public.characters (
   campaign_id UUID REFERENCES public.campaigns(id),
   name TEXT NOT NULL,
   race TEXT,
-  class_level TEXT,
+  classes JSONB DEFAULT '[{"name": "", "level": 1}]', -- Array de clases para multiclase
   background TEXT,
+  experience_points INT DEFAULT 0,
   stats JSONB DEFAULT '{}',
-  inventory JSONB DEFAULT '[]',
-  spells_known JSONB DEFAULT '[]',
+  inventory TEXT,
+  spells_known TEXT,
+  equipment TEXT,
+  notes TEXT,
   is_npc BOOLEAN DEFAULT FALSE,
   is_public BOOLEAN DEFAULT FALSE,
   avatar_url TEXT,
@@ -177,6 +187,81 @@ CREATE POLICY "Editar mis personajes" ON public.characters FOR UPDATE USING (aut
 CREATE POLICY "GM edita personajes de su campaña" ON public.characters FOR UPDATE USING (
   EXISTS (SELECT 1 FROM public.campaigns WHERE id = campaign_id AND gm_id = auth.uid())
 );
+
+-- Política de inserción
+CREATE POLICY "Crear mis personajes" ON public.characters FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ESTRUCTURA DE DATOS EN FICHAS DE PERSONAJE
+-- ==============================================================================
+--
+-- Campo 'classes' (JSONB): Sistema de multiclase
+-- Estructura: [{"name": "Clase", "level": número}, ...]
+-- Ejemplo single class: [{"name": "Guerrero", "level": 5}]
+-- Ejemplo multiclass: [{"name": "Guerrero", "level": 3}, {"name": "Pícaro", "level": 2}]
+--
+-- Campo 'stats' (JSONB): Estadísticas completas del personaje
+-- Estructura:
+-- {
+--   "strength": 10,
+--   "dexterity": 10,
+--   "constitution": 10,
+--   "intelligence": 10,
+--   "wisdom": 10,
+--   "charisma": 10,
+--   "max_hp": 10,
+--   "current_hp": 10,
+--   "temp_hp": 0,
+--   "armor_class": 10,
+--   "initiative": 0,
+--   "speed": 30,
+--   "proficiency_bonus": 2,
+--   "saving_throws": {
+--     "strength": false,
+--     "dexterity": false,
+--     "constitution": false,
+--     "intelligence": false,
+--     "wisdom": false,
+--     "charisma": false
+--   },
+--   "skills": {
+--     "acrobatics": false,
+--     "animal_handling": false,
+--     "arcana": false,
+--     "athletics": false,
+--     "deception": false,
+--     "history": false,
+--     "insight": false,
+--     "intimidation": false,
+--     "investigation": false,
+--     "medicine": false,
+--     "nature": false,
+--     "perception": false,
+--     "performance": false,
+--     "persuasion": false,
+--     "religion": false,
+--     "sleight_of_hand": false,
+--     "stealth": false,
+--     "survival": false
+--   },
+--   "hit_dice": "1d8",
+--   "death_saves": {
+--     "successes": 0,
+--     "failures": 0
+--   },
+--   "personality_traits": "",
+--   "ideals": "",
+--   "bonds": "",
+--   "flaws": "",
+--   "languages": "",
+--   "proficiencies": "",
+--   "features_traits": ""
+-- }
+--
+-- Campos de texto libre:
+-- - inventory: Inventario del personaje (texto libre)
+-- - spells_known: Lista de hechizos conocidos (texto libre)
+-- - equipment: Equipo, armas y armaduras (texto libre)
+-- - notes: Notas generales del personaje (texto libre)
 
 -- ==============================================================================
 -- 6. TABLERO VIRTUAL (VTT)

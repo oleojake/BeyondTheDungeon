@@ -1,10 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { HomeScene, AuthCallbackScene } from "@/scenes";
+import {
+	HomeScene,
+	AuthCallbackScene,
+	MapaBatallaScene,
+	MisMapasScene,
+	MisCampanasScene,
+	EditarCampanaScene,
+} from "@/scenes";
 import { LoginScene } from "@/scenes/login.scene";
 import { RegisterScene } from "@/scenes/register.scene";
-import { ProfileScene } from "@/scenes/profile.scene";
 import ProfileSettingsScene from "@/scenes/profile-settings.scene";
 import MiFichaScene from "@/scenes/mi-ficha.scene";
+import { MisFichasScene } from "@/scenes/mis-fichas.scene";
 import DadosScene from "@/scenes/dados.scene";
 import HechizosScene from "@/scenes/hechizos.scene";
 import HechizosDetalleScene from "@/scenes/hechizos-detalle.scene";
@@ -28,15 +35,7 @@ export const AppRouter = () => {
 					element={<AuthCallbackScene />}
 				/>
 
-				{/* Profile with sidebar */}
-				<Route
-					path={switchRoutes.profile}
-					element={
-						<ProtectedRoute>
-							<ProfileScene />
-						</ProtectedRoute>
-					}
-				/>
+				{/* Protected routes - auth required */}
 				<Route
 					path={switchRoutes.profileSettings}
 					element={
@@ -79,6 +78,15 @@ export const AppRouter = () => {
 						</AppLayout>
 					}
 				/>
+				<Route
+					path={switchRoutes.dados}
+					element={
+						<AppLayout>
+							<DadosScene />
+						</AppLayout>
+					}
+				/>
+				<Route path={switchRoutes.mapaBatalla} element={<MapaBatallaScene />} />
 
 				{/* Protected routes - auth required */}
 				<Route
@@ -92,12 +100,20 @@ export const AppRouter = () => {
 					}
 				/>
 				<Route
-					path={switchRoutes.dados}
+					path={switchRoutes.misFichas}
 					element={
 						<ProtectedRoute>
 							<AppLayout>
-								<DadosScene />
+								<MisFichasScene />
 							</AppLayout>
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.misMapas}
+					element={
+						<ProtectedRoute>
+							<MisMapasScene />
 						</ProtectedRoute>
 					}
 				/>
@@ -114,10 +130,24 @@ export const AppRouter = () => {
 				<Route
 					path={switchRoutes.objetos}
 					element={
+						<AppLayout>
+							<ObjetosScene />
+						</AppLayout>
+					}
+				/>
+				<Route
+					path={switchRoutes.misCampanas}
+					element={
 						<ProtectedRoute>
-							<AppLayout>
-								<ObjetosScene />
-							</AppLayout>
+							<MisCampanasScene />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path={switchRoutes.editarCampana}
+					element={
+						<ProtectedRoute>
+							<EditarCampanaScene />
 						</ProtectedRoute>
 					}
 				/>

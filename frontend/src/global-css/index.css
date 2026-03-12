@@ -2,9 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fantasy font for headings */
-h1, h2, h3 {
-  font-family: 'Cinzel', serif;
+/* Fantasy font for headings (decorative + uncial fallback) */
+h1,
+h2,
+h3 {
+  font-family: "Cinzel Decorative", "Uncial Antiqua", serif;
 }
 
 @layer base {
@@ -18,17 +20,79 @@ h1, h2, h3 {
     --border-color: 214 211 209; /* stone-300 */
   }
 
-  .dark {
-    /* Dark mode colors (dungeon theme) */
-    --bg-primary: 26 20 16; /* dark dungeon stone */
-    --bg-secondary: 44 36 25; /* lighter dungeon stone */
-    --bg-card: 35 28 21; /* card backgrounds */
-    --text-primary: 250 245 230; /* warm light */
-    --text-secondary: 168 162 158; /* stone-400 */
-    --border-color: 61 49 40; /* dark borders */
-  }
+  /* No dark mode override: colors are fixed for the dashboard design */
 
   body {
     @apply bg-[rgb(var(--bg-primary))] text-[rgb(var(--text-primary))] transition-colors duration-300;
+  }
+
+  /* Map semantic utility-like classes to our design tokens so components
+     that use `text-muted-foreground`, `text-foreground` or `bg-background`
+     pick the intended fixed colors. */
+  .text-foreground {
+    color: rgb(var(--text-primary));
+  }
+  .text-muted-foreground {
+    color: rgb(var(--text-secondary));
+  }
+  .bg-background {
+    background-color: rgb(var(--bg-primary));
+  }
+
+  /* Nav item titles inside the sidebar */
+  .nav-item-title {
+    font-family: "Uncial Antiqua", "Cinzel Decorative", serif;
+    letter-spacing: 0.2px;
+  }
+
+  /* Nuevo estilo único para el menú lateral */
+  .nav-item {
+    @apply flex items-center gap-3 p-3 rounded-lg transition-all duration-200 select-none;
+    background: transparent;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-item:hover {
+    @apply bg-amber-700/10 backdrop-blur-sm scale-[1.01];
+    transform-origin: left center;
+  }
+
+  .nav-item-icon {
+    @apply flex items-center justify-center h-12 w-12 rounded-md text-amber-600 bg-gradient-to-br from-amber-100/60 to-amber-200/40;
+    box-shadow: 0 6px 18px rgba(43, 22, 8, 0.08);
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .nav-item-icon svg {
+    @apply h-6 w-6;
+  }
+
+  .nav-item-subtle {
+    @apply text-sm text-amber-500/80 mt-0.5;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial;
+  }
+
+  .nav-item-active {
+    @apply bg-amber-700/20;
+    border-left-color: rgb(234 179 8 / 1); /* amber-400 */
+  }
+
+  .nav-item[aria-current="true"] {
+    @apply bg-amber-700/20;
+    border-left-color: rgb(234 179 8 / 1);
+  }
+
+  .nav-item-icon:active,
+  .nav-item:active {
+    transform: translateY(1px) scale(0.995);
   }
 }
