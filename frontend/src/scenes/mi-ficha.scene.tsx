@@ -22,7 +22,7 @@ import type {
   CharacterClass
 } from "@/interfaces/character";
 import { defaultCharacterStats } from "@/interfaces/character";
-import { DND_RACES, DND_CLASSES, DND_ALIGNMENTS, DND_BACKGROUNDS, DND_SKILLS, DND_ABILITIES, DND_PROFICIENCIES } from "@/constants/dnd5e";
+import { DND_RACES, DND_CLASSES, DND_BACKGROUNDS, DND_SKILLS, DND_ABILITIES, DND_PROFICIENCIES } from "@/constants/dnd5e";
 import { switchRoutes } from "@/router/routes";
 import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X } from "lucide-react";
 
