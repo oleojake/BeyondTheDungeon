@@ -2,6 +2,51 @@ import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import { supabase } from "./supabase.js";
+import nodemailer from "nodemailer";
+
+// ─── Mailer setup (optional – only sends if SMTP_HOST is configured) ─────────
+let transporter = null;
+if (process.env.SMTP_HOST) {
+	transporter = nodemailer.createTransport({
+		host: process.env.SMTP_HOST,
+		port: parseInt(process.env.SMTP_PORT || "587"),
+		secure: process.env.SMTP_SECURE === "true",
+		auth: {
+			user: process.env.SMTP_USER,
+			pass: process.env.SMTP_PASS,
+		},
+	});
+}
+
+const sendSessionEmail = async (to, campaignTitle, sessionNumber, dmName, appUrl) => {
+	if (!transporter) {
+		console.log(`[EMAIL skipped – SMTP not configured] → ${to}`);
+		return;
+	}
+	try {
+		await transporter.sendMail({
+			from: process.env.SMTP_FROM || "Beyond The Dungeon <noreply@beyondthedungeon.org>",
+			to,
+			subject: `¡La partida comienza! – ${campaignTitle} (Sesión ${sessionNumber})`,
+			html: `
+				<div style="font-family:sans-serif;max-width:600px;margin:auto">
+					<h2 style="color:#7c3aed">🎲 Beyond The Dungeon</h2>
+					<h3>${campaignTitle} – Sesión ${sessionNumber}</h3>
+					<p>El Dungeon Master <strong>${dmName}</strong> ha iniciado la sesión.</p>
+					<p>Entra a la app para unirte a la partida:</p>
+					<a href="${appUrl}/mis-campanas"
+					   style="display:inline-block;padding:12px 24px;background:#7c3aed;color:#fff;border-radius:6px;text-decoration:none">
+						Ir a Mis Campañas
+					</a>
+					<p style="color:#666;font-size:12px;margin-top:24px">
+						Recibes este correo porque eres miembro de la campaña en Beyond The Dungeon.
+					</p>
+				</div>`,
+		});
+	} catch (err) {
+		console.error("[EMAIL ERROR]", err.message);
+	}
+};
 
 const app = express();
 
@@ -2086,6 +2131,409 @@ app.delete("/api/scene-entities/:id", async (req, res) => {
 			error: "Error interno",
 			details: err.message,
 		});
+	}
+});
+
+// ==============================================================================
+// GAME SESSIONS (Partidas Online)
+// ==============================================================================
+
+// Helper: crea cliente Supabase autenticado con el token del usuario
+const makeAuthClient = (token) =>
+	createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+		global: { headers: { Authorization: `Bearer ${token}` } },
+	});
+
+// ── GET /api/campaigns/:id/session ──────────────────────────────────────────
+// Devuelve la sesión activa o pausada más reciente de la campaña.
+// Si no existe devuelve null.  Cualquier miembro puede consultarla.
+app.get("/api/campaigns/:id/session", requireAuth, async (req, res) => {
+	try {
+		const { id: campaignId } = req.params;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+
+		const { data, error } = await db
+			.from("game_sessions")
+			.select("*")
+			.eq("campaign_id", campaignId)
+			.in("status", ["active", "paused"])
+			.order("created_at", { ascending: false })
+			.limit(1)
+			.maybeSingle();
+
+		if (error) return res.status(500).json({ error: error.message });
+		res.json({ session: data });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── POST /api/campaigns/:id/session/start ────────────────────────────────────
+// El DM inicia o reanuda la sesión.  Si ya hay una 'paused' la reactiva;
+// si no, crea una nueva.  Envía email a todos los miembros.
+app.post("/api/campaigns/:id/session/start", requireAuth, async (req, res) => {
+	try {
+		const { id: campaignId } = req.params;
+		const dmId = req.user.id;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+
+		// Verificar que el solicitante es DM de la campaña
+		const { data: campaign, error: cError } = await db
+			.from("campaigns")
+			.select("id, title, dm_id")
+			.eq("id", campaignId)
+			.single();
+
+		if (cError || !campaign) return res.status(404).json({ error: "Campaña no encontrada" });
+		if (campaign.dm_id !== dmId) return res.status(403).json({ error: "Solo el DM puede iniciar la sesión" });
+
+		// Buscar sesión pausada existente
+		const { data: existingSession } = await db
+			.from("game_sessions")
+			.select("*")
+			.eq("campaign_id", campaignId)
+			.eq("status", "paused")
+			.order("created_at", { ascending: false })
+			.limit(1)
+			.maybeSingle();
+
+		let session;
+		if (existingSession) {
+			// Reanudar la sesión pausada
+			const { data: updated, error: uErr } = await db
+				.from("game_sessions")
+				.update({ status: "active", started_at: new Date().toISOString() })
+				.eq("id", existingSession.id)
+				.select()
+				.single();
+			if (uErr) return res.status(500).json({ error: uErr.message });
+			session = updated;
+		} else {
+			// Contar sesiones anteriores para el session_number
+			const { count } = await db
+				.from("game_sessions")
+				.select("*", { count: "exact", head: true })
+				.eq("campaign_id", campaignId);
+
+			const { data: created, error: cErr } = await db
+				.from("game_sessions")
+				.insert({
+					campaign_id: campaignId,
+					dm_id: dmId,
+					status: "active",
+					session_number: (count || 0) + 1,
+				})
+				.select()
+				.single();
+			if (cErr) return res.status(500).json({ error: cErr.message });
+
+			// Crear combat_state inicial para la sesión
+			await db.from("combat_state").insert({ session_id: created.id });
+
+			session = created;
+		}
+
+		// Obtener miembros de la campaña para enviar emails
+		const { data: members } = await db
+			.from("campaign_members")
+			.select("user_id")
+			.eq("campaign_id", campaignId);
+
+		if (members && members.length > 0) {
+			const userIds = members.map((m) => m.user_id);
+			const { data: profiles } = await db
+				.from("profiles")
+				.select("email, display_name, username")
+				.in("id", userIds);
+
+			const { data: dmProfile } = await db
+				.from("profiles")
+				.select("display_name, username")
+				.eq("id", dmId)
+				.single();
+			const dmName = dmProfile?.display_name || dmProfile?.username || "El DM";
+
+			const appUrl = process.env.APP_URL || "https://beyondthedungeon.org";
+
+			if (profiles) {
+				for (const profile of profiles) {
+					if (profile.email && profile.email !== req.user.email) {
+						await sendSessionEmail(
+							profile.email,
+							campaign.title,
+							session.session_number,
+							dmName,
+							appUrl
+						);
+					}
+				}
+			}
+		}
+
+		res.json({ session });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── PUT /api/sessions/:id/state ───────────────────────────────────────────────
+// Guarda el estado de la sesión (mapa, escena activa, etc.). Solo DM.
+app.put("/api/sessions/:id/state", requireAuth, async (req, res) => {
+	try {
+		const { id: sessionId } = req.params;
+		const { session_state, current_scene_id, current_map_id } = req.body;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+
+		const updates = {};
+		if (session_state !== undefined) updates.session_state = session_state;
+		if (current_scene_id !== undefined) updates.current_scene_id = current_scene_id;
+		if (current_map_id !== undefined) updates.current_map_id = current_map_id;
+
+		const { data, error } = await db
+			.from("game_sessions")
+			.update(updates)
+			.eq("id", sessionId)
+			.eq("dm_id", req.user.id)
+			.select()
+			.single();
+
+		if (error) return res.status(500).json({ error: error.message });
+		if (!data) return res.status(403).json({ error: "No autorizado o sesión no encontrada" });
+		res.json({ session: data });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── PUT /api/sessions/:id/end ─────────────────────────────────────────────────
+// El DM termina la sesión guardando el estado final.
+app.put("/api/sessions/:id/end", requireAuth, async (req, res) => {
+	try {
+		const { id: sessionId } = req.params;
+		const { session_state, current_scene_id, current_map_id } = req.body;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+
+		const updates = {
+			status: "paused",           // paused = reanudable en otra sesión
+			ended_at: new Date().toISOString(),
+		};
+		if (session_state !== undefined) updates.session_state = session_state;
+		if (current_scene_id !== undefined) updates.current_scene_id = current_scene_id;
+		if (current_map_id !== undefined) updates.current_map_id = current_map_id;
+
+		const { data, error } = await db
+			.from("game_sessions")
+			.update(updates)
+			.eq("id", sessionId)
+			.eq("dm_id", req.user.id)
+			.select()
+			.single();
+
+		if (error) return res.status(500).json({ error: error.message });
+		if (!data) return res.status(403).json({ error: "No autorizado o sesión no encontrada" });
+
+		// Poner todos los tokens como no-en-mapa (para la próxima sesión)
+		await db
+			.from("session_tokens")
+			.update({ is_on_map: false })
+			.eq("session_id", sessionId);
+
+		res.json({ session: data });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── GET /api/sessions/:id/tokens ─────────────────────────────────────────────
+app.get("/api/sessions/:id/tokens", requireAuth, async (req, res) => {
+	try {
+		const { id: sessionId } = req.params;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+		const { data, error } = await db
+			.from("session_tokens")
+			.select("*")
+			.eq("session_id", sessionId)
+			.order("created_at", { ascending: true });
+
+		if (error) return res.status(500).json({ error: error.message });
+		res.json({ tokens: data });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── POST /api/sessions/:id/tokens ────────────────────────────────────────────
+app.post("/api/sessions/:id/tokens", requireAuth, async (req, res) => {
+	try {
+		const { id: sessionId } = req.params;
+		const {
+			token_type, character_id, user_id,
+			entity_ref_id, entity_name, entity_image,
+			x, y, current_hp, max_hp, initiative_value, is_on_map,
+		} = req.body;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+
+		const { data, error } = await db
+			.from("session_tokens")
+			.insert({
+				session_id: sessionId,
+				token_type: token_type || "player",
+				character_id: character_id || null,
+				user_id: user_id || null,
+				entity_ref_id: entity_ref_id || null,
+				entity_name,
+				entity_image: entity_image || null,
+				x: x ?? 0,
+				y: y ?? 0,
+				current_hp: current_hp ?? 0,
+				max_hp: max_hp ?? 0,
+				initiative_value: initiative_value ?? 0,
+				is_on_map: is_on_map ?? false,
+			})
+			.select()
+			.single();
+
+		if (error) return res.status(500).json({ error: error.message });
+		res.json({ token: data });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── PUT /api/sessions/:id/tokens/:tokenId ────────────────────────────────────
+app.put("/api/sessions/:id/tokens/:tokenId", requireAuth, async (req, res) => {
+	try {
+		const { tokenId } = req.params;
+		const updates = req.body;
+		delete updates.id;
+		delete updates.session_id;
+		delete updates.created_at;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+
+		const { data, error } = await db
+			.from("session_tokens")
+			.update(updates)
+			.eq("id", tokenId)
+			.select()
+			.single();
+
+		if (error) return res.status(500).json({ error: error.message });
+		res.json({ token: data });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── DELETE /api/sessions/:id/tokens/:tokenId ─────────────────────────────────
+app.delete("/api/sessions/:id/tokens/:tokenId", requireAuth, async (req, res) => {
+	try {
+		const { tokenId } = req.params;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+		const { error } = await db
+			.from("session_tokens")
+			.delete()
+			.eq("id", tokenId);
+
+		if (error) return res.status(500).json({ error: error.message });
+		res.json({ success: true });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── GET /api/sessions/:id/combat ─────────────────────────────────────────────
+app.get("/api/sessions/:id/combat", requireAuth, async (req, res) => {
+	try {
+		const { id: sessionId } = req.params;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+		const { data, error } = await db
+			.from("combat_state")
+			.select("*")
+			.eq("session_id", sessionId)
+			.maybeSingle();
+
+		if (error) return res.status(500).json({ error: error.message });
+		res.json({ combat: data });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── PUT /api/sessions/:id/combat ─────────────────────────────────────────────
+// Actualiza el estado del combate (iniciativa, turno, etc.)
+app.put("/api/sessions/:id/combat", requireAuth, async (req, res) => {
+	try {
+		const { id: sessionId } = req.params;
+		const updates = req.body;
+		delete updates.id;
+		delete updates.session_id;
+		delete updates.created_at;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+
+		const { data, error } = await db
+			.from("combat_state")
+			.update(updates)
+			.eq("session_id", sessionId)
+			.select()
+			.single();
+
+		if (error) return res.status(500).json({ error: error.message });
+		res.json({ combat: data });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// ── GET /api/campaigns/:id/members-with-characters ───────────────────────────
+// Devuelve los miembros de una campaña junto con su personaje en esa campaña.
+app.get("/api/campaigns/:id/members-with-characters", requireAuth, async (req, res) => {
+	try {
+		const { id: campaignId } = req.params;
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+
+		const { data: memberships } = await db
+			.from("campaign_members")
+			.select("user_id, role")
+			.eq("campaign_id", campaignId);
+
+		const { data: campaign } = await db
+			.from("campaigns")
+			.select("dm_id")
+			.eq("id", campaignId)
+			.single();
+
+		const allMembers = memberships || [];
+		// Incluir al DM en la lista de miembros si no está ya
+		const userIds = allMembers.map((m) => m.user_id);
+		if (campaign && !userIds.includes(campaign.dm_id)) {
+			allMembers.push({ user_id: campaign.dm_id, role: "dm" });
+		}
+
+		const { data: profiles } = await db
+			.from("profiles")
+			.select("id, display_name, username, avatar_url, email")
+			.in("id", allMembers.map((m) => m.user_id));
+
+		const { data: characters } = await db
+			.from("characters")
+			.select("id, user_id, name, avatar_url, stats, classes, race, inventory, spells_known, equipment, notes, experience_points")
+			.eq("campaign_id", campaignId)
+			.eq("is_npc", false);
+
+		const result = allMembers.map((m) => {
+			const profile = (profiles || []).find((p) => p.id === m.user_id);
+			const character = (characters || []).find((c) => c.user_id === m.user_id);
+			return {
+				user_id: m.user_id,
+				role: m.role,
+				profile: profile || null,
+				character: character || null,
+			};
+		});
+
+		res.json({ members: result });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
 	}
 });
 

@@ -25,6 +25,14 @@ Herramientas de apoyo para partidas de rol con compendio completo de D&D 5e (bes
   - **Modo de selección en compendios**: Navega directamente al bestiario/objetos/hechizos y selecciona elementos con un click
   - **Sistema de entidades**: Añade monstruos, objetos, hechizos, NPCs y mapas a tus escenas
   - **Alias personalizables**: Reutiliza entidades del compendio con nombres únicos (ej: "Goblin" → "Goblin Centinela 1")
+- **🎮 Partidas Online en Vivo**:
+  - Pantalla de juego VTT completa con mapa de batalla, tokens y sistema de combate
+  - Panel del DM para navegar la historia en tiempo real
+  - Combate por turnos con orden de iniciativa configurable (reglas D&D 5e, incluye sorpresa)
+  - **Tiempo real con Supabase Realtime**: todos los participantes ven los cambios al instante
+  - Fichas de personaje consultables y editables desde la partida
+  - Tirada de dados integrada sin salir de la partida
+  - Notificación por email a todos los jugadores cuando el DM inicia sesión
 - **🎲 Tirada de Dados**: Simulador de dados para D&D
 - **🔐 Autenticación segura**: Sistema de usuarios con Supabase Auth
 - **🌓 Modo Oscuro**: Interfaz adaptada para sesiones nocturnas
@@ -237,8 +245,11 @@ git commit -m "feat(frontend): setup inicial (#6)"
 
 Configuradas en el VPS:
 
-- `.env` en raíz: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+- `.env` en raíz (frontend): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`
 - `backend/.env`: `PORT`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+- `backend/.env` (opcional para emails): `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
+
+Ver `backend/.env.example` para la plantilla completa con comentarios.
 
 ---
 
@@ -1181,15 +1192,245 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 - **Cascada**: Eliminar campaña → elimina capítulos → elimina escenas → elimina entidades
 - **Ordenamiento**: `order_index` para mantener orden de capítulos y escenas
 
-#### Funcionalidades futuras:
+#### Funcionalidades futuras (campañas):
 
-- **Sesiones de juego en vivo**: Sistema de chat y narración en tiempo real
-- **Arrastrar entidades al mapa**: Durante la partida, mover tokens al mapa de batalla
-- **Dados compartidos**: Todos ven las tiradas del DM
 - **Notas de jugador**: Los jugadores pueden tomar notas en cada sesión
 - **Historial de sesiones**: Registro de qué escenas se jugaron y cuándo
 - **Compartir campañas**: Exportar/importar campañas entre DMs
-- **Notificaciones por email**: Emails reales cuando te invitan a una campaña
+- **Notificaciones por email en invitaciones**: Emails reales cuando te invitan a una campaña (actualmente disponible solo al iniciar sesión)
+
+---
+
+### 🎮 Partidas Online en Vivo
+
+Sistema VTT (Virtual Tabletop) para jugar campañas de D&D 5e online con todos los participantes en tiempo real.
+
+#### Cómo funciona (visión general)
+
+- El **DM accede al editor de su campaña** y pulsa "Comenzar campaña" o "Reanudar campaña".
+- Todos los **miembros de la campaña reciben un email** notificando que la sesión va a comenzar.
+- El DM es redirigido a la **pantalla de partida** (`/partida/:id`).
+- Los **jugadores ven en "Mis Campañas"** un badge "En curso" en tiempo real y pueden unirse pulsando "Unirse a la partida".
+- El **DM puede jugar aunque ningún jugador se haya conectado**: controla todo unilateralmente (puede usarse también en partidas presenciales).
+- Al terminar, el DM pulsa "Terminar Sesión" → el estado se guarda y la sesión queda pausada para poder reanudarla en otro momento en el mismo punto exacto.
+
+#### Layout de la pantalla de partida
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ [ORDEN DE COMBATE — franja superior — solo visible en combate]   │
+├──────────────┬────────────────────────────────┬──────────────────┤
+│ PANEL IZQ.   │                                │ PANEL DM         │
+│ (solo jug.)  │      MAPA DE BATALLA           │ (solo DM)        │
+│              │      (canvas + tokens)         │                  │
+│ Avatar       │                                │ Estructura hist. │
+│ Nombre       │                                │ Capítulos/escenas│
+│ HP           │                                │ Entidades escena │
+│              │                                │ Mapas, enemigos, │
+│ (click →     │                                │ NPCs, objetos,   │
+│  ficha modal)│                                │ hechizos         │
+│              │                                │                  │
+│              │                                │ [Comenzar/       │
+│              │                                │  Terminar comba.]│
+│              │                                │ [Terminar sesión]│
+├──────────────┴────────────────────────────────┴──────────────────┤
+│   BARRA INFERIOR: [🎲 Dados] [Bestiario] [Hechizos] [Objetos]    │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+#### Panel izquierdo (todos los participantes)
+
+Muestra la lista de todos los **jugadores no-DM** de la campaña:
+- Avatar circular del personaje
+- Nombre del personaje
+- HP actuales / HP máximos
+- Clic en el avatar → abre la ficha del personaje en un modal
+  - **DM**: puede ver y editar todas las fichas
+  - **Jugador**: solo puede ver y editar la suya propia
+
+#### Mapa de batalla (centro — canvas HTML5)
+
+- Carga el mapa asociado a la escena seleccionada por el DM
+- **Controles de cuadrícula, zoom y paneo** (solo visibles al DM)
+- **Tokens**: círculos con el avatar de cada participante colocados sobre el mapa
+  - Borde azul para jugadores, rojo para enemigos, morado para NPCs
+  - Borde amarillo/glow para el turno activo en combate
+  - HP mostrados debajo de cada token (visibles para todos)
+  - Aspa de eliminación en la esquina (visible solo al DM)
+- **Arrastrar tokens**:
+  - El **DM** puede arrastrar cualquier token en cualquier momento
+  - Un **jugador** solo puede arrastrar su propio token, y únicamente durante su turno en combate
+  - Los cambios de posición se propagan a todos en tiempo real via Supabase Realtime
+
+#### Panel del DM (derecha — solo visible al DM)
+
+Contiene cuatro secciones:
+
+1. **Historia**: árbol de Capítulos y Escenas de la campaña. Al seleccionar una escena aparece un botón "Ir" que la activa para todos.
+
+2. **Escena actual**: al entrar en una escena el DM ve paneles desplegables con las entidades de esa escena:
+   - **Mapas**: al seleccionar uno y pulsar "Desplegar mapa", se carga en el canvas para todos
+   - **Enemigos / NPCs / Objetos / Hechizos**: al seleccionar uno y pulsar "Introducir en mapa" (solo disponible si hay mapa cargado), se crea un token en el mapa
+
+3. **Combate**: botón "Comenzar Enfrentamiento" → "Terminar Enfrentamiento"
+
+4. **Sesión**: botón "Terminar Sesión"
+
+#### Sistema de combate por turnos
+
+**Configurar el combate** (diálogo al pulsar "Comenzar Enfrentamiento"):
+
+1. Se muestra un grid con todos los tokens del mapa (jugadores + enemigos/NPCs). El DM puede desmarcar a quienes no participen.
+2. Selector de **sorpresa**: Sin sorpresa / Héroes sorprendidos / Enemigos sorprendidos.
+   - Si hay sorpresa, el bando sorprendido no actúa en la primera ronda (reglas D&D 5e).
+3. El **orden de iniciativa** se calcula automáticamente según el campo `initiative_value` de cada token (mayor → primero).
+4. Al confirmar, aparece la **franja superior** de combate para todos los participantes.
+
+**Franja de orden de combate** (visible para todos durante el combate):
+
+- Fila horizontal con los avatares en orden de iniciativa
+- El token con el turno activo tiene borde amarillo brillante
+- Solo el DM puede reordenar los tokens arrastrándolos
+- Solo el DM puede eliminar tokens del combate (clic en el aspa)
+- El jugador con el turno activo (y el DM) ven un botón "**Terminar turno**" para pasar al siguiente
+
+**Durante el combate**:
+
+- Solo puede mover su token en el mapa:
+  - El **jugador activo** (es su turno)
+  - El **DM** (puede mover cualquier token siempre)
+- El DM puede añadir enemigos/NPCs adicionales desde el panel durante el combate
+- Pulsar "Terminar Enfrentamiento" elimina la franja de combate y los tokens de enemigos/NPCs del mapa
+
+#### Ficha de personaje en partida
+
+Cuando un jugador (o el DM) hace clic en un avatar del panel izquierdo:
+
+- Se abre un **modal** con el formulario completo de la ficha de personaje (tabs: Stats, Combate, Equipo, Hechizos, Notas)
+- El jugador solo puede abrir su propia ficha
+- El DM puede abrir y editar la ficha de cualquier participante
+- Los cambios se guardan directamente en la base de datos sin salir de la partida
+
+#### Dados durante la partida
+
+- Botón "🎲 Dados" en la barra inferior → abre un overlay flotante sin abandonar la pantalla
+- Soporta d4, d6, d8, d10, d12, d20, d100
+- Ventaja / Desventaja
+- Modificadores numéricos
+
+#### Terminación y reanudación de sesión
+
+Al pulsar **"Terminar Sesión"**, el DM confirma en un diálogo y se guarda:
+
+- Estado del mapa (zoom, pan, cuadrícula)
+- Escena activa
+- Posición de todos los tokens en el mapa
+- HP actuales de cada participante
+- Estado del combate (si lo había)
+
+La sesión queda en estado `"paused"`. La próxima vez que el DM pulse "Reanudar campaña" en el editor, todo se restaura exactamente igual.
+
+#### Tiempo real (Supabase Realtime)
+
+Se suscribe automáticamente a tres canales:
+
+| Canal | Evento | Efecto |
+|---|---|---|
+| `session_tokens` | INSERT / UPDATE / DELETE | Tokens aparecen, se mueven o desaparecen del mapa en tiempo real |
+| `combat_state` | UPDATE | Cambio de turno, inicio/fin de combate visible para todos |
+| `game_sessions` | UPDATE | Si el DM termina la sesión, todos los jugadores son redirigidos a "Mis Campañas" |
+
+También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta cuando una sesión comienza y muestra el botón "Unirse" en tiempo real.
+
+#### Estructura de datos (nuevas tablas)
+
+**`game_sessions`**: ciclo de vida de cada sesión
+
+```json
+{
+  "id": "uuid",
+  "campaign_id": "uuid",
+  "dm_id": "uuid",
+  "status": "active | paused | ended",
+  "session_number": 3,
+  "current_scene_id": "uuid | null",
+  "current_map_id": "uuid | null",
+  "session_state": {
+    "mapPanX": 0, "mapPanY": 0, "mapZoom": 1,
+    "mapGridSize": 50, "mapGridColor": "rgba(255,255,255,0.3)",
+    "mapShowGrid": true
+  },
+  "started_at": "timestamp",
+  "ended_at": "timestamp | null"
+}
+```
+
+**`session_tokens`**: tokens en el mapa
+
+```json
+{
+  "id": "uuid",
+  "session_id": "uuid",
+  "token_type": "player | enemy | npc",
+  "entity_name": "Thorin Escudo de Roble",
+  "entity_image": "url | null",
+  "x": 320.5,
+  "y": 180.0,
+  "current_hp": 28,
+  "max_hp": 45,
+  "initiative_value": 14,
+  "is_on_map": true
+}
+```
+
+**`combat_state`**: estado del combate
+
+```json
+{
+  "id": "uuid",
+  "session_id": "uuid",
+  "is_active": true,
+  "current_turn_index": 2,
+  "round_number": 1,
+  "initiative_order": ["token-uuid-1", "token-uuid-2", "token-uuid-3"],
+  "surprise": "none | heroes | enemies"
+}
+```
+
+#### Nuevos endpoints de API
+
+```
+GET  /api/campaigns/:id/session           # Obtener sesión activa/pausada
+POST /api/campaigns/:id/session/start     # Iniciar o reanudar sesión (+ email a miembros)
+PUT  /api/sessions/:id/state              # Actualizar estado (mapa, escena) - DM
+PUT  /api/sessions/:id/end               # Pausar sesión y guardar estado - DM
+GET  /api/sessions/:id/tokens            # Listar tokens
+POST /api/sessions/:id/tokens            # Crear token
+PUT  /api/sessions/:id/tokens/:tokenId  # Actualizar token (posición, HP, etc.)
+DELETE /api/sessions/:id/tokens/:tokenId # Eliminar token
+GET  /api/sessions/:id/combat           # Obtener estado de combate
+PUT  /api/sessions/:id/combat           # Actualizar combate (turnos, orden, inicio/fin)
+GET  /api/campaigns/:id/members-with-characters  # Miembros con sus fichas (DM)
+```
+
+#### Configuración de email (notificaciones de sesión)
+
+El backend usa **nodemailer**. Para activar el envío de emails, añade estas variables en `backend/.env`:
+
+```env
+SMTP_HOST=smtp.gmail.com          # Tu servidor SMTP
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=tu@email.com
+SMTP_PASS=tu_contraseña_o_app_key
+SMTP_FROM=Beyond The Dungeon <noreply@beyondthedungeon.org>
+```
+
+Si no se configura `SMTP_HOST`, los emails se omiten silenciosamente (útil en desarrollo).
+
+#### Nueva ruta
+
+- `/partida/:id` — Pantalla de partida online (requiere autenticación)
 
 ---
 
