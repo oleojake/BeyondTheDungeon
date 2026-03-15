@@ -39,6 +39,12 @@ h3 {
     background-color: rgb(var(--bg-primary));
   }
 
+  /* Outline buttons use bg-background (amber-50/white). In the dark dungeon
+     layout the inherited text color is very light, so we force a dark color. */
+  button.bg-background {
+    color: rgb(var(--text-primary));
+  }
+
   /* Nav item titles inside the sidebar */
   .nav-item-title {
     font-family: "Uncial Antiqua", "Cinzel Decorative", serif;

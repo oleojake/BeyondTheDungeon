@@ -15,4 +15,5 @@ export * from "./mapa-batalla.scene"
 export * from "./mis-mapas.scene"
 export * from "./mis-campanas.scene"
 export * from "./editar-campana.scene"
+export * from "./partida.scene"
 
