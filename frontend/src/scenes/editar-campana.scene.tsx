@@ -94,6 +94,7 @@ import {
 	Package,
 	Play,
 	RotateCcw,
+	UserPlus,
 } from "lucide-react";
 
 export function EditarCampanaScene() {
@@ -290,11 +291,13 @@ export function EditarCampanaScene() {
 		setInviteLoading(true);
 		try {
 			await createInvitation(id, { username: inviteUsername });
-			alert("Invitación enviada correctamente");
 			setInviteUsername("");
+			const updatedMembers = await listCampaignMembers(id);
+			setMembers(updatedMembers);
+			alert("Jugador añadido a la campaña correctamente");
 		} catch (error) {
-			console.error("Error al enviar invitación:", error);
-			const errorMsg = error instanceof Error ? error.message : "Error al enviar invitación";
+			console.error("Error al añadir jugador:", error);
+			const errorMsg = error instanceof Error ? error.message : "Error al añadir jugador";
 			alert(errorMsg);
 		} finally {
 			setInviteLoading(false);
@@ -496,7 +499,8 @@ export function EditarCampanaScene() {
 			setAvailableMaps([]);
 		} catch (error) {
 			console.error("Error al añadir entidad:", error);
-			alert("Error al añadir entidad");
+			const msg = error instanceof Error ? error.message : "Error al añadir entidad";
+			alert(msg);
 		}
 	};
 
@@ -722,10 +726,10 @@ export function EditarCampanaScene() {
 							<CardHeader>
 								<CardTitle className="flex items-center gap-2">
 									<Users className="h-5 w-5" />
-									Invitar Jugadores
+									Añadir Jugadores
 								</CardTitle>
 								<CardDescription>
-								Invita jugadores a tu campaña por nombre de usuario
+								Añade jugadores a tu campaña por nombre de usuario
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
@@ -735,13 +739,14 @@ export function EditarCampanaScene() {
 									placeholder="nombre_usuario"
 									value={inviteUsername}
 									onChange={(e) => setInviteUsername(e.target.value)}
+									style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif", textTransform: "none" }}
 								/>
 								<Button
 									onClick={handleInvitePlayer}
 									disabled={inviteLoading || !inviteUsername.trim()}
 									>
-										<Mail className="mr-2 h-4 w-4" />
-										Enviar Invitación
+										<UserPlus className="mr-2 h-4 w-4" />
+										Añadir Jugador
 									</Button>
 								</div>
 							</CardContent>
@@ -760,7 +765,7 @@ export function EditarCampanaScene() {
 										>
 											<div>
 												<div className="font-medium">
-													{member.email || "Usuario"}
+													{member.username || member.email || "Usuario"}
 												</div>
 												<div className="text-sm text-muted-foreground">
 													{member.role === "dm" ? "Dungeon Master" : "Jugador"}

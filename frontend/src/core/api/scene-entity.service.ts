@@ -93,7 +93,10 @@ export async function createSceneEntity(
 
 	if (!response.ok) {
 		const error = await response.json();
-		throw new Error(error.error || "Error al añadir entidad");
+		const msg = error.details
+			? `${error.error}: ${error.details}`
+			: error.error || "Error al añadir entidad";
+		throw new Error(msg);
 	}
 
 	const data = await response.json();

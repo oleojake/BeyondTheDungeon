@@ -29,6 +29,7 @@ export interface CampaignMember {
 	role: "dm" | "player";
 	joined_at: string;
 	email?: string;
+	username?: string;
 }
 
 export interface CreateCampaignRequest {

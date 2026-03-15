@@ -1264,18 +1264,24 @@ app.get("/api/campaigns/:id/members", async (req, res) => {
 			});
 		}
 
-		// Fetch user details for each member
-		const membersWithDetails = await Promise.all(
-			data.map(async (member) => {
-				const { data: userData } = await authenticatedSupabase.auth.admin.getUserById(
-					member.user_id
-				);
-				return {
-					...member,
-					email: userData?.user?.email || "Unknown",
-				};
-			})
-		);
+		// Fetch user details from profiles table (requires SELECT policy on profiles for authenticated users)
+		const userIds = (data || []).map((m) => m.user_id);
+		if (userIds.length === 0) {
+			return res.json({ members: [], count: 0 });
+		}
+		const { data: profiles } = await authenticatedSupabase
+			.from("profiles")
+			.select("id, username, display_name, email")
+			.in("id", userIds);
+
+		const membersWithDetails = data.map((member) => {
+			const profile = (profiles || []).find((p) => p.id === member.user_id);
+			return {
+				...member,
+				email: profile?.email || "",
+				username: profile?.username || profile?.display_name || "",
+			};
+		});
 
 		res.json({ members: membersWithDetails, count: membersWithDetails.length });
 	} catch (err) {
@@ -1404,19 +1410,20 @@ app.post("/api/campaigns/:id/invitations", async (req, res) => {
 			return res.status(401).json({ error: "No autorizado" });
 		}
 
-		// Find user by username in user_metadata or email
-		const { data: usersList } = await supabase.auth.admin.listUsers();
-		const invitedUser = usersList?.users?.find(
-			(u) => 
-				u.user_metadata?.username?.toLowerCase() === username.toLowerCase() ||
-				u.email?.toLowerCase() === username.toLowerCase()
-		);
+		// Find user by username or email in profiles table (case-insensitive)
+		const { data: profileMatch, error: profileError } = await authenticatedSupabase
+			.from("profiles")
+			.select("id, username, email")
+			.or(`username.ilike.${username},email.ilike.${username}`)
+			.limit(1)
+			.single();
 
-		if (!invitedUser) {
+		if (profileError || !profileMatch) {
 			return res.status(404).json({
 				error: "Usuario no encontrado",
 			});
 		}
+		const invitedUser = { id: profileMatch.id, email: profileMatch.email };
 
 		// Check if user is already a member
 		const { data: existingMember } = await authenticatedSupabase
@@ -1432,12 +1439,12 @@ app.post("/api/campaigns/:id/invitations", async (req, res) => {
 			});
 		}
 
-		// Check if invitation already exists
+		// Check if invitation already exists (match by user_id since email may be null)
 		const { data: existingInvitation } = await authenticatedSupabase
 			.from("campaign_invitations")
 			.select("*")
 			.eq("campaign_id", id)
-			.eq("email", invitedUser.email)
+			.eq("invited_user_id", invitedUser.id)
 			.eq("status", "pending")
 			.single();
 
@@ -1447,28 +1454,25 @@ app.post("/api/campaigns/:id/invitations", async (req, res) => {
 			});
 		}
 
+		// Add user directly as campaign member (player role)
 		const { data, error } = await authenticatedSupabase
-			.from("campaign_invitations")
+			.from("campaign_members")
 			.insert({
 				campaign_id: id,
-				invited_by: user.id,
-				invited_user_id: invitedUser.id,
-				email: invitedUser.email,
+				user_id: invitedUser.id,
+				role: "player",
 			})
 			.select()
 			.single();
 
 		if (error) {
 			return res.status(500).json({
-				error: "Error al crear invitación",
+				error: "Error al añadir jugador",
 				details: error.message,
 			});
 		}
 
-		// TODO: Send email notification
-		// sendInvitationEmail(email, data.token);
-
-		res.json({ invitation: data });
+		res.json({ member: data });
 	} catch (err) {
 		res.status(500).json({
 			error: "Error interno",
