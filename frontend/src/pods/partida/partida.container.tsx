@@ -39,7 +39,10 @@ import type {
 	ChapterWithScenes,
 	SceneEntityBasic,
 	SceneWithEntities,
+	CombatParticipantCandidate,
 } from "./partida.vm";
+
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 interface BattleMap {
 	id: string;
@@ -60,6 +63,83 @@ const DEFAULT_MAP_VIEW: MapViewState = {
 	gridColor: "rgba(255,255,255,0.3)",
 	showGrid: true,
 };
+
+type SceneCombatCandidate = {
+	id: string;
+	label: string;
+	tokenType: "player" | "enemy" | "npc";
+	image: string | null;
+	tokenId?: string;
+	initiative: number;
+	currentHp: number;
+	maxHp: number;
+	entity?: SceneEntityBasic;
+};
+
+function pickNumber(...values: unknown[]): number | null {
+	for (const value of values) {
+		if (typeof value === "number" && Number.isFinite(value)) return value;
+		if (typeof value === "string") {
+			const n = Number(value);
+			if (Number.isFinite(n)) return n;
+		}
+	}
+	return null;
+}
+
+function getEntityImage(entityData: Record<string, unknown> | null): string | null {
+	if (!entityData) return null;
+	const stats = (entityData.stats as Record<string, unknown> | undefined) ?? {};
+	const fromValues = [
+		entityData.image,
+		entityData.image_url,
+		entityData.avatar_url,
+		entityData.img,
+		stats.image,
+		stats.image_url,
+		stats.avatar_url,
+		stats.img,
+	];
+	for (const value of fromValues) {
+		if (typeof value !== "string" || value.trim().length === 0) continue;
+		const image = value.trim();
+		if (image.startsWith("http://") || image.startsWith("https://") || image.startsWith("data:")) {
+			return image;
+		}
+		// dnd5eapi returns many image paths as /api/... relative URLs
+		if (image.startsWith("/api/")) {
+			return `https://www.dnd5eapi.co${image}`;
+		}
+		if (image.startsWith("api/")) {
+			return `https://www.dnd5eapi.co/${image}`;
+		}
+		return image;
+	}
+	return null;
+}
+
+async function resolveCompendiumEntityImage(entity: SceneEntityBasic): Promise<string | null> {
+	const inlineImage = getEntityImage(entity.entity_data);
+	if (inlineImage) return inlineImage;
+
+	const endpoint =
+		entity.entity_type === "monster"
+			? `${API_URL}/api/compendium-bestiary/${entity.entity_id}`
+			: entity.entity_type === "spell"
+			? `${API_URL}/api/compendium-spells/${entity.entity_id}`
+			: null;
+
+	if (!endpoint) return null;
+
+	try {
+		const res = await fetch(endpoint);
+		if (!res.ok) return null;
+		const data = await res.json();
+		return getEntityImage(data as Record<string, unknown>);
+	} catch {
+		return null;
+	}
+}
 
 export function PartidaContainer({
 	campaignId,
@@ -82,6 +162,7 @@ export function PartidaContainer({
 	const [showDados, setShowDados] = useState(false);
 	const [fichaTarget, setFichaTarget] = useState<SessionMember | null>(null);
 	const [showCombatDialog, setShowCombatDialog] = useState(false);
+	const [combatCandidates, setCombatCandidates] = useState<SceneCombatCandidate[]>([]);
 
 	// Pending token position updates (debounced writes)
 	const pendingMoves = useRef<Map<string, { x: number; y: number }>>(new Map());
@@ -391,6 +472,8 @@ export function PartidaContainer({
 				return;
 			}
 
+			const resolvedImage = await resolveCompendiumEntityImage(entity);
+
 			const token = await createToken(session.id, {
 				token_type:
 					entity.entity_type === "monster"
@@ -402,14 +485,25 @@ export function PartidaContainer({
 				user_id: null,
 				entity_ref_id: entity.id,
 				entity_name: entity.entity_name,
-				entity_image: (entity.entity_data as any)?.stats?.image // eslint-disable-line @typescript-eslint/no-explicit-any
-				?? (entity.entity_data as any)?.image_url // eslint-disable-line @typescript-eslint/no-explicit-any
-				?? (entity.entity_data as any)?.image // eslint-disable-line @typescript-eslint/no-explicit-any
-				?? null,
+				entity_image: resolvedImage,
 				x: 80,
 				y: 80,
-				current_hp: (entity.entity_data as { hp_current?: number } | null)?.hp_current ?? 10,
-				max_hp: (entity.entity_data as { hp_current?: number } | null)?.hp_current ?? 10,
+				current_hp:
+					pickNumber(
+						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
+						(entity.entity_data as { current_hp?: unknown } | null)?.current_hp,
+						(entity.entity_data as { hp?: unknown } | null)?.hp,
+						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp,
+						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)?.max_hp
+					) ?? 10,
+				max_hp:
+					pickNumber(
+						(entity.entity_data as { max_hp?: unknown } | null)?.max_hp,
+						(entity.entity_data as { hp?: unknown } | null)?.hp,
+						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
+						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)?.max_hp,
+						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp
+					) ?? 10,
 				initiative_value: 0,
 				is_on_map: true,
 			});
@@ -445,10 +539,99 @@ export function PartidaContainer({
 
 	// ── Combat ────────────────────────────────────────────────────────────────
 
+	const buildSceneCombatCandidates = useCallback((): SceneCombatCandidate[] => {
+		const playerTokenCandidates: SceneCombatCandidate[] = tokens
+			.filter((t) => t.token_type === "player")
+			.map((t) => ({
+				id: t.id,
+				label: t.entity_name,
+				tokenType: "player",
+				image: t.entity_image,
+				tokenId: t.id,
+				initiative: t.initiative_value ?? 0,
+				currentHp: t.current_hp,
+				maxHp: t.max_hp,
+			}));
+
+		const playersWithoutToken: SceneCombatCandidate[] = members
+			.filter((m) => m.role !== "dm")
+			.filter((m) => !tokens.some((t) => t.token_type === "player" && t.user_id === m.user_id))
+			.map((m) => {
+				const stats = (m.character?.stats as Record<string, unknown> | undefined) ?? {};
+				const maxHp = pickNumber(stats.max_hp, stats.hp) ?? 10;
+				const currentHp = pickNumber(stats.current_hp, stats.hp, maxHp) ?? maxHp;
+				const initiative = pickNumber(stats.initiative) ?? 0;
+				const label =
+					m.character?.name ||
+					m.profile?.display_name ||
+					m.profile?.username ||
+					"Heroe";
+
+				return {
+					id: `member:${m.user_id}`,
+					label,
+					tokenType: "player",
+					image: m.character?.avatar_url ?? m.profile?.avatar_url ?? null,
+					initiative,
+					currentHp,
+					maxHp,
+				};
+			});
+
+		const playerCandidates = [...playerTokenCandidates, ...playersWithoutToken];
+
+		const scene = selectedSceneId
+			? chapters.flatMap((c) => c.scenes).find((s) => s.id === selectedSceneId)
+			: null;
+		if (!scene) return playerCandidates;
+
+		const entityCandidates: SceneCombatCandidate[] = scene.entities
+			.filter((e) => e.entity_type === "monster" || e.entity_type === "npc")
+			.map((entity) => {
+				const tokenType = entity.entity_type === "npc" ? "npc" : "enemy";
+				const existing = tokens.find(
+					(t) => t.entity_ref_id === entity.id && t.token_type === tokenType
+				);
+				const stats =
+					(entity.entity_data?.stats as Record<string, unknown> | undefined) ?? {};
+				const maxHp =
+					pickNumber(
+						(entity.entity_data as { max_hp?: unknown } | null)?.max_hp,
+						(entity.entity_data as { hp?: unknown } | null)?.hp,
+						stats.max_hp,
+						stats.hp,
+						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current
+					) ?? 10;
+				const currentHp =
+					pickNumber(
+						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
+						(entity.entity_data as { current_hp?: unknown } | null)?.current_hp,
+						stats.current_hp,
+						stats.hp,
+						maxHp
+					) ?? maxHp;
+
+				return {
+					id: existing?.id ?? `scene:${entity.id}`,
+					label: entity.entity_name,
+					tokenType,
+					image: existing?.entity_image ?? getEntityImage(entity.entity_data),
+					tokenId: existing?.id,
+					initiative: existing?.initiative_value ?? 0,
+					currentHp,
+					maxHp,
+					entity,
+				};
+			});
+
+		return [...playerCandidates, ...entityCandidates];
+	}, [chapters, selectedSceneId, tokens, members]);
+
 	const handleStartCombat = useCallback(() => {
-		// Open the combat dialog (with all on-map tokens pre-selected)
+		// Open combat dialog with scene participants (all pre-selected)
+		setCombatCandidates(buildSceneCombatCandidates());
 		setShowCombatDialog(true);
-	}, []);
+	}, [buildSceneCombatCandidates]);
 
 	const handleConfirmCombat = useCallback(
 		async (
@@ -458,12 +641,85 @@ export function PartidaContainer({
 			if (!session || !combatState) return;
 			setShowCombatDialog(false);
 
-			const participants = tokens.filter((t) =>
-				participantIds.includes(t.id)
+			const selectedCandidates = combatCandidates.filter((c) =>
+				participantIds.includes(c.id)
 			);
 
+			const participantTokens: SessionToken[] = [];
+			for (const candidate of selectedCandidates) {
+				if (candidate.id.startsWith("member:")) {
+					const memberUserId = candidate.id.replace("member:", "");
+					const member = members.find((m) => m.user_id === memberUserId);
+					if (!member) continue;
+					const createdPlayer = await createToken(session.id, {
+						token_type: "player",
+						character_id: member.character?.id ?? null,
+						user_id: member.user_id,
+						entity_ref_id: null,
+						entity_name: candidate.label,
+						entity_image: candidate.image,
+						x: 40,
+						y: 40,
+						current_hp: candidate.currentHp,
+						max_hp: candidate.maxHp,
+						initiative_value: candidate.initiative,
+						is_on_map: true,
+					});
+					participantTokens.push(createdPlayer);
+					continue;
+				}
+
+				if (candidate.tokenId) {
+					const existingToken = tokens.find((t) => t.id === candidate.tokenId);
+					if (existingToken) {
+						const resolvedCandidateImage =
+							candidate.image ||
+							(candidate.entity
+								? await resolveCompendiumEntityImage(candidate.entity)
+								: null);
+						participantTokens.push(existingToken);
+						if (!existingToken.is_on_map || !existingToken.entity_image || resolvedCandidateImage) {
+							const updated = await updateToken(session.id, existingToken.id, {
+								is_on_map: true,
+								entity_image: existingToken.entity_image ?? resolvedCandidateImage,
+							});
+							participantTokens[participantTokens.length - 1] = updated;
+						}
+					}
+					continue;
+				}
+
+				if (!candidate.entity) continue;
+
+				const resolvedCandidateImage =
+					candidate.image || (await resolveCompendiumEntityImage(candidate.entity));
+
+				const spawnIndex = participantTokens.length;
+				const spawned = await createToken(session.id, {
+					token_type: candidate.tokenType,
+					character_id: null,
+					user_id: null,
+					entity_ref_id: candidate.entity.id,
+					entity_name: candidate.label,
+					entity_image: resolvedCandidateImage,
+					x: 80 + (spawnIndex % 6) * 60,
+					y: 80 + Math.floor(spawnIndex / 6) * 60,
+					current_hp: candidate.currentHp,
+					max_hp: candidate.maxHp,
+					initiative_value: candidate.initiative,
+					is_on_map: true,
+				});
+				participantTokens.push(spawned);
+			}
+
+			setTokens((prev) => {
+				const map = new Map(prev.map((t) => [t.id, t]));
+				for (const t of participantTokens) map.set(t.id, t);
+				return Array.from(map.values());
+			});
+
 			// Sort by initiative (descending), applying D&D 5e surprise rules
-			const sorted = [...participants].sort((a, b) => {
+			const sorted = [...participantTokens].sort((a, b) => {
 				const aSurprised =
 					surprise === "heroes" && a.token_type === "player"
 						? -1000
@@ -495,7 +751,7 @@ export function PartidaContainer({
 			});
 			setCombatState(updated);
 		},
-		[session, combatState, tokens]
+		[session, combatState, tokens, combatCandidates, members]
 	);
 
 	const handleEndCombat = useCallback(async () => {
@@ -686,6 +942,14 @@ export function PartidaContainer({
 			showDados={showDados}
 			fichaTarget={fichaTarget}
 			showCombatDialog={showCombatDialog}
+			combatParticipants={combatCandidates.map(
+				(c): CombatParticipantCandidate => ({
+					id: c.id,
+					label: c.label,
+					tokenType: c.tokenType,
+					image: c.image,
+				})
+			)}
 			onMapViewChange={handleMapViewChange}
 			onTokenMove={handleTokenMove}
 			onTokenRemove={handleTokenRemove}

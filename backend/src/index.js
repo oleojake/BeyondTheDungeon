@@ -274,6 +274,8 @@ const requireAuth = async (req, res, next) => {
 // 🆕 Endpoint: listar todas las fichas del usuario autenticado
 app.get("/api/character-sheets", requireAuth, async (req, res) => {
 	try {
+		const campaignId = typeof req.query.campaign === "string" ? req.query.campaign : null;
+
 		// Crear cliente autenticado con el token del usuario
 		const userToken = req.headers.authorization.replace("Bearer ", "");
 		const { createClient } = await import("@supabase/supabase-js");
@@ -289,12 +291,22 @@ app.get("/api/character-sheets", requireAuth, async (req, res) => {
 			}
 		);
 
-		const { data, error } = await authenticatedSupabase
+		let query = authenticatedSupabase
 			.from("characters")
-			.select("id, name, classes, race, created_at, updated_at")
+			.select(
+				campaignId
+					? "*"
+					: "id, user_id, campaign_id, name, classes, race, created_at, updated_at"
+			)
 			.eq("user_id", req.user.id)
 			.eq("is_npc", false)
 			.order("created_at", { ascending: false });
+
+		if (campaignId) {
+			query = query.eq("campaign_id", campaignId);
+		}
+
+		const { data, error } = await query;
 
 		if (error) {
 			console.error("❌ Error al listar fichas:", error);
@@ -304,9 +316,9 @@ app.get("/api/character-sheets", requireAuth, async (req, res) => {
 			});
 		}
 
-		// Calcular nivel total de cada personaje
-		const charactersWithLevel = (data || []).map(char => {
-			const level = Array.isArray(char.classes) 
+		// Calcular nivel total de cada personaje para vistas resumidas
+		const charactersWithLevel = (data || []).map((char) => {
+			const level = Array.isArray(char.classes)
 				? char.classes.reduce((sum, cls) => sum + (cls.level || 0), 0)
 				: (char.classes?.level || 1);
 			return { ...char, level };
@@ -900,21 +912,77 @@ app.get("/api/campaigns", async (req, res) => {
 			return res.status(401).json({ error: "No autorizado" });
 		}
 
-		// Get campaigns where user is DM
-		const { data, error } = await authenticatedSupabase
-			.from("campaigns")
-			.select("*")
-			.eq("dm_id", user.id)
-			.order("created_at", { ascending: false });
+		// Preferred path: RPC that returns campaigns where user is DM or member.
+		// This avoids depending on restrictive SELECT RLS policies on campaigns.
+		const { data: rpcCampaigns, error: rpcError } = await authenticatedSupabase
+			.rpc("get_my_campaigns");
 
-		if (error) {
-			return res.status(500).json({
-				error: "Error al obtener campañas",
-				details: error.message,
+		if (!rpcError) {
+			return res.json({
+				campaigns: rpcCampaigns || [],
+				count: (rpcCampaigns || []).length,
 			});
 		}
 
-		res.json({ campaigns: data, count: data.length });
+		// Get campaigns where user is DM
+		const { data: dmCampaigns, error: dmError } = await authenticatedSupabase
+			.from("campaigns")
+			.select("*")
+			.eq("dm_id", user.id);
+
+		if (dmError) {
+			return res.status(500).json({
+				error: "Error al obtener campañas",
+				details: dmError.message,
+			});
+		}
+
+		// Get campaign ids where user is a member
+		const { data: memberships, error: membersError } = await authenticatedSupabase
+			.from("campaign_members")
+			.select("campaign_id")
+			.eq("user_id", user.id);
+
+		if (membersError) {
+			return res.status(500).json({
+				error: "Error al obtener membresías de campaña",
+				details: membersError.message,
+			});
+		}
+
+		const memberCampaignIds = Array.from(
+			new Set((memberships || []).map((m) => m.campaign_id).filter(Boolean))
+		);
+
+		let memberCampaigns = [];
+		if (memberCampaignIds.length > 0) {
+			const { data: memberData, error: memberCampaignsError } =
+				await authenticatedSupabase
+					.from("campaigns")
+					.select("*")
+					.in("id", memberCampaignIds);
+
+			if (memberCampaignsError) {
+				return res.status(500).json({
+					error: "Error al obtener campañas como miembro",
+					details: memberCampaignsError.message,
+				});
+			}
+
+			memberCampaigns = memberData || [];
+		}
+
+		const uniqueCampaignsMap = new Map();
+		for (const campaign of [...(dmCampaigns || []), ...memberCampaigns]) {
+			uniqueCampaignsMap.set(campaign.id, campaign);
+		}
+
+		const campaigns = Array.from(uniqueCampaignsMap.values()).sort(
+			(a, b) =>
+				new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+		);
+
+		res.json({ campaigns, count: campaigns.length });
 	} catch (err) {
 		res.status(500).json({
 			error: "Error interno",
@@ -955,6 +1023,50 @@ app.get("/api/campaigns/:id", async (req, res) => {
 		}
 
 		res.json({ campaign: data });
+	} catch (err) {
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
+// 🆕 GET /api/campaigns/:id/my-character - Get my character assigned to this campaign
+app.get("/api/campaigns/:id/my-character", requireAuth, async (req, res) => {
+	try {
+		const { id: campaignId } = req.params;
+		const userToken = req.headers.authorization.replace("Bearer ", "");
+		const { createClient } = await import("@supabase/supabase-js");
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{
+				global: {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				},
+			}
+		);
+
+		const { data, error } = await authenticatedSupabase
+			.from("characters")
+			.select("*")
+			.eq("user_id", req.user.id)
+			.eq("campaign_id", campaignId)
+			.eq("is_npc", false)
+			.order("updated_at", { ascending: false })
+			.limit(1)
+			.maybeSingle();
+
+		if (error) {
+			return res.status(500).json({
+				error: "Error al consultar ficha de campaña",
+				details: error.message,
+			});
+		}
+
+		res.json({ character: data || null });
 	} catch (err) {
 		res.status(500).json({
 			error: "Error interno",
@@ -2336,11 +2448,8 @@ app.put("/api/sessions/:id/end", requireAuth, async (req, res) => {
 		if (error) return res.status(500).json({ error: error.message });
 		if (!data) return res.status(403).json({ error: "No autorizado o sesión no encontrada" });
 
-		// Poner todos los tokens como no-en-mapa (para la próxima sesión)
-		await db
-			.from("session_tokens")
-			.update({ is_on_map: false })
-			.eq("session_id", sessionId);
+		// Keep token map positions/state when pausing so resumed sessions restore
+		// the battlefield exactly as it was.
 
 		res.json({ session: data });
 	} catch (err) {

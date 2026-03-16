@@ -37,9 +37,8 @@ export function OrdenCombate({
 		.filter(Boolean) as SessionToken[];
 
 	const activeToken = orderedTokens[combatState.current_turn_index] ?? null;
-	const isMyTurn =
-		activeToken?.user_id === currentUserId ||
-		(isDM && (!activeToken?.user_id || activeToken.token_type !== "player"));
+	// DM can always end turn (table play mode), player can end only their own turn.
+	const canEndTurn = isDM || activeToken?.user_id === currentUserId;
 
 	// Drag-and-drop (DM only)
 	const handleDragStart = (e: React.DragEvent, tokenId: string) => {
@@ -138,7 +137,7 @@ export function OrdenCombate({
 			</div>
 
 			{/* Terminar turno */}
-			{isMyTurn && (
+			{canEndTurn && (
 				<button
 					onClick={onEndTurn}
 					className="px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white text-xs font-semibold rounded whitespace-nowrap"
