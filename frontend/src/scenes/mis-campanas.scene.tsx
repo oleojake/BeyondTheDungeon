@@ -62,22 +62,60 @@ import {
 	User,
 } from "lucide-react";
 
+type CharacterListItem = {
+	id: string;
+	name: string;
+	campaign_id?: string | null;
+	user_id?: string;
+	race?: string;
+	level?: number;
+};
+
 // ─── Character per campaign (for player view) ─────────────────────────────────
 
-async function fetchCampaignCharacter(campaignId: string, userId: string) {
+async function fetchCampaignCharacter(campaignId: string) {
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
 	const API_URL = import.meta.env.VITE_API_URL || "";
-	const res = await fetch(`${API_URL}/api/character-sheets?campaign=${campaignId}`, {
+	const res = await fetch(`${API_URL}/api/campaigns/${campaignId}/my-character`, {
 		headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
 	});
 	if (!res.ok) return null;
 	const data = await res.json();
-	if (!data.characters) return null;
-	return (data.characters as { user_id: string; campaign_id: string }[]).find(
-		(c) => c.user_id === userId && c.campaign_id === campaignId
-	) ?? null;
+	return (data.character as Record<string, unknown> | null) ?? null;
+}
+
+async function fetchMyCharacters() {
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+	const API_URL = import.meta.env.VITE_API_URL || "";
+	const res = await fetch(`${API_URL}/api/character-sheets`, {
+		headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+	});
+	if (!res.ok) throw new Error("No se pudieron cargar tus fichas");
+	const data = await res.json();
+	return (data.characters ?? []) as CharacterListItem[];
+}
+
+async function assignCharacterToCampaign(characterId: string, campaignId: string) {
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+	const API_URL = import.meta.env.VITE_API_URL || "";
+	const res = await fetch(`${API_URL}/api/character-sheet/${characterId}`, {
+		method: "PUT",
+		headers: {
+			Authorization: `Bearer ${session?.access_token ?? ""}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ campaign_id: campaignId }),
+	});
+	if (!res.ok) {
+		const err = await res.json().catch(() => ({}));
+		throw new Error(err.error || err.details || "No se pudo asignar la ficha");
+	}
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -97,7 +135,11 @@ export function MisCampanasScene() {
 	const [fichaModalData, setFichaModalData] = useState<{
 		campaign: Campaign;
 		character: Record<string, unknown> | null;
+		sessionActive: boolean;
 	} | null>(null);
+	const [myCharacters, setMyCharacters] = useState<CharacterListItem[]>([]);
+	const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
+	const [assigningCharacter, setAssigningCharacter] = useState(false);
 
 	// Create campaign dialog state
 	const [createOpen, setCreateOpen] = useState(false);
@@ -216,16 +258,42 @@ export function MisCampanasScene() {
 		}
 	};
 
-	// Player: if session active → join game; else → show character sheet
+	// Player: open campaign summary + character modal (never auto-enter on card click)
 	const handlePlayerClickCampaign = async (campaign: Campaign) => {
 		const sess = sessionMap[campaign.id];
-		if (sess?.status === "active") {
-			navigate(`/partida/${campaign.id}`);
-			return;
-		}
+		const sessionActive = sess?.status === "active";
 		// Load character for this campaign and show modal
-		const char = await fetchCampaignCharacter(campaign.id, userId);
-		setFichaModalData({ campaign, character: char as Record<string, unknown> | null });
+		const [char, chars] = await Promise.all([
+			fetchCampaignCharacter(campaign.id),
+			fetchMyCharacters().catch(() => []),
+		]);
+		setMyCharacters(chars);
+		setSelectedCharacterId("");
+		setFichaModalData({
+			campaign,
+			character: char as Record<string, unknown> | null,
+			sessionActive,
+		});
+	};
+
+	const handleAssignCharacter = async () => {
+		if (!fichaModalData || !selectedCharacterId) return;
+		setAssigningCharacter(true);
+		try {
+			await assignCharacterToCampaign(selectedCharacterId, fichaModalData.campaign.id);
+			const char = await fetchCampaignCharacter(fichaModalData.campaign.id);
+			setFichaModalData({
+				campaign: fichaModalData.campaign,
+				character: char as Record<string, unknown> | null,
+				sessionActive: fichaModalData.sessionActive,
+			});
+			setSelectedCharacterId("");
+			await loadData();
+		} catch (err) {
+			alert(err instanceof Error ? err.message : "No se pudo asignar la ficha");
+		} finally {
+			setAssigningCharacter(false);
+		}
 	};
 
 	const isDM = (campaign: Campaign) => campaign.dm_id === userId;
@@ -539,7 +607,12 @@ export function MisCampanasScene() {
 			{/* ─ Player: character sheet modal ─ */}
 			<Dialog
 				open={fichaModalData !== null}
-				onOpenChange={(o) => !o && setFichaModalData(null)}
+				onOpenChange={(o) => {
+					if (!o) {
+						setFichaModalData(null);
+						setSelectedCharacterId("");
+					}
+				}}
 			>
 				<DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
 					<DialogHeader>
@@ -547,17 +620,71 @@ export function MisCampanasScene() {
 							{fichaModalData?.campaign.title} – Mi Personaje
 						</DialogTitle>
 						<DialogDescription>
-							La partida aún no está en marcha. Consulta el estado de tu
-							personaje.
+							Consulta la descripcion de la campaña y el estado de tu ficha.
 						</DialogDescription>
 					</DialogHeader>
+
+					<div className="rounded-md border border-border bg-muted/20 p-3 text-sm mb-3">
+						<p className="font-medium mb-1">Descripcion de la campaña</p>
+						<p className="text-muted-foreground">
+							{fichaModalData?.campaign.description || "Sin descripcion."}
+						</p>
+					</div>
+
+					{fichaModalData?.sessionActive && (
+						<Button
+							className="w-full mb-3 bg-green-700 hover:bg-green-600 text-white"
+							onClick={() => {
+								navigate(`/partida/${fichaModalData.campaign.id}`);
+								setFichaModalData(null);
+							}}
+						>
+							<Swords className="h-4 w-4 mr-2" />
+							Unirse a la partida en curso
+						</Button>
+					)}
 
 					{fichaModalData?.character ? (
 						<CharacterSummary char={fichaModalData.character} />
 					) : (
-						<div className="py-8 text-center text-muted-foreground">
-							<User className="h-12 w-12 mx-auto mb-3 opacity-40" />
-							<p>No tienes un personaje asignado a esta campaña todavía.</p>
+						<div className="py-4 space-y-4">
+							<div className="text-center text-muted-foreground">
+								<User className="h-12 w-12 mx-auto mb-3 opacity-40" />
+								<p>No tienes un personaje asignado a esta campaña todavía.</p>
+							</div>
+
+							{myCharacters.length > 0 ? (
+								<div className="space-y-2">
+									<label className="text-sm font-medium">Asignar una de mis fichas</label>
+									<select
+										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+										value={selectedCharacterId}
+										onChange={(e) => setSelectedCharacterId(e.target.value)}
+									>
+										<option value="">Selecciona una ficha...</option>
+										{myCharacters.map((c) => (
+											<option key={c.id} value={c.id}>
+												{c.name}
+												{c.campaign_id ? " (ya asociada a otra campaña)" : ""}
+											</option>
+										))}
+									</select>
+									<Button
+										className="w-full"
+										disabled={!selectedCharacterId || assigningCharacter}
+										onClick={handleAssignCharacter}
+									>
+										{assigningCharacter ? "Asignando..." : "Asignar ficha a esta campaña"}
+									</Button>
+								</div>
+							) : (
+								<div className="text-center">
+									<p className="text-sm text-muted-foreground mb-3">No tienes fichas creadas todavía.</p>
+									<Button variant="outline" onClick={() => navigate("/mis-fichas")}>
+										Ir a Mis Fichas
+									</Button>
+								</div>
+							)}
 						</div>
 					)}
 				</DialogContent>

@@ -6,6 +6,7 @@
 // and any active overlays.
 // ================================================
 
+import { useState } from "react";
 import type {
 	GameSession,
 	SessionToken,
@@ -15,6 +16,7 @@ import type {
 	ChapterWithScenes,
 	SceneEntityBasic,
 	SceneWithEntities,
+	CombatParticipantCandidate,
 } from "./partida.vm";
 import { PanelJugadores } from "./components/PanelJugadores";
 import { MapaPartida } from "./components/MapaPartida";
@@ -25,6 +27,7 @@ import { DadosOverlay } from "./components/DadosOverlay";
 import { FichaOverlay } from "./components/FichaOverlay";
 import { DialogoIniciarCombate } from "./components/DialogoIniciarCombate";
 import { Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Types matching PanelDM expectations
 interface BattleMap {
@@ -53,6 +56,7 @@ interface Props {
 	showDados: boolean;
 	fichaTarget: SessionMember | null;
 	showCombatDialog: boolean;
+	combatParticipants: CombatParticipantCandidate[];
 	// Callbacks
 	onMapViewChange: (view: MapViewState) => void;
 	onTokenMove: (tokenId: string, x: number, y: number) => void;
@@ -95,6 +99,7 @@ export function PartidaComponent({
 	showDados,
 	fichaTarget,
 	showCombatDialog,
+	combatParticipants,
 	onMapViewChange,
 	onTokenMove,
 	onTokenRemove,
@@ -117,6 +122,8 @@ export function PartidaComponent({
 	onSaveFicha,
 	onCancelCombatDialog,
 }: Props) {
+	const [showDMPanel, setShowDMPanel] = useState(true);
+
 	if (loading) {
 		return (
 			<div className="fixed inset-0 flex items-center justify-center bg-[#080408]">
@@ -164,7 +171,21 @@ export function PartidaComponent({
 			)}
 
 			{/* ── Main area: player panel + map + DM panel ── */}
-			<div className="flex flex-1 overflow-hidden">
+			<div className="relative flex flex-1 overflow-hidden">
+				{isDM && (
+					<button
+						onClick={() => setShowDMPanel((prev) => !prev)}
+						className="absolute top-3 right-3 z-20 h-8 w-8 rounded border border-amber-600 bg-amber-800/90 text-amber-100 hover:bg-amber-700 flex items-center justify-center"
+						title={showDMPanel ? "Contraer panel DM" : "Expandir panel DM"}
+					>
+						{showDMPanel ? (
+							<ChevronRight className="h-4 w-4" />
+						) : (
+							<ChevronLeft className="h-4 w-4" />
+						)}
+					</button>
+				)}
+
 				{/* Left: player avatars */}
 				<PanelJugadores
 					members={members}
@@ -190,22 +211,30 @@ export function PartidaComponent({
 
 				{/* Right: DM panel (DM only) */}
 				{isDM && (
-					<PanelDM
-						chapters={chapters}
-						selectedSceneId={selectedSceneId}
-						currentMapId={currentMapId}
-						availableMaps={availableMaps}
-						tokens={tokens}
-						combatState={combatState}
-						isSessionActive={session.status === "active"}
-						onSelectScene={onSelectScene}
-						onGoToScene={onGoToScene}
-						onDeployMap={onDeployMap}
-						onDeployEntity={onDeployEntity}
-						onStartCombat={onStartCombat}
-						onEndCombat={onEndCombat}
-						onEndSession={onEndSession}
-					/>
+					<div
+						className={`overflow-hidden transition-[width,opacity] duration-200 ease-out ${
+							showDMPanel ? "w-72 opacity-100" : "w-0 opacity-0"
+						}`}
+					>
+						<div className="w-72 h-full">
+							<PanelDM
+								chapters={chapters}
+								selectedSceneId={selectedSceneId}
+								currentMapId={currentMapId}
+								availableMaps={availableMaps}
+								tokens={tokens}
+								combatState={combatState}
+								isSessionActive={session.status === "active"}
+								onSelectScene={onSelectScene}
+								onGoToScene={onGoToScene}
+								onDeployMap={onDeployMap}
+								onDeployEntity={onDeployEntity}
+								onStartCombat={onStartCombat}
+								onEndCombat={onEndCombat}
+								onEndSession={onEndSession}
+							/>
+						</div>
+					</div>
 				)}
 			</div>
 
@@ -230,7 +259,7 @@ export function PartidaComponent({
 			{showCombatDialog && (
 				<DialogoIniciarCombate
 					open={showCombatDialog}
-					tokens={tokens}
+					participants={combatParticipants}
 					onConfirm={onConfirmCombat}
 					onCancel={onCancelCombatDialog}
 				/>

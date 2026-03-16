@@ -475,6 +475,7 @@ export function EditarCampanaScene() {
 				entity_type: entityForm.entity_type,
 				entity_id: finalEntityId,
 				entity_name: finalEntityName,
+				entity_data: selectedEntity?.data,
 			});
 
 			setSceneEntities({

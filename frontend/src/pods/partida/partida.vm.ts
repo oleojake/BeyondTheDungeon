@@ -64,6 +64,13 @@ export interface SceneEntityBasic {
 	entity_data: Record<string, unknown> | null;
 }
 
+export interface CombatParticipantCandidate {
+	id: string;
+	label: string;
+	tokenType: "player" | "enemy" | "npc";
+	image: string | null;
+}
+
 export interface PartidaVM {
 	campaignId: string;
 	session: GameSession | null;

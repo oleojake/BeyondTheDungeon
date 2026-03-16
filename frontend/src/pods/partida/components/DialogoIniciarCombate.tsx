@@ -5,7 +5,7 @@
 // Shows player tokens + scene enemies/NPCs with checkboxes.
 // ================================================
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -23,11 +23,11 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { User } from "lucide-react";
-import type { SessionToken } from "../partida.vm";
+import type { CombatParticipantCandidate } from "../partida.vm";
 
 interface Props {
 	open: boolean;
-	tokens: SessionToken[];
+	participants: CombatParticipantCandidate[];
 	onConfirm: (
 		participantIds: string[],
 		surprise: "none" | "heroes" | "enemies"
@@ -37,13 +37,18 @@ interface Props {
 
 export function DialogoIniciarCombate({
 	open,
-	tokens,
+	participants,
 	onConfirm,
 	onCancel,
 }: Props) {
 	const [selected, setSelected] = useState<Set<string>>(
-		() => new Set(tokens.map((t) => t.id))
+		() => new Set(participants.map((p) => p.id))
 	);
+		useEffect(() => {
+			if (!open) return;
+			setSelected(new Set(participants.map((p) => p.id)));
+		}, [open, participants]);
+
 	const [surprise, setSurprise] = useState<"none" | "heroes" | "enemies">(
 		"none"
 	);
@@ -62,12 +67,12 @@ export function DialogoIniciarCombate({
 	};
 
 	const tokensByType = {
-		player: tokens.filter((t) => t.token_type === "player"),
-		enemy: tokens.filter((t) => t.token_type === "enemy"),
-		npc: tokens.filter((t) => t.token_type === "npc"),
+		player: participants.filter((t) => t.tokenType === "player"),
+		enemy: participants.filter((t) => t.tokenType === "enemy"),
+		npc: participants.filter((t) => t.tokenType === "npc"),
 	};
 
-	const renderGroup = (label: string, group: SessionToken[]) => {
+	const renderGroup = (label: string, group: CombatParticipantCandidate[]) => {
 		if (group.length === 0) return null;
 		return (
 			<div className="mb-4">
@@ -89,10 +94,10 @@ export function DialogoIniciarCombate({
 							/>
 							<div className="flex items-center gap-1.5 min-w-0">
 								<div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center bg-gray-700 shrink-0">
-									{token.entity_image ? (
+									{token.image ? (
 										<img
-											src={token.entity_image}
-											alt={token.entity_name}
+											src={token.image}
+											alt={token.label}
 											className="w-full h-full object-cover"
 										/>
 									) : (
@@ -100,7 +105,7 @@ export function DialogoIniciarCombate({
 									)}
 								</div>
 								<span className="text-xs text-gray-200 truncate">
-									{token.entity_name}
+									{token.label}
 								</span>
 							</div>
 						</label>
@@ -123,11 +128,11 @@ export function DialogoIniciarCombate({
 					{renderGroup("Héroes", tokensByType.player)}
 					{renderGroup("Enemigos", tokensByType.enemy)}
 					{renderGroup("NPCs", tokensByType.npc)}
-					{tokens.length === 0 && (
+					{participants.length === 0 && (
 						<p className="text-gray-500 text-sm text-center py-4">
-							No hay tokens en el mapa.
+							No hay participantes en la escena seleccionada.
 							<br />
-							Desplega personajes y enemigos antes de iniciar el combate.
+							Selecciona una escena con heroes/enemigos/NPC para iniciar combate.
 						</p>
 					)}
 				</div>

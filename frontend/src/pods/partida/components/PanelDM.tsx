@@ -141,7 +141,7 @@ export function PanelDM({
 	};
 
 	return (
-		<aside className="w-72 flex flex-col bg-[#120a04] border-l border-amber-900/30 text-sm overflow-hidden shrink-0">
+		<aside className="w-72 flex flex-col bg-[#120a04] border-l border-amber-900/30 text-sm overflow-hidden shrink-0 pt-10">
 			{/* ─ Session controls ─ */}
 			<div className="p-3 border-b border-amber-900/30 flex flex-col gap-2">
 				{combatState?.is_active ? (
