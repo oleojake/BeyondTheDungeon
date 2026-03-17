@@ -50,6 +50,13 @@ const FEATURES = [
 		color: "from-yellow-700 to-amber-900",
 		url: "/objetos",
 	},
+	{
+		icon: "",
+		title: "Inventario",
+		description: "Gestiona el equipo, pociones y monedas de tu personaje.",
+		color: "from-amber-800 to-orange-900",
+		url: "/inventario",
+	},
 ];
 
 export const Features = () => {
