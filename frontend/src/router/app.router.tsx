@@ -121,11 +121,9 @@ export const AppRouter = () => {
 				<Route
 					path={switchRoutes.inventario}
 					element={
-						<ProtectedRoute>
-							<AppLayout>
-								<InventarioScene />
-							</AppLayout>
-						</ProtectedRoute>
+						<AppLayout>
+							<InventarioScene />
+						</AppLayout>
 					}
 				/>
 				<Route
