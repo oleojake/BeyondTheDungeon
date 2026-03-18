@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import {
 	HomeScene,
 	AuthCallbackScene,
@@ -39,6 +39,14 @@ export const AppRouter = () => {
 				/>
 
 				{/* Protected routes - auth required */}
+				<Route
+					path={switchRoutes.profile}
+					element={
+						<ProtectedRoute>
+							<Navigate to={switchRoutes.profileSettings} replace />
+						</ProtectedRoute>
+					}
+				/>
 				<Route
 					path={switchRoutes.profileSettings}
 					element={
