@@ -120,7 +120,11 @@ export const AppRouter = () => {
 				/>
 				<Route
 					path={switchRoutes.inventario}
-					element={<InventarioScene />}
+					element={
+						<ToolLayout>
+							<InventarioScene />
+						</ToolLayout>
+					}
 				/>
 
 
