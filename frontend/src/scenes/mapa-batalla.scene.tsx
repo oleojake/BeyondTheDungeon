@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  X,
+  House,
   Upload,
   Grid3x3,
   ZoomIn,
@@ -302,51 +302,51 @@ export const MapaBatallaScene = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-background flex">
+    <div className="fixed inset-0 bg-[#1A1410] flex">
       {/* Loading image overlay */}
       {isLoadingImage && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm font-medium text-muted-foreground">Cargando imagen...</p>
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+            <p className="text-sm font-medium text-amber-400">Cargando imagen...</p>
           </div>
         </div>
       )}
 
       {/* Saving overlay */}
       {isSaving && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm font-medium text-muted-foreground">Guardando mapa...</p>
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+            <p className="text-sm font-medium text-amber-400">Guardando mapa...</p>
           </div>
         </div>
       )}
 
       {/* Sidebar */}
-      <aside className="w-80 bg-card border-r border-border p-6 overflow-y-auto">
+      <aside className="w-80 bg-[#231C15] border-r border-amber-900/30 p-6 overflow-y-auto">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-foreground">Mapa de Batalla</h1>
+            <h1 className="text-2xl font-bold text-amber-100">Mapa de Batalla</h1>
             <Button
               variant="ghost"
-              size="icon"
               onClick={() => navigate(-1)}
-              title="Salir"
+              className="flex items-center gap-1.5 text-amber-400 hover:text-amber-200 hover:bg-amber-900/30 text-xs"
             >
-              <X className="h-5 w-5" />
+              <House className="h-4 w-4" />
+              Volver
             </Button>
           </div>
 
           {/* Cargar imagen */}
-          <Card>
+          <Card className="bg-[#2C2419] border-amber-900/30">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <Upload className="h-5 w-5" />
                 Cargar Mapa
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-amber-600">
                 {mapState.imageName || "Selecciona una imagen"}
               </CardDescription>
             </CardHeader>
@@ -360,7 +360,7 @@ export const MapaBatallaScene = () => {
               />
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full"
+                className="w-full bg-amber-700 hover:bg-amber-600 text-amber-100"
               >
                 <Upload className="mr-2 h-4 w-4" />
                 Seleccionar Imagen
@@ -369,9 +369,9 @@ export const MapaBatallaScene = () => {
           </Card>
 
           {/* Controles de cuadrícula */}
-          <Card>
+          <Card className="bg-[#2C2419] border-amber-900/30">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <Grid3x3 className="h-5 w-5" />
                 Cuadrícula
               </CardTitle>
@@ -385,14 +385,14 @@ export const MapaBatallaScene = () => {
                   onChange={(e) =>
                     setMapState((prev) => ({ ...prev, showGrid: e.target.checked }))
                   }
-                  className="h-4 w-4"
+                  className="h-4 w-4 accent-amber-500"
                 />
-                <Label htmlFor="showGrid">Mostrar cuadrícula</Label>
+                <Label htmlFor="showGrid" className="text-amber-300">Mostrar cuadrícula</Label>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="gridSize">Tamaño: {mapState.gridSize}px</Label>
+                  <Label htmlFor="gridSize" className="text-amber-300">Tamaño: {mapState.gridSize}px</Label>
                 </div>
                 <Slider
                   id="gridSize"
@@ -408,7 +408,7 @@ export const MapaBatallaScene = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gridColor">Color de cuadrícula</Label>
+                <Label htmlFor="gridColor" className="text-amber-300">Color de cuadrícula</Label>
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
@@ -419,7 +419,7 @@ export const MapaBatallaScene = () => {
                       const rgba = hexToRgba(hex, getAlphaFromRgba(mapState.gridColor));
                       setMapState((prev) => ({ ...prev, gridColor: rgba }));
                     }}
-                    className="h-14 w-14 rounded cursor-pointer border-2 border-border flex-shrink-0"
+                    className="h-14 w-14 rounded cursor-pointer border-2 border-amber-900/50 flex-shrink-0"
                     style={{ minWidth: '3.5rem', minHeight: '3.5rem' }}
                     disabled={!mapState.showGrid}
                   />
@@ -436,10 +436,10 @@ export const MapaBatallaScene = () => {
                         const rgba = hexToRgba(hex, alpha);
                         setMapState((prev) => ({ ...prev, gridColor: rgba }));
                       }}
-                      className="w-full"
+                      className="w-full accent-amber-500"
                       disabled={!mapState.showGrid}
                     />
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex justify-between text-xs text-amber-600">
                       <span>Opacidad</span>
                       <span>{Math.round(getAlphaFromRgba(mapState.gridColor) * 100)}%</span>
                     </div>
@@ -450,24 +450,24 @@ export const MapaBatallaScene = () => {
           </Card>
 
           {/* Controles de zoom */}
-          <Card>
+          <Card className="bg-[#2C2419] border-amber-900/30">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <ZoomIn className="h-5 w-5" />
                 Vista
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label>Zoom: {Math.round(mapState.zoom * 100)}%</Label>
+                <Label className="text-amber-300">Zoom: {Math.round(mapState.zoom * 100)}%</Label>
               </div>
-              
+
               <div className="flex gap-2">
                 <Button
                   onClick={handleZoomOut}
                   variant="outline"
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 border-amber-800/50 bg-transparent text-amber-300 hover:bg-amber-900/30 hover:text-amber-100"
                   disabled={!mapState.image}
                 >
                   <ZoomOut className="mr-2 h-4 w-4" />
@@ -477,7 +477,7 @@ export const MapaBatallaScene = () => {
                   onClick={handleZoomIn}
                   variant="outline"
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 border-amber-800/50 bg-transparent text-amber-300 hover:bg-amber-900/30 hover:text-amber-100"
                   disabled={!mapState.image}
                 >
                   <ZoomIn className="mr-2 h-4 w-4" />
@@ -489,14 +489,14 @@ export const MapaBatallaScene = () => {
                 onClick={handleResetView}
                 variant="outline"
                 size="sm"
-                className="w-full"
+                className="w-full border-amber-800/50 bg-transparent text-amber-300 hover:bg-amber-900/30 hover:text-amber-100"
                 disabled={!mapState.image}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Restablecer Vista
               </Button>
 
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-amber-600">
                 <Move className="inline h-4 w-4 mr-1" />
                 Arrastra para desplazar
               </div>
@@ -505,9 +505,9 @@ export const MapaBatallaScene = () => {
 
           {/* Guardar mapa */}
           {isAuthenticated && (
-            <Card>
+            <Card className="bg-[#2C2419] border-amber-900/30">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
+                <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                   <Save className="h-5 w-5" />
                   Guardar
                 </CardTitle>
@@ -515,7 +515,7 @@ export const MapaBatallaScene = () => {
               <CardContent>
                 <Button
                   onClick={handleSaveMap}
-                  className="w-full"
+                  className="w-full bg-amber-700 hover:bg-amber-600 text-amber-100"
                   disabled={!mapState.image || isSaving}
                 >
                   <Save className="mr-2 h-4 w-4" />
@@ -526,9 +526,9 @@ export const MapaBatallaScene = () => {
           )}
 
           {!isAuthenticated && (
-            <Card className="border-amber-600/20 bg-amber-600/10">
+            <Card className="border-amber-800/30 bg-amber-950/40">
               <CardContent className="pt-6">
-                <p className="text-sm text-muted-foreground text-center">
+                <p className="text-sm text-amber-500 text-center">
                   Inicia sesión para guardar tus mapas
                 </p>
               </CardContent>
@@ -538,12 +538,12 @@ export const MapaBatallaScene = () => {
       </aside>
 
       {/* Canvas */}
-      <div ref={containerRef} className="flex-1 relative bg-background">
+      <div ref={containerRef} className="flex-1 relative bg-[#1a1a1a]">
         {!mapState.image ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center space-y-4">
-              <Upload className="h-16 w-16 mx-auto text-muted-foreground" />
-              <p className="text-xl text-muted-foreground">
+              <Upload className="h-16 w-16 mx-auto text-amber-800/50" />
+              <p className="text-xl text-amber-700/60">
                 Carga una imagen para comenzar
               </p>
             </div>

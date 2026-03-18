@@ -22,6 +22,8 @@ import BestiarioDetalleScene from "@/scenes/bestiario-detalle.scene";
 import ObjetosScene from "@/scenes/objetos.scene";
 import { ProtectedRoute } from "@/core/auth/ProtectedRoute";
 import { AppLayout } from "@/layout/app.layout";
+import { ProfileLayout } from "@/layout/profile.layout";
+import { ToolLayout, FullscreenToolLayout } from "@/layout/tool.layout";
 import { switchRoutes } from "./routes";
 
 export const AppRouter = () => {
@@ -82,21 +84,21 @@ export const AppRouter = () => {
 				<Route
 					path={switchRoutes.dados}
 					element={
-						<AppLayout>
+						<ToolLayout>
 							<DadosScene />
-						</AppLayout>
+						</ToolLayout>
 					}
 				/>
-				<Route path={switchRoutes.mapaBatalla} element={<MapaBatallaScene />} />
+				<Route path={switchRoutes.mapaBatalla} element={<FullscreenToolLayout><MapaBatallaScene /></FullscreenToolLayout>} />
 
 				{/* Protected routes - auth required */}
 				<Route
 					path={switchRoutes.miFicha}
 					element={
 						<ProtectedRoute>
-							<AppLayout>
+							<ProfileLayout>
 								<MiFichaScene />
-							</AppLayout>
+							</ProfileLayout>
 						</ProtectedRoute>
 					}
 				/>
@@ -104,9 +106,7 @@ export const AppRouter = () => {
 					path={switchRoutes.misFichas}
 					element={
 						<ProtectedRoute>
-							<AppLayout>
-								<MisFichasScene />
-							</AppLayout>
+							<MisFichasScene />
 						</ProtectedRoute>
 					}
 				/>
@@ -121,11 +121,15 @@ export const AppRouter = () => {
 				<Route
 					path={switchRoutes.inventario}
 					element={
-						<AppLayout>
+						<ToolLayout>
 							<InventarioScene />
-						</AppLayout>
+						</ToolLayout>
 					}
 				/>
+
+
+
+
 				<Route
 					path={switchRoutes.objetos}
 					element={
