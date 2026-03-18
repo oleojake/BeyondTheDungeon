@@ -9,7 +9,9 @@ export const Footer = () => {
 							<div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-md">
 								<span className="text-white font-bold">🎲</span>
 							</div>
-							<span className="text-stone-800 dark:text-amber-50 font-bold">Beyond the Dungeon</span>
+							<span className="text-stone-800 dark:text-amber-50 font-bold">
+								Beyond the Dungeon
+							</span>
 						</div>
 						<p className="text-stone-600 dark:text-stone-400 text-sm">
 							Las herramientas que tu mesa necesita.
@@ -18,7 +20,9 @@ export const Footer = () => {
 
 					{/* Links */}
 					<div>
-						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">Herramientas</h4>
+						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
+							Herramientas
+						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
@@ -39,7 +43,9 @@ export const Footer = () => {
 					</div>
 
 					<div>
-						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">Comunidad</h4>
+						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
+							Comunidad
+						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
@@ -60,7 +66,9 @@ export const Footer = () => {
 					</div>
 
 					<div>
-						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">Legal</h4>
+						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
+							Legal
+						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
@@ -84,7 +92,8 @@ export const Footer = () => {
 				{/* Bottom */}
 				<div className="border-t border-stone-300 dark:border-dark-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
 					<p className="text-stone-600 dark:text-stone-400 text-sm">
-					© {new Date().getFullYear()} Beyond the Dungeon. Todos los derechos reservados.
+						© {new Date().getFullYear()} Beyond the Dungeon. Todos los derechos
+						reservados.
 					</p>
 					<div className="flex items-center gap-4">
 						<a

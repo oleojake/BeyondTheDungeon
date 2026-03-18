@@ -172,7 +172,7 @@ function filterArmor(item: CompendiumItem): boolean {
 	const ac = item.stats?.armor_category ?? "";
 	const n = item.name.toLowerCase();
 	return (
-		cat === "Armor" && ac !== "Shield" ||
+		(cat === "Armor" && ac !== "Shield") ||
 		(cat === "Wondrous Items" && /robe|mantle/i.test(n))
 	);
 }
@@ -192,7 +192,8 @@ function filterWeapon(item: CompendiumItem): boolean {
 		cat === "Rod" ||
 		cat === "Staff" ||
 		cat === "Wand" ||
-		(cat === "Wondrous Items" && /sword|blade|bow|wand|rod|staff/i.test(item.name))
+		(cat === "Wondrous Items" &&
+			/sword|blade|bow|wand|rod|staff/i.test(item.name))
 	);
 }
 
@@ -230,19 +231,31 @@ function filterMount(item: CompendiumItem): boolean {
 // (intermediate draft constants removed)
 function getSlotFilter(slotKey: string): (item: CompendiumItem) => boolean {
 	switch (slotKey) {
-		case "helmet": return filterHelmet;
-		case "amulet": return filterAmulet;
-		case "armor": return filterArmor;
-		case "cloak": return filterCloak;
-		case "gloves": return filterGloves;
-		case "mainhand": return filterWeapon;
-		case "offhand": return filterOffhand;
+		case "helmet":
+			return filterHelmet;
+		case "amulet":
+			return filterAmulet;
+		case "armor":
+			return filterArmor;
+		case "cloak":
+			return filterCloak;
+		case "gloves":
+			return filterGloves;
+		case "mainhand":
+			return filterWeapon;
+		case "offhand":
+			return filterOffhand;
 		case "ring1":
-		case "ring2": return filterRing;
-		case "belt": return filterBelt;
-		case "boots": return filterBoots;
-		case "mount": return filterMount;
-		default: return FILTER_ALL;
+		case "ring2":
+			return filterRing;
+		case "belt":
+			return filterBelt;
+		case "boots":
+			return filterBoots;
+		case "mount":
+			return filterMount;
+		default:
+			return FILTER_ALL;
 	}
 }
 
@@ -377,7 +390,13 @@ function SlotPickerModal({
 	slotLabel: string;
 	slotKey: string;
 	allItems: CompendiumItem[];
-	onEquip: (name: string, weight?: number, srdIndex?: string, tags?: string[], capacity?: string) => void;
+	onEquip: (
+		name: string,
+		weight?: number,
+		srdIndex?: string,
+		tags?: string[],
+		capacity?: string,
+	) => void;
 	onClose: () => void;
 }) {
 	const [query, setQuery] = useState("");
@@ -386,7 +405,9 @@ function SlotPickerModal({
 
 	useEffect(() => {
 		inputRef.current?.focus();
-		const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+		const handler = (e: KeyboardEvent) => {
+			if (e.key === "Escape") onClose();
+		};
 		document.addEventListener("keydown", handler);
 		return () => document.removeEventListener("keydown", handler);
 	}, [onClose]);
@@ -427,7 +448,9 @@ function SlotPickerModal({
 	return (
 		<div
 			className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-			onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+			onMouseDown={(e) => {
+				if (e.target === e.currentTarget) onClose();
+			}}
 		>
 			<div className="bg-[#1e0d05] border border-amber-800/50 rounded-xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[80vh]">
 				{/* Header */}
@@ -435,7 +458,12 @@ function SlotPickerModal({
 					<h3 className="text-amber-300 font-semibold text-sm">
 						Equipar — <span className="text-amber-500">{slotLabel}</span>
 					</h3>
-					<button onClick={onClose} className="text-amber-700 hover:text-amber-400 text-lg leading-none">×</button>
+					<button
+						onClick={onClose}
+						className="text-amber-700 hover:text-amber-400 text-lg leading-none"
+					>
+						×
+					</button>
 				</div>
 				{/* Search */}
 				<div className="p-3 border-b border-amber-900/30">
@@ -482,7 +510,9 @@ function SlotPickerModal({
 				{/* List */}
 				<div className="overflow-y-auto flex-1 divide-y divide-amber-900/20">
 					{allItems.length === 0 ? (
-						<p className="px-4 py-6 text-xs text-amber-600 italic text-center">Cargando compendio…</p>
+						<p className="px-4 py-6 text-xs text-amber-600 italic text-center">
+							Cargando compendio…
+						</p>
 					) : suggestions.length === 0 ? (
 						<p className="px-4 py-4 text-xs text-amber-600 italic text-center">
 							Sin resultados — pulsa + para añadir como objeto custom
@@ -500,13 +530,20 @@ function SlotPickerModal({
 										<span className="font-medium truncate">{item.name}</span>
 										<span className="text-[10px] text-amber-600/70 shrink-0 whitespace-nowrap">
 											{item.type}
-											{item.weight && item.weight !== "0" ? ` · ${item.weight} lb` : ""}
+											{item.weight && item.weight !== "0"
+												? ` · ${item.weight} lb`
+												: ""}
 										</span>
 									</div>
 									{dropTags.length > 0 && (
 										<div className="flex flex-wrap gap-1 mt-0.5">
 											{dropTags.map((t) => (
-												<span key={t} className="px-1 py-0 rounded text-[9px] bg-amber-800/40 text-amber-400/90 leading-4">{t}</span>
+												<span
+													key={t}
+													className="px-1 py-0 rounded text-[9px] bg-amber-800/40 text-amber-400/90 leading-4"
+												>
+													{t}
+												</span>
 											))}
 										</div>
 									)}
@@ -738,7 +775,9 @@ function ConsumableSection({
 									{item.name}
 								</a>
 							) : (
-								<span className={`truncate flex-1 ${item.tags?.includes("CUSTOM") ? "text-amber-100/80 italic" : "text-amber-100"}`}>
+								<span
+									className={`truncate flex-1 ${item.tags?.includes("CUSTOM") ? "text-amber-100/80 italic" : "text-amber-100"}`}
+								>
 									{item.name}
 								</span>
 							)}
@@ -845,7 +884,9 @@ function BagSection({
 											{item.name}
 										</a>
 									) : (
-										<span className={`truncate block ${item.tags?.includes("CUSTOM") ? "text-amber-100/80 italic" : "text-amber-100"}`}>
+										<span
+											className={`truncate block ${item.tags?.includes("CUSTOM") ? "text-amber-100/80 italic" : "text-amber-100"}`}
+										>
 											{item.name}
 										</span>
 									)}
@@ -924,14 +965,21 @@ export const InventarioScene = () => {
 	const [manualWeightStr, setManualWeightStr] = useState("0.0");
 
 	// ── Character linking ────────────────────────────────────────────────────
-	const [characters, setCharacters] = useState<{ id: string; name: string; race: string; level: number }[]>([]);
+	const [characters, setCharacters] = useState<
+		{ id: string; name: string; race: string; level: number }[]
+	>([]);
 	const [linkedCharId, setLinkedCharId] = useState<string | null>(null);
 	const [linkedCharName, setLinkedCharName] = useState<string | null>(null);
-	const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+	const [saveStatus, setSaveStatus] = useState<
+		"idle" | "saving" | "saved" | "error"
+	>("idle");
 	const [charsLoading, setCharsLoading] = useState(false);
 	const autoCurrentWeight =
 		// Bag items
-		inventory.bag.reduce((sum, item) => sum + (item.weight ?? 0) * item.quantity, 0) +
+		inventory.bag.reduce(
+			(sum, item) => sum + (item.weight ?? 0) * item.quantity,
+			0,
+		) +
 		// Equipped items (excluding mount slot)
 		Object.entries(inventory.equipped)
 			.filter(([key, item]) => key !== "mount" && item !== null)
@@ -946,7 +994,9 @@ export const InventarioScene = () => {
 	})();
 
 	const effectiveMax = maxCarryWeight + mountCapacity;
-	const currentWeight = autoWeight ? autoCurrentWeight : (parseFloat(manualWeightStr) || 0);
+	const currentWeight = autoWeight
+		? autoCurrentWeight
+		: parseFloat(manualWeightStr) || 0;
 
 	// Scroll to top + fetch all compendium items via backend (service role, no RLS cap)
 	useEffect(() => {
@@ -983,7 +1033,7 @@ export const InventarioScene = () => {
 			})
 			.catch(() => {})
 			.finally(() => setCharsLoading(false));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user?.id]);
 
 	// ── Equipment ────────────────────────────────────────────────────────────
@@ -995,10 +1045,28 @@ export const InventarioScene = () => {
 			equipped: { ...prev.equipped, [key]: null },
 		}));
 
-	const equipSlot = (key: string, name: string, weight?: number, srdIndex?: string, tags?: string[], capacity?: string) =>
+	const equipSlot = (
+		key: string,
+		name: string,
+		weight?: number,
+		srdIndex?: string,
+		tags?: string[],
+		capacity?: string,
+	) =>
 		setInventory((prev) => ({
 			...prev,
-			equipped: { ...prev.equipped, [key]: { id: crypto.randomUUID(), name, type: srdIndex ?? "custom", weight, srdIndex, tags, capacity } as EquippedItem },
+			equipped: {
+				...prev.equipped,
+				[key]: {
+					id: crypto.randomUUID(),
+					name,
+					type: srdIndex ?? "custom",
+					weight,
+					srdIndex,
+					tags,
+					capacity,
+				} as EquippedItem,
+			},
 		}));
 
 	// ── Currency ─────────────────────────────────────────────────────────────
@@ -1116,14 +1184,17 @@ export const InventarioScene = () => {
 		const API_URL = import.meta.env.VITE_API_URL || "";
 		setSaveStatus("saving");
 		try {
-			const res = await fetch(`${API_URL}/api/character-sheet/${linkedCharId}`, {
-				method: "PUT",
-				headers: {
-					Authorization: `Bearer ${token}`,
-					"Content-Type": "application/json",
+			const res = await fetch(
+				`${API_URL}/api/character-sheet/${linkedCharId}`,
+				{
+					method: "PUT",
+					headers: {
+						Authorization: `Bearer ${token}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ inventory: JSON.stringify(inventory) }),
 				},
-				body: JSON.stringify({ inventory: JSON.stringify(inventory) }),
-			});
+			);
 			if (!res.ok) throw new Error();
 			setSaveStatus("saved");
 			setTimeout(() => setSaveStatus("idle"), 2500);
@@ -1153,455 +1224,515 @@ export const InventarioScene = () => {
 
 	return (
 		<AppLayout>
-		<div className="bg-gradient-to-br from-amber-50 via-stone-100 to-amber-50 dark:from-dark dark:via-dark-lighter dark:to-dark -mt-[73px] pt-[73px] min-h-screen transition-colors duration-300">
-		<div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-				{/* ── Cabecera ─────────────────────────────────────────────── */}
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-					<div>
-						<h1 className="text-3xl font-bold text-amber-200">Inventario</h1>
-						<p className="text-amber-400/70 text-sm mt-1">
-							Gestiona el equipo, consumibles y monedas de tu personaje
-						</p>
+			<div className="bg-gradient-to-br from-amber-50 via-stone-100 to-amber-50 dark:from-dark dark:via-dark-lighter dark:to-dark -mt-[73px] pt-[73px] min-h-screen transition-colors duration-300">
+				<div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+					{/* ── Cabecera ─────────────────────────────────────────────── */}
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+						<div>
+							<h1 className="text-3xl font-bold text-amber-200">Inventario</h1>
+							<p className="text-amber-400/70 text-sm mt-1">
+								Gestiona el equipo, consumibles y monedas de tu personaje
+							</p>
+						</div>
+						<Button
+							onClick={handleSave}
+							disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
+							className="bg-amber-700 hover:bg-amber-600 text-white gap-2 self-start sm:self-auto disabled:opacity-60"
+						>
+							{saveStatus === "saving" && (
+								<Loader2 className="w-4 h-4 animate-spin" />
+							)}
+							{saveStatus === "saved" && (
+								<CheckCircle2 className="w-4 h-4 text-green-300" />
+							)}
+							{saveStatus === "error" && (
+								<AlertCircle className="w-4 h-4 text-red-300" />
+							)}
+							{saveStatus === "idle" &&
+								(user ? (
+									<Save className="w-4 h-4" />
+								) : (
+									<LogIn className="w-4 h-4" />
+								))}
+							{saveStatus === "saving"
+								? "Guardando…"
+								: saveStatus === "saved"
+									? "¡Guardado!"
+									: saveStatus === "error"
+										? "Error al guardar"
+										: !user
+											? "Inicia sesión para guardar"
+											: !linkedCharId
+												? "Elige un personaje"
+												: "Guardar"}
+						</Button>
 					</div>
-					<Button
-						onClick={handleSave}
-						disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
-						className="bg-amber-700 hover:bg-amber-600 text-white gap-2 self-start sm:self-auto disabled:opacity-60"
-					>
-						{saveStatus === "saving" && <Loader2 className="w-4 h-4 animate-spin" />}
-						{saveStatus === "saved" && <CheckCircle2 className="w-4 h-4 text-green-300" />}
-						{saveStatus === "error" && <AlertCircle className="w-4 h-4 text-red-300" />}
-						{saveStatus === "idle" && (user ? <Save className="w-4 h-4" /> : <LogIn className="w-4 h-4" />)}
-						{saveStatus === "saving" ? "Guardando…" :
-						 saveStatus === "saved" ? "¡Guardado!" :
-						 saveStatus === "error" ? "Error al guardar" :
-						 !user ? "Inicia sesión para guardar" :
-						 !linkedCharId ? "Elige un personaje" :
-						 "Guardar"}
-					</Button>
-				</div>
 
-				{/* ── Banner invitados ──────────────────────────────────────── */}
-				{!user && (
-					<div className="flex items-start gap-3 rounded-lg border border-amber-700/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-300">
-						<Info className="w-4 h-4 mt-0.5 shrink-0" />
-						<span>
-							Puedes explorar el inventario libremente. Para guardar los cambios
-							en un personaje,{" "}
-							<Link
-								to={routes.login}
-								className="underline hover:text-amber-100"
-							>
-								inicia sesión
-							</Link>{" "}
-							o{" "}
-							<Link
-								to={routes.register}
-								className="underline hover:text-amber-100"
-							>
-								crea una cuenta
-							</Link>
-							.
-						</span>
-					</div>
-				)}
-
-				{/* ── Selector de personaje (solo cuando logueado) ──────────── */}
-				{user && (
-					<div className="flex items-center gap-3 rounded-lg border border-amber-800/40 bg-amber-950/30 px-4 py-3 text-sm">
-						<User2 className="w-4 h-4 text-amber-500 shrink-0" />
-						{charsLoading ? (
-							<span className="text-amber-500 flex items-center gap-2">
-								<Loader2 className="w-3.5 h-3.5 animate-spin" />
-								Cargando personajes…
-							</span>
-						) : characters.length === 0 ? (
-							<span className="text-amber-600">
-								No tienes personajes aún.{" "}
-								<Link to={routes.misFichas} className="underline hover:text-amber-400">
-									Crea uno primero
+					{/* ── Banner invitados ──────────────────────────────────────── */}
+					{!user && (
+						<div className="flex items-start gap-3 rounded-lg border border-amber-700/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-300">
+							<Info className="w-4 h-4 mt-0.5 shrink-0" />
+							<span>
+								Puedes explorar el inventario libremente. Para guardar los
+								cambios en un personaje,{" "}
+								<Link
+									to={routes.login}
+									className="underline hover:text-amber-100"
+								>
+									inicia sesión
+								</Link>{" "}
+								o{" "}
+								<Link
+									to={routes.register}
+									className="underline hover:text-amber-100"
+								>
+									crea una cuenta
 								</Link>
 								.
 							</span>
-						) : linkedCharId ? (
-							<div className="flex items-center gap-3 flex-1 flex-wrap">
-								<span className="text-amber-300">
-									Vinculado a: <strong className="text-amber-200">{linkedCharName}</strong>
-								</span>
-								<button
-									onClick={() => { setLinkedCharId(null); setLinkedCharName(null); }}
-									className="text-amber-600 hover:text-amber-400 text-xs underline"
-								>
-									Cambiar
-								</button>
-							</div>
-						) : (
-							<div className="flex items-center gap-2 flex-1 flex-wrap">
-								<span className="text-amber-500 shrink-0">Elige un personaje:</span>
-								<select
-									defaultValue=""
-									onChange={(e) => {
-										const char = characters.find((c) => c.id === e.target.value);
-										if (!char) return;
-										const hasLocal =
-											inventory.bag.length > 0 ||
-											inventory.potions.length > 0 ||
-											inventory.scrolls.length > 0 ||
-											inventory.ammo.length > 0 ||
-											Object.values(inventory.equipped).some(Boolean);
-										if (hasLocal) {
-											const load = window.confirm(
-												`¿Cargar el inventario guardado de "${char.name}"?\n\nAceptar → reemplaza el inventario actual con el del personaje.\nCancelar → mantiene el inventario actual y lo vincula al personaje.`,
-											);
-											if (load) loadCharInventory(char.id, char.name);
-											else { setLinkedCharId(char.id); setLinkedCharName(char.name); }
-										} else {
-											loadCharInventory(char.id, char.name);
-										}
-									}}
-									className="bg-amber-950/60 border border-amber-700/50 rounded px-2 py-1 text-amber-200 text-xs focus:outline-none focus:border-amber-500"
-								>
-									<option value="" disabled>— selecciona —</option>
-									{characters.map((c) => (
-										<option key={c.id} value={c.id}>
-											{c.name} (Nv. {c.level})
-										</option>
-									))}
-								</select>
-							</div>
-						)}
-					</div>
-				)}
+						</div>
+					)}
 
-				{/* ── Carry Weight ─────────────────────────────────────────── */}
-				<div className="rounded-xl border border-amber-800/40 bg-[#2a1204]/70 px-5 py-4 flex flex-wrap items-center gap-6">
-					<Scale className="w-6 h-6 text-amber-600 shrink-0" />
-					<div className="flex items-center gap-6 flex-wrap flex-1">
-						<div className="text-center">
-							<div className="flex items-center gap-2 justify-center mb-0.5">
-								<p className="text-[10px] uppercase tracking-widest text-amber-600">
-									Peso actual
-								</p>
-								<button
-									onClick={() => {
-										if (autoWeight)
-											setManualWeightStr(autoCurrentWeight.toFixed(1));
-										setAutoWeight((v) => !v);
-									}}
-									title={
-										autoWeight
-											? "Introducir manualmente"
-											: "Volver al cálculo automático"
-									}
-									className="text-[9px] px-1.5 py-0.5 rounded border border-amber-800/50 text-amber-600 hover:text-amber-400 hover:border-amber-600/60 transition-colors"
-								>
-									{autoWeight ? "manual" : "auto"}
-								</button>
-							</div>
-							{autoWeight ? (
-								<p
-									className={`text-2xl font-bold ${overEncumbered ? "text-red-400" : "text-amber-200"}`}
-								>
-									{currentWeight.toFixed(1)}
-									<span className="text-sm font-normal text-amber-600 ml-1">
-										lb
+					{/* ── Selector de personaje (solo cuando logueado) ──────────── */}
+					{user && (
+						<div className="flex items-center gap-3 rounded-lg border border-amber-800/40 bg-amber-950/30 px-4 py-3 text-sm">
+							<User2 className="w-4 h-4 text-amber-500 shrink-0" />
+							{charsLoading ? (
+								<span className="text-amber-500 flex items-center gap-2">
+									<Loader2 className="w-3.5 h-3.5 animate-spin" />
+									Cargando personajes…
+								</span>
+							) : characters.length === 0 ? (
+								<span className="text-amber-600">
+									No tienes personajes aún.{" "}
+									<Link
+										to={routes.misFichas}
+										className="underline hover:text-amber-400"
+									>
+										Crea uno primero
+									</Link>
+									.
+								</span>
+							) : linkedCharId ? (
+								<div className="flex items-center gap-3 flex-1 flex-wrap">
+									<span className="text-amber-300">
+										Vinculado a:{" "}
+										<strong className="text-amber-200">{linkedCharName}</strong>
 									</span>
-								</p>
+									<button
+										onClick={() => {
+											setLinkedCharId(null);
+											setLinkedCharName(null);
+										}}
+										className="text-amber-600 hover:text-amber-400 text-xs underline"
+									>
+										Cambiar
+									</button>
+								</div>
 							) : (
+								<div className="flex items-center gap-2 flex-1 flex-wrap">
+									<span className="text-amber-500 shrink-0">
+										Elige un personaje:
+									</span>
+									<select
+										defaultValue=""
+										onChange={(e) => {
+											const char = characters.find(
+												(c) => c.id === e.target.value,
+											);
+											if (!char) return;
+											const hasLocal =
+												inventory.bag.length > 0 ||
+												inventory.potions.length > 0 ||
+												inventory.scrolls.length > 0 ||
+												inventory.ammo.length > 0 ||
+												Object.values(inventory.equipped).some(Boolean);
+											if (hasLocal) {
+												const load = window.confirm(
+													`¿Cargar el inventario guardado de "${char.name}"?\n\nAceptar → reemplaza el inventario actual con el del personaje.\nCancelar → mantiene el inventario actual y lo vincula al personaje.`,
+												);
+												if (load) loadCharInventory(char.id, char.name);
+												else {
+													setLinkedCharId(char.id);
+													setLinkedCharName(char.name);
+												}
+											} else {
+												loadCharInventory(char.id, char.name);
+											}
+										}}
+										className="bg-amber-950/60 border border-amber-700/50 rounded px-2 py-1 text-amber-200 text-xs focus:outline-none focus:border-amber-500"
+									>
+										<option value="" disabled>
+											— selecciona —
+										</option>
+										{characters.map((c) => (
+											<option key={c.id} value={c.id}>
+												{c.name} (Nv. {c.level})
+											</option>
+										))}
+									</select>
+								</div>
+							)}
+						</div>
+					)}
+
+					{/* ── Carry Weight ─────────────────────────────────────────── */}
+					<div className="rounded-xl border border-amber-800/40 bg-[#2a1204]/70 px-5 py-4 flex flex-wrap items-center gap-6">
+						<Scale className="w-6 h-6 text-amber-600 shrink-0" />
+						<div className="flex items-center gap-6 flex-wrap flex-1">
+							<div className="text-center">
+								<div className="flex items-center gap-2 justify-center mb-0.5">
+									<p className="text-[10px] uppercase tracking-widest text-amber-600">
+										Peso actual
+									</p>
+									<button
+										onClick={() => {
+											if (autoWeight)
+												setManualWeightStr(autoCurrentWeight.toFixed(1));
+											setAutoWeight((v) => !v);
+										}}
+										title={
+											autoWeight
+												? "Introducir manualmente"
+												: "Volver al cálculo automático"
+										}
+										className="text-[9px] px-1.5 py-0.5 rounded border border-amber-800/50 text-amber-600 hover:text-amber-400 hover:border-amber-600/60 transition-colors"
+									>
+										{autoWeight ? "manual" : "auto"}
+									</button>
+								</div>
+								{autoWeight ? (
+									<p
+										className={`text-2xl font-bold ${overEncumbered ? "text-red-400" : "text-amber-200"}`}
+									>
+										{currentWeight.toFixed(1)}
+										<span className="text-sm font-normal text-amber-600 ml-1">
+											lb
+										</span>
+									</p>
+								) : (
+									<div className="flex items-baseline gap-1 justify-center">
+										<input
+											type="text"
+											inputMode="decimal"
+											value={manualWeightStr}
+											onChange={(e) => {
+												const v = e.target.value;
+												if (/^\d*\.?\d*$/.test(v)) setManualWeightStr(v);
+											}}
+											onBlur={() => {
+												const n = parseFloat(manualWeightStr);
+												setManualWeightStr(
+													isNaN(n) || manualWeightStr === ""
+														? "0.0"
+														: Math.max(0, n).toFixed(1),
+												);
+											}}
+											className={`text-2xl font-bold bg-transparent border-b focus:outline-none w-20 text-center ${
+												overEncumbered
+													? "text-red-400 border-red-700/50 focus:border-red-400"
+													: "text-amber-200 border-amber-700/50 focus:border-amber-400"
+											}`}
+										/>
+										<span className="text-sm text-amber-600">lb</span>
+									</div>
+								)}
+							</div>
+							<div className="text-amber-800/40 text-xl">|</div>
+							<div className="text-center">
+								<p className="text-[10px] uppercase tracking-widest text-amber-600 mb-0.5">
+									Capacidad máx.
+								</p>
 								<div className="flex items-baseline gap-1 justify-center">
 									<input
-										type="text"
-										inputMode="decimal"
-										value={manualWeightStr}
-										onChange={(e) => {
-											const v = e.target.value;
-											if (/^\d*\.?\d*$/.test(v)) setManualWeightStr(v);
-										}}
-										onBlur={() => {
-											const n = parseFloat(manualWeightStr);
-											setManualWeightStr(isNaN(n) || manualWeightStr === "" ? "0.0" : Math.max(0, n).toFixed(1));
-										}}
-										className={`text-2xl font-bold bg-transparent border-b focus:outline-none w-20 text-center ${
-											overEncumbered
-												? "text-red-400 border-red-700/50 focus:border-red-400"
-												: "text-amber-200 border-amber-700/50 focus:border-amber-400"
-										}` }
+										type="number"
+										min={0}
+										value={maxCarryWeight}
+										onChange={(e) =>
+											setMaxCarryWeight(
+												Math.max(0, parseFloat(e.target.value) || 0),
+											)
+										}
+										className="text-2xl font-bold text-amber-200 bg-transparent border-b border-amber-700/50 focus:border-amber-400 focus:outline-none w-20 text-center"
 									/>
 									<span className="text-sm text-amber-600">lb</span>
 								</div>
-							)}
-						</div>
-						<div className="text-amber-800/40 text-xl">|</div>
-						<div className="text-center">
-							<p className="text-[10px] uppercase tracking-widest text-amber-600 mb-0.5">
-								Capacidad máx.
-							</p>
-							<div className="flex items-baseline gap-1 justify-center">
-								<input
-									type="number"
-									min={0}
-									value={maxCarryWeight}
-									onChange={(e) =>
-										setMaxCarryWeight(
-											Math.max(0, parseFloat(e.target.value) || 0),
-										)
-									}
-									className="text-2xl font-bold text-amber-200 bg-transparent border-b border-amber-700/50 focus:border-amber-400 focus:outline-none w-20 text-center"
-								/>
-								<span className="text-sm text-amber-600">lb</span>
+								{mountCapacity > 0 && (
+									<p className="text-[10px] text-amber-500/80 mt-0.5">
+										+{mountCapacity} lb montura →{" "}
+										<span className="text-amber-300">
+											{effectiveMax} lb total
+										</span>
+									</p>
+								)}
 							</div>
-							{mountCapacity > 0 && (
-								<p className="text-[10px] text-amber-500/80 mt-0.5">
-									+{mountCapacity} lb montura → <span className="text-amber-300">{effectiveMax} lb total</span>
-								</p>
-							)}
-						</div>
-						{effectiveMax > 0 && (
-							<div className="flex-1 min-w-[120px]">
-								<div className="h-2 bg-amber-950 rounded-full overflow-hidden">
-									<div
-										className={`h-full rounded-full transition-all duration-300 ${overEncumbered ? "bg-red-600" : weightPct > 80 ? "bg-yellow-500" : "bg-amber-500"}`}
-										style={{ width: `${weightPct}%` }}
-									/>
+							{effectiveMax > 0 && (
+								<div className="flex-1 min-w-[120px]">
+									<div className="h-2 bg-amber-950 rounded-full overflow-hidden">
+										<div
+											className={`h-full rounded-full transition-all duration-300 ${overEncumbered ? "bg-red-600" : weightPct > 80 ? "bg-yellow-500" : "bg-amber-500"}`}
+											style={{ width: `${weightPct}%` }}
+										/>
+									</div>
+									<p
+										className={`text-[10px] text-right mt-0.5 ${overEncumbered ? "text-red-400" : "text-amber-700"}`}
+									>
+										{overEncumbered
+											? "¡Sobrecargado!"
+											: `${Math.round(weightPct)}% cargado`}
+									</p>
 								</div>
-								<p
-									className={`text-[10px] text-right mt-0.5 ${overEncumbered ? "text-red-400" : "text-amber-700"}`}
-								>
-									{overEncumbered
-										? "¡Sobrecargado!"
-										: `${Math.round(weightPct)}% cargado`}
-								</p>
-							</div>
-						)}
+							)}
+						</div>
 					</div>
-				</div>
 
-				{/* ════════════════════════════════════════════════════════════
+					{/* ════════════════════════════════════════════════════════════
 				    EQUIPO EQUIPADO – Paperdoll con silueta
 				════════════════════════════════════════════════════════════ */}
-				<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-					<h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
-						<Shirt className="w-5 h-5" /> Equipo equipado
-					</h2>
-					<div className="relative w-fit mx-auto">
-						<Silhouette />
-						<div
-							className="relative grid gap-3"
-							style={{
-								gridTemplateColumns: "repeat(3, 5rem)",
-								gridTemplateRows: "repeat(5, 5rem)",
-							}}
-						>
-							{EQUIPMENT_SLOTS.map((slot) => (
-								<EquipSlot
-									key={slot.key}
-									slot={slot}
-									item={inventory.equipped[slot.key]}
-									onClear={() => clearSlot(slot.key)}
-									onOpen={() => setOpenSlot(slot.key)}
-								/>
-							))}
+					<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+						<h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
+							<Shirt className="w-5 h-5" /> Equipo equipado
+						</h2>
+						<div className="relative w-fit mx-auto">
+							<Silhouette />
+							<div
+								className="relative grid gap-3"
+								style={{
+									gridTemplateColumns: "repeat(3, 5rem)",
+									gridTemplateRows: "repeat(5, 5rem)",
+								}}
+							>
+								{EQUIPMENT_SLOTS.map((slot) => (
+									<EquipSlot
+										key={slot.key}
+										slot={slot}
+										item={inventory.equipped[slot.key]}
+										onClear={() => clearSlot(slot.key)}
+										onOpen={() => setOpenSlot(slot.key)}
+									/>
+								))}
+							</div>
 						</div>
-					</div>
-					<p className="text-xs text-amber-700/50 text-center mt-3">
-						Haz clic en un slot para buscar y equipar un objeto
-					</p>
-				</section>
-				{openSlot && (() => {
-					const slot = EQUIPMENT_SLOTS.find((s) => s.key === openSlot);
-					if (!slot) return null;
-					return (
-						<SlotPickerModal
-							slotLabel={slot.label}
-							slotKey={slot.key}
-							allItems={compendiumItems}
-							onEquip={(name, weight, srdIndex, tags, capacity) => equipSlot(openSlot!, name, weight, srdIndex, tags, capacity)}
-							onClose={() => setOpenSlot(null)}
-						/>
-					);
-				})()}
+						<p className="text-xs text-amber-700/50 text-center mt-3">
+							Haz clic en un slot para buscar y equipar un objeto
+						</p>
+					</section>
+					{openSlot &&
+						(() => {
+							const slot = EQUIPMENT_SLOTS.find((s) => s.key === openSlot);
+							if (!slot) return null;
+							return (
+								<SlotPickerModal
+									slotLabel={slot.label}
+									slotKey={slot.key}
+									allItems={compendiumItems}
+									onEquip={(name, weight, srdIndex, tags, capacity) =>
+										equipSlot(openSlot!, name, weight, srdIndex, tags, capacity)
+									}
+									onClose={() => setOpenSlot(null)}
+								/>
+							);
+						})()}
 
-				{/* ════════════════════════════════════════════════════════════
+					{/* ════════════════════════════════════════════════════════════
 				    POCIONES + PERGAMINOS (al mismo nivel)
 				════════════════════════════════════════════════════════════ */}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-						<h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-							<FlaskConical className="w-5 h-5" /> Pociones
-						</h2>
-						<p className="text-xs text-amber-600/70 mb-3 italic">
-							Pociones y brebajes mágicos
-						</p>
-						<ConsumableSection
-							items={inventory.potions}
-							rowColor="bg-amber-900/25 border-amber-800/35"
-							allItems={compendiumItems}
-							categoryFilter={FILTER_POTIONS}
-							inputPlaceholder="Busca pociones…"
-							onSelect={(name, weight, srdIndex, tags) =>
-								addConsumable("potions", name, weight, srdIndex, tags)
-							}
-							onChangeQty={(id, d) => changeQty("potions", id, d)}
-							onRemove={(id) => removeItem("potions", id)}
-						/>
-					</section>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+							<h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
+								<FlaskConical className="w-5 h-5" /> Pociones
+							</h2>
+							<p className="text-xs text-amber-600/70 mb-3 italic">
+								Pociones y brebajes mágicos
+							</p>
+							<ConsumableSection
+								items={inventory.potions}
+								rowColor="bg-amber-900/25 border-amber-800/35"
+								allItems={compendiumItems}
+								categoryFilter={FILTER_POTIONS}
+								inputPlaceholder="Busca pociones…"
+								onSelect={(name, weight, srdIndex, tags) =>
+									addConsumable("potions", name, weight, srdIndex, tags)
+								}
+								onChangeQty={(id, d) => changeQty("potions", id, d)}
+								onRemove={(id) => removeItem("potions", id)}
+							/>
+						</section>
 
-					<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-						<h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-							<ScrollText className="w-5 h-5" /> Pergaminos
-						</h2>
-						<p className="text-xs text-amber-600/70 mb-3 italic">
-							Pergaminos de conjuros y recetas
-						</p>
-						<ConsumableSection
-							items={inventory.scrolls}
-							rowColor="bg-amber-900/25 border-amber-800/35"
-							allItems={compendiumItems}
-							categoryFilter={FILTER_SCROLLS}
-							inputPlaceholder="Busca pergaminos…"
-							onSelect={(name, weight, srdIndex, tags) =>
-								addConsumable("scrolls", name, weight, srdIndex, tags)
-							}
-							onChangeQty={(id, d) => changeQty("scrolls", id, d)}
-							onRemove={(id) => removeItem("scrolls", id)}
-						/>
-					</section>
-				</div>
+						<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+							<h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
+								<ScrollText className="w-5 h-5" /> Pergaminos
+							</h2>
+							<p className="text-xs text-amber-600/70 mb-3 italic">
+								Pergaminos de conjuros y recetas
+							</p>
+							<ConsumableSection
+								items={inventory.scrolls}
+								rowColor="bg-amber-900/25 border-amber-800/35"
+								allItems={compendiumItems}
+								categoryFilter={FILTER_SCROLLS}
+								inputPlaceholder="Busca pergaminos…"
+								onSelect={(name, weight, srdIndex, tags) =>
+									addConsumable("scrolls", name, weight, srdIndex, tags)
+								}
+								onChangeQty={(id, d) => changeQty("scrolls", id, d)}
+								onRemove={(id) => removeItem("scrolls", id)}
+							/>
+						</section>
+					</div>
 
-				{/* ════════════════════════════════════════════════════════════
+					{/* ════════════════════════════════════════════════════════════
 				    BOLSA – ancho completo, dos columnas, con peso
 				════════════════════════════════════════════════════════════ */}
-				<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-					<div className="flex items-baseline gap-3 mb-1">
-						<h2 className="text-xl font-semibold text-amber-300 flex items-center gap-2">
-							<Package className="w-5 h-5" /> Inventario
-						</h2>
-						<span className="text-xs text-amber-600">
-							{inventory.bag.reduce((s, i) => s + i.quantity, 0)} objetos
-						</span>
-					</div>
-					<p className="text-xs text-amber-700/60 mb-3 italic">
-						Todos los objetos: equipables no equipados, herramientas,
-						consumibles, etc.
-					</p>
-					<BagSection
-						items={inventory.bag}
-						allItems={compendiumItems}
-						onSelect={addBagItem}
-						onChangeQty={(id, d) => changeQty("bag", id, d)}
-						onRemove={(id) => removeItem("bag", id)}
-					/>
-				</section>
+					<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+						<div className="flex items-baseline gap-3 mb-1">
+							<h2 className="text-xl font-semibold text-amber-300 flex items-center gap-2">
+								<Package className="w-5 h-5" /> Inventario
+							</h2>
+							<span className="text-xs text-amber-600">
+								{inventory.bag.reduce((s, i) => s + i.quantity, 0)} objetos
+							</span>
+						</div>
+						<p className="text-xs text-amber-700/60 mb-3 italic">
+							Todos los objetos: equipables no equipados, herramientas,
+							consumibles, etc.
+						</p>
+						<BagSection
+							items={inventory.bag}
+							allItems={compendiumItems}
+							onSelect={addBagItem}
+							onChangeQty={(id, d) => changeQty("bag", id, d)}
+							onRemove={(id) => removeItem("bag", id)}
+						/>
+					</section>
 
-				{/* ════════════════════════════════════════════════════════════
+					{/* ════════════════════════════════════════════════════════════
 				    MUNICIÓN + MONEDERO (al mismo nivel)
 				════════════════════════════════════════════════════════════ */}
-				<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-					<h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-						<Target className="w-5 h-5" /> Munición
-					</h2>
-					<p className="text-xs text-amber-600/70 mb-3 italic">
-						Flechas, virotes, dagas arrojadizas…
-					</p>
-					<ConsumableSection
-						items={inventory.ammo}
-						rowColor="bg-amber-900/25 border-amber-800/35"
-						allItems={compendiumItems}
-						categoryFilter={FILTER_AMMO}
-						inputPlaceholder="Busca munición…"
-						onSelect={(name, weight, srdIndex, tags) =>
-							addConsumable("ammo", name, weight, srdIndex, tags)
-						}
-						onChangeQty={(id, d) => changeQty("ammo", id, d)}
-						onRemove={(id) => removeItem("ammo", id)}
-					/>
-				</section>
+					<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+						<h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
+							<Target className="w-5 h-5" /> Munición
+						</h2>
+						<p className="text-xs text-amber-600/70 mb-3 italic">
+							Flechas, virotes, dagas arrojadizas…
+						</p>
+						<ConsumableSection
+							items={inventory.ammo}
+							rowColor="bg-amber-900/25 border-amber-800/35"
+							allItems={compendiumItems}
+							categoryFilter={FILTER_AMMO}
+							inputPlaceholder="Busca munición…"
+							onSelect={(name, weight, srdIndex, tags) =>
+								addConsumable("ammo", name, weight, srdIndex, tags)
+							}
+							onChangeQty={(id, d) => changeQty("ammo", id, d)}
+							onRemove={(id) => removeItem("ammo", id)}
+						/>
+					</section>
 
-				{/* Monedero – ancho reducido y centrado */}
-				<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5 mx-auto w-full max-w-md">
-					<h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
-						<Coins className="w-5 h-5" /> Monedero
-					</h2>
-					<div className="grid grid-cols-5 gap-2">
-						{CURRENCY_LABELS.map(({ key, label, color }) => (
-							<div
-								key={key}
-								className="flex flex-col items-center gap-1 rounded-lg border border-amber-800/30 bg-black/20 p-2"
-							>
-								<span
-									className={`text-[10px] font-semibold ${color} text-center`}
+					{/* Monedero – ancho reducido y centrado */}
+					<section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5 mx-auto w-full max-w-md">
+						<h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
+							<Coins className="w-5 h-5" /> Monedero
+						</h2>
+						<div className="grid grid-cols-5 gap-2">
+							{CURRENCY_LABELS.map(({ key, label, color }) => (
+								<div
+									key={key}
+									className="flex flex-col items-center gap-1 rounded-lg border border-amber-800/30 bg-black/20 p-2"
 								>
-									{label}
+									<span
+										className={`text-[10px] font-semibold ${color} text-center`}
+									>
+										{label}
+									</span>
+									<input
+										type="number"
+										min={0}
+										value={inventory.currency[key]}
+										onChange={(e) => setCurrency(key, e.target.value)}
+										className="w-full text-center bg-transparent border-b border-amber-800/40 text-amber-100 text-lg font-bold focus:outline-none focus:border-amber-500"
+									/>
+									<span
+										className={`text-[9px] uppercase tracking-wider ${color}`}
+									>
+										{key}
+									</span>
+								</div>
+							))}
+						</div>
+					</section>
+
+					{/* ── Footer guardar ────────────────────────────────────────── */}
+					<div className="pt-2 border-t border-amber-900/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+						{!user ? (
+							<p className="text-sm text-amber-600 flex items-center gap-2">
+								<UserPlus className="w-4 h-4" />
+								<span>
+									<Link
+										to={routes.register}
+										className="underline hover:text-amber-400"
+									>
+										Crea una cuenta
+									</Link>{" "}
+									para guardar tu inventario vinculado a un personaje.
 								</span>
-								<input
-									type="number"
-									min={0}
-									value={inventory.currency[key]}
-									onChange={(e) => setCurrency(key, e.target.value)}
-									className="w-full text-center bg-transparent border-b border-amber-800/40 text-amber-100 text-lg font-bold focus:outline-none focus:border-amber-500"
-								/>
-								<span
-									className={`text-[9px] uppercase tracking-wider ${color}`}
-								>
-									{key}
-								</span>
-							</div>
-						))}
+							</p>
+						) : !linkedCharId ? (
+							<p className="text-sm text-amber-600">
+								Vincula un personaje arriba para poder guardar.
+							</p>
+						) : saveStatus === "saved" ? (
+							<p className="text-sm text-green-400 flex items-center gap-2">
+								<CheckCircle2 className="w-4 h-4" /> Guardado correctamente en{" "}
+								<strong>{linkedCharName}</strong>.
+							</p>
+						) : saveStatus === "error" ? (
+							<p className="text-sm text-red-400 flex items-center gap-2">
+								<AlertCircle className="w-4 h-4" /> Error al guardar. Inténtalo
+								de nuevo.
+							</p>
+						) : (
+							<p className="text-sm text-amber-700">
+								Los cambios no se guardan automáticamente.
+							</p>
+						)}
+						<Button
+							onClick={handleSave}
+							disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
+							className="bg-amber-700 hover:bg-amber-600 text-white gap-2 disabled:opacity-60"
+						>
+							{saveStatus === "saving" && (
+								<Loader2 className="w-4 h-4 animate-spin" />
+							)}
+							{saveStatus === "saved" && (
+								<CheckCircle2 className="w-4 h-4 text-green-300" />
+							)}
+							{saveStatus === "error" && (
+								<AlertCircle className="w-4 h-4 text-red-300" />
+							)}
+							{saveStatus === "idle" &&
+								(user ? (
+									<Save className="w-4 h-4" />
+								) : (
+									<LogIn className="w-4 h-4" />
+								))}
+							{saveStatus === "saving"
+								? "Guardando…"
+								: saveStatus === "saved"
+									? "¡Guardado!"
+									: saveStatus === "error"
+										? "Error al guardar"
+										: !user
+											? "Inicia sesión para guardar"
+											: !linkedCharId
+												? "Elige un personaje"
+												: "Guardar"}
+						</Button>
 					</div>
-				</section>
-
-				{/* ── Footer guardar ────────────────────────────────────────── */}
-				<div className="pt-2 border-t border-amber-900/30 flex flex-col sm:flex-row items-center justify-between gap-3">
-					{!user ? (
-						<p className="text-sm text-amber-600 flex items-center gap-2">
-							<UserPlus className="w-4 h-4" />
-							<span>
-								<Link
-									to={routes.register}
-									className="underline hover:text-amber-400"
-								>
-									Crea una cuenta
-								</Link>{" "}
-								para guardar tu inventario vinculado a un personaje.
-							</span>
-						</p>
-					) : !linkedCharId ? (
-						<p className="text-sm text-amber-600">
-							Vincula un personaje arriba para poder guardar.
-						</p>
-					) : saveStatus === "saved" ? (
-						<p className="text-sm text-green-400 flex items-center gap-2">
-							<CheckCircle2 className="w-4 h-4" /> Guardado correctamente en <strong>{linkedCharName}</strong>.
-						</p>
-					) : saveStatus === "error" ? (
-						<p className="text-sm text-red-400 flex items-center gap-2">
-							<AlertCircle className="w-4 h-4" /> Error al guardar. Inténtalo de nuevo.
-						</p>
-					) : (
-						<p className="text-sm text-amber-700">
-							Los cambios no se guardan automáticamente.
-						</p>
-					)}
-					<Button
-						onClick={handleSave}
-						disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
-						className="bg-amber-700 hover:bg-amber-600 text-white gap-2 disabled:opacity-60"
-					>
-						{saveStatus === "saving" && <Loader2 className="w-4 h-4 animate-spin" />}
-						{saveStatus === "saved" && <CheckCircle2 className="w-4 h-4 text-green-300" />}
-						{saveStatus === "error" && <AlertCircle className="w-4 h-4 text-red-300" />}
-						{saveStatus === "idle" && (user ? <Save className="w-4 h-4" /> : <LogIn className="w-4 h-4" />)}
-						{saveStatus === "saving" ? "Guardando…" :
-						 saveStatus === "saved" ? "¡Guardado!" :
-						 saveStatus === "error" ? "Error al guardar" :
-						 !user ? "Inicia sesión para guardar" :
-						 !linkedCharId ? "Elige un personaje" :
-						 "Guardar"}
-					</Button>
 				</div>
 			</div>
-		</div>
-		<Footer />
+			<Footer />
 		</AppLayout>
 	);
 };
