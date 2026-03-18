@@ -18,6 +18,12 @@ h3 {
     --text-primary: 28 25 23; /* stone-900 */
     --text-secondary: 120 113 108; /* stone-500 */
     --border-color: 214 211 209; /* stone-300 */
+
+    /* Scrollbar colors (dungeon theme) */
+    --scrollbar-track-color: #1A1410;
+    --scrollbar-thumb-color: #8B4513;
+    --scrollbar-thumb-border-color: #3D3128;
+    --scrollbar-thumb-hover-color: #D4AF37;
   }
 
   /* No dark mode override: colors are fixed for the dashboard design */
@@ -107,7 +113,7 @@ h3 {
   /* Firefox */
   :root {
     scrollbar-width: thin;
-    scrollbar-color: #8B4513 #1A1410;
+    scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
   }
 
   /* Webkit (Chrome, Edge, Safari) */
@@ -117,17 +123,17 @@ h3 {
   }
 
   ::-webkit-scrollbar-track {
-    background: #1A1410;
+    background: var(--scrollbar-track-color);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #8B4513;
+    background: var(--scrollbar-thumb-color);
     border-radius: 3px;
-    border: 1px solid #3D3128;
+    border: 1px solid var(--scrollbar-thumb-border-color);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #D4AF37;
+    background: var(--scrollbar-thumb-hover-color);
   }
 }
