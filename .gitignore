@@ -32,6 +32,7 @@ coverage/
 backend/.env
 frontend/.env
 *.local
+*.claude
 
 # =====================
 # Editor / OS files

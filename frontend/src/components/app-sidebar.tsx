@@ -1,12 +1,5 @@
 import * as React from "react";
-import {
-	Settings,
-	ScrollText,
-	Map,
-	Scroll,
-	Dices,
-	Backpack,
-} from "lucide-react";
+import { Settings, ScrollText, Map, Scroll, Dices, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { NavMain } from "@/components/nav-main";
@@ -21,43 +14,43 @@ import {
 
 // Opciones de gestión de cuenta/perfil con subtítulos y badges opcionales
 const navMain = [
-	{
-		title: "Mis Campañas",
-		url: "/mis-campanas",
-		icon: Scroll,
-		subtitle: "Gestiona tus aventuras y jugadores",
-		isActive: true,
-	},
-	{
-		title: "Mis Fichas",
-		url: "/mis-fichas",
-		icon: ScrollText,
-		subtitle: "Lista de personajes creados",
-	},
-	{
-		title: "Inventario",
-		url: "/inventario",
-		icon: Backpack,
-		subtitle: "Equipamiento, bolsa y monedas",
-	},
-	{
-		title: "Mis Mapas",
-		url: "/mis-mapas",
-		icon: Map,
-		subtitle: "Mapas y escenarios de batalla",
-	},
-	{
-		title: "Tirada de Dados",
-		url: "/dados",
-		icon: Dices,
-		subtitle: "Lanza dados y genera tiradas",
-	},
-	{
-		title: "Configuración",
-		url: "/profile/settings",
-		icon: Settings,
-		subtitle: "Ajustes de cuenta y preferencias",
-	},
+  {
+    title: "Inicio",
+    url: "/",
+    icon: Home,
+    subtitle: "Volver a la página principal",
+  },
+  {
+    title: "Mis Campañas",
+    url: "/mis-campanas",
+    icon: Scroll,
+    subtitle: "Gestiona tus aventuras y jugadores",
+    isActive: true,
+  },
+  {
+    title: "Mis Fichas",
+    url: "/mis-fichas",
+    icon: ScrollText,
+    subtitle: "Lista de personajes creados",
+  },
+  {
+    title: "Mis Mapas",
+    url: "/mis-mapas",
+    icon: Map,
+    subtitle: "Mapas y escenarios de batalla",
+  },
+  {
+    title: "Tirada de Dados",
+    url: "/dados",
+    icon: Dices,
+    subtitle: "Lanza dados y genera tiradas",
+  },
+  {
+    title: "Configuración",
+    url: "/profile/settings",
+    icon: Settings,
+    subtitle: "Ajustes de cuenta y preferencias",
+  },
 ];
 
 function SidebarBrand() {
