@@ -6,10 +6,10 @@ import { NavMain } from "@/components/nav-main";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar-context";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarRail,
+	Sidebar,
+	SidebarContent,
+	SidebarHeader,
+	SidebarRail,
 } from "@/components/ui/sidebar";
 
 // Opciones de gestión de cuenta/perfil con subtítulos y badges opcionales
@@ -54,44 +54,44 @@ const navMain = [
 ];
 
 function SidebarBrand() {
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
+	const { state } = useSidebar();
+	const isCollapsed = state === "collapsed";
 
-  return (
-    <Link
-      to="/"
-      className="brand-link flex items-center gap-3 hover:opacity-90 transition-opacity group"
-    >
-      <div>
-        <img
-          src="/logo.png"
-          alt="Beyond the Dungeon"
-          className={cn(
-            "object-contain transition-all duration-200 brand-logo",
-            isCollapsed ? "size-16" : "size-16",
-          )}
-          loading="lazy"
-        />
-      </div>
-      {!isCollapsed && (
-        <div className="flex flex-col">
-          <span className="brand-title text-lg font-semibold tracking-tight bg-gradient-to-r from-orange-200 via-amber-200 to-yellow-200 bg-clip-text text-transparent">
-            Beyond the Dungeon
-          </span>
-        </div>
-      )}
-    </Link>
-  );
+	return (
+		<Link
+			to="/"
+			className="brand-link flex items-center gap-3 hover:opacity-90 transition-opacity group"
+		>
+			<div>
+				<img
+					src="/logo.png"
+					alt="Beyond the Dungeon"
+					className={cn(
+						"object-contain transition-all duration-200 brand-logo",
+						isCollapsed ? "size-16" : "size-16",
+					)}
+					loading="lazy"
+				/>
+			</div>
+			{!isCollapsed && (
+				<div className="flex flex-col">
+					<span className="brand-title text-lg font-semibold tracking-tight bg-gradient-to-r from-orange-200 via-amber-200 to-yellow-200 bg-clip-text text-transparent">
+						Beyond the Dungeon
+					</span>
+				</div>
+			)}
+		</Link>
+	);
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  return (
-    <Sidebar
-      collapsible="icon"
-      {...props}
-      className={cn("custom-sidebar-bg", props.className)}
-    >
-      <style>{`
+	return (
+		<Sidebar
+			collapsible="icon"
+			{...props}
+			className={cn("custom-sidebar-bg", props.className)}
+		>
+			<style>{`
           .custom-sidebar-bg [data-sidebar="sidebar"] {
             background-color: #fff7ed;
             border-right: 1px solid rgba(147,74,22,0.12);
@@ -159,13 +159,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           .brand-link.group:hover .brand-title { animation: floatUp .9s ease-in-out; }
           @keyframes floatUp { 0% { transform: translateY(0) } 50% { transform: translateY(-3px) } 100% { transform: translateY(0) } }
         `}</style>
-      <SidebarHeader>
-        <SidebarBrand />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={navMain} />
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
-  );
+			<SidebarHeader>
+				<SidebarBrand />
+			</SidebarHeader>
+			<SidebarContent>
+				<NavMain items={navMain} />
+			</SidebarContent>
+			<SidebarRail />
+		</Sidebar>
+	);
 }

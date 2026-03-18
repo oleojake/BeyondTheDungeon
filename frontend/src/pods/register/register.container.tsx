@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { RegisterComponent } from "./register.component";
 import { routes } from "@/router";
 import type { FormData, FormErrors } from "@/interfaces/forms";
-import { signUp } from "@/core/auth/supabaseAuth";
+import { resendSignUpConfirmation, signUp } from "@/core/auth/supabaseAuth";
 
 export const RegisterContainer = () => {
   const navigate = useNavigate();
@@ -68,18 +68,31 @@ export const RegisterContainer = () => {
       });
 
       setSuccess(
-        "Cuenta creada. Revisa tu email para confirmar y luego inicia sesión."
+        "Cuenta creada. Revisa tu email (incluida Spam/Promociones) para confirmar y luego inicia sesion."
       );
       setTimeout(
         () => navigate(routes.login, { state: { email: formData.email } }),
         2000
       );
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Error al registrar usuario.";
+
+      if (message.toLowerCase().includes("email ya esta registrado")) {
+        try {
+          await resendSignUpConfirmation(formData.email);
+          setSuccess(
+            "Ese email ya estaba registrado. Te hemos reenviado el correo de confirmacion. Revisa Spam/Promociones."
+          );
+          setErrors({});
+          return;
+        } catch {
+          // Si falla el reenvio, mostramos el error original de registro.
+        }
+      }
+
       setErrors({
-        general:
-          error instanceof Error
-            ? error.message
-            : "Error al registrar usuario.",
+        general: message,
       });
       setSuccess(null);
     } finally {

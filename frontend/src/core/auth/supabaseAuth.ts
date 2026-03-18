@@ -57,8 +57,32 @@ export async function signUp(params: {
 
   if (error) throw new Error(mapSupabaseError(error.message));
 
+  // Supabase can return success with an empty identities array when the user
+  // already exists and email enumeration protection is enabled.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    throw new Error(
+      "Ese email ya esta registrado. Si no recuerdas la contrasena, usa la recuperacion de cuenta."
+    );
+  }
+
+  if (!data.user) {
+    throw new Error("No se pudo crear la cuenta. Intentalo de nuevo en unos segundos.");
+  }
+
   // Ojo: si tienes confirmación por email, puede que NO haya sesión aún.
   return data;
+}
+
+export async function resendSignUpConfirmation(email: string) {
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: {
+      emailRedirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
+
+  if (error) throw new Error(mapSupabaseError(error.message));
 }
 
 export async function signOut() {

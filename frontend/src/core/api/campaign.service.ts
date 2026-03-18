@@ -6,7 +6,7 @@
 
 import { supabase } from "@/lib/supabase";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 // ================================================
 // INTERFACES
@@ -29,6 +29,7 @@ export interface CampaignMember {
 	role: "dm" | "player";
 	joined_at: string;
 	email?: string;
+	username?: string;
 }
 
 export interface CreateCampaignRequest {

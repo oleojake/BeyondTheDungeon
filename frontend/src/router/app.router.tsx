@@ -6,6 +6,7 @@ import {
 	MisMapasScene,
 	MisCampanasScene,
 	EditarCampanaScene,
+	PartidaScene,
 } from "@/scenes";
 import { LoginScene } from "@/scenes/login.scene";
 import { RegisterScene } from "@/scenes/register.scene";
@@ -120,11 +121,9 @@ export const AppRouter = () => {
 				<Route
 					path={switchRoutes.inventario}
 					element={
-						<ProtectedRoute>
-							<AppLayout>
-								<InventarioScene />
-							</AppLayout>
-						</ProtectedRoute>
+						<AppLayout>
+							<InventarioScene />
+						</AppLayout>
 					}
 				/>
 				<Route
@@ -148,6 +147,15 @@ export const AppRouter = () => {
 					element={
 						<ProtectedRoute>
 							<EditarCampanaScene />
+						</ProtectedRoute>
+					}
+				/>
+				{/* 🎮 Partida online VTT */}
+				<Route
+					path={switchRoutes.partida}
+					element={
+						<ProtectedRoute>
+							<PartidaScene />
 						</ProtectedRoute>
 					}
 				/>
