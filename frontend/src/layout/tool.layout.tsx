@@ -28,14 +28,6 @@ export const FullscreenToolLayout = ({ children }: PropsWithChildren) => {
 	return user ? (
 		<>{children}</>
 	) : (
-		<AppLayout>
-			<div
-				style={{
-					paddingTop: "var(--navbar-height, 64px)",
-				}}
-			>
-				{children}
-			</div>
-		</AppLayout>
+		<AppLayout>{children}</AppLayout>
 	);
 };
