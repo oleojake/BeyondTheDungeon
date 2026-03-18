@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+﻿import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/core/auth/useAuth";
+import { AppLayout } from "@/layout";
+import { Footer } from "@/pods/home/components";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +26,10 @@ import {
 	UserPlus,
 	Info,
 	Scale,
+	User2,
+	Loader2,
+	CheckCircle2,
+	AlertCircle,
 } from "lucide-react";
 import { routes } from "@/router";
 
@@ -33,6 +39,10 @@ interface EquippedItem {
 	id: string;
 	name: string;
 	type: string;
+	weight?: number;
+	srdIndex?: string;
+	tags?: string[];
+	capacity?: string;
 }
 
 interface ConsumableItem {
@@ -113,6 +123,7 @@ function getItemTags(stats: Record<string, any>): string[] {
 	if (stats.weapon_category) tags.push(stats.weapon_category);
 	if (stats.armor_category) tags.push(stats.armor_category);
 	if (stats.stealth_disadvantage) tags.push("Sigilo DesV");
+	if (stats.capacity) tags.push(`Cap. ${stats.capacity}`);
 	const skipProps = new Set(["monk", "special"]);
 	(stats.properties ?? []).forEach((p: { index: string; name: string }) => {
 		if (!skipProps.has(p.index)) tags.push(p.name);
@@ -139,6 +150,101 @@ const FILTER_AMMO = (item: CompendiumItem) =>
 	);
 
 const FILTER_ALL = (_: CompendiumItem) => true;
+
+// ─── Filtros por slot de equipo ───────────────────────────────────────────────
+
+function filterHelmet(item: CompendiumItem): boolean {
+	const n = item.name.toLowerCase();
+	const cat = item.stats?.equipment_category?.name ?? "";
+	return (
+		(cat === "Wondrous Items" &&
+			/helm|hat|cap|crown|tiara|headband/i.test(n)) ||
+		/helm|hat|cap|crown|tiara|headband/i.test(n)
+	);
+}
+
+function filterAmulet(item: CompendiumItem): boolean {
+	return /necklace|amulet|pendant|medallion/i.test(item.name);
+}
+
+function filterArmor(item: CompendiumItem): boolean {
+	const cat = item.stats?.equipment_category?.name ?? "";
+	const ac = item.stats?.armor_category ?? "";
+	const n = item.name.toLowerCase();
+	return (
+		cat === "Armor" && ac !== "Shield" ||
+		(cat === "Wondrous Items" && /robe|mantle/i.test(n))
+	);
+}
+
+function filterCloak(item: CompendiumItem): boolean {
+	return /cloak|cape|mantle|robe/i.test(item.name);
+}
+
+function filterGloves(item: CompendiumItem): boolean {
+	return /gloves|gauntlets|bracers|bracer/i.test(item.name);
+}
+
+function filterWeapon(item: CompendiumItem): boolean {
+	const cat = item.stats?.equipment_category?.name ?? "";
+	return (
+		cat === "Weapon" ||
+		cat === "Rod" ||
+		cat === "Staff" ||
+		cat === "Wand" ||
+		(cat === "Wondrous Items" && /sword|blade|bow|wand|rod|staff/i.test(item.name))
+	);
+}
+
+function filterOffhand(item: CompendiumItem): boolean {
+	const cat = item.stats?.equipment_category?.name ?? "";
+	const ac = item.stats?.armor_category ?? "";
+	return (
+		cat === "Weapon" ||
+		cat === "Rod" ||
+		cat === "Staff" ||
+		cat === "Wand" ||
+		(cat === "Armor" && ac === "Shield") ||
+		/shield|buckler/i.test(item.name)
+	);
+}
+
+function filterRing(item: CompendiumItem): boolean {
+	const cat = item.stats?.equipment_category?.name ?? "";
+	return cat === "Ring" || /ring/i.test(item.name);
+}
+
+function filterBelt(item: CompendiumItem): boolean {
+	return /belt|girdle/i.test(item.name);
+}
+
+function filterBoots(item: CompendiumItem): boolean {
+	return /boots|boot|shoes|slippers|sandals|greaves/i.test(item.name);
+}
+
+function filterMount(item: CompendiumItem): boolean {
+	const cat = item.stats?.equipment_category?.name ?? "";
+	return cat === "Mounts and Vehicles";
+}
+
+// (intermediate draft constants removed)
+function getSlotFilter(slotKey: string): (item: CompendiumItem) => boolean {
+	switch (slotKey) {
+		case "helmet": return filterHelmet;
+		case "amulet": return filterAmulet;
+		case "armor": return filterArmor;
+		case "cloak": return filterCloak;
+		case "gloves": return filterGloves;
+		case "mainhand": return filterWeapon;
+		case "offhand": return filterOffhand;
+		case "ring1":
+		case "ring2": return filterRing;
+		case "belt": return filterBelt;
+		case "boots": return filterBoots;
+		case "mount": return filterMount;
+		default: return FILTER_ALL;
+	}
+}
 
 // ─── Slots del Paperdoll ─────────────────────────────────────────────────────
 // col/row are 1-based CSS grid positions (3 cols × 5 rows)
@@ -217,15 +323,18 @@ function EquipSlot({
 	slot,
 	item,
 	onClear,
+	onOpen,
 }: {
 	slot: (typeof EQUIPMENT_SLOTS)[number];
 	item: EquippedItem | null;
 	onClear: () => void;
+	onOpen: () => void;
 }) {
 	const Icon = slot.icon;
 	return (
 		<div
 			style={{ gridColumn: slot.col, gridRow: slot.row }}
+			onClick={onOpen}
 			className="group relative flex flex-col items-center justify-center gap-1 w-20 h-20 rounded-lg border-2 border-dashed border-amber-800/50 bg-[#1a0e06]/60 hover:border-amber-500 hover:bg-[#2b1608] transition-all cursor-pointer select-none"
 			title={slot.label}
 		>
@@ -252,6 +361,161 @@ function EquipSlot({
 					</span>
 				</>
 			)}
+		</div>
+	);
+}
+
+// ─── SlotPickerModal ──────────────────────────────────────────────────────────
+
+function SlotPickerModal({
+	slotLabel,
+	slotKey,
+	allItems,
+	onEquip,
+	onClose,
+}: {
+	slotLabel: string;
+	slotKey: string;
+	allItems: CompendiumItem[];
+	onEquip: (name: string, weight?: number, srdIndex?: string, tags?: string[], capacity?: string) => void;
+	onClose: () => void;
+}) {
+	const [query, setQuery] = useState("");
+	const [searchAll, setSearchAll] = useState(false);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		inputRef.current?.focus();
+		const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+		document.addEventListener("keydown", handler);
+		return () => document.removeEventListener("keydown", handler);
+	}, [onClose]);
+
+	const slotFilter = useMemo(() => getSlotFilter(slotKey), [slotKey]);
+
+	const pool = useMemo(
+		() => (searchAll ? allItems : allItems.filter(slotFilter)),
+		[allItems, slotFilter, searchAll],
+	);
+
+	const suggestions = useMemo(() => {
+		if (!query.trim()) return pool;
+		const q = query.toLowerCase();
+		return pool.filter((i) => i.name.toLowerCase().includes(q));
+	}, [pool, query]);
+
+	const handleSelect = (item: CompendiumItem) => {
+		const w = item.weight ? parseFloat(item.weight) : undefined;
+		const tags = getItemTags(item.stats ?? {});
+		const capacity = item.stats?.capacity as string | undefined;
+		onEquip(
+			item.name,
+			w !== undefined && !isNaN(w) && w > 0 ? w : undefined,
+			item.stats?.index as string | undefined,
+			tags.length > 0 ? tags : undefined,
+			capacity,
+		);
+		onClose();
+	};
+
+	const handleCustom = () => {
+		if (!query.trim()) return;
+		onEquip(query.trim(), undefined, undefined, ["CUSTOM"]);
+		onClose();
+	};
+
+	return (
+		<div
+			className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+			onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+		>
+			<div className="bg-[#1e0d05] border border-amber-800/50 rounded-xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[80vh]">
+				{/* Header */}
+				<div className="flex items-center justify-between px-4 py-3 border-b border-amber-900/40">
+					<h3 className="text-amber-300 font-semibold text-sm">
+						Equipar — <span className="text-amber-500">{slotLabel}</span>
+					</h3>
+					<button onClick={onClose} className="text-amber-700 hover:text-amber-400 text-lg leading-none">×</button>
+				</div>
+				{/* Search */}
+				<div className="p-3 border-b border-amber-900/30">
+					<div className="flex gap-2">
+						<input
+							ref={inputRef}
+							type="text"
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									if (suggestions.length > 0) handleSelect(suggestions[0]);
+									else handleCustom();
+								}
+							}}
+							placeholder={`Busca ${slotLabel.toLowerCase()}…`}
+							className="flex-1 bg-amber-950/40 border border-amber-700/50 rounded-lg px-3 py-1.5 text-amber-100 placeholder:text-amber-600/70 text-sm focus:outline-none focus:border-amber-500"
+						/>
+						<button
+							onClick={handleCustom}
+							title="Añadir como objeto custom"
+							className="px-3 py-1.5 rounded-lg border border-amber-700/70 text-amber-400 hover:bg-amber-700/30 text-sm font-semibold shrink-0"
+						>
+							+
+						</button>
+					</div>
+					<div className="flex items-center justify-between mt-2">
+						<label className="flex items-center gap-1.5 text-xs text-amber-500/80 cursor-pointer select-none">
+							<input
+								type="checkbox"
+								checked={searchAll}
+								onChange={(e) => setSearchAll(e.target.checked)}
+								className="accent-amber-600 w-3 h-3"
+							/>
+							Buscar en todo el compendio ({allItems.length})
+						</label>
+						<span className="text-[10px] text-amber-600/60">
+							{query.trim()
+								? `${suggestions.length} resultado${suggestions.length !== 1 ? "s" : ""}`
+								: `${pool.length} objetos`}
+						</span>
+					</div>
+				</div>
+				{/* List */}
+				<div className="overflow-y-auto flex-1 divide-y divide-amber-900/20">
+					{allItems.length === 0 ? (
+						<p className="px-4 py-6 text-xs text-amber-600 italic text-center">Cargando compendio…</p>
+					) : suggestions.length === 0 ? (
+						<p className="px-4 py-4 text-xs text-amber-600 italic text-center">
+							Sin resultados — pulsa + para añadir como objeto custom
+						</p>
+					) : (
+						suggestions.map((item) => {
+							const dropTags = getItemTags(item.stats ?? {});
+							return (
+								<button
+									key={item.id}
+									onClick={() => handleSelect(item)}
+									className="w-full text-left px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-700/25 transition-colors"
+								>
+									<div className="flex items-baseline justify-between gap-2">
+										<span className="font-medium truncate">{item.name}</span>
+										<span className="text-[10px] text-amber-600/70 shrink-0 whitespace-nowrap">
+											{item.type}
+											{item.weight && item.weight !== "0" ? ` · ${item.weight} lb` : ""}
+										</span>
+									</div>
+									{dropTags.length > 0 && (
+										<div className="flex flex-wrap gap-1 mt-0.5">
+											{dropTags.map((t) => (
+												<span key={t} className="px-1 py-0 rounded text-[9px] bg-amber-800/40 text-amber-400/90 leading-4">{t}</span>
+											))}
+										</div>
+									)}
+								</button>
+							);
+						})
+					)}
+				</div>
+			</div>
 		</div>
 	);
 }
@@ -317,7 +581,7 @@ function AutocompleteInput({
 
 	const handleCustom = () => {
 		if (!query.trim()) return;
-		onSelect(query.trim());
+		onSelect(query.trim(), undefined, undefined, ["CUSTOM"]);
 		setQuery("");
 		setOpen(false);
 	};
@@ -369,7 +633,7 @@ function AutocompleteInput({
 							</p>
 						) : suggestions.length === 0 ? (
 							<p className="px-3 py-2 text-xs text-amber-600 italic">
-								Sin resultados — pulsa + para añadir igualmente
+								Sin resultados — pulsa + para añadir como objeto custom
 							</p>
 						) : (
 							suggestions.map((item) => {
@@ -474,7 +738,7 @@ function ConsumableSection({
 									{item.name}
 								</a>
 							) : (
-								<span className="text-amber-100 truncate flex-1">
+								<span className={`truncate flex-1 ${item.tags?.includes("CUSTOM") ? "text-amber-100/80 italic" : "text-amber-100"}`}>
 									{item.name}
 								</span>
 							)}
@@ -507,7 +771,11 @@ function ConsumableSection({
 								{item.tags.map((t) => (
 									<span
 										key={t}
-										className="px-1.5 py-0 rounded text-[9px] bg-amber-800/40 text-amber-400/90 leading-4"
+										className={`px-1.5 py-0 rounded text-[9px] leading-4 ${
+											t === "CUSTOM"
+												? "bg-violet-900/60 text-violet-300/90 font-semibold tracking-wide"
+												: "bg-amber-800/40 text-amber-400/90"
+										}`}
 									>
 										{t}
 									</span>
@@ -577,7 +845,7 @@ function BagSection({
 											{item.name}
 										</a>
 									) : (
-										<span className="text-amber-100 truncate block">
+										<span className={`truncate block ${item.tags?.includes("CUSTOM") ? "text-amber-100/80 italic" : "text-amber-100"}`}>
 											{item.name}
 										</span>
 									)}
@@ -616,7 +884,7 @@ function BagSection({
 									{item.tags.map((t) => (
 										<span
 											key={t}
-											className="px-1.5 py-0 rounded text-[9px] bg-amber-800/40 text-amber-400/90 leading-4"
+											className={`px-1.5 py-0 rounded text-[9px] leading-4 ${t === "CUSTOM" ? "bg-violet-900/60 text-violet-300/90 font-semibold tracking-wide" : "bg-amber-800/40 text-amber-400/90"}`}
 										>
 											{t}
 										</span>
@@ -648,17 +916,37 @@ function BagSection({
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export const InventarioScene = () => {
-	const { user } = useAuth();
+	const { user, session } = useAuth();
 	const [inventory, setInventory] = useState<InventoryState>(emptyInventory);
 	const [compendiumItems, setCompendiumItems] = useState<CompendiumItem[]>([]);
 	const [maxCarryWeight, setMaxCarryWeight] = useState(150);
 	const [autoWeight, setAutoWeight] = useState(true);
-	const [manualWeight, setManualWeight] = useState(0);
-	const autoCurrentWeight = inventory.bag.reduce(
-		(sum, item) => sum + (item.weight ?? 0) * item.quantity,
-		0,
-	);
-	const currentWeight = autoWeight ? autoCurrentWeight : manualWeight;
+	const [manualWeightStr, setManualWeightStr] = useState("0.0");
+
+	// ── Character linking ────────────────────────────────────────────────────
+	const [characters, setCharacters] = useState<{ id: string; name: string; race: string; level: number }[]>([]);
+	const [linkedCharId, setLinkedCharId] = useState<string | null>(null);
+	const [linkedCharName, setLinkedCharName] = useState<string | null>(null);
+	const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+	const [charsLoading, setCharsLoading] = useState(false);
+	const autoCurrentWeight =
+		// Bag items
+		inventory.bag.reduce((sum, item) => sum + (item.weight ?? 0) * item.quantity, 0) +
+		// Equipped items (excluding mount slot)
+		Object.entries(inventory.equipped)
+			.filter(([key, item]) => key !== "mount" && item !== null)
+			.reduce((sum, [, item]) => sum + (item!.weight ?? 0), 0);
+
+	// Mount capacity bonus: parse "480 lb." → 480 (stored directly on EquippedItem)
+	const mountCapacity = (() => {
+		const cap = inventory.equipped["mount"]?.capacity;
+		if (!cap) return 0;
+		const n = parseFloat(cap.replace(/[^\d.]/g, ""));
+		return isNaN(n) ? 0 : n;
+	})();
+
+	const effectiveMax = maxCarryWeight + mountCapacity;
+	const currentWeight = autoWeight ? autoCurrentWeight : (parseFloat(manualWeightStr) || 0);
 
 	// Scroll to top + fetch all compendium items via backend (service role, no RLS cap)
 	useEffect(() => {
@@ -674,11 +962,43 @@ export const InventarioScene = () => {
 			});
 	}, []);
 
+	// ── Fetch characters when user logs in (including cross-tab login via Supabase onAuthStateChange)
+	useEffect(() => {
+		if (!user) {
+			setCharacters([]);
+			setLinkedCharId(null);
+			setLinkedCharName(null);
+			return;
+		}
+		const token = session?.access_token;
+		if (!token) return;
+		const API_URL = import.meta.env.VITE_API_URL || "";
+		setCharsLoading(true);
+		fetch(`${API_URL}/api/character-sheets`, {
+			headers: { Authorization: `Bearer ${token}` },
+		})
+			.then((r) => r.json())
+			.then(({ characters: chars }) => {
+				if (Array.isArray(chars)) setCharacters(chars);
+			})
+			.catch(() => {})
+			.finally(() => setCharsLoading(false));
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [user?.id]);
+
 	// ── Equipment ────────────────────────────────────────────────────────────
+	const [openSlot, setOpenSlot] = useState<string | null>(null);
+
 	const clearSlot = (key: string) =>
 		setInventory((prev) => ({
 			...prev,
 			equipped: { ...prev.equipped, [key]: null },
+		}));
+
+	const equipSlot = (key: string, name: string, weight?: number, srdIndex?: string, tags?: string[], capacity?: string) =>
+		setInventory((prev) => ({
+			...prev,
+			equipped: { ...prev.equipped, [key]: { id: crypto.randomUUID(), name, type: srdIndex ?? "custom", weight, srdIndex, tags, capacity } as EquippedItem },
 		}));
 
 	// ── Currency ─────────────────────────────────────────────────────────────
@@ -763,12 +1083,54 @@ export const InventarioScene = () => {
 	};
 
 	// ── Save ─────────────────────────────────────────────────────────────────
-	const handleSave = () => {
+	const loadCharInventory = async (id: string, name: string) => {
+		const token = session?.access_token;
+		if (!token) return;
+		const API_URL = import.meta.env.VITE_API_URL || "";
+		try {
+			const res = await fetch(`${API_URL}/api/character-sheet/${id}`, {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			const { character } = await res.json();
+			if (character?.inventory) {
+				const parsed = JSON.parse(character.inventory) as InventoryState;
+				setInventory(parsed);
+			} else {
+				setInventory(emptyInventory);
+			}
+		} catch {
+			/* keep current inventory if load fails */
+		}
+		setLinkedCharId(id);
+		setLinkedCharName(name);
+	};
+
+	const handleSave = async () => {
 		if (!user) {
 			window.open(routes.login, "_blank");
 			return;
 		}
-		// Phase 3: character selection + PUT /api/character-sheet/:id
+		if (!linkedCharId) return;
+		const token = session?.access_token;
+		if (!token) return;
+		const API_URL = import.meta.env.VITE_API_URL || "";
+		setSaveStatus("saving");
+		try {
+			const res = await fetch(`${API_URL}/api/character-sheet/${linkedCharId}`, {
+				method: "PUT",
+				headers: {
+					Authorization: `Bearer ${token}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ inventory: JSON.stringify(inventory) }),
+			});
+			if (!res.ok) throw new Error();
+			setSaveStatus("saved");
+			setTimeout(() => setSaveStatus("idle"), 2500);
+		} catch {
+			setSaveStatus("error");
+			setTimeout(() => setSaveStatus("idle"), 3000);
+		}
 	};
 
 	const CURRENCY_LABELS: {
@@ -784,14 +1146,15 @@ export const InventarioScene = () => {
 	];
 
 	const weightPct =
-		maxCarryWeight > 0
-			? Math.min(100, (currentWeight / maxCarryWeight) * 100)
+		maxCarryWeight > 0 || mountCapacity > 0
+			? Math.min(100, (currentWeight / effectiveMax) * 100)
 			: 0;
-	const overEncumbered = maxCarryWeight > 0 && currentWeight > maxCarryWeight;
+	const overEncumbered = effectiveMax > 0 && currentWeight > effectiveMax;
 
 	return (
-		<div className="min-h-screen bg-[#120906]">
-			<div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+		<AppLayout>
+		<div className="bg-gradient-to-br from-amber-50 via-stone-100 to-amber-50 dark:from-dark dark:via-dark-lighter dark:to-dark -mt-[73px] pt-[73px] min-h-screen transition-colors duration-300">
+		<div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
 				{/* ── Cabecera ─────────────────────────────────────────────── */}
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 					<div>
@@ -802,14 +1165,19 @@ export const InventarioScene = () => {
 					</div>
 					<Button
 						onClick={handleSave}
-						className="bg-amber-700 hover:bg-amber-600 text-white gap-2 self-start sm:self-auto"
+						disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
+						className="bg-amber-700 hover:bg-amber-600 text-white gap-2 self-start sm:self-auto disabled:opacity-60"
 					>
-						{user ? (
-							<Save className="w-4 h-4" />
-						) : (
-							<LogIn className="w-4 h-4" />
-						)}
-						{user ? "Guardar en personaje" : "Inicia sesión para guardar"}
+						{saveStatus === "saving" && <Loader2 className="w-4 h-4 animate-spin" />}
+						{saveStatus === "saved" && <CheckCircle2 className="w-4 h-4 text-green-300" />}
+						{saveStatus === "error" && <AlertCircle className="w-4 h-4 text-red-300" />}
+						{saveStatus === "idle" && (user ? <Save className="w-4 h-4" /> : <LogIn className="w-4 h-4" />)}
+						{saveStatus === "saving" ? "Guardando…" :
+						 saveStatus === "saved" ? "¡Guardado!" :
+						 saveStatus === "error" ? "Error al guardar" :
+						 !user ? "Inicia sesión para guardar" :
+						 !linkedCharId ? "Elige un personaje" :
+						 "Guardar"}
 					</Button>
 				</div>
 
@@ -838,6 +1206,73 @@ export const InventarioScene = () => {
 					</div>
 				)}
 
+				{/* ── Selector de personaje (solo cuando logueado) ──────────── */}
+				{user && (
+					<div className="flex items-center gap-3 rounded-lg border border-amber-800/40 bg-amber-950/30 px-4 py-3 text-sm">
+						<User2 className="w-4 h-4 text-amber-500 shrink-0" />
+						{charsLoading ? (
+							<span className="text-amber-500 flex items-center gap-2">
+								<Loader2 className="w-3.5 h-3.5 animate-spin" />
+								Cargando personajes…
+							</span>
+						) : characters.length === 0 ? (
+							<span className="text-amber-600">
+								No tienes personajes aún.{" "}
+								<Link to={routes.misFichas} className="underline hover:text-amber-400">
+									Crea uno primero
+								</Link>
+								.
+							</span>
+						) : linkedCharId ? (
+							<div className="flex items-center gap-3 flex-1 flex-wrap">
+								<span className="text-amber-300">
+									Vinculado a: <strong className="text-amber-200">{linkedCharName}</strong>
+								</span>
+								<button
+									onClick={() => { setLinkedCharId(null); setLinkedCharName(null); }}
+									className="text-amber-600 hover:text-amber-400 text-xs underline"
+								>
+									Cambiar
+								</button>
+							</div>
+						) : (
+							<div className="flex items-center gap-2 flex-1 flex-wrap">
+								<span className="text-amber-500 shrink-0">Elige un personaje:</span>
+								<select
+									defaultValue=""
+									onChange={(e) => {
+										const char = characters.find((c) => c.id === e.target.value);
+										if (!char) return;
+										const hasLocal =
+											inventory.bag.length > 0 ||
+											inventory.potions.length > 0 ||
+											inventory.scrolls.length > 0 ||
+											inventory.ammo.length > 0 ||
+											Object.values(inventory.equipped).some(Boolean);
+										if (hasLocal) {
+											const load = window.confirm(
+												`¿Cargar el inventario guardado de "${char.name}"?\n\nAceptar → reemplaza el inventario actual con el del personaje.\nCancelar → mantiene el inventario actual y lo vincula al personaje.`,
+											);
+											if (load) loadCharInventory(char.id, char.name);
+											else { setLinkedCharId(char.id); setLinkedCharName(char.name); }
+										} else {
+											loadCharInventory(char.id, char.name);
+										}
+									}}
+									className="bg-amber-950/60 border border-amber-700/50 rounded px-2 py-1 text-amber-200 text-xs focus:outline-none focus:border-amber-500"
+								>
+									<option value="" disabled>— selecciona —</option>
+									{characters.map((c) => (
+										<option key={c.id} value={c.id}>
+											{c.name} (Nv. {c.level})
+										</option>
+									))}
+								</select>
+							</div>
+						)}
+					</div>
+				)}
+
 				{/* ── Carry Weight ─────────────────────────────────────────── */}
 				<div className="rounded-xl border border-amber-800/40 bg-[#2a1204]/70 px-5 py-4 flex flex-wrap items-center gap-6">
 					<Scale className="w-6 h-6 text-amber-600 shrink-0" />
@@ -850,7 +1285,7 @@ export const InventarioScene = () => {
 								<button
 									onClick={() => {
 										if (autoWeight)
-											setManualWeight(parseFloat(autoCurrentWeight.toFixed(1)));
+											setManualWeightStr(autoCurrentWeight.toFixed(1));
 										setAutoWeight((v) => !v);
 									}}
 									title={
@@ -875,20 +1310,22 @@ export const InventarioScene = () => {
 							) : (
 								<div className="flex items-baseline gap-1 justify-center">
 									<input
-										type="number"
-										min={0}
-										step={0.5}
-										value={manualWeight.toFixed(1)}
-										onChange={(e) =>
-											setManualWeight(
-												Math.max(0, parseFloat(e.target.value) || 0),
-											)
-										}
+										type="text"
+										inputMode="decimal"
+										value={manualWeightStr}
+										onChange={(e) => {
+											const v = e.target.value;
+											if (/^\d*\.?\d*$/.test(v)) setManualWeightStr(v);
+										}}
+										onBlur={() => {
+											const n = parseFloat(manualWeightStr);
+											setManualWeightStr(isNaN(n) || manualWeightStr === "" ? "0.0" : Math.max(0, n).toFixed(1));
+										}}
 										className={`text-2xl font-bold bg-transparent border-b focus:outline-none w-20 text-center ${
 											overEncumbered
 												? "text-red-400 border-red-700/50 focus:border-red-400"
 												: "text-amber-200 border-amber-700/50 focus:border-amber-400"
-										}`}
+										}` }
 									/>
 									<span className="text-sm text-amber-600">lb</span>
 								</div>
@@ -913,8 +1350,13 @@ export const InventarioScene = () => {
 								/>
 								<span className="text-sm text-amber-600">lb</span>
 							</div>
+							{mountCapacity > 0 && (
+								<p className="text-[10px] text-amber-500/80 mt-0.5">
+									+{mountCapacity} lb montura → <span className="text-amber-300">{effectiveMax} lb total</span>
+								</p>
+							)}
 						</div>
-						{maxCarryWeight > 0 && (
+						{effectiveMax > 0 && (
 							<div className="flex-1 min-w-[120px]">
 								<div className="h-2 bg-amber-950 rounded-full overflow-hidden">
 									<div
@@ -956,14 +1398,28 @@ export const InventarioScene = () => {
 									slot={slot}
 									item={inventory.equipped[slot.key]}
 									onClear={() => clearSlot(slot.key)}
+									onOpen={() => setOpenSlot(slot.key)}
 								/>
 							))}
 						</div>
 					</div>
 					<p className="text-xs text-amber-700/50 text-center mt-3">
-						Haz clic en un slot para equipar un objeto (disponible próximamente)
+						Haz clic en un slot para buscar y equipar un objeto
 					</p>
 				</section>
+				{openSlot && (() => {
+					const slot = EQUIPMENT_SLOTS.find((s) => s.key === openSlot);
+					if (!slot) return null;
+					return (
+						<SlotPickerModal
+							slotLabel={slot.label}
+							slotKey={slot.key}
+							allItems={compendiumItems}
+							onEquip={(name, weight, srdIndex, tags, capacity) => equipSlot(openSlot!, name, weight, srdIndex, tags, capacity)}
+							onClose={() => setOpenSlot(null)}
+						/>
+					);
+				})()}
 
 				{/* ════════════════════════════════════════════════════════════
 				    POCIONES + PERGAMINOS (al mismo nivel)
@@ -1109,6 +1565,18 @@ export const InventarioScene = () => {
 								para guardar tu inventario vinculado a un personaje.
 							</span>
 						</p>
+					) : !linkedCharId ? (
+						<p className="text-sm text-amber-600">
+							Vincula un personaje arriba para poder guardar.
+						</p>
+					) : saveStatus === "saved" ? (
+						<p className="text-sm text-green-400 flex items-center gap-2">
+							<CheckCircle2 className="w-4 h-4" /> Guardado correctamente en <strong>{linkedCharName}</strong>.
+						</p>
+					) : saveStatus === "error" ? (
+						<p className="text-sm text-red-400 flex items-center gap-2">
+							<AlertCircle className="w-4 h-4" /> Error al guardar. Inténtalo de nuevo.
+						</p>
 					) : (
 						<p className="text-sm text-amber-700">
 							Los cambios no se guardan automáticamente.
@@ -1116,18 +1584,25 @@ export const InventarioScene = () => {
 					)}
 					<Button
 						onClick={handleSave}
-						className="bg-amber-700 hover:bg-amber-600 text-white gap-2"
+						disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
+						className="bg-amber-700 hover:bg-amber-600 text-white gap-2 disabled:opacity-60"
 					>
-						{user ? (
-							<Save className="w-4 h-4" />
-						) : (
-							<LogIn className="w-4 h-4" />
-						)}
-						{user ? "Guardar en personaje" : "Inicia sesión para guardar"}
+						{saveStatus === "saving" && <Loader2 className="w-4 h-4 animate-spin" />}
+						{saveStatus === "saved" && <CheckCircle2 className="w-4 h-4 text-green-300" />}
+						{saveStatus === "error" && <AlertCircle className="w-4 h-4 text-red-300" />}
+						{saveStatus === "idle" && (user ? <Save className="w-4 h-4" /> : <LogIn className="w-4 h-4" />)}
+						{saveStatus === "saving" ? "Guardando…" :
+						 saveStatus === "saved" ? "¡Guardado!" :
+						 saveStatus === "error" ? "Error al guardar" :
+						 !user ? "Inicia sesión para guardar" :
+						 !linkedCharId ? "Elige un personaje" :
+						 "Guardar"}
 					</Button>
 				</div>
 			</div>
 		</div>
+		<Footer />
+		</AppLayout>
 	);
 };
 

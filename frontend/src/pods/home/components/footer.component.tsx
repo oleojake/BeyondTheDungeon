@@ -84,7 +84,7 @@ export const Footer = () => {
 				{/* Bottom */}
 				<div className="border-t border-stone-300 dark:border-dark-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
 					<p className="text-stone-600 dark:text-stone-400 text-sm">
-						© 2025 Beyond the Dungeon. Todos los derechos reservados.
+					© {new Date().getFullYear()} Beyond the Dungeon. Todos los derechos reservados.
 					</p>
 					<div className="flex items-center gap-4">
 						<a
