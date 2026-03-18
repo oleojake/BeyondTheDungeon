@@ -1,10 +1,21 @@
-import { Link } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { routes } from "@/router";
 import { useAuth } from "@/core/auth/useAuth";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Navbar = () => {
 	const { user, loading, logout } = useAuth();
+	const navigate = useNavigate();
+	const location = useLocation();
+
+	const handleHerramientas = (e: React.MouseEvent) => {
+		e.preventDefault();
+		if (location.pathname === "/") {
+			document.getElementById("herramientas")?.scrollIntoView({ behavior: "smooth" });
+		} else {
+			navigate("/#herramientas");
+		}
+	};
 
 	return (
 		<nav className="fixed top-0 w-full bg-amber-50/95 dark:bg-dark/95 backdrop-blur-md border-b border-stone-300 dark:border-dark-border z-50 transition-colors duration-300">
@@ -25,7 +36,8 @@ export const Navbar = () => {
 					{/* Desktop Menu */}
 					<div className="hidden md:flex items-center gap-8">
 						<a
-							href="#herramientas"
+							href="/#herramientas"
+							onClick={handleHerramientas}
 							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium"
 						>
 							Herramientas
