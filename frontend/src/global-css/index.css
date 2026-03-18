@@ -105,7 +105,7 @@ h3 {
   /* ── Scrollbars (dungeon theme) ── */
 
   /* Firefox */
-  * {
+  :root {
     scrollbar-width: thin;
     scrollbar-color: #8B4513 #1A1410;
   }
