@@ -63,7 +63,7 @@ export const Navbar = () => {
 						{loading ? null : user ? (
 							<>
 								<Link
-									to={routes.profile}
+									to={routes.misCampanas}
 									className="px-4 py-2 text-stone-800 dark:text-amber-50 hover:text-primary transition-colors font-medium"
 								>
 									Mi Perfil

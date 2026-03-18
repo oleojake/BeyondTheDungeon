@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Settings, ScrollText, Map, Scroll, Dices } from "lucide-react";
+import { Settings, ScrollText, Map, Scroll, Dices, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { NavMain } from "@/components/nav-main";
@@ -14,6 +14,12 @@ import {
 
 // Opciones de gestión de cuenta/perfil con subtítulos y badges opcionales
 const navMain = [
+  {
+    title: "Inicio",
+    url: "/",
+    icon: Home,
+    subtitle: "Volver a la página principal",
+  },
   {
     title: "Mis Campañas",
     url: "/mis-campanas",
