@@ -319,25 +319,26 @@ export function MisCampanasScene() {
 
 	return (
 		<ProfileLayout>
-			<div className="container mx-auto py-8 px-4 max-w-7xl">
+			<div className="max-w-5xl mx-auto space-y-6">
 				{/* Header */}
-				<div className="flex items-center justify-between mb-8">
-					<div>
-						<h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-							<Scroll className="h-8 w-8" />
-							Mis Campañas
-						</h1>
-						<p className="text-muted-foreground mt-1">
-							Gestiona tus aventuras de D&D como DM o jugador
-						</p>
-					</div>
-					<Dialog open={createOpen} onOpenChange={setCreateOpen}>
-						<DialogTrigger asChild>
-							<Button>
-								<Plus className="mr-2 h-4 w-4" />
-								Nueva Campaña
-							</Button>
-						</DialogTrigger>
+				<section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
+					<div className="flex items-center justify-between">
+						<div>
+							<div className="flex items-center gap-3 mb-2">
+								<Scroll className="h-8 w-8 text-amber-200" />
+								<h1 className="text-3xl font-bold text-amber-50">Mis Campañas</h1>
+							</div>
+							<p className="text-sm text-amber-100/90">
+								Gestiona tus aventuras de D&D como DM o jugador
+							</p>
+						</div>
+						<Dialog open={createOpen} onOpenChange={setCreateOpen}>
+							<DialogTrigger asChild>
+								<Button className="bg-amber-600 hover:bg-amber-700 text-white">
+									<Plus className="mr-2 h-4 w-4" />
+									Nueva Campaña
+								</Button>
+							</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>
 								<DialogTitle>Crear Nueva Campaña</DialogTitle>
@@ -389,11 +390,12 @@ export function MisCampanasScene() {
 							</DialogFooter>
 						</DialogContent>
 					</Dialog>
-				</div>
+					</div>
+				</section>
 
 				{/* Invitations */}
 				{invitations.length > 0 && (
-					<div className="mb-8">
+					<div>
 						<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
 							<Bell className="h-5 w-5" />
 							Invitaciones Pendientes ({invitations.length})
