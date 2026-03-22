@@ -2,32 +2,28 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/core/auth/useAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InventoryManager } from "@/pods/partida/components/inventory/InventoryManager";
+import type { InventoryState, CompendiumItem } from "@/pods/partida/components/inventory/types";
+import { emptyInventory } from "@/pods/partida/components/inventory/utils/slotConfig";
 import {
-  HardHat,
-  Shirt,
-  Wind,
-  Grab,
-  Gem,
-  Sword,
-  Swords,
-  Footprints,
-  Circle,
-  HelpCircle,
-  FlaskConical,
-  ScrollText,
-  Target,
-  Package,
-  Coins,
   Save,
   LogIn,
   UserPlus,
   Info,
-  Scale,
-  User2,
   Loader2,
   CheckCircle2,
   AlertCircle,
+  User2,
+  HardHat,
+  Gem,
+  Shirt,
+  Wind,
+  Grab,
+  Sword,
+  Swords,
+  Circle,
+  HelpCircle,
+  Footprints,
 } from "lucide-react";
 import { routes } from "@/router";
 
@@ -278,14 +274,7 @@ const EQUIPMENT_SLOTS = [
 
 // ─── Estado inicial ──────────────────────────────────────────────────────────
 
-const emptyInventory: InventoryState = {
-  equipped: Object.fromEntries(EQUIPMENT_SLOTS.map((s) => [s.key, null])),
-  potions: [],
-  scrolls: [],
-  ammo: [],
-  bag: [],
-  currency: { pp: 0, po: 0, pe: 0, pa: 0, pc: 0 },
-};
+// (emptyInventory imported from utils)
 
 // ─── Silueta SVG de fondo ─────────────────────────────────────────────────────
 

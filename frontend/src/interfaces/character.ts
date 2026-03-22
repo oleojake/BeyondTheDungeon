@@ -76,6 +76,9 @@ export type CharacterStats = {
   languages: string;
   proficiencies: string[]; // Array de competencias seleccionadas
   features_traits: string;
+
+  // Carga y peso
+  max_carry_weight: number; // Capacidad máxima de carga (en libras)
 }
 
 export type Character = {
@@ -168,6 +171,7 @@ export const defaultCharacterStats: CharacterStats = {
   languages: "",
   proficiencies: [],
   features_traits: "",
+  max_carry_weight: 150, // Default para Medium creature con STR 10
 };
 
 export const defaultCharacter: Partial<Character> = {

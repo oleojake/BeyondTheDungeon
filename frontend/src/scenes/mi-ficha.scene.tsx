@@ -9,15 +9,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
+import { InventoryManager } from "@/pods/partida/components/inventory/InventoryManager";
+import type { CompendiumItem } from "@/pods/partida/components/inventory/types";
+import {
   fetchCharacterSheet,
   fetchCharacterSheetById,
-  createCharacterSheet, 
-  updateCharacterSheet 
+  createCharacterSheet,
+  updateCharacterSheet
 } from "@/core/api/character-sheet.service";
-import type { 
-  Character, 
-  CharacterFormData, 
+import type {
+  Character,
+  CharacterFormData,
   CharacterStats,
   CharacterClass
 } from "@/interfaces/character";
@@ -53,7 +55,47 @@ export const MiFichaScene = () => {
   const [equipment, setEquipment] = useState("");
   const [notes, setNotes] = useState("");
 
+  // Compendium items for autocomplete
+  const [compendiumItems, setCompendiumItems] = useState<CompendiumItem[]>([]);
+
   const isMulticlass = classes.length > 1;
+
+  // Determina si una raza es pequeña
+  const isSmallRace = (raceStr: string): boolean => {
+    const smallRaces = ["Enano", "Gnomo", "Mediano"];
+    return smallRaces.some(r => raceStr.includes(r));
+  };
+
+  // Calcula la capacidad máxima de peso basada en fuerza y tamaño
+  const calculateMaxCarryWeight = (strength: number, raceStr: string): number => {
+    const multiplier = isSmallRace(raceStr) ? 15 : 15; // 15 para todos (30 para gigantes, no soportados base)
+    return strength * multiplier;
+  };
+
+  // Recalcular peso máximo cuando cambian fuerza o raza (pero no si fue editado manualmente)
+  useEffect(() => {
+    // Si el usuario no ha editado manualmente, recalculamos
+    const calculatedWeight = calculateMaxCarryWeight(stats.strength || 10, race);
+    if (stats.max_carry_weight === calculatedWeight || !stats.max_carry_weight) {
+      setStats({
+        ...stats,
+        max_carry_weight: calculatedWeight,
+      });
+    }
+  }, [stats.strength, race]);
+
+  // Fetch compendium items for autocomplete
+  useEffect(() => {
+    const API_URL = import.meta.env.VITE_API_URL || "";
+    fetch(`${API_URL}/api/compendium-items`)
+      .then((r) => r.json())
+      .then(({ items }) => {
+        if (Array.isArray(items)) setCompendiumItems(items as CompendiumItem[]);
+      })
+      .catch(() => {
+        /* silently ignore – dropdown will show empty */
+      });
+  }, []);
 
   useEffect(() => {
     loadCharacter();
@@ -224,7 +266,7 @@ export const MiFichaScene = () => {
       )}
 
       <Tabs defaultValue="info" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="info">
             <User className="mr-2 h-4 w-4" />
             Info
@@ -241,13 +283,9 @@ export const MiFichaScene = () => {
             <Heart className="mr-2 h-4 w-4" />
             Habilidades
           </TabsTrigger>
-          <TabsTrigger value="equipment">
+          <TabsTrigger value="inventario">
             <Package className="mr-2 h-4 w-4" />
-            Equipo
-          </TabsTrigger>
-          <TabsTrigger value="spells">
-            <Scroll className="mr-2 h-4 w-4" />
-            Hechizos
+            Inventario
           </TabsTrigger>
         </TabsList>
 
@@ -723,69 +761,19 @@ export const MiFichaScene = () => {
           </Card>
         </TabsContent>
 
-        {/* TAB: EQUIPO */}
-        <TabsContent value="equipment" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Equipo</CardTitle>
-              <CardDescription>Armas, armaduras y herramientas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={equipment}
-                onChange={(e) => setEquipment(e.target.value)}
-                placeholder="Lista tu equipo, armas, armaduras..."
-                rows={10}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Inventario</CardTitle>
-              <CardDescription>Objetos y posesiones</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={inventory}
-                onChange={(e) => setInventory(e.target.value)}
-                placeholder="Lista tus objetos, monedas, tesoros..."
-                rows={10}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* TAB: HECHIZOS */}
-        <TabsContent value="spells" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Hechizos Conocidos</CardTitle>
-              <CardDescription>Lista de hechizos preparados y conocidos</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={spellsKnown}
-                onChange={(e) => setSpellsKnown(e.target.value)}
-                placeholder="Lista tus hechizos por nivel..."
-                rows={15}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Notas Adicionales</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Notas generales, historia del personaje, objetivos..."
-                rows={10}
-              />
-            </CardContent>
-          </Card>
+        {/* TAB: INVENTARIO */}
+        <TabsContent value="inventario" className="space-y-4">
+          <InventoryManager
+            inventory={inventory}
+            onInventoryChange={setInventory}
+            compendiumItems={compendiumItems}
+            showNotes={true}
+            notes={notes}
+            onNotesChange={setNotes}
+            maxCarryWeight={stats.max_carry_weight}
+            autoMaxCarryWeight={calculateMaxCarryWeight(stats.strength || 10, race)}
+            onMaxCarryWeightChange={(val) => setStats({...stats, max_carry_weight: val})}
+          />
         </TabsContent>
       </Tabs>
     </div>
