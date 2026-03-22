@@ -31,6 +31,8 @@ Herramientas de apoyo para partidas de rol con compendio completo de D&D 5e (bes
   - Combate por turnos con orden de iniciativa configurable (reglas D&D 5e, incluye sorpresa)
   - **Tiempo real con Supabase Realtime**: todos los participantes ven los cambios al instante
   - Fichas de personaje consultables y editables desde la partida
+  - Inventario visual reutilizable en ficha propia y ficha desde partida (paperdoll, consumibles, bolsa, monedas)
+  - Gestión de carga: peso actual automático y capacidad máxima en modo auto/manual
   - Tirada de dados integrada sin salir de la partida
   - Notificación por email a todos los jugadores cuando el DM inicia sesión
 - **🎲 Tirada de Dados**: Simulador de dados para D&D
@@ -439,11 +441,21 @@ La ficha incluye todos los campos estándar de D&D 5e:
 - **Rasgos de personalidad**:
   - Personalidad, ideales, vínculos, defectos
   - Idiomas, competencias, características especiales
-- **Campos de texto libre**:
-  - **Equipo**: Armas, armaduras y herramientas
-  - **Inventario**: Objetos, monedas y tesoros
-  - **Hechizos**: Lista de hechizos conocidos/preparados
-  - **Notas**: Notas generales y historia del personaje
+- **Inventario estructurado (JSON)**:
+  - Paperdoll de equipo por slots (casco, armadura, arma principal/secundaria, anillos, botas, montura, etc.)
+  - Consumibles (pociones, pergaminos, munición) con cantidades
+  - Bolsa de objetos con búsqueda/autocompletado desde compendio
+  - Monedero (pp, po, pe, pa, pc)
+  - Notas de inventario
+- **Gestión de carga**:
+  - Peso actual calculado automáticamente según objetos equipados + bolsa
+  - Capacidad máxima configurable en modo automático o manual
+  - Capacidad adicional de montura si el objeto equipado la define
+  - Persistencia de `stats.max_carry_weight` al guardar
+- **Campos de texto adicionales**:
+  - **Hechizos**: Lista de hechizos conocidos/preparados (campo persistido)
+  - **Equipo/Inventario legacy**: Campos históricos mantenidos para compatibilidad de datos
+  - **Notas**: Notas generales y de personaje
 
 **Características del formulario**:
 
@@ -451,9 +463,9 @@ La ficha incluye todos los campos estándar de D&D 5e:
 - Desplegables (Select) para razas, clases, alineamientos y trasfondos
 - Botón "Multiclase" para activar clases adicionales
 - Botón de guardado adaptativo al tema (modo claro/oscuro)
-- Organización en 6 pestañas (Info, Stats, Combate, Habilidades, Equipo, Hechizos)
+- Organización actual en 5 pestañas (Info, Stats, Combate, Habilidades, Inventario)
 
-**Nota**: Los campos de equipo, inventario y hechizos son de texto libre. En futuras versiones se vincularán con las tablas de compendio.
+**Nota**: El inventario en interfaz ya está vinculado al compendio y se guarda como estructura JSON. Los campos legacy de texto se conservan para compatibilidad y migración progresiva.
 
 ### Mapas de Batalla (Battle Maps)
 
@@ -1241,6 +1253,7 @@ Sistema VTT (Virtual Tabletop) para jugar campañas de D&D 5e online con todos l
 #### Panel izquierdo (todos los participantes)
 
 Muestra la lista de todos los **jugadores no-DM** de la campaña:
+
 - Avatar circular del personaje
 - Nombre del personaje
 - HP actuales / HP máximos
@@ -1334,11 +1347,11 @@ La sesión queda en estado `"paused"`. La próxima vez que el DM pulse "Reanudar
 
 Se suscribe automáticamente a tres canales:
 
-| Canal | Evento | Efecto |
-|---|---|---|
-| `session_tokens` | INSERT / UPDATE / DELETE | Tokens aparecen, se mueven o desaparecen del mapa en tiempo real |
-| `combat_state` | UPDATE | Cambio de turno, inicio/fin de combate visible para todos |
-| `game_sessions` | UPDATE | Si el DM termina la sesión, todos los jugadores son redirigidos a "Mis Campañas" |
+| Canal            | Evento                   | Efecto                                                                           |
+| ---------------- | ------------------------ | -------------------------------------------------------------------------------- |
+| `session_tokens` | INSERT / UPDATE / DELETE | Tokens aparecen, se mueven o desaparecen del mapa en tiempo real                 |
+| `combat_state`   | UPDATE                   | Cambio de turno, inicio/fin de combate visible para todos                        |
+| `game_sessions`  | UPDATE                   | Si el DM termina la sesión, todos los jugadores son redirigidos a "Mis Campañas" |
 
 También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta cuando una sesión comienza y muestra el botón "Unirse" en tiempo real.
 
@@ -1356,8 +1369,11 @@ También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta c
   "current_scene_id": "uuid | null",
   "current_map_id": "uuid | null",
   "session_state": {
-    "mapPanX": 0, "mapPanY": 0, "mapZoom": 1,
-    "mapGridSize": 50, "mapGridColor": "rgba(255,255,255,0.3)",
+    "mapPanX": 0,
+    "mapPanY": 0,
+    "mapZoom": 1,
+    "mapGridSize": 50,
+    "mapGridColor": "rgba(255,255,255,0.3)",
     "mapShowGrid": true
   },
   "started_at": "timestamp",
