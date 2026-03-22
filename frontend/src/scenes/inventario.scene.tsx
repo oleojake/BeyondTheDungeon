@@ -24,6 +24,22 @@ import {
   Circle,
   HelpCircle,
   Footprints,
+  Shield,
+  Anchor,
+  FlaskConical,
+  ScrollText,
+  Target,
+  Package,
+  Coins,
+  Save,
+  LogIn,
+  UserPlus,
+  Info,
+  Scale,
+  User2,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import { routes } from "@/router";
 
@@ -143,7 +159,7 @@ const FILTER_AMMO = (item: CompendiumItem) =>
     (p: { name: string }) => p.name === "Thrown",
   );
 
-const FILTER_ALL = () => true;
+const FILTER_ALL = (_: CompendiumItem) => true;
 
 // ─── Filtros por slot de equipo ───────────────────────────────────────────────
 
@@ -254,68 +270,28 @@ function getSlotFilter(slotKey: string): (item: CompendiumItem) => boolean {
 }
 
 // ─── Slots del Paperdoll ─────────────────────────────────────────────────────
-// col/row are 1-based CSS grid positions (3 cols × 5 rows)
-// Empty cells (row 1 col 1, row 1 col 3) are left as natural gap in the grid
+// x/y son porcentajes (0-100) sobre el contenedor del paperdoll (480×600px)
+// Referencia: bg-inventary.png, personaje centrado con cabeza a ~12% Y
 
 const EQUIPMENT_SLOTS = [
-  { key: "helmet", label: "Casco", icon: HardHat, col: 2, row: 1 },
-  { key: "amulet", label: "Colgante", icon: Gem, col: 1, row: 2 },
-  { key: "armor", label: "Armadura", icon: Shirt, col: 2, row: 2 },
-  { key: "cloak", label: "Capa", icon: Wind, col: 3, row: 2 },
-  { key: "gloves", label: "Guantes", icon: Grab, col: 1, row: 3 },
-  { key: "mainhand", label: "Arma principal", icon: Sword, col: 2, row: 3 },
-  { key: "offhand", label: "Arma sec. / Escudo", icon: Swords, col: 3, row: 3 },
-  { key: "ring1", label: "Anillo izq.", icon: Circle, col: 1, row: 4 },
-  { key: "belt", label: "Cinturón", icon: HelpCircle, col: 2, row: 4 },
-  { key: "ring2", label: "Anillo der.", icon: Circle, col: 3, row: 4 },
-  { key: "boots", label: "Botas", icon: Footprints, col: 2, row: 5 },
-  { key: "mount", label: "Montura", icon: HelpCircle, col: 3, row: 5 },
+  { key: "helmet",   label: "Casco",             icon: HardHat,    x: "50%",  y: "7%" },
+  { key: "amulet",   label: "Colgante",           icon: Gem,        x: "50%",  y: "22%" },
+  { key: "armor",    label: "Armadura",           icon: Shirt,      x: "50%",  y: "40%" },
+  { key: "cloak",    label: "Capa",               icon: Wind,       x: "83%",  y: "22%" },
+  { key: "mainhand", label: "Arma principal",     icon: Sword,      x: "10%",  y: "52%" },
+  { key: "offhand",  label: "Arma sec. / Escudo", icon: Swords,     x: "90%",  y: "52%" },
+  { key: "gloves",   label: "Guantes",            icon: Grab,       x: "17%",  y: "22%" },
+  { key: "ring1",    label: "Anillo izq.",         icon: Circle,     x: "10%",  y: "72%" },
+  { key: "belt",     label: "Cinturón",           icon: Shield,     x: "50%",  y: "58%" },
+  { key: "ring2",    label: "Anillo der.",         icon: Circle,     x: "90%",  y: "72%" },
+  { key: "boots",    label: "Botas",              icon: Footprints, x: "50%",  y: "91%" },
+  { key: "mount",    label: "Montura",            icon: Anchor,     x: "83%",  y: "91%" },
 ] as const;
 
 // ─── Estado inicial ──────────────────────────────────────────────────────────
 
 // (emptyInventory imported from utils)
 
-// ─── Silueta SVG de fondo ─────────────────────────────────────────────────────
-
-function Silhouette() {
-  return (
-    <svg
-      viewBox="0 0 100 230"
-      className="absolute inset-0 w-full h-full pointer-events-none select-none"
-      fill="none"
-      stroke="#f59e0b"
-      strokeWidth="3.5"
-      strokeLinecap="round"
-      style={{ opacity: 0.08 }}
-    >
-      {/* Cabeza */}
-      <circle cx="50" cy="22" r="13" />
-      {/* Cuello */}
-      <line x1="50" y1="35" x2="50" y2="45" />
-      {/* Torso */}
-      <line x1="50" y1="45" x2="50" y2="115" />
-      {/* Hombros */}
-      <line x1="20" y1="52" x2="80" y2="52" />
-      {/* Brazo izquierdo */}
-      <line x1="20" y1="52" x2="16" y2="95" />
-      {/* Brazo derecho */}
-      <line x1="80" y1="52" x2="84" y2="95" />
-      {/* Manos */}
-      <circle cx="16" cy="98" r="3" />
-      <circle cx="84" cy="98" r="3" />
-      {/* Cadera */}
-      <line x1="34" y1="115" x2="66" y2="115" />
-      {/* Pierna izquierda */}
-      <line x1="38" y1="115" x2="32" y2="175" />
-      {/* Pierna derecha */}
-      <line x1="62" y1="115" x2="68" y2="175" />
-      {/* Pies */}
-      <line x1="32" y1="175" x2="22" y2="181" />
-      <line x1="68" y1="175" x2="78" y2="181" />
-    </svg>
-  );
-}
 
 // ─── Componente de Slot ───────────────────────────────────────────────────────
 
@@ -333,14 +309,29 @@ function EquipSlot({
   const Icon = slot.icon;
   return (
     <div
-      style={{ gridColumn: slot.col, gridRow: slot.row }}
+      style={{
+        position: "absolute",
+        left: slot.x,
+        top: slot.y,
+        transform: "translate(-50%, -50%)",
+      }}
       onClick={onOpen}
-      className="group relative flex flex-col items-center justify-center gap-1 w-20 h-20 rounded-lg border-2 border-dashed border-amber-800/50 bg-[#1a0e06]/60 hover:border-amber-500 hover:bg-[#2b1608] transition-all cursor-pointer select-none"
       title={slot.label}
+      className={[
+        "group relative flex flex-col items-center justify-center gap-0.5 py-1",
+        "w-20 h-24 rounded-lg cursor-pointer select-none transition-all duration-200",
+        item
+          ? "border border-amber-500/70 bg-[#3d1a06]/90 hover:border-amber-400 hover:bg-[#4a2208]/90 shadow-[0_0_12px_rgba(245,158,11,0.18)]"
+          : "border-2 border-dashed border-amber-700/50 bg-[#2e1306]/85 hover:border-amber-600/70 hover:bg-[#3d1a06]/90",
+      ].join(" ")}
     >
       {item ? (
         <>
-          <span className="text-xs text-amber-200 text-center leading-tight font-medium px-1 line-clamp-2">
+          <span className="text-[8px] font-bold tracking-widest text-amber-400/90 uppercase text-center leading-none px-1">
+            {slot.label}
+          </span>
+          <Icon className="w-6 h-6 text-amber-500/55 my-0.5" />
+          <span className="text-[11px] text-amber-100 text-center leading-tight font-semibold px-1.5 line-clamp-2 max-w-full">
             {item.name}
           </span>
           <button
@@ -348,16 +339,19 @@ function EquipSlot({
               e.stopPropagation();
               onClear();
             }}
-            className="absolute -top-1.5 -right-1.5 hidden group-hover:flex w-4 h-4 rounded-full bg-red-700 text-white items-center justify-center text-xs leading-none"
+            className="absolute -top-1.5 -right-1.5 hidden group-hover:flex w-4 h-4 rounded-full bg-red-700 hover:bg-red-500 text-white items-center justify-center text-[10px] leading-none transition-colors"
           >
             ×
           </button>
         </>
       ) : (
         <>
-          <Icon className="w-6 h-6 text-amber-800/60" />
-          <span className="text-[10px] text-amber-800/60 text-center leading-tight px-1">
+          <span className="text-[8px] font-bold tracking-widest text-amber-500/90 uppercase group-hover:text-amber-400 transition-colors text-center leading-none px-1">
             {slot.label}
+          </span>
+          <Icon className="w-7 h-7 text-amber-600/65 group-hover:text-amber-500/80 transition-colors my-0.5" />
+          <span className="text-[8px] text-amber-600/60 group-hover:text-amber-500/80 text-center leading-tight px-1 transition-colors">
+            vacío
           </span>
         </>
       )}
@@ -1210,283 +1204,288 @@ export const InventarioScene = () => {
   const overEncumbered = effectiveMax > 0 && currentWeight > effectiveMax;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <>
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* ── Cabecera ─────────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-amber-200">Inventario</h1>
-            <p className="text-amber-400/70 text-sm mt-1">
-              Gestiona el equipo, consumibles y monedas de tu personaje
-            </p>
+        <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Package className="h-8 w-8 text-amber-200" />
+                <h1 className="text-3xl font-bold text-amber-50">Inventario</h1>
+              </div>
+              <p className="text-sm text-amber-100/90">
+                Gestiona el equipo, consumibles y monedas de tu personaje
+              </p>
+            </div>
+            <Button
+              onClick={handleSave}
+              disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
+              className="bg-amber-700 hover:bg-amber-600 text-white gap-2 disabled:opacity-60"
+            >
+              {saveStatus === "saving" && (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              )}
+              {saveStatus === "saved" && (
+                <CheckCircle2 className="w-4 h-4 text-green-300" />
+              )}
+              {saveStatus === "error" && (
+                <AlertCircle className="w-4 h-4 text-red-300" />
+              )}
+              {saveStatus === "idle" &&
+                (user ? (
+                  <Save className="w-4 h-4" />
+                ) : (
+                  <LogIn className="w-4 h-4" />
+                ))}
+              {saveStatus === "saving"
+                ? "Guardando…"
+                : saveStatus === "saved"
+                  ? "¡Guardado!"
+                  : saveStatus === "error"
+                    ? "Error al guardar"
+                    : !user
+                      ? "Inicia sesión para guardar"
+                      : !linkedCharId
+                        ? "Elige un personaje"
+                        : "Guardar"}
+            </Button>
           </div>
-          <Button
-            onClick={handleSave}
-            disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
-            className="bg-amber-700 hover:bg-amber-600 text-white gap-2 self-start sm:self-auto disabled:opacity-60"
-          >
-            {saveStatus === "saving" && (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            )}
-            {saveStatus === "saved" && (
-              <CheckCircle2 className="w-4 h-4 text-green-300" />
-            )}
-            {saveStatus === "error" && (
-              <AlertCircle className="w-4 h-4 text-red-300" />
-            )}
-            {saveStatus === "idle" &&
-              (user ? (
-                <Save className="w-4 h-4" />
-              ) : (
-                <LogIn className="w-4 h-4" />
-              ))}
-            {saveStatus === "saving"
-              ? "Guardando…"
-              : saveStatus === "saved"
-                ? "¡Guardado!"
-                : saveStatus === "error"
-                  ? "Error al guardar"
-                  : !user
-                    ? "Inicia sesión para guardar"
-                    : !linkedCharId
-                      ? "Elige un personaje"
-                      : "Guardar"}
-          </Button>
-        </div>
+        </section>
 
-        {/* ── Banner invitados ──────────────────────────────────────── */}
-        {!user && (
-          <div className="flex items-start gap-3 rounded-lg border border-amber-700/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-300">
-            <Info className="w-4 h-4 mt-0.5 shrink-0" />
-            <span>
-              Puedes explorar el inventario libremente. Para guardar los cambios
-              en un personaje,{" "}
-              <Link
-                to={routes.login}
-                className="underline hover:text-amber-100"
-              >
-                inicia sesión
-              </Link>{" "}
-              o{" "}
-              <Link
-                to={routes.register}
-                className="underline hover:text-amber-100"
-              >
-                crea una cuenta
-              </Link>
-              .
-            </span>
-          </div>
-        )}
-
-        {/* ── Selector de personaje (solo cuando logueado) ──────────── */}
-        {user && (
-          <div className="flex items-center gap-3 rounded-lg border border-amber-800/40 bg-amber-950/30 px-4 py-3 text-sm">
-            <User2 className="w-4 h-4 text-amber-500 shrink-0" />
-            {charsLoading ? (
-              <span className="text-amber-500 flex items-center gap-2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Cargando personajes…
-              </span>
-            ) : characters.length === 0 ? (
-              <span className="text-amber-600">
-                No tienes personajes aún.{" "}
+          {/* ── Banner invitados ──────────────────────────────────────── */}
+          {!user && (
+            <div className="flex items-start gap-3 rounded-lg border border-amber-700/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-300">
+              <Info className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>
+                Puedes explorar el inventario libremente. Para guardar los
+                cambios en un personaje,{" "}
                 <Link
-                  to={routes.misFichas}
-                  className="underline hover:text-amber-400"
+                  to={routes.login}
+                  className="underline hover:text-amber-100"
                 >
-                  Crea uno primero
+                  inicia sesión
+                </Link>{" "}
+                o{" "}
+                <Link
+                  to={routes.register}
+                  className="underline hover:text-amber-100"
+                >
+                  crea una cuenta
                 </Link>
                 .
               </span>
-            ) : linkedCharId ? (
-              <div className="flex items-center gap-3 flex-1 flex-wrap">
-                <span className="text-amber-300">
-                  Vinculado a:{" "}
-                  <strong className="text-amber-200">{linkedCharName}</strong>
-                </span>
-                <button
-                  onClick={() => {
-                    setLinkedCharId(null);
-                    setLinkedCharName(null);
-                  }}
-                  className="text-amber-600 hover:text-amber-400 text-xs underline"
-                >
-                  Cambiar
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 flex-1 flex-wrap">
-                <span className="text-amber-500 shrink-0">
-                  Elige un personaje:
-                </span>
-                <select
-                  defaultValue=""
-                  onChange={(e) => {
-                    const char = characters.find(
-                      (c) => c.id === e.target.value,
-                    );
-                    if (!char) return;
-                    const hasLocal =
-                      inventory.bag.length > 0 ||
-                      inventory.potions.length > 0 ||
-                      inventory.scrolls.length > 0 ||
-                      inventory.ammo.length > 0 ||
-                      Object.values(inventory.equipped).some(Boolean);
-                    if (hasLocal) {
-                      const load = window.confirm(
-                        `¿Cargar el inventario guardado de "${char.name}"?\n\nAceptar → reemplaza el inventario actual con el del personaje.\nCancelar → mantiene el inventario actual y lo vincula al personaje.`,
-                      );
-                      if (load) loadCharInventory(char.id, char.name);
-                      else {
-                        setLinkedCharId(char.id);
-                        setLinkedCharName(char.name);
-                      }
-                    } else {
-                      loadCharInventory(char.id, char.name);
-                    }
-                  }}
-                  className="bg-amber-950/60 border border-amber-700/50 rounded px-2 py-1 text-amber-200 text-xs focus:outline-none focus:border-amber-500"
-                >
-                  <option value="" disabled>
-                    — selecciona —
-                  </option>
-                  {characters.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} (Nv. {c.level})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* ── Carry Weight ─────────────────────────────────────────── */}
-        <div className="rounded-xl border border-amber-800/40 bg-[#2a1204]/70 px-5 py-4 flex flex-wrap items-center gap-6">
-          <Scale className="w-6 h-6 text-amber-600 shrink-0" />
-          <div className="flex items-center gap-6 flex-wrap flex-1">
-            <div className="text-center">
-              <div className="flex items-center gap-2 justify-center mb-0.5">
-                <p className="text-[10px] uppercase tracking-widest text-amber-600">
-                  Peso actual
-                </p>
-                <button
-                  onClick={() => {
-                    if (autoWeight)
-                      setManualWeightStr(autoCurrentWeight.toFixed(1));
-                    setAutoWeight((v) => !v);
-                  }}
-                  title={
-                    autoWeight
-                      ? "Introducir manualmente"
-                      : "Volver al cálculo automático"
-                  }
-                  className="text-[9px] px-1.5 py-0.5 rounded border border-amber-800/50 text-amber-600 hover:text-amber-400 hover:border-amber-600/60 transition-colors"
-                >
-                  {autoWeight ? "manual" : "auto"}
-                </button>
-              </div>
-              {autoWeight ? (
-                <p
-                  className={`text-2xl font-bold ${overEncumbered ? "text-red-400" : "text-amber-200"}`}
-                >
-                  {currentWeight.toFixed(1)}
-                  <span className="text-sm font-normal text-amber-600 ml-1">
-                    lb
+          {/* ── Selector de personaje (solo cuando logueado) ──────────── */}
+          {user && (
+            <div className="flex items-center gap-3 rounded-lg border border-amber-800/40 bg-amber-950/30 px-4 py-3 text-sm">
+              <User2 className="w-4 h-4 text-amber-500 shrink-0" />
+              {charsLoading ? (
+                <span className="text-amber-500 flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Cargando personajes…
+                </span>
+              ) : characters.length === 0 ? (
+                <span className="text-amber-600">
+                  No tienes personajes aún.{" "}
+                  <Link
+                    to={routes.misFichas}
+                    className="underline hover:text-amber-400"
+                  >
+                    Crea uno primero
+                  </Link>
+                  .
+                </span>
+              ) : linkedCharId ? (
+                <div className="flex items-center gap-3 flex-1 flex-wrap">
+                  <span className="text-amber-300">
+                    Vinculado a:{" "}
+                    <strong className="text-amber-200">{linkedCharName}</strong>
                   </span>
-                </p>
+                  <button
+                    onClick={() => {
+                      setLinkedCharId(null);
+                      setLinkedCharName(null);
+                    }}
+                    className="text-amber-600 hover:text-amber-400 text-xs underline"
+                  >
+                    Cambiar
+                  </button>
+                </div>
               ) : (
+                <div className="flex items-center gap-2 flex-1 flex-wrap">
+                  <span className="text-amber-500 shrink-0">
+                    Elige un personaje:
+                  </span>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      const char = characters.find(
+                        (c) => c.id === e.target.value,
+                      );
+                      if (!char) return;
+                      const hasLocal =
+                        inventory.bag.length > 0 ||
+                        inventory.potions.length > 0 ||
+                        inventory.scrolls.length > 0 ||
+                        inventory.ammo.length > 0 ||
+                        Object.values(inventory.equipped).some(Boolean);
+                      if (hasLocal) {
+                        const load = window.confirm(
+                          `¿Cargar el inventario guardado de "${char.name}"?\n\nAceptar → reemplaza el inventario actual con el del personaje.\nCancelar → mantiene el inventario actual y lo vincula al personaje.`,
+                        );
+                        if (load) loadCharInventory(char.id, char.name);
+                        else {
+                          setLinkedCharId(char.id);
+                          setLinkedCharName(char.name);
+                        }
+                      } else {
+                        loadCharInventory(char.id, char.name);
+                      }
+                    }}
+                    className="bg-amber-950/60 border border-amber-700/50 rounded px-2 py-1 text-amber-200 text-xs focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="" disabled>
+                      — selecciona —
+                    </option>
+                    {characters.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} (Nv. {c.level})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Carry Weight ─────────────────────────────────────────── */}
+          <div className="rounded-xl border border-amber-800/40 bg-[#2a1204]/70 px-5 py-4 flex flex-wrap items-center gap-6">
+            <Scale className="w-6 h-6 text-amber-600 shrink-0" />
+            <div className="flex items-center gap-6 flex-wrap flex-1">
+              <div className="text-center">
+                <div className="flex items-center gap-2 justify-center mb-0.5">
+                  <p className="text-[10px] uppercase tracking-widest text-amber-600">
+                    Peso actual
+                  </p>
+                  <button
+                    onClick={() => {
+                      if (autoWeight)
+                        setManualWeightStr(autoCurrentWeight.toFixed(1));
+                      setAutoWeight((v) => !v);
+                    }}
+                    title={
+                      autoWeight
+                        ? "Introducir manualmente"
+                        : "Volver al cálculo automático"
+                    }
+                    className="text-[9px] px-1.5 py-0.5 rounded border border-amber-800/50 text-amber-600 hover:text-amber-400 hover:border-amber-600/60 transition-colors"
+                  >
+                    {autoWeight ? "manual" : "auto"}
+                  </button>
+                </div>
+                {autoWeight ? (
+                  <p
+                    className={`text-2xl font-bold ${overEncumbered ? "text-red-400" : "text-amber-200"}`}
+                  >
+                    {currentWeight.toFixed(1)}
+                    <span className="text-sm font-normal text-amber-600 ml-1">
+                      lb
+                    </span>
+                  </p>
+                ) : (
+                  <div className="flex items-baseline gap-1 justify-center">
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={manualWeightStr}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (/^\d*\.?\d*$/.test(v)) setManualWeightStr(v);
+                      }}
+                      onBlur={() => {
+                        const n = parseFloat(manualWeightStr);
+                        setManualWeightStr(
+                          isNaN(n) || manualWeightStr === ""
+                            ? "0.0"
+                            : Math.max(0, n).toFixed(1),
+                        );
+                      }}
+                      className={`text-2xl font-bold bg-transparent border-b focus:outline-none w-20 text-center ${
+                        overEncumbered
+                          ? "text-red-400 border-red-700/50 focus:border-red-400"
+                          : "text-amber-200 border-amber-700/50 focus:border-amber-400"
+                      }`}
+                    />
+                    <span className="text-sm text-amber-600">lb</span>
+                  </div>
+                )}
+              </div>
+              <div className="text-amber-800/40 text-xl">|</div>
+              <div className="text-center">
+                <p className="text-[10px] uppercase tracking-widest text-amber-600 mb-0.5">
+                  Capacidad máx.
+                </p>
                 <div className="flex items-baseline gap-1 justify-center">
                   <input
-                    type="text"
-                    inputMode="decimal"
-                    value={manualWeightStr}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (/^\d*\.?\d*$/.test(v)) setManualWeightStr(v);
-                    }}
-                    onBlur={() => {
-                      const n = parseFloat(manualWeightStr);
-                      setManualWeightStr(
-                        isNaN(n) || manualWeightStr === ""
-                          ? "0.0"
-                          : Math.max(0, n).toFixed(1),
-                      );
-                    }}
-                    className={`text-2xl font-bold bg-transparent border-b focus:outline-none w-20 text-center ${
-                      overEncumbered
-                        ? "text-red-400 border-red-700/50 focus:border-red-400"
-                        : "text-amber-200 border-amber-700/50 focus:border-amber-400"
-                    }`}
+                    type="number"
+                    min={0}
+                    value={maxCarryWeight}
+                    onChange={(e) =>
+                      setMaxCarryWeight(
+                        Math.max(0, parseFloat(e.target.value) || 0),
+                      )
+                    }
+                    className="text-2xl font-bold text-amber-200 bg-transparent border-b border-amber-700/50 focus:border-amber-400 focus:outline-none w-20 text-center"
                   />
                   <span className="text-sm text-amber-600">lb</span>
                 </div>
-              )}
-            </div>
-            <div className="text-amber-800/40 text-xl">|</div>
-            <div className="text-center">
-              <p className="text-[10px] uppercase tracking-widest text-amber-600 mb-0.5">
-                Capacidad máx.
-              </p>
-              <div className="flex items-baseline gap-1 justify-center">
-                <input
-                  type="number"
-                  min={0}
-                  value={maxCarryWeight}
-                  onChange={(e) =>
-                    setMaxCarryWeight(
-                      Math.max(0, parseFloat(e.target.value) || 0),
-                    )
-                  }
-                  className="text-2xl font-bold text-amber-200 bg-transparent border-b border-amber-700/50 focus:border-amber-400 focus:outline-none w-20 text-center"
-                />
-                <span className="text-sm text-amber-600">lb</span>
+                {mountCapacity > 0 && (
+                  <p className="text-[10px] text-amber-500/80 mt-0.5">
+                    +{mountCapacity} lb montura →{" "}
+                    <span className="text-amber-300">
+                      {effectiveMax} lb total
+                    </span>
+                  </p>
+                )}
               </div>
-              {mountCapacity > 0 && (
-                <p className="text-[10px] text-amber-500/80 mt-0.5">
-                  +{mountCapacity} lb montura →{" "}
-                  <span className="text-amber-300">
-                    {effectiveMax} lb total
-                  </span>
-                </p>
-              )}
-            </div>
-            {effectiveMax > 0 && (
-              <div className="flex-1 min-w-[120px]">
-                <div className="h-2 bg-amber-950 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-300 ${overEncumbered ? "bg-red-600" : weightPct > 80 ? "bg-yellow-500" : "bg-amber-500"}`}
-                    style={{ width: `${weightPct}%` }}
-                  />
+              {effectiveMax > 0 && (
+                <div className="flex-1 min-w-[120px]">
+                  <div className="h-2 bg-amber-950 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${overEncumbered ? "bg-red-600" : weightPct > 80 ? "bg-yellow-500" : "bg-amber-500"}`}
+                      style={{ width: `${weightPct}%` }}
+                    />
+                  </div>
+                  <p
+                    className={`text-[10px] text-right mt-0.5 ${overEncumbered ? "text-red-400" : "text-amber-700"}`}
+                  >
+                    {overEncumbered
+                      ? "¡Sobrecargado!"
+                      : `${Math.round(weightPct)}% cargado`}
+                  </p>
                 </div>
-                <p
-                  className={`text-[10px] text-right mt-0.5 ${overEncumbered ? "text-red-400" : "text-amber-700"}`}
-                >
-                  {overEncumbered
-                    ? "¡Sobrecargado!"
-                    : `${Math.round(weightPct)}% cargado`}
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* ════════════════════════════════════════════════════════════
+          {/* ════════════════════════════════════════════════════════════
 				    EQUIPO EQUIPADO – Paperdoll con silueta
 				════════════════════════════════════════════════════════════ */}
-        <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-          <h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
-            <Shirt className="w-5 h-5" /> Equipo equipado
-          </h2>
-          <div className="relative w-fit mx-auto">
-            <Silhouette />
-            <div
-              className="relative grid gap-3"
-              style={{
-                gridTemplateColumns: "repeat(3, 5rem)",
-                gridTemplateRows: "repeat(5, 5rem)",
-              }}
-            >
+          <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+            <h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
+              <Shirt className="w-5 h-5" /> Equipo equipado
+            </h2>
+            <div className="relative mx-auto" style={{ width: 480, height: 600 }}>
+              <img
+                src="/bg-inventary.png"
+                alt="Personaje"
+                className="absolute inset-0 w-full h-full object-cover rounded-xl pointer-events-none select-none"
+              />
+              {/* Gradiente oscuro para mejorar contraste de los slots */}
+              <div className="absolute inset-0 rounded-xl pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(20,8,2,0.18) 0%, rgba(20,8,2,0.08) 50%, rgba(20,8,2,0.32) 100%)" }} />
               {EQUIPMENT_SLOTS.map((slot) => (
                 <EquipSlot
                   key={slot.key}
@@ -1497,225 +1496,225 @@ export const InventarioScene = () => {
                 />
               ))}
             </div>
-          </div>
-          <p className="text-xs text-amber-700/50 text-center mt-3">
-            Haz clic en un slot para buscar y equipar un objeto
-          </p>
-        </section>
-        {openSlot &&
-          (() => {
-            const slot = EQUIPMENT_SLOTS.find((s) => s.key === openSlot);
-            if (!slot) return null;
-            return (
-              <SlotPickerModal
-                slotLabel={slot.label}
-                slotKey={slot.key}
-                allItems={compendiumItems}
-                onEquip={(name, weight, srdIndex, tags, capacity) =>
-                  equipSlot(openSlot!, name, weight, srdIndex, tags, capacity)
-                }
-                onClose={() => setOpenSlot(null)}
-              />
-            );
-          })()}
+            <p className="text-xs text-amber-700/50 text-center mt-3">
+              Haz clic en un slot para buscar y equipar un objeto
+            </p>
+          </section>
+          {openSlot &&
+            (() => {
+              const slot = EQUIPMENT_SLOTS.find((s) => s.key === openSlot);
+              if (!slot) return null;
+              return (
+                <SlotPickerModal
+                  slotLabel={slot.label}
+                  slotKey={slot.key}
+                  allItems={compendiumItems}
+                  onEquip={(name, weight, srdIndex, tags, capacity) =>
+                    equipSlot(openSlot!, name, weight, srdIndex, tags, capacity)
+                  }
+                  onClose={() => setOpenSlot(null)}
+                />
+              );
+            })()}
 
-        {/* ════════════════════════════════════════════════════════════
+          {/* ════════════════════════════════════════════════════════════
 				    POCIONES + PERGAMINOS (al mismo nivel)
 				════════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-            <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-              <FlaskConical className="w-5 h-5" /> Pociones
-            </h2>
-            <p className="text-xs text-amber-600/70 mb-3 italic">
-              Pociones y brebajes mágicos
-            </p>
-            <ConsumableSection
-              items={inventory.potions}
-              rowColor="bg-amber-900/25 border-amber-800/35"
-              allItems={compendiumItems}
-              categoryFilter={FILTER_POTIONS}
-              inputPlaceholder="Busca pociones…"
-              onSelect={(name, weight, srdIndex, tags) =>
-                addConsumable("potions", name, weight, srdIndex, tags)
-              }
-              onChangeQty={(id, d) => changeQty("potions", id, d)}
-              onRemove={(id) => removeItem("potions", id)}
-            />
-          </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+              <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
+                <FlaskConical className="w-5 h-5" /> Pociones
+              </h2>
+              <p className="text-xs text-amber-600/70 mb-3 italic">
+                Pociones y brebajes mágicos
+              </p>
+              <ConsumableSection
+                items={inventory.potions}
+                rowColor="bg-amber-900/25 border-amber-800/35"
+                allItems={compendiumItems}
+                categoryFilter={FILTER_POTIONS}
+                inputPlaceholder="Busca pociones…"
+                onSelect={(name, weight, srdIndex, tags) =>
+                  addConsumable("potions", name, weight, srdIndex, tags)
+                }
+                onChangeQty={(id, d) => changeQty("potions", id, d)}
+                onRemove={(id) => removeItem("potions", id)}
+              />
+            </section>
 
-          <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-            <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-              <ScrollText className="w-5 h-5" /> Pergaminos
-            </h2>
-            <p className="text-xs text-amber-600/70 mb-3 italic">
-              Pergaminos de conjuros y recetas
-            </p>
-            <ConsumableSection
-              items={inventory.scrolls}
-              rowColor="bg-amber-900/25 border-amber-800/35"
-              allItems={compendiumItems}
-              categoryFilter={FILTER_SCROLLS}
-              inputPlaceholder="Busca pergaminos…"
-              onSelect={(name, weight, srdIndex, tags) =>
-                addConsumable("scrolls", name, weight, srdIndex, tags)
-              }
-              onChangeQty={(id, d) => changeQty("scrolls", id, d)}
-              onRemove={(id) => removeItem("scrolls", id)}
-            />
-          </section>
-        </div>
+            <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+              <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
+                <ScrollText className="w-5 h-5" /> Pergaminos
+              </h2>
+              <p className="text-xs text-amber-600/70 mb-3 italic">
+                Pergaminos de conjuros y recetas
+              </p>
+              <ConsumableSection
+                items={inventory.scrolls}
+                rowColor="bg-amber-900/25 border-amber-800/35"
+                allItems={compendiumItems}
+                categoryFilter={FILTER_SCROLLS}
+                inputPlaceholder="Busca pergaminos…"
+                onSelect={(name, weight, srdIndex, tags) =>
+                  addConsumable("scrolls", name, weight, srdIndex, tags)
+                }
+                onChangeQty={(id, d) => changeQty("scrolls", id, d)}
+                onRemove={(id) => removeItem("scrolls", id)}
+              />
+            </section>
+          </div>
 
-        {/* ════════════════════════════════════════════════════════════
+          {/* ════════════════════════════════════════════════════════════
 				    BOLSA – ancho completo, dos columnas, con peso
 				════════════════════════════════════════════════════════════ */}
-        <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-          <div className="flex items-baseline gap-3 mb-1">
-            <h2 className="text-xl font-semibold text-amber-300 flex items-center gap-2">
-              <Package className="w-5 h-5" /> Inventario
-            </h2>
-            <span className="text-xs text-amber-600">
-              {inventory.bag.reduce((s, i) => s + i.quantity, 0)} objetos
-            </span>
-          </div>
-          <p className="text-xs text-amber-700/60 mb-3 italic">
-            Todos los objetos: equipables no equipados, herramientas,
-            consumibles, etc.
-          </p>
-          <BagSection
-            items={inventory.bag}
-            allItems={compendiumItems}
-            onSelect={addBagItem}
-            onChangeQty={(id, d) => changeQty("bag", id, d)}
-            onRemove={(id) => removeItem("bag", id)}
-          />
-        </section>
+          <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+            <div className="flex items-baseline gap-3 mb-1">
+              <h2 className="text-xl font-semibold text-amber-300 flex items-center gap-2">
+                <Package className="w-5 h-5" /> Inventario
+              </h2>
+              <span className="text-xs text-amber-600">
+                {inventory.bag.reduce((s, i) => s + i.quantity, 0)} objetos
+              </span>
+            </div>
+            <p className="text-xs text-amber-700/60 mb-3 italic">
+              Todos los objetos: equipables no equipados, herramientas,
+              consumibles, etc.
+            </p>
+            <BagSection
+              items={inventory.bag}
+              allItems={compendiumItems}
+              onSelect={addBagItem}
+              onChangeQty={(id, d) => changeQty("bag", id, d)}
+              onRemove={(id) => removeItem("bag", id)}
+            />
+          </section>
 
-        {/* ════════════════════════════════════════════════════════════
+          {/* ════════════════════════════════════════════════════════════
 				    MUNICIÓN + MONEDERO (al mismo nivel)
 				════════════════════════════════════════════════════════════ */}
-        <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-          <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-            <Target className="w-5 h-5" /> Munición
-          </h2>
-          <p className="text-xs text-amber-600/70 mb-3 italic">
-            Flechas, virotes, dagas arrojadizas…
-          </p>
-          <ConsumableSection
-            items={inventory.ammo}
-            rowColor="bg-amber-900/25 border-amber-800/35"
-            allItems={compendiumItems}
-            categoryFilter={FILTER_AMMO}
-            inputPlaceholder="Busca munición…"
-            onSelect={(name, weight, srdIndex, tags) =>
-              addConsumable("ammo", name, weight, srdIndex, tags)
-            }
-            onChangeQty={(id, d) => changeQty("ammo", id, d)}
-            onRemove={(id) => removeItem("ammo", id)}
-          />
-        </section>
+          <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+            <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
+              <Target className="w-5 h-5" /> Munición
+            </h2>
+            <p className="text-xs text-amber-600/70 mb-3 italic">
+              Flechas, virotes, dagas arrojadizas…
+            </p>
+            <ConsumableSection
+              items={inventory.ammo}
+              rowColor="bg-amber-900/25 border-amber-800/35"
+              allItems={compendiumItems}
+              categoryFilter={FILTER_AMMO}
+              inputPlaceholder="Busca munición…"
+              onSelect={(name, weight, srdIndex, tags) =>
+                addConsumable("ammo", name, weight, srdIndex, tags)
+              }
+              onChangeQty={(id, d) => changeQty("ammo", id, d)}
+              onRemove={(id) => removeItem("ammo", id)}
+            />
+          </section>
 
-        {/* Monedero – ancho reducido y centrado */}
-        <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5 mx-auto w-full max-w-md">
-          <h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
-            <Coins className="w-5 h-5" /> Monedero
-          </h2>
-          <div className="grid grid-cols-5 gap-2">
-            {CURRENCY_LABELS.map(({ key, label, color }) => (
-              <div
-                key={key}
-                className="flex flex-col items-center gap-1 rounded-lg border border-amber-800/30 bg-black/20 p-2"
-              >
-                <span
-                  className={`text-[10px] font-semibold ${color} text-center`}
+          {/* Monedero – ancho reducido y centrado */}
+          <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5 mx-auto w-full max-w-md">
+            <h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
+              <Coins className="w-5 h-5" /> Monedero
+            </h2>
+            <div className="grid grid-cols-5 gap-2">
+              {CURRENCY_LABELS.map(({ key, label, color }) => (
+                <div
+                  key={key}
+                  className="flex flex-col items-center gap-1 rounded-lg border border-amber-800/30 bg-black/20 p-2"
                 >
-                  {label}
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  value={inventory.currency[key]}
-                  onChange={(e) => setCurrency(key, e.target.value)}
-                  className="w-full text-center bg-transparent border-b border-amber-800/40 text-amber-100 text-lg font-bold focus:outline-none focus:border-amber-500"
-                />
-                <span
-                  className={`text-[9px] uppercase tracking-wider ${color}`}
-                >
-                  {key}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Footer guardar ────────────────────────────────────────── */}
-        <div className="pt-2 border-t border-amber-900/30 flex flex-col sm:flex-row items-center justify-between gap-3">
-          {!user ? (
-            <p className="text-sm text-amber-600 flex items-center gap-2">
-              <UserPlus className="w-4 h-4" />
-              <span>
-                <Link
-                  to={routes.register}
-                  className="underline hover:text-amber-400"
-                >
-                  Crea una cuenta
-                </Link>{" "}
-                para guardar tu inventario vinculado a un personaje.
-              </span>
-            </p>
-          ) : !linkedCharId ? (
-            <p className="text-sm text-amber-600">
-              Vincula un personaje arriba para poder guardar.
-            </p>
-          ) : saveStatus === "saved" ? (
-            <p className="text-sm text-green-400 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" /> Guardado correctamente en{" "}
-              <strong>{linkedCharName}</strong>.
-            </p>
-          ) : saveStatus === "error" ? (
-            <p className="text-sm text-red-400 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" /> Error al guardar. Inténtalo de
-              nuevo.
-            </p>
-          ) : (
-            <p className="text-sm text-amber-700">
-              Los cambios no se guardan automáticamente.
-            </p>
-          )}
-          <Button
-            onClick={handleSave}
-            disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
-            className="bg-amber-700 hover:bg-amber-600 text-white gap-2 disabled:opacity-60"
-          >
-            {saveStatus === "saving" && (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            )}
-            {saveStatus === "saved" && (
-              <CheckCircle2 className="w-4 h-4 text-green-300" />
-            )}
-            {saveStatus === "error" && (
-              <AlertCircle className="w-4 h-4 text-red-300" />
-            )}
-            {saveStatus === "idle" &&
-              (user ? (
-                <Save className="w-4 h-4" />
-              ) : (
-                <LogIn className="w-4 h-4" />
+                  <span
+                    className={`text-[10px] font-semibold ${color} text-center`}
+                  >
+                    {label}
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={inventory.currency[key]}
+                    onChange={(e) => setCurrency(key, e.target.value)}
+                    className="w-full text-center bg-transparent border-b border-amber-800/40 text-amber-100 text-lg font-bold focus:outline-none focus:border-amber-500"
+                  />
+                  <span
+                    className={`text-[9px] uppercase tracking-wider ${color}`}
+                  >
+                    {key}
+                  </span>
+                </div>
               ))}
-            {saveStatus === "saving"
-              ? "Guardando…"
-              : saveStatus === "saved"
-                ? "¡Guardado!"
-                : saveStatus === "error"
-                  ? "Error al guardar"
-                  : !user
-                    ? "Inicia sesión para guardar"
-                    : !linkedCharId
-                      ? "Elige un personaje"
-                      : "Guardar"}
-          </Button>
+            </div>
+          </section>
+
+          {/* ── Footer guardar ────────────────────────────────────────── */}
+          <div className="pt-2 border-t border-amber-900/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+            {!user ? (
+              <p className="text-sm text-amber-600 flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                <span>
+                  <Link
+                    to={routes.register}
+                    className="underline hover:text-amber-400"
+                  >
+                    Crea una cuenta
+                  </Link>{" "}
+                  para guardar tu inventario vinculado a un personaje.
+                </span>
+              </p>
+            ) : !linkedCharId ? (
+              <p className="text-sm text-amber-600">
+                Vincula un personaje arriba para poder guardar.
+              </p>
+            ) : saveStatus === "saved" ? (
+              <p className="text-sm text-green-400 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" /> Guardado correctamente en{" "}
+                <strong>{linkedCharName}</strong>.
+              </p>
+            ) : saveStatus === "error" ? (
+              <p className="text-sm text-red-400 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" /> Error al guardar. Inténtalo
+                de nuevo.
+              </p>
+            ) : (
+              <p className="text-sm text-amber-700">
+                Los cambios no se guardan automáticamente.
+              </p>
+            )}
+            <Button
+              onClick={handleSave}
+              disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
+              className="bg-amber-700 hover:bg-amber-600 text-white gap-2 disabled:opacity-60"
+            >
+              {saveStatus === "saving" && (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              )}
+              {saveStatus === "saved" && (
+                <CheckCircle2 className="w-4 h-4 text-green-300" />
+              )}
+              {saveStatus === "error" && (
+                <AlertCircle className="w-4 h-4 text-red-300" />
+              )}
+              {saveStatus === "idle" &&
+                (user ? (
+                  <Save className="w-4 h-4" />
+                ) : (
+                  <LogIn className="w-4 h-4" />
+                ))}
+              {saveStatus === "saving"
+                ? "Guardando…"
+                : saveStatus === "saved"
+                  ? "¡Guardado!"
+                  : saveStatus === "error"
+                    ? "Error al guardar"
+                    : !user
+                      ? "Inicia sesión para guardar"
+                      : !linkedCharId
+                        ? "Elige un personaje"
+                        : "Guardar"}
+            </Button>
+          </div>
         </div>
-      </div>
+    </>
   );
 };
 

@@ -79,33 +79,35 @@ const MisMapasContent = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
-        <div className="flex items-center gap-3 mb-2">
-          <Map className="h-8 w-8 text-amber-200" />
-          <h1 className="text-3xl font-bold text-amber-50">Mis Mapas de Batalla</h1>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <Map className="h-8 w-8 text-amber-200" />
+              <h1 className="text-3xl font-bold text-amber-50">Mis Mapas de Batalla</h1>
+            </div>
+            <p className="text-sm text-amber-100/90">
+              Gestiona tus mapas de batalla guardados
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate(switchRoutes.mapaBatalla)}
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Mapa
+          </Button>
         </div>
-        <p className="text-amber-100">
-          Gestiona tus mapas de batalla guardados
-        </p>
       </section>
 
-      {/* Actions */}
-      <div className="flex justify-between items-center">
-        <p className="text-muted-foreground">
-          {maps.length === 0
-            ? "No tienes mapas guardados"
-            : `${maps.length} ${maps.length === 1 ? "mapa" : "mapas"}`}
+      {/* Results count */}
+      {!loading && maps.length > 0 && (
+        <p className="text-sm text-muted-foreground">
+          {maps.length} {maps.length === 1 ? "mapa" : "mapas"}
         </p>
-        <Button
-          onClick={() => navigate(switchRoutes.mapaBatalla)}
-          className="bg-amber-600 hover:bg-amber-700"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Mapa
-        </Button>
-      </div>
+      )}
 
       {/* Error Message */}
       {error && (

@@ -1,4 +1,5 @@
 import { type PropsWithChildren, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { AppSidebar } from "@/components/app-sidebar";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -6,6 +7,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import {
@@ -15,8 +17,22 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/core/auth/useAuth";
 
+const ROUTE_LABELS: { prefix: string; label: string }[] = [
+  { prefix: "/mis-campanas",     label: "Mis Campañas" },
+  { prefix: "/inventario",       label: "Inventario" },
+  { prefix: "/mis-fichas",       label: "Mis Fichas" },
+  { prefix: "/mi-ficha",         label: "Mi Ficha" },
+  { prefix: "/mis-mapas",        label: "Mis Mapas" },
+  { prefix: "/mapa-batalla",     label: "Mapa de Batalla" },
+  { prefix: "/dados",            label: "Tirada de Dados" },
+  { prefix: "/profile/settings", label: "Configuración" },
+  { prefix: "/editar-campana",   label: "Editar Campaña" },
+  { prefix: "/partida",          label: "Partida" },
+];
+
 export const ProfileLayout = ({ children }: PropsWithChildren) => {
   const { user } = useAuth();
+  const { pathname } = useLocation();
 
   // Dashboard siempre en dark mode (colores fijos de dungeon)
   useEffect(() => {
@@ -29,6 +45,11 @@ export const ProfileLayout = ({ children }: PropsWithChildren) => {
   }, []);
 
   const displayName = user?.email ? user.email.split("@")[0] : "Invitado";
+
+  const currentLabel =
+    ROUTE_LABELS.find(
+      (r) => pathname === r.prefix || pathname.startsWith(r.prefix + "/")
+    )?.label ?? "Dashboard";
 
   return (
     <div
@@ -45,15 +66,17 @@ export const ProfileLayout = ({ children }: PropsWithChildren) => {
                 <BreadcrumbList className="text-sm text-amber-400">
                   <BreadcrumbItem>
                     <BreadcrumbLink
-                      href="/"
+                      asChild
                       className="hover:text-amber-200 transition-colors"
                     >
-                      Inicio
+                      <Link to="/">Inicio</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="text-amber-700" />
-                  <BreadcrumbItem className="text-amber-200 font-semibold">
-                    Dashboard
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="text-amber-200 font-semibold">
+                      {currentLabel}
+                    </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Settings, ScrollText, Map, Scroll, Dices, Home } from "lucide-react";
+import { Settings, ScrollText, Map, Scroll, Dices, Home, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { NavMain } from "@/components/nav-main";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 
 // Opciones de gestión de cuenta/perfil con subtítulos y badges opcionales
-const navMain = [
+export const navMain = [
   {
     title: "Inicio",
     url: "/",
@@ -28,6 +28,12 @@ const navMain = [
     isActive: true,
   },
   {
+    title: "Inventario",
+    url: "/inventario",
+    icon: Package,
+    subtitle: "Gestiona tu equipo y objetos",
+  },
+  {
     title: "Mis Fichas",
     url: "/mis-fichas",
     icon: ScrollText,
@@ -38,12 +44,6 @@ const navMain = [
     url: "/mis-mapas",
     icon: Map,
     subtitle: "Mapas y escenarios de batalla",
-  },
-  {
-    title: "Inventario",
-    url: "/inventario",
-    icon: Scroll,
-    subtitle: "Gestiona el inventario y objetos",
   },
   {
     title: "Tirada de Dados",
