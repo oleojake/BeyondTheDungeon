@@ -335,7 +335,7 @@ export const MapaBatallaScene = () => {
               className="flex items-center gap-1.5 text-amber-400 hover:text-amber-200 hover:bg-amber-900/30 text-xs"
             >
               <House className="h-4 w-4" />
-              Volver al panel
+              Volver
             </Button>
           </div>
 

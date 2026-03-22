@@ -46,6 +46,12 @@ const navMain = [
     subtitle: "Mapas y escenarios de batalla",
   },
   {
+    title: "Inventario",
+    url: "/inventario",
+    icon: Scroll,
+    subtitle: "Gestiona el inventario y objetos",
+  },
+  {
     title: "Tirada de Dados",
     url: "/dados",
     icon: Dices,

@@ -13,7 +13,7 @@ export const Navbar = () => {
 		if (location.pathname === "/") {
 			document.getElementById("herramientas")?.scrollIntoView({ behavior: "smooth" });
 		} else {
-			navigate("/#herramientas");
+			navigate({ pathname: "/", hash: "#herramientas" });
 		}
 	};
 

@@ -114,9 +114,7 @@ export const AppRouter = () => {
 					path={switchRoutes.misFichas}
 					element={
 						<ProtectedRoute>
-							<ProfileLayout>
-								<MisFichasScene />
-							</ProfileLayout>
+							<MisFichasScene />
 						</ProtectedRoute>
 					}
 				/>
@@ -136,6 +134,10 @@ export const AppRouter = () => {
 						</ToolLayout>
 					}
 				/>
+
+
+
+
 				<Route
 					path={switchRoutes.objetos}
 					element={
