@@ -110,14 +110,16 @@ export const AppRouter = () => {
 						</ProtectedRoute>
 					}
 				/>
-				<Route
-					path={switchRoutes.misFichas}
-					element={
-						<ProtectedRoute>
+			<Route
+				path={switchRoutes.misFichas}
+				element={
+					<ProtectedRoute>
+						<ProfileLayout>
 							<MisFichasScene />
-						</ProtectedRoute>
-					}
-				/>
+						</ProfileLayout>
+					</ProtectedRoute>
+				}
+			/>
 				<Route
 					path={switchRoutes.misMapas}
 					element={
