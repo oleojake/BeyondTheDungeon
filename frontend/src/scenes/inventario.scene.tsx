@@ -1,7 +1,6 @@
 ﻿import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/core/auth/useAuth";
-import { Footer } from "@/pods/home/components";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -1711,7 +1710,6 @@ export const InventarioScene = () => {
             </Button>
           </div>
         </div>
-      <Footer />
     </>
   );
 };

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 
 // Opciones de gestión de cuenta/perfil con subtítulos y badges opcionales
-const navMain = [
+export const navMain = [
   {
     title: "Inicio",
     url: "/",
@@ -44,12 +44,6 @@ const navMain = [
     url: "/mis-mapas",
     icon: Map,
     subtitle: "Mapas y escenarios de batalla",
-  },
-  {
-    title: "Inventario",
-    url: "/inventario",
-    icon: Scroll,
-    subtitle: "Gestiona el inventario y objetos",
   },
   {
     title: "Tirada de Dados",
