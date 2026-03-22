@@ -16,14 +16,9 @@ import {
 } from "@/core/api/character-sheet.service";
 import type { CharacterClass } from "@/interfaces/character";
 import { switchRoutes } from "@/router/routes";
-import { ProfileLayout } from "@/layout/profile.layout";
 
 export const MisFichasScene = () => {
-  return (
-    <ProfileLayout>
-      <MisFichasContent />
-    </ProfileLayout>
-  );
+  return <MisFichasContent />;
 };
 
 const MisFichasContent = () => {
@@ -93,30 +88,30 @@ const MisFichasContent = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
-        <div className="flex items-center gap-3 mb-2">
-          <UserCircle className="h-8 w-8 text-amber-200" />
-          <h1 className="text-3xl font-extrabold text-amber-50">
-            Mis Fichas de Personajes
-          </h1>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <UserCircle className="h-8 w-8 text-amber-200" />
+              <h1 className="text-3xl font-bold text-amber-50">
+                Mis Fichas de Personajes
+              </h1>
+            </div>
+            <p className="text-sm text-amber-100/90">
+              Gestiona tus personajes de D&D 5e
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate(switchRoutes.miFicha)}
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Crear Nueva Ficha
+          </Button>
         </div>
-        <p className="mt-2 text-sm text-amber-100/90">
-          Gestiona tus personajes de D&D 5e
-        </p>
       </section>
-
-      {/* Create Button */}
-      <div className="flex justify-end">
-        <Button
-          onClick={() => navigate(switchRoutes.miFicha)}
-          className="inline-flex items-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 px-6 py-3 text-sm font-semibold text-white shadow-lg transition"
-        >
-          <Plus className="h-5 w-5" />
-          Crear Nueva Ficha
-        </Button>
-      </div>
 
       {error && (
         <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-6">

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Settings, ScrollText, Map, Scroll, Dices, Home } from "lucide-react";
+import { Settings, ScrollText, Map, Scroll, Dices, Home, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { NavMain } from "@/components/nav-main";
@@ -26,6 +26,12 @@ const navMain = [
     icon: Scroll,
     subtitle: "Gestiona tus aventuras y jugadores",
     isActive: true,
+  },
+  {
+    title: "Inventario",
+    url: "/inventario",
+    icon: Package,
+    subtitle: "Gestiona tu equipo y objetos",
   },
   {
     title: "Mis Fichas",

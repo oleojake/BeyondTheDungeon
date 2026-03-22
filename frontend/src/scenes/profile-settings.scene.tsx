@@ -51,16 +51,16 @@ const SettingsContent: React.FC = () => {
 	];
 
 	return (
-		<div className="container mx-auto p-6 space-y-6">
+		<div className="max-w-5xl mx-auto space-y-6">
 			{/* Header */}
 			<section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
 				<div className="flex items-center gap-3 mb-2">
 					<Settings className="h-8 w-8 text-amber-200" />
-					<h1 className="text-3xl font-extrabold text-amber-50">
+					<h1 className="text-3xl font-bold text-amber-50">
 						Configuración
 					</h1>
 				</div>
-				<p className="mt-2 text-sm text-amber-100/90">
+				<p className="text-sm text-amber-100/90">
 					Gestiona tu cuenta, preferencias y opciones de privacidad.
 				</p>
 			</section>

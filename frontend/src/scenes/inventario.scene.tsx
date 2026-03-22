@@ -1,7 +1,6 @@
 ﻿import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/core/auth/useAuth";
-import { AppLayout } from "@/layout";
 import { Footer } from "@/pods/home/components";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -261,23 +260,22 @@ function getSlotFilter(slotKey: string): (item: CompendiumItem) => boolean {
 }
 
 // ─── Slots del Paperdoll ─────────────────────────────────────────────────────
-// col/row are 1-based CSS grid positions (5 cols × 5 rows)
-// Col 1 = arma izq, cols 2-4 = cuerpo (silueta), col 5 = arma der + montura
-// Celdas vacías en (1,1), (1,2), (5,1), (5,2), (1,4), (5,4) dejan ver la silueta
+// x/y son porcentajes (0-100) sobre el contenedor del paperdoll (480×600px)
+// Referencia: bg-inventary.png, personaje centrado con cabeza a ~12% Y
 
 const EQUIPMENT_SLOTS = [
-  { key: "helmet", label: "Casco", icon: HardHat, col: 3, row: 1 },
-  { key: "amulet", label: "Colgante", icon: Gem, col: 3, row: 2 },
-  { key: "armor", label: "Armadura", icon: Shirt, col: 1, row: 1 },
-  { key: "cloak", label: "Capa", icon: Wind, col: 5, row: 1 },
-  { key: "mainhand", label: "Arma principal", icon: Sword, col: 1, row: 2 },
-  { key: "gloves", label: "Guantes", icon: Grab, col: 2, row: 3 },
-  { key: "offhand", label: "Arma sec. / Escudo", icon: Swords, col: 5, row: 2 },
-  { key: "ring1", label: "Anillo izq.", icon: Circle, col: 1, row: 3 },
-  { key: "belt", label: "Cinturón", icon: Shield, col: 3, row: 3 },
-  { key: "ring2", label: "Anillo der.", icon: Circle, col: 5, row: 3 },
-  { key: "boots", label: "Botas", icon: Footprints, col: 1, row: 5 },
-  { key: "mount", label: "Montura", icon: Anchor, col: 5, row: 5 },
+  { key: "helmet",   label: "Casco",             icon: HardHat,    x: "50%",  y: "7%" },
+  { key: "amulet",   label: "Colgante",           icon: Gem,        x: "50%",  y: "22%" },
+  { key: "armor",    label: "Armadura",           icon: Shirt,      x: "50%",  y: "40%" },
+  { key: "cloak",    label: "Capa",               icon: Wind,       x: "83%",  y: "22%" },
+  { key: "mainhand", label: "Arma principal",     icon: Sword,      x: "10%",  y: "52%" },
+  { key: "offhand",  label: "Arma sec. / Escudo", icon: Swords,     x: "90%",  y: "52%" },
+  { key: "gloves",   label: "Guantes",            icon: Grab,       x: "17%",  y: "22%" },
+  { key: "ring1",    label: "Anillo izq.",         icon: Circle,     x: "10%",  y: "72%" },
+  { key: "belt",     label: "Cinturón",           icon: Shield,     x: "50%",  y: "58%" },
+  { key: "ring2",    label: "Anillo der.",         icon: Circle,     x: "90%",  y: "72%" },
+  { key: "boots",    label: "Botas",              icon: Footprints, x: "50%",  y: "91%" },
+  { key: "mount",    label: "Montura",            icon: Anchor,     x: "83%",  y: "91%" },
 ] as const;
 
 // ─── Estado inicial ──────────────────────────────────────────────────────────
@@ -291,335 +289,6 @@ const emptyInventory: InventoryState = {
   currency: { pp: 0, po: 0, pe: 0, pa: 0, pc: 0 },
 };
 
-// ─── Silueta SVG de fondo ─────────────────────────────────────────────────────
-
-function Silhouette() {
-  const c = "#f59e0b";
-  return (
-    <svg
-      viewBox="0 0 100 200"
-      className="absolute inset-0 w-full h-full pointer-events-none select-none"
-      fill="none"
-    >
-      {/* ── Cabeza ── */}
-      <ellipse
-        cx="50"
-        cy="13"
-        rx="9.5"
-        ry="11.5"
-        fill={c}
-        fillOpacity="0.22"
-        stroke={c}
-        strokeOpacity="0.55"
-        strokeWidth="1.5"
-      />
-      {/* visera del casco */}
-      <path
-        d="M 41 11 Q 50 7 59 11"
-        stroke={c}
-        strokeOpacity="0.40"
-        strokeWidth="1.2"
-        fill="none"
-      />
-
-      {/* ── Cuello ── */}
-      <rect
-        x="45"
-        y="24"
-        width="10"
-        height="8"
-        rx="2"
-        fill={c}
-        fillOpacity="0.18"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1.2"
-      />
-
-      {/* ── Pauldron izquierdo ── */}
-      <path
-        d="M 22 31 Q 12 33 10 43 Q 10 51 19 53 L 25 48 L 27 34 Z"
-        fill={c}
-        fillOpacity="0.22"
-        stroke={c}
-        strokeOpacity="0.50"
-        strokeWidth="1.3"
-      />
-      <path
-        d="M 11 41 Q 14 47 19 50"
-        stroke={c}
-        strokeOpacity="0.28"
-        strokeWidth="0.8"
-        fill="none"
-      />
-
-      {/* ── Pauldron derecho ── */}
-      <path
-        d="M 78 31 Q 88 33 90 43 Q 90 51 81 53 L 75 48 L 73 34 Z"
-        fill={c}
-        fillOpacity="0.22"
-        stroke={c}
-        strokeOpacity="0.50"
-        strokeWidth="1.3"
-      />
-      <path
-        d="M 89 41 Q 86 47 81 50"
-        stroke={c}
-        strokeOpacity="0.28"
-        strokeWidth="0.8"
-        fill="none"
-      />
-
-      {/* ── Peto / Torso ── */}
-      <path
-        d="M 27 32 L 73 32 L 69 82 L 31 82 Z"
-        fill={c}
-        fillOpacity="0.20"
-        stroke={c}
-        strokeOpacity="0.48"
-        strokeWidth="1.5"
-      />
-      {/* collar del peto */}
-      <path
-        d="M 40 32 Q 50 28 60 32"
-        stroke={c}
-        strokeOpacity="0.35"
-        strokeWidth="1.2"
-        fill="none"
-      />
-      {/* división central */}
-      <line
-        x1="50"
-        y1="33"
-        x2="50"
-        y2="80"
-        stroke={c}
-        strokeOpacity="0.20"
-        strokeWidth="0.9"
-        strokeDasharray="3 3"
-      />
-      {/* placa pectoral superior */}
-      <line
-        x1="30"
-        y1="47"
-        x2="70"
-        y2="47"
-        stroke={c}
-        strokeOpacity="0.22"
-        strokeWidth="1"
-      />
-      {/* placa pectoral inferior */}
-      <line
-        x1="31"
-        y1="62"
-        x2="69"
-        y2="62"
-        stroke={c}
-        strokeOpacity="0.18"
-        strokeWidth="0.9"
-      />
-
-      {/* ── Brazo superior izquierdo ── */}
-      <path
-        d="M 23 36 L 14 36 L 7 70 L 16 73 L 27 44 Z"
-        fill={c}
-        fillOpacity="0.20"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1.1"
-      />
-      {/* ── Antebrazo izquierdo ── */}
-      <path
-        d="M 7 70 L 16 73 L 13 92 L 4 89 Z"
-        fill={c}
-        fillOpacity="0.22"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1"
-      />
-      {/* brazal izquierdo */}
-      <rect
-        x="4"
-        y="75"
-        width="11"
-        height="8"
-        rx="2"
-        fill={c}
-        fillOpacity="0.16"
-        stroke={c}
-        strokeOpacity="0.35"
-        strokeWidth="0.9"
-      />
-      {/* mano izquierda */}
-      <ellipse
-        cx="8.5"
-        cy="94"
-        rx="5.5"
-        ry="3.5"
-        fill={c}
-        fillOpacity="0.22"
-        stroke={c}
-        strokeOpacity="0.50"
-        strokeWidth="1.2"
-      />
-
-      {/* ── Brazo superior derecho ── */}
-      <path
-        d="M 77 36 L 86 36 L 93 70 L 84 73 L 73 44 Z"
-        fill={c}
-        fillOpacity="0.20"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1.1"
-      />
-      {/* ── Antebrazo derecho ── */}
-      <path
-        d="M 84 73 L 93 70 L 96 89 L 87 92 Z"
-        fill={c}
-        fillOpacity="0.22"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1"
-      />
-      {/* brazal derecho */}
-      <rect
-        x="85"
-        y="75"
-        width="11"
-        height="8"
-        rx="2"
-        fill={c}
-        fillOpacity="0.16"
-        stroke={c}
-        strokeOpacity="0.35"
-        strokeWidth="0.9"
-      />
-      {/* mano derecha */}
-      <ellipse
-        cx="91.5"
-        cy="94"
-        rx="5.5"
-        ry="3.5"
-        fill={c}
-        fillOpacity="0.22"
-        stroke={c}
-        strokeOpacity="0.50"
-        strokeWidth="1.2"
-      />
-
-      {/* ── Cinturón ── */}
-      <rect
-        x="30"
-        y="82"
-        width="40"
-        height="11"
-        rx="1"
-        fill={c}
-        fillOpacity="0.22"
-        stroke={c}
-        strokeOpacity="0.52"
-        strokeWidth="1.3"
-      />
-      {/* hebilla */}
-      <rect
-        x="44"
-        y="84"
-        width="12"
-        height="7"
-        rx="1"
-        fill={c}
-        fillOpacity="0.28"
-        stroke={c}
-        strokeOpacity="0.60"
-        strokeWidth="1"
-      />
-
-      {/* ── Caderas ── */}
-      <path
-        d="M 30 93 L 70 93 L 68 106 L 32 106 Z"
-        fill={c}
-        fillOpacity="0.18"
-        stroke={c}
-        strokeOpacity="0.42"
-        strokeWidth="1.2"
-      />
-
-      {/* ── Muslo izquierdo ── */}
-      <path
-        d="M 32 106 L 49 106 L 46 150 L 29 150 Z"
-        fill={c}
-        fillOpacity="0.20"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1.1"
-      />
-      {/* rodillera izquierda */}
-      <path
-        d="M 28 147 L 47 147 L 48 158 L 27 158 Z"
-        fill={c}
-        fillOpacity="0.26"
-        stroke={c}
-        strokeOpacity="0.56"
-        strokeWidth="1.2"
-      />
-      {/* espinilla izquierda */}
-      <path
-        d="M 28 158 L 47 158 L 44 180 L 25 180 Z"
-        fill={c}
-        fillOpacity="0.20"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1.1"
-      />
-      {/* bota izquierda */}
-      <path
-        d="M 17 180 Q 14 187 17 193 L 46 193 L 45 180 Z"
-        fill={c}
-        fillOpacity="0.26"
-        stroke={c}
-        strokeOpacity="0.56"
-        strokeWidth="1.2"
-      />
-
-      {/* ── Muslo derecho ── */}
-      <path
-        d="M 51 106 L 68 106 L 71 150 L 54 150 Z"
-        fill={c}
-        fillOpacity="0.20"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1.1"
-      />
-      {/* rodillera derecha */}
-      <path
-        d="M 53 147 L 72 147 L 73 158 L 52 158 Z"
-        fill={c}
-        fillOpacity="0.26"
-        stroke={c}
-        strokeOpacity="0.56"
-        strokeWidth="1.2"
-      />
-      {/* espinilla derecha */}
-      <path
-        d="M 53 158 L 72 158 L 75 180 L 56 180 Z"
-        fill={c}
-        fillOpacity="0.20"
-        stroke={c}
-        strokeOpacity="0.45"
-        strokeWidth="1.1"
-      />
-      {/* bota derecha */}
-      <path
-        d="M 55 180 L 83 180 Q 86 187 83 193 L 54 193 Z"
-        fill={c}
-        fillOpacity="0.26"
-        stroke={c}
-        strokeOpacity="0.56"
-        strokeWidth="1.2"
-      />
-    </svg>
-  );
-}
 
 // ─── Componente de Slot ───────────────────────────────────────────────────────
 
@@ -637,7 +306,12 @@ function EquipSlot({
   const Icon = slot.icon;
   return (
     <div
-      style={{ gridColumn: slot.col, gridRow: slot.row }}
+      style={{
+        position: "absolute",
+        left: slot.x,
+        top: slot.y,
+        transform: "translate(-50%, -50%)",
+      }}
       onClick={onOpen}
       title={slot.label}
       className={[
@@ -1527,21 +1201,24 @@ export const InventarioScene = () => {
   const overEncumbered = effectiveMax > 0 && currentWeight > effectiveMax;
 
   return (
-    <AppLayout>
-      <div className="bg-gradient-to-br from-amber-50 via-stone-100 to-amber-50 dark:from-dark dark:via-dark-lighter dark:to-dark -mt-[73px] pt-[73px] min-h-screen transition-colors duration-300">
-        <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-          {/* ── Cabecera ─────────────────────────────────────────────── */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <>
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* ── Cabecera ─────────────────────────────────────────────── */}
+        <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-amber-200">Inventario</h1>
-              <p className="text-amber-400/70 text-sm mt-1">
+              <div className="flex items-center gap-3 mb-2">
+                <Package className="h-8 w-8 text-amber-200" />
+                <h1 className="text-3xl font-bold text-amber-50">Inventario</h1>
+              </div>
+              <p className="text-sm text-amber-100/90">
                 Gestiona el equipo, consumibles y monedas de tu personaje
               </p>
             </div>
             <Button
               onClick={handleSave}
               disabled={saveStatus === "saving" || (!!user && !linkedCharId)}
-              className="bg-amber-700 hover:bg-amber-600 text-white gap-2 self-start sm:self-auto disabled:opacity-60"
+              className="bg-amber-700 hover:bg-amber-600 text-white gap-2 disabled:opacity-60"
             >
               {saveStatus === "saving" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -1571,6 +1248,7 @@ export const InventarioScene = () => {
                         : "Guardar"}
             </Button>
           </div>
+        </section>
 
           {/* ── Banner invitados ──────────────────────────────────────── */}
           {!user && (
@@ -1797,25 +1475,23 @@ export const InventarioScene = () => {
             <h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
               <Shirt className="w-5 h-5" /> Equipo equipado
             </h2>
-            <div className="relative w-fit mx-auto">
-              <Silhouette />
-              <div
-                className="relative grid gap-3"
-                style={{
-                  gridTemplateColumns: "repeat(5, 5rem)",
-                  gridTemplateRows: "repeat(5, 6rem)",
-                }}
-              >
-                {EQUIPMENT_SLOTS.map((slot) => (
-                  <EquipSlot
-                    key={slot.key}
-                    slot={slot}
-                    item={inventory.equipped[slot.key]}
-                    onClear={() => clearSlot(slot.key)}
-                    onOpen={() => setOpenSlot(slot.key)}
-                  />
-                ))}
-              </div>
+            <div className="relative mx-auto" style={{ width: 480, height: 600 }}>
+              <img
+                src="/bg-inventary.png"
+                alt="Personaje"
+                className="absolute inset-0 w-full h-full object-cover rounded-xl pointer-events-none select-none"
+              />
+              {/* Gradiente oscuro para mejorar contraste de los slots */}
+              <div className="absolute inset-0 rounded-xl pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(20,8,2,0.18) 0%, rgba(20,8,2,0.08) 50%, rgba(20,8,2,0.32) 100%)" }} />
+              {EQUIPMENT_SLOTS.map((slot) => (
+                <EquipSlot
+                  key={slot.key}
+                  slot={slot}
+                  item={inventory.equipped[slot.key]}
+                  onClear={() => clearSlot(slot.key)}
+                  onOpen={() => setOpenSlot(slot.key)}
+                />
+              ))}
             </div>
             <p className="text-xs text-amber-700/50 text-center mt-3">
               Haz clic en un slot para buscar y equipar un objeto
@@ -2035,9 +1711,8 @@ export const InventarioScene = () => {
             </Button>
           </div>
         </div>
-      </div>
       <Footer />
-    </AppLayout>
+    </>
   );
 };
 
