@@ -20,6 +20,12 @@ import {
 	StopCircle,
 	LogOut,
 	Eye,
+	Shield,
+	FlaskConical,
+	Gem,
+	ScrollText,
+	Key,
+	Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,13 +63,53 @@ interface Props {
 	onSelectScene: (sceneId: string) => void;
 	onGoToScene: (scene: SceneWithEntities) => void;
 	onDeployMap: (map: BattleMap) => void;
-	onDeployEntity: (entity: SceneEntityBasic) => void;
+	onDeployEntity: (entity: SceneEntityBasic, iconKey?: string) => void;
+	onChangeTokenIcon: (tokenId: string, iconKey: string) => void;
+	onUpdateToken: (
+		tokenId: string,
+		updates: { token_color?: string; token_size?: string },
+	) => void;
+	selectedToken: SessionToken | null;
 	onStartCombat: () => void;
 	onEndCombat: () => void;
 	onEndSession: () => void;
 }
 
 type EntityTab = "map" | "monster" | "npc" | "item" | "spell";
+
+const ITEM_ICONS = [
+	{ key: "package", label: "Caja", Icon: Package },
+	{ key: "sword", label: "Espada", Icon: Sword },
+	{ key: "shield", label: "Escudo", Icon: Shield },
+	{ key: "flask", label: "Poción", Icon: FlaskConical },
+	{ key: "gem", label: "Joya", Icon: Gem },
+	{ key: "scroll", label: "Pergam.", Icon: ScrollText },
+	{ key: "key", label: "Llave", Icon: Key },
+	{ key: "wand", label: "Varita", Icon: Wand2 },
+] as const;
+
+const TOKEN_COLORS = [
+	{ value: "#3b82f6", label: "Azul" },
+	{ value: "#ef4444", label: "Rojo" },
+	{ value: "#a855f7", label: "Morado" },
+	{ value: "#22c55e", label: "Verde" },
+	{ value: "#f59e0b", label: "Ambar" },
+	{ value: "#ffffff", label: "Blanco" },
+] as const;
+
+const SIZE_OPTIONS = [
+	{ value: "S", label: "S" },
+	{ value: "M", label: "M" },
+	{ value: "L", label: "L" },
+	{ value: "XL", label: "XL" },
+] as const;
+
+const SPELL_SHAPES = [
+	{ key: "circle", label: "Esfera" },
+	{ key: "cone", label: "Cono" },
+	{ key: "rect", label: "Cubo" },
+	{ key: "line", label: "Línea" },
+] as const;
 
 const ENTITY_TABS: { key: EntityTab; label: string; icon: React.ReactNode }[] =
 	[
@@ -73,6 +119,62 @@ const ENTITY_TABS: { key: EntityTab; label: string; icon: React.ReactNode }[] =
 		{ key: "item", label: "Objetos", icon: <Package className="w-3 h-3" /> },
 		{ key: "spell", label: "Hechizos", icon: <Sparkles className="w-3 h-3" /> },
 	];
+
+function ShapePreview({
+	shapeKey,
+	active,
+}: {
+	shapeKey: string;
+	active: boolean;
+}) {
+	const color = active ? "#c084fc" : "#6b7280";
+	if (shapeKey === "circle")
+		return (
+			<div
+				style={{
+					width: 14,
+					height: 14,
+					borderRadius: "50%",
+					border: `2px solid ${color}`,
+				}}
+			/>
+		);
+	if (shapeKey === "rect")
+		return (
+			<div
+				style={{
+					width: 14,
+					height: 14,
+					borderRadius: 2,
+					border: `2px solid ${color}`,
+				}}
+			/>
+		);
+	if (shapeKey === "cone")
+		return (
+			<div
+				style={{
+					width: 0,
+					height: 0,
+					borderLeft: "7px solid transparent",
+					borderRight: "7px solid transparent",
+					borderBottom: `14px solid ${color}`,
+				}}
+			/>
+		);
+	if (shapeKey === "line")
+		return (
+			<div
+				style={{
+					width: 4,
+					height: 14,
+					borderRadius: 2,
+					backgroundColor: color,
+				}}
+			/>
+		);
+	return null;
+}
 
 export function PanelDM({
 	chapters,
@@ -86,18 +188,24 @@ export function PanelDM({
 	onGoToScene,
 	onDeployMap,
 	onDeployEntity,
+	onChangeTokenIcon,
+	onUpdateToken,
+	selectedToken,
 	onStartCombat,
 	onEndCombat,
 	onEndSession,
 }: Props) {
 	const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
-		new Set()
+		new Set(),
 	);
 	const [entityTab, setEntityTab] = useState<EntityTab>("map");
 	const [selectedEntity, setSelectedEntity] = useState<SceneEntityBasic | null>(
-		null
+		null,
 	);
 	const [selectedMapId, setSelectedMapId] = useState<string>("");
+	const [selectedItemIcon, setSelectedItemIcon] = useState<string>("package");
+	const [selectedSpellShape, setSelectedSpellShape] =
+		useState<string>("circle");
 
 	const toggleChapter = (id: string) =>
 		setExpandedChapters((prev) => {
@@ -116,21 +224,30 @@ export function PanelDM({
 		return selectedScene.entities.filter((e) => e.entity_type === type);
 	};
 
-	const mapEntities = selectedScene?.entities.filter(
-		(e) => e.entity_type === "map"
-	) ?? [];
+	const mapEntities =
+		selectedScene?.entities.filter((e) => e.entity_type === "map") ?? [];
 
 	const canDeploy =
-		entityTab === "map" ||
-		(currentMapId !== null && selectedEntity !== null);
+		entityTab === "map" || (currentMapId !== null && selectedEntity !== null);
 
 	const handleDeploySelected = () => {
 		if (!selectedEntity) return;
 		if (entityTab === "map") {
-			const mapObj = availableMaps.find((m) => m.id === selectedEntity.entity_id);
+			const mapObj = availableMaps.find(
+				(m) => m.id === selectedEntity.entity_id,
+			);
 			if (mapObj) onDeployMap(mapObj);
+		} else if (entityTab === "item") {
+			onDeployEntity(selectedEntity, selectedItemIcon);
+			setSelectedEntity(null);
+			setSelectedItemIcon("package");
+		} else if (entityTab === "spell") {
+			onDeployEntity(selectedEntity, `shape:${selectedSpellShape}`);
+			setSelectedEntity(null);
+			setSelectedSpellShape("circle");
 		} else {
 			onDeployEntity(selectedEntity);
+			setSelectedEntity(null);
 		}
 	};
 
@@ -182,10 +299,7 @@ export function PanelDM({
 					Cargar mapa directamente
 				</label>
 				<div className="flex gap-2">
-					<Select
-						value={selectedMapId}
-						onValueChange={setSelectedMapId}
-					>
+					<Select value={selectedMapId} onValueChange={setSelectedMapId}>
 						<SelectTrigger className="bg-gray-800 border-gray-600 text-gray-200 h-7 text-xs flex-1">
 							<SelectValue placeholder="Elige mapa..." />
 						</SelectTrigger>
@@ -308,7 +422,10 @@ export function PanelDM({
 									>
 										{tab.icon}
 										{tab.label}
-										<Badge variant="outline" className="h-4 px-1 ml-0.5 text-[10px]">
+										<Badge
+											variant="outline"
+											className="h-4 px-1 ml-0.5 text-[10px]"
+										>
 											{count}
 										</Badge>
 									</button>
@@ -332,11 +449,67 @@ export function PanelDM({
 								</button>
 							))}
 							{entitiesOfType(entityTab).length === 0 && (
-								<p className="text-xs text-gray-500 italic">Sin entidades de este tipo.</p>
+								<p className="text-xs text-gray-500 italic">
+									Sin entidades de este tipo.
+								</p>
 							)}
 						</div>
+						{/* Icon picker — only for items, only before deploying */}
+						{entityTab === "item" && selectedEntity && (
+							<div className="mb-2">
+								<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+									Icono al introducir
+								</p>
+								<div className="grid grid-cols-4 gap-1">
+									{ITEM_ICONS.map(({ key, label, Icon }) => (
+										<button
+											key={key}
+											title={label}
+											onClick={() => setSelectedItemIcon(key)}
+											className={`flex flex-col items-center gap-0.5 p-1.5 rounded border text-xs transition-colors ${
+												selectedItemIcon === key
+													? "border-amber-500 bg-amber-900/30 text-amber-300"
+													: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+											}`}
+										>
+											<Icon className="w-3.5 h-3.5" />
+											<span className="text-[9px] leading-tight">{label}</span>
+										</button>
+									))}
+								</div>
+							</div>
+						)}
 
-						{/* Deploy / Add to map button */}
+						{/* Shape picker — only for spells, only before deploying */}
+						{entityTab === "spell" && selectedEntity && (
+							<div className="mb-2">
+								<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+									Forma del área
+								</p>
+								<div className="grid grid-cols-4 gap-1">
+									{SPELL_SHAPES.map(({ key, label }) => (
+										<button
+											key={key}
+											title={label}
+											onClick={() => setSelectedSpellShape(key)}
+											className={`flex flex-col items-center gap-1 p-1.5 rounded border text-xs transition-colors ${
+												selectedSpellShape === key
+													? "border-purple-500 bg-purple-900/30 text-purple-300"
+													: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+											}`}
+										>
+											<ShapePreview
+												shapeKey={key}
+												active={selectedSpellShape === key}
+											/>
+											<span className="text-[9px] leading-tight">{label}</span>
+										</button>
+									))}
+								</div>
+							</div>
+						)}
+
+						{/* Deploy button */}
 						{selectedEntity && (
 							<Button
 								size="sm"
@@ -351,6 +524,132 @@ export function PanelDM({
 					</div>
 				)}
 			</div>
+
+			{/* ─ Selected token panel ─ */}
+			{selectedToken && (
+				<div className="border-t border-amber-900/30 p-3 shrink-0 space-y-3">
+					<h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wide truncate">
+						{selectedToken.entity_name}
+					</h3>
+
+					{/* Icon picker — only for icon-based tokens */}
+					{(selectedToken.entity_image?.startsWith("icon:") ||
+						!selectedToken.entity_image) && (
+						<div>
+							<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+								Icono
+							</p>
+							<div className="grid grid-cols-4 gap-1">
+								{ITEM_ICONS.map(({ key, label, Icon }) => {
+									const activeKey = selectedToken.entity_image?.startsWith(
+										"icon:",
+									)
+										? selectedToken.entity_image.slice(5)
+										: "package";
+									return (
+										<button
+											key={key}
+											title={label}
+											onClick={() => onChangeTokenIcon(selectedToken.id, key)}
+											className={`flex flex-col items-center gap-0.5 p-1.5 rounded border text-xs transition-colors ${
+												activeKey === key
+													? "border-amber-500 bg-amber-900/30 text-amber-300"
+													: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+											}`}
+										>
+											<Icon className="w-3.5 h-3.5" />
+											<span className="text-[9px] leading-tight">{label}</span>
+										</button>
+									);
+								})}
+							</div>
+						</div>
+					)}
+
+					{/* Shape picker — only for shape-based tokens (spells) */}
+					{selectedToken.entity_image?.startsWith("shape:") && (
+						<div>
+							<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+								Forma del área
+							</p>
+							<div className="grid grid-cols-4 gap-1">
+								{SPELL_SHAPES.map(({ key, label }) => {
+									const activeKey = selectedToken.entity_image!.slice(6);
+									return (
+										<button
+											key={key}
+											title={label}
+											onClick={() =>
+												onChangeTokenIcon(selectedToken.id, `shape:${key}`)
+											}
+											className={`flex flex-col items-center gap-1 p-1.5 rounded border text-xs transition-colors ${
+												activeKey === key
+													? "border-purple-500 bg-purple-900/30 text-purple-300"
+													: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+											}`}
+										>
+											<ShapePreview shapeKey={key} active={activeKey === key} />
+											<span className="text-[9px] leading-tight">{label}</span>
+										</button>
+									);
+								})}
+							</div>
+						</div>
+					)}
+
+					{/* Color picker */}
+					<div>
+						<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+							{selectedToken.entity_image?.startsWith("shape:")
+								? "Color de la figura"
+								: "Color del círculo"}
+						</p>
+						<div className="grid grid-cols-6 gap-1">
+							{TOKEN_COLORS.map(({ value, label }) => (
+								<button
+									key={value}
+									title={label}
+									onClick={() =>
+										onUpdateToken(selectedToken.id, { token_color: value })
+									}
+									className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
+									style={{
+										backgroundColor: value,
+										borderColor:
+											selectedToken.token_color === value
+												? "white"
+												: "transparent",
+									}}
+								/>
+							))}
+						</div>
+					</div>
+
+					{/* Size selector */}
+					<div>
+						<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+							Tamaño
+						</p>
+						<div className="flex gap-1">
+							{SIZE_OPTIONS.map(({ value, label }) => (
+								<button
+									key={value}
+									onClick={() =>
+										onUpdateToken(selectedToken.id, { token_size: value })
+									}
+									className={`flex-1 py-1 rounded border text-xs font-semibold transition-colors ${
+										(selectedToken.token_size ?? "M") === value
+											? "border-amber-500 bg-amber-900/30 text-amber-300"
+											: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+									}`}
+								>
+									{label}
+								</button>
+							))}
+						</div>
+					</div>
+				</div>
+			)}
 		</aside>
 	);
 }

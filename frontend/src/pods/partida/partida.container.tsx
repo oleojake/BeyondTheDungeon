@@ -87,7 +87,9 @@ function pickNumber(...values: unknown[]): number | null {
 	return null;
 }
 
-function getEntityImage(entityData: Record<string, unknown> | null): string | null {
+function getEntityImage(
+	entityData: Record<string, unknown> | null,
+): string | null {
 	if (!entityData) return null;
 	const stats = (entityData.stats as Record<string, unknown> | undefined) ?? {};
 	const fromValues = [
@@ -103,7 +105,11 @@ function getEntityImage(entityData: Record<string, unknown> | null): string | nu
 	for (const value of fromValues) {
 		if (typeof value !== "string" || value.trim().length === 0) continue;
 		const image = value.trim();
-		if (image.startsWith("http://") || image.startsWith("https://") || image.startsWith("data:")) {
+		if (
+			image.startsWith("http://") ||
+			image.startsWith("https://") ||
+			image.startsWith("data:")
+		) {
 			return image;
 		}
 		// dnd5eapi returns many image paths as /api/... relative URLs
@@ -118,7 +124,9 @@ function getEntityImage(entityData: Record<string, unknown> | null): string | nu
 	return null;
 }
 
-async function resolveCompendiumEntityImage(entity: SceneEntityBasic): Promise<string | null> {
+async function resolveCompendiumEntityImage(
+	entity: SceneEntityBasic,
+): Promise<string | null> {
 	const inlineImage = getEntityImage(entity.entity_data);
 	if (inlineImage) return inlineImage;
 
@@ -126,8 +134,8 @@ async function resolveCompendiumEntityImage(entity: SceneEntityBasic): Promise<s
 		entity.entity_type === "monster"
 			? `${API_URL}/api/compendium-bestiary/${entity.entity_id}`
 			: entity.entity_type === "spell"
-			? `${API_URL}/api/compendium-spells/${entity.entity_id}`
-			: null;
+				? `${API_URL}/api/compendium-spells/${entity.entity_id}`
+				: null;
 
 	if (!endpoint) return null;
 
@@ -141,17 +149,14 @@ async function resolveCompendiumEntityImage(entity: SceneEntityBasic): Promise<s
 	}
 }
 
-export function PartidaContainer({
-	campaignId,
-	campaignTitle,
-	isDM,
-}: Props) {
+export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 	const navigate = useNavigate();
 
 	const [userId, setUserId] = useState("");
 	const [session, setSession] = useState<GameSession | null>(null);
 	const [members, setMembers] = useState<SessionMember[]>([]);
 	const [tokens, setTokens] = useState<SessionToken[]>([]);
+	const [selectedToken, setSelectedToken] = useState<SessionToken | null>(null);
 	const [combatState, setCombatState] = useState<CombatState | null>(null);
 	const [mapImageData, setMapImageData] = useState<string | null>(null);
 	const [availableMaps, setAvailableMaps] = useState<BattleMap[]>([]);
@@ -162,7 +167,9 @@ export function PartidaContainer({
 	const [showDados, setShowDados] = useState(false);
 	const [fichaTarget, setFichaTarget] = useState<SessionMember | null>(null);
 	const [showCombatDialog, setShowCombatDialog] = useState(false);
-	const [combatCandidates, setCombatCandidates] = useState<SceneCombatCandidate[]>([]);
+	const [combatCandidates, setCombatCandidates] = useState<
+		SceneCombatCandidate[]
+	>([]);
 
 	// Pending token position updates (debounced writes)
 	const pendingMoves = useRef<Map<string, { x: number; y: number }>>(new Map());
@@ -196,8 +203,7 @@ export function PartidaContainer({
 						zoom: sess.session_state.mapZoom ?? 1,
 						gridSize: sess.session_state.mapGridSize ?? 50,
 						gridColor:
-							sess.session_state.mapGridColor ??
-							"rgba(255,255,255,0.3)",
+							sess.session_state.mapGridColor ?? "rgba(255,255,255,0.3)",
 						showGrid: sess.session_state.mapShowGrid ?? true,
 					});
 
@@ -232,13 +238,11 @@ export function PartidaContainer({
 								return [...prev, updated];
 							}),
 						(deletedId) =>
-							setTokens((prev) =>
-								prev.filter((t) => t.id !== deletedId)
-							)
+							setTokens((prev) => prev.filter((t) => t.id !== deletedId)),
 					);
 
 					unsubCombat = subscribeToCombat(sess.id, (combat) =>
-						setCombatState(combat)
+						setCombatState(combat),
 					);
 				}
 
@@ -264,7 +268,7 @@ export function PartidaContainer({
 						(mapsRes.maps ?? []).map((m: any) => ({
 							id: m.id as string,
 							name: m.name as string,
-						}))
+						})),
 					);
 				}
 			} catch (err) {
@@ -289,27 +293,50 @@ export function PartidaContainer({
 		try {
 			const chaptersData = await listChapters(campaignId);
 			const chaptersWithScenes: ChapterWithScenes[] = await Promise.all(
-				chaptersData.map(async (chapter: { id: string; title: string; content: string; order_index: number }) => {
-					const scenesData = await listScenes(chapter.id);
-					const scenesWithEntities: SceneWithEntities[] = await Promise.all(
-						scenesData.map(
-							async (scene: { id: string; title: string; content: string; narration_text: string; dm_notes: string; battle_map_id: string | null; order_index: number }) => {
-								const entities = await listSceneEntities(scene.id);
-								return {
-									...scene,
-									entities: entities.map((e: { id: string; entity_type: string; entity_id: string; entity_name: string; entity_data: Record<string, unknown> | null }) => ({
-										id: e.id,
-										entity_type: e.entity_type,
-										entity_id: e.entity_id,
-										entity_name: e.entity_name,
-										entity_data: e.entity_data,
-									})) as SceneEntityBasic[],
-								};
-							}
-						)
-					);
-					return { ...chapter, scenes: scenesWithEntities };
-				})
+				chaptersData.map(
+					async (chapter: {
+						id: string;
+						title: string;
+						content: string;
+						order_index: number;
+					}) => {
+						const scenesData = await listScenes(chapter.id);
+						const scenesWithEntities: SceneWithEntities[] = await Promise.all(
+							scenesData.map(
+								async (scene: {
+									id: string;
+									title: string;
+									content: string;
+									narration_text: string;
+									dm_notes: string;
+									battle_map_id: string | null;
+									order_index: number;
+								}) => {
+									const entities = await listSceneEntities(scene.id);
+									return {
+										...scene,
+										entities: entities.map(
+											(e: {
+												id: string;
+												entity_type: string;
+												entity_id: string;
+												entity_name: string;
+												entity_data: Record<string, unknown> | null;
+											}) => ({
+												id: e.id,
+												entity_type: e.entity_type,
+												entity_id: e.entity_id,
+												entity_name: e.entity_name,
+												entity_data: e.entity_data,
+											}),
+										) as SceneEntityBasic[],
+									};
+								},
+							),
+						);
+						return { ...chapter, scenes: scenesWithEntities };
+					},
+				),
 			);
 			setChapters(chaptersWithScenes);
 		} catch (err) {
@@ -347,7 +374,12 @@ export function PartidaContainer({
 
 	const handleEndSession = async () => {
 		if (!session) return;
-		if (!confirm("¿Seguro que quieres terminar la sesión? El estado se guardará y podrás reanudarla.")) return;
+		if (
+			!confirm(
+				"¿Seguro que quieres terminar la sesión? El estado se guardará y podrás reanudarla.",
+			)
+		)
+			return;
 		try {
 			// Persist all pending position changes first
 			await flushPendingMoves();
@@ -385,14 +417,14 @@ export function PartidaContainer({
 	const handleTokenMove = useCallback(
 		(tokenId: string, x: number, y: number) => {
 			setTokens((prev) =>
-				prev.map((t) => (t.id === tokenId ? { ...t, x, y } : t))
+				prev.map((t) => (t.id === tokenId ? { ...t, x, y } : t)),
 			);
 			pendingMoves.current.set(tokenId, { x, y });
 
 			if (moveFlushTimer.current) clearTimeout(moveFlushTimer.current);
 			moveFlushTimer.current = setTimeout(() => flushPendingMoves(), 300);
 		},
-		[session]
+		[session],
 	);
 
 	const handleTokenRemove = useCallback(
@@ -401,7 +433,7 @@ export function PartidaContainer({
 			setTokens((prev) => prev.filter((t) => t.id !== tokenId));
 			await deleteToken(session.id, tokenId);
 		},
-		[session]
+		[session],
 	);
 
 	const handleTokenHpChange = useCallback(
@@ -409,10 +441,13 @@ export function PartidaContainer({
 			if (!session) return;
 			const token = tokens.find((t) => t.id === tokenId);
 			if (!token) return;
-			const newHp = Math.max(0, Math.min(token.max_hp, token.current_hp + delta));
+			const newHp = Math.max(
+				0,
+				Math.min(token.max_hp, token.current_hp + delta),
+			);
 			// Optimistic update
 			setTokens((prev) =>
-				prev.map((t) => (t.id === tokenId ? { ...t, current_hp: newHp } : t))
+				prev.map((t) => (t.id === tokenId ? { ...t, current_hp: newHp } : t)),
 			);
 			await updateToken(session.id, tokenId, { current_hp: newHp });
 			// Sync to character sheet if this is a player token
@@ -440,11 +475,11 @@ export function PartidaContainer({
 								stats: { ...(m.character!.stats as object), current_hp: newHp },
 							},
 						};
-					})
+					}),
 				);
 			}
 		},
-		[session, tokens]
+		[session, tokens],
 	);
 
 	// ── Deploy map (DM) ───────────────────────────────────────────────────────
@@ -455,32 +490,37 @@ export function PartidaContainer({
 			// Fetch full map data (image_data, grid settings) from API
 			await loadMap(map.id);
 			await updateSessionState(session.id, { current_map_id: map.id });
-			setSession((prev) =>
-				prev ? { ...prev, current_map_id: map.id } : prev
-			);
+			setSession((prev) => (prev ? { ...prev, current_map_id: map.id } : prev));
 		},
-		[session]
+		[session],
 	);
 
 	// ── Deploy entity (DM puts enemy/NPC on map) ──────────────────────────────
 
 	const handleDeployEntity = useCallback(
-		async (entity: SceneEntityBasic) => {
+		async (entity: SceneEntityBasic, iconKey?: string) => {
 			if (!session) return;
 			if (!session.current_map_id) {
 				alert("Primero despliega un mapa antes de añadir este elemento.");
 				return;
 			}
 
-			const resolvedImage = await resolveCompendiumEntityImage(entity);
+			const resolvedImage =
+				entity.entity_type === "item" && iconKey
+					? `icon:${iconKey}`
+					: entity.entity_type === "spell" && iconKey
+						? iconKey
+						: await resolveCompendiumEntityImage(entity);
 
 			const token = await createToken(session.id, {
 				token_type:
 					entity.entity_type === "monster"
 						? "enemy"
 						: entity.entity_type === "npc"
-						? "npc"
-						: "enemy",
+							? "npc"
+							: entity.entity_type === "item"
+								? "npc"
+								: "enemy",
 				character_id: null,
 				user_id: null,
 				entity_ref_id: entity.id,
@@ -494,23 +534,73 @@ export function PartidaContainer({
 						(entity.entity_data as { current_hp?: unknown } | null)?.current_hp,
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp,
-						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)?.max_hp
+						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)
+							?.max_hp,
 					) ?? 10,
 				max_hp:
 					pickNumber(
 						(entity.entity_data as { max_hp?: unknown } | null)?.max_hp,
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
-						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)?.max_hp,
-						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp
+						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)
+							?.max_hp,
+						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp,
 					) ?? 10,
 				initiative_value: 0,
 				is_on_map: true,
 			});
 			setTokens((prev) => [...prev, token]);
+			handleTokenSelect(token);
 		},
-		[session]
+		[session],
 	);
+
+	// ── Change icon of an item token already on map ───────────────────────────
+
+	const handleChangeTokenIcon = useCallback(
+		async (tokenId: string, iconKey: string) => {
+			if (!session) return;
+			const entityImage = iconKey.startsWith("shape:")
+				? iconKey
+				: `icon:${iconKey}`;
+			const updated = await updateToken(session.id, tokenId, {
+				entity_image: entityImage,
+			});
+			setTokens((prev) =>
+				prev.map((t) =>
+					t.id === tokenId ? { ...t, entity_image: updated.entity_image } : t,
+				),
+			);
+			// Keep selectedToken in sync
+			setSelectedToken((prev) =>
+				prev?.id === tokenId
+					? { ...prev, entity_image: updated.entity_image }
+					: prev,
+			);
+		},
+		[session],
+	);
+
+	const handleUpdateToken = useCallback(
+		async (
+			tokenId: string,
+			updates: { token_color?: string; token_size?: string },
+		) => {
+			if (!session) return;
+			const updated = await updateToken(session.id, tokenId, updates);
+			setTokens((prev) =>
+				prev.map((t) => (t.id === tokenId ? { ...t, ...updates } : t)),
+			);
+			setSelectedToken((prev) =>
+				prev?.id === tokenId ? { ...prev, ...updated } : prev,
+			);
+		},
+		[session],
+	);
+
+	const handleTokenSelect = useCallback((token: SessionToken | null) => {
+		setSelectedToken(token);
+	}, []);
 
 	// ── Scene selection ───────────────────────────────────────────────────────
 
@@ -521,7 +611,7 @@ export function PartidaContainer({
 				await updateSessionState(session.id, { current_scene_id: sceneId });
 			}
 		},
-		[session, isDM]
+		[session, isDM],
 	);
 
 	const handleGoToScene = useCallback(
@@ -534,7 +624,7 @@ export function PartidaContainer({
 				else loadMap(scene.battle_map_id);
 			}
 		},
-		[handleSelectScene, handleDeployMap, availableMaps]
+		[handleSelectScene, handleDeployMap, availableMaps],
 	);
 
 	// ── Combat ────────────────────────────────────────────────────────────────
@@ -555,11 +645,18 @@ export function PartidaContainer({
 
 		const playersWithoutToken: SceneCombatCandidate[] = members
 			.filter((m) => m.role !== "dm")
-			.filter((m) => !tokens.some((t) => t.token_type === "player" && t.user_id === m.user_id))
+			.filter(
+				(m) =>
+					!tokens.some(
+						(t) => t.token_type === "player" && t.user_id === m.user_id,
+					),
+			)
 			.map((m) => {
-				const stats = (m.character?.stats as Record<string, unknown> | undefined) ?? {};
+				const stats =
+					(m.character?.stats as Record<string, unknown> | undefined) ?? {};
 				const maxHp = pickNumber(stats.max_hp, stats.hp) ?? 10;
-				const currentHp = pickNumber(stats.current_hp, stats.hp, maxHp) ?? maxHp;
+				const currentHp =
+					pickNumber(stats.current_hp, stats.hp, maxHp) ?? maxHp;
 				const initiative = pickNumber(stats.initiative) ?? 0;
 				const label =
 					m.character?.name ||
@@ -590,17 +687,18 @@ export function PartidaContainer({
 			.map((entity) => {
 				const tokenType = entity.entity_type === "npc" ? "npc" : "enemy";
 				const existing = tokens.find(
-					(t) => t.entity_ref_id === entity.id && t.token_type === tokenType
+					(t) => t.entity_ref_id === entity.id && t.token_type === tokenType,
 				);
 				const stats =
-					(entity.entity_data?.stats as Record<string, unknown> | undefined) ?? {};
+					(entity.entity_data?.stats as Record<string, unknown> | undefined) ??
+					{};
 				const maxHp =
 					pickNumber(
 						(entity.entity_data as { max_hp?: unknown } | null)?.max_hp,
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						stats.max_hp,
 						stats.hp,
-						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current
+						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
 					) ?? 10;
 				const currentHp =
 					pickNumber(
@@ -608,7 +706,7 @@ export function PartidaContainer({
 						(entity.entity_data as { current_hp?: unknown } | null)?.current_hp,
 						stats.current_hp,
 						stats.hp,
-						maxHp
+						maxHp,
 					) ?? maxHp;
 
 				return {
@@ -636,13 +734,13 @@ export function PartidaContainer({
 	const handleConfirmCombat = useCallback(
 		async (
 			participantIds: string[],
-			surprise: "none" | "heroes" | "enemies"
+			surprise: "none" | "heroes" | "enemies",
 		) => {
 			if (!session || !combatState) return;
 			setShowCombatDialog(false);
 
 			const selectedCandidates = combatCandidates.filter((c) =>
-				participantIds.includes(c.id)
+				participantIds.includes(c.id),
 			);
 
 			const participantTokens: SessionToken[] = [];
@@ -678,10 +776,15 @@ export function PartidaContainer({
 								? await resolveCompendiumEntityImage(candidate.entity)
 								: null);
 						participantTokens.push(existingToken);
-						if (!existingToken.is_on_map || !existingToken.entity_image || resolvedCandidateImage) {
+						if (
+							!existingToken.is_on_map ||
+							!existingToken.entity_image ||
+							resolvedCandidateImage
+						) {
 							const updated = await updateToken(session.id, existingToken.id, {
 								is_on_map: true,
-								entity_image: existingToken.entity_image ?? resolvedCandidateImage,
+								entity_image:
+									existingToken.entity_image ?? resolvedCandidateImage,
 							});
 							participantTokens[participantTokens.length - 1] = updated;
 						}
@@ -692,7 +795,8 @@ export function PartidaContainer({
 				if (!candidate.entity) continue;
 
 				const resolvedCandidateImage =
-					candidate.image || (await resolveCompendiumEntityImage(candidate.entity));
+					candidate.image ||
+					(await resolveCompendiumEntityImage(candidate.entity));
 
 				const spawnIndex = participantTokens.length;
 				const spawned = await createToken(session.id, {
@@ -724,16 +828,16 @@ export function PartidaContainer({
 					surprise === "heroes" && a.token_type === "player"
 						? -1000
 						: surprise === "enemies" &&
-						  (a.token_type === "enemy" || a.token_type === "npc")
-						? -1000
-						: 0;
+							  (a.token_type === "enemy" || a.token_type === "npc")
+							? -1000
+							: 0;
 				const bSurprised =
 					surprise === "heroes" && b.token_type === "player"
 						? -1000
 						: surprise === "enemies" &&
-						  (b.token_type === "enemy" || b.token_type === "npc")
-						? -1000
-						: 0;
+							  (b.token_type === "enemy" || b.token_type === "npc")
+							? -1000
+							: 0;
 
 				const aInit = a.initiative_value + aSurprised;
 				const bInit = b.initiative_value + bSurprised;
@@ -751,7 +855,7 @@ export function PartidaContainer({
 			});
 			setCombatState(updated);
 		},
-		[session, combatState, tokens, combatCandidates, members]
+		[session, combatState, tokens, combatCandidates, members],
 	);
 
 	const handleEndCombat = useCallback(async () => {
@@ -766,7 +870,7 @@ export function PartidaContainer({
 
 		// Remove enemy/npc tokens from map
 		const enemiesToRemove = tokens.filter(
-			(t) => t.is_on_map && t.token_type !== "player"
+			(t) => t.is_on_map && t.token_type !== "player",
 		);
 		for (const tok of enemiesToRemove) {
 			await deleteToken(session.id, tok.id);
@@ -782,7 +886,7 @@ export function PartidaContainer({
 			});
 			setCombatState(updated);
 		},
-		[session, combatState]
+		[session, combatState],
 	);
 
 	const handleEndTurn = useCallback(async () => {
@@ -803,24 +907,28 @@ export function PartidaContainer({
 		async (tokenId: string) => {
 			if (!session || !combatState) return;
 			const newOrder = combatState.initiative_order.filter(
-				(id) => id !== tokenId
+				(id) => id !== tokenId,
 			);
 			const updated = await updateCombatState(session.id, {
 				initiative_order: newOrder,
 				current_turn_index: Math.min(
 					combatState.current_turn_index,
-					Math.max(0, newOrder.length - 1)
+					Math.max(0, newOrder.length - 1),
 				),
 			});
 			setCombatState(updated);
 		},
-		[session, combatState]
+		[session, combatState],
 	);
 
 	// ── Character sheet update ────────────────────────────────────────────────
 
 	const handleSaveFicha = useCallback(
-		async (memberId: string, characterId: string, updates: Record<string, unknown>) => {
+		async (
+			memberId: string,
+			characterId: string,
+			updates: Record<string, unknown>,
+		) => {
 			const API_URL = import.meta.env.VITE_API_URL || "";
 			const {
 				data: { session: authSession },
@@ -841,25 +949,29 @@ export function PartidaContainer({
 						...m,
 						character: { ...m.character, ...updates },
 					};
-				})
+				}),
 			);
 			// Sync HP to token if character sheet includes stats.current_hp
-			const newCurrentHp = (updates.stats as { current_hp?: number } | undefined)?.current_hp;
+			const newCurrentHp = (
+				updates.stats as { current_hp?: number } | undefined
+			)?.current_hp;
 			if (newCurrentHp !== undefined && session) {
 				const playerToken = tokens.find(
-					(t) => t.token_type === "player" && t.character_id === characterId
+					(t) => t.token_type === "player" && t.character_id === characterId,
 				);
 				if (playerToken) {
 					setTokens((prev) =>
 						prev.map((t) =>
-							t.id === playerToken.id ? { ...t, current_hp: newCurrentHp } : t
-						)
+							t.id === playerToken.id ? { ...t, current_hp: newCurrentHp } : t,
+						),
 					);
-					await updateToken(session.id, playerToken.id, { current_hp: newCurrentHp });
+					await updateToken(session.id, playerToken.id, {
+						current_hp: newCurrentHp,
+					});
 				}
 			}
 		},
-		[session, tokens]
+		[session, tokens],
 	);
 
 	// ── Map view persistence (debounced) ──────────────────────────────────────
@@ -883,7 +995,7 @@ export function PartidaContainer({
 				});
 			}, 1000);
 		},
-		[session, isDM]
+		[session, isDM],
 	);
 
 	// ── Ensure player tokens exist on session start ───────────────────────────
@@ -897,9 +1009,11 @@ export function PartidaContainer({
 				const exists = tokens.some((t) => t.user_id === player.user_id);
 				if (exists) continue;
 				const char = player.character!;
-				const initVal = (char.stats as { initiative?: number } | null)?.initiative ?? 0;
+				const initVal =
+					(char.stats as { initiative?: number } | null)?.initiative ?? 0;
 				const maxHp = (char.stats as { max_hp?: number } | null)?.max_hp ?? 0;
-				const currentHp = (char.stats as { current_hp?: number } | null)?.current_hp ?? maxHp;
+				const currentHp =
+					(char.stats as { current_hp?: number } | null)?.current_hp ?? maxHp;
 				const tok = await createToken(session.id, {
 					token_type: "player",
 					character_id: char.id,
@@ -948,14 +1062,18 @@ export function PartidaContainer({
 					label: c.label,
 					tokenType: c.tokenType,
 					image: c.image,
-				})
+				}),
 			)}
 			onMapViewChange={handleMapViewChange}
 			onTokenMove={handleTokenMove}
 			onTokenRemove={handleTokenRemove}
 			onTokenHpChange={handleTokenHpChange}
+			onTokenSelect={handleTokenSelect}
+			selectedToken={selectedToken}
 			onDeployMap={handleDeployMap}
 			onDeployEntity={handleDeployEntity}
+			onChangeTokenIcon={handleChangeTokenIcon}
+			onUpdateToken={handleUpdateToken}
 			onSelectScene={handleSelectScene}
 			onGoToScene={handleGoToScene}
 			onStartCombat={handleStartCombat}

@@ -15,7 +15,32 @@ import {
 	forwardRef,
 	useImperativeHandle,
 } from "react";
-import { X, User, Plus, Minus } from "lucide-react";
+import type { LucideProps } from "lucide-react";
+import {
+	X,
+	User,
+	Plus,
+	Minus,
+	Package,
+	Sword,
+	Shield,
+	FlaskConical,
+	Gem,
+	ScrollText,
+	Key,
+	Wand2,
+} from "lucide-react";
+
+const ITEM_ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
+	package: Package,
+	sword: Sword,
+	shield: Shield,
+	flask: FlaskConical,
+	gem: Gem,
+	scroll: ScrollText,
+	key: Key,
+	wand: Wand2,
+};
 import type { SessionToken, CombatState, MapViewState } from "../partida.vm";
 
 export interface MapaPartidaRef {
@@ -33,6 +58,7 @@ interface Props {
 	onTokenMove: (tokenId: string, x: number, y: number) => void;
 	onTokenRemove?: (tokenId: string) => void;
 	onTokenHpChange?: (tokenId: string, delta: number) => void;
+	onTokenSelect?: (token: SessionToken | null) => void;
 }
 
 const GRID_ALPHA_PATTERN = /rgba?\([^,]+,[^,]+,[^,]+,?\s*([\d.]+)?\)/;
@@ -68,8 +94,9 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 			onTokenMove,
 			onTokenRemove,
 			onTokenHpChange,
+			onTokenSelect,
 		},
-		ref
+		ref,
 	) => {
 		const canvasRef = useRef<HTMLCanvasElement>(null);
 		const containerRef = useRef<HTMLDivElement>(null);
@@ -154,7 +181,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 				ctx.fillText(
 					"No hay mapa cargado",
 					canvas.width / 2,
-					canvas.height / 2
+					canvas.height / 2,
 				);
 			}
 		}, [imageObj, mapView]);
@@ -213,10 +240,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 			return currentTokenId === token.id;
 		};
 
-		const handleTokenMouseDown = (
-			e: React.MouseEvent,
-			token: SessionToken
-		) => {
+		const handleTokenMouseDown = (e: React.MouseEvent, token: SessionToken) => {
 			// Always record mousedown position for click vs drag detection
 			dragStartPos.current = { x: e.clientX, y: e.clientY };
 			if (!canDragToken(token)) return;
@@ -242,7 +266,12 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 			}
 			dragStartPos.current = null;
 			e.stopPropagation();
-			setSelectedTokenId((prev) => (prev === tokenId ? null : tokenId));
+			const next = selectedTokenId === tokenId ? null : tokenId;
+			setSelectedTokenId(next);
+			if (onTokenSelect)
+				onTokenSelect(
+					next ? (tokens.find((t) => t.id === next) ?? null) : null,
+				);
 		};
 
 		const handleGlobalMouseMove = useCallback(
@@ -254,7 +283,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 				const y = e.clientY - rect.top - tokenDragRef.current.offsetY;
 				onTokenMove(tokenDragRef.current.id, x, y);
 			},
-			[onTokenMove]
+			[onTokenMove],
 		);
 
 		const handleGlobalMouseUp = useCallback(() => {
@@ -286,10 +315,9 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 		const onToggleGrid = () =>
 			onViewChange({ ...mapView, showGrid: !mapView.showGrid });
 
-		const activeCombatTokenId =
-			combatState?.is_active
-				? combatState.initiative_order[combatState.current_turn_index]
-				: null;
+		const activeCombatTokenId = combatState?.is_active
+			? combatState.initiative_order[combatState.current_turn_index]
+			: null;
 
 		const onMapTokens = tokens.filter((t) => t.is_on_map);
 
@@ -301,7 +329,10 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 			<div
 				className="relative flex-1 overflow-hidden"
 				ref={containerRef}
-				onClick={() => setSelectedTokenId(null)}
+				onClick={() => {
+					setSelectedTokenId(null);
+					onTokenSelect?.(null);
+				}}
 			>
 				{/* Canvas */}
 				<canvas
@@ -319,8 +350,27 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 					const isActive = token.id === activeCombatTokenId;
 					const draggable = canDragToken(token);
 					const isSelected = isDM && selectedTokenId === token.id;
-					// Token size matches one grid cell
-					const tokenSize = Math.max(24, mapView.gridSize * mapView.zoom);
+					// Token size: base = one grid cell, scaled by S/M/L/XL
+					const sizeMultiplier =
+						token.token_size === "S"
+							? 0.6
+							: token.token_size === "L"
+								? 1.5
+								: token.token_size === "XL"
+									? 2.0
+									: 1.0;
+					const tokenSize = Math.max(
+						24,
+						mapView.gridSize * mapView.zoom * sizeMultiplier,
+					);
+					// Border colour: custom > type default
+					const borderColor =
+						token.token_color ??
+						(token.token_type === "player"
+							? "#3b82f6"
+							: token.token_type === "enemy"
+								? "#ef4444"
+								: "#a855f7");
 
 					return (
 						<div
@@ -379,34 +429,161 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 								)}
 							</div>
 
-							{/* ── Avatar circle ── */}
-							<div
-								className={`rounded-full overflow-hidden flex items-center justify-center bg-gray-800 border-2 ${
-									isActive
-										? "border-yellow-400 shadow-lg shadow-yellow-400/50"
-										: isSelected
-										? "border-white shadow-lg shadow-white/30"
-										: token.token_type === "player"
-										? "border-blue-500"
-										: token.token_type === "enemy"
-										? "border-red-500"
-										: "border-purple-500"
-								}`}
-								style={{ width: tokenSize, height: tokenSize }}
-							>
-								{token.entity_image ? (
-									<img
-										src={token.entity_image}
-										alt={token.entity_name}
-										className="w-full h-full object-cover"
-									/>
-								) : (
-									<User
-										className="text-gray-300"
-										style={{ width: tokenSize * 0.5, height: tokenSize * 0.5 }}
-									/>
-								)}
-							</div>
+							{/* ── Avatar circle / Spell shape ── */}
+							{token.entity_image?.startsWith("shape:") ? (
+								(() => {
+									const shapeKey = token.entity_image.slice(6);
+									const shapeColor = token.token_color ?? "#a855f7";
+									const fillColor = hexToRgba(shapeColor, 0.3);
+									const glowColor = hexToRgba(shapeColor, 0.5);
+									const activeBorder = isActive
+										? "2px solid #facc15"
+										: `2px solid ${shapeColor}`;
+									const baseStyle: React.CSSProperties = {
+										boxShadow: `0 0 10px ${glowColor}`,
+										...(isSelected
+											? { outline: "2px solid white", outlineOffset: "2px" }
+											: {}),
+									};
+									if (shapeKey === "circle")
+										return (
+											<div
+												style={{
+													width: tokenSize,
+													height: tokenSize,
+													borderRadius: "50%",
+													backgroundColor: fillColor,
+													border: activeBorder,
+													...baseStyle,
+												}}
+											/>
+										);
+									if (shapeKey === "rect")
+										return (
+											<div
+												style={{
+													width: tokenSize,
+													height: tokenSize,
+													borderRadius: 4,
+													backgroundColor: fillColor,
+													border: activeBorder,
+													...baseStyle,
+												}}
+											/>
+										);
+									if (shapeKey === "cone")
+										return (
+											<div
+												style={{
+													width: tokenSize,
+													height: tokenSize,
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "center",
+													...(isSelected
+														? {
+																outline: "2px solid white",
+																outlineOffset: "2px",
+															}
+														: {}),
+												}}
+											>
+												<div
+													style={{
+														width: 0,
+														height: 0,
+														borderLeft: `${tokenSize / 2}px solid transparent`,
+														borderRight: `${tokenSize / 2}px solid transparent`,
+														borderBottom: `${tokenSize}px solid ${fillColor}`,
+														filter: `drop-shadow(0 0 6px ${glowColor})`,
+													}}
+												/>
+											</div>
+										);
+									if (shapeKey === "line")
+										return (
+											<div
+												style={{
+													width: tokenSize,
+													height: tokenSize,
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "center",
+													...(isSelected
+														? {
+																outline: "2px solid white",
+																outlineOffset: "2px",
+															}
+														: {}),
+												}}
+											>
+												<div
+													style={{
+														width: Math.max(6, tokenSize * 0.25),
+														height: tokenSize,
+														borderRadius: 3,
+														backgroundColor: fillColor,
+														border: activeBorder,
+														boxShadow: `0 0 10px ${glowColor}`,
+													}}
+												/>
+											</div>
+										);
+									return null;
+								})()
+							) : (
+								<div
+									className={`rounded-full overflow-hidden flex items-center justify-center bg-gray-800 border-2 ${
+										isActive
+											? "border-yellow-400 shadow-lg shadow-yellow-400/50"
+											: isSelected
+												? "shadow-lg shadow-white/30"
+												: ""
+									}`}
+									style={{
+										width: tokenSize,
+										height: tokenSize,
+										...(isActive ? {} : { borderColor }),
+										...(isSelected
+											? { outline: "2px solid white", outlineOffset: "2px" }
+											: {}),
+									}}
+								>
+									{(() => {
+										if (token.entity_image?.startsWith("icon:")) {
+											const iconKey = token.entity_image.slice(5);
+											const IconComp = ITEM_ICON_MAP[iconKey] ?? Package;
+											return (
+												<IconComp
+													className="text-amber-300"
+													style={{
+														width: tokenSize * 0.5,
+														height: tokenSize * 0.5,
+													}}
+												/>
+											);
+										}
+										if (token.entity_image) {
+											return (
+												<img
+													src={token.entity_image}
+													alt={token.entity_name}
+													className="w-full h-full object-cover"
+												/>
+											);
+										}
+										return (
+											<User
+												className="text-gray-300"
+												style={{
+													width: tokenSize * 0.5,
+													height: tokenSize * 0.5,
+												}}
+											/>
+										);
+									})()}
+								</div>
+							)}
 
 							{/* ── Name label ── */}
 							<div
@@ -427,8 +604,8 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 												token.current_hp / token.max_hp > 0.5
 													? "#22c55e"
 													: token.current_hp / token.max_hp > 0.2
-													? "#f59e0b"
-													: "#ef4444",
+														? "#f59e0b"
+														: "#ef4444",
 										}}
 									/>
 								</div>
@@ -520,7 +697,9 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 								+
 							</button>
 							<button
-								onClick={() => onViewChange({ ...mapView, zoom: 1, panX: 0, panY: 0 })}
+								onClick={() =>
+									onViewChange({ ...mapView, zoom: 1, panX: 0, panY: 0 })
+								}
 								className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center"
 								title="Reset"
 							>
@@ -531,7 +710,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 				)}
 			</div>
 		);
-	}
+	},
 );
 
 MapaPartida.displayName = "MapaPartida";

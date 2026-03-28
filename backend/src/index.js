@@ -2533,6 +2533,8 @@ app.post("/api/sessions/:id/tokens", requireAuth, async (req, res) => {
 			max_hp,
 			initiative_value,
 			is_on_map,
+			token_color,
+			token_size,
 		} = req.body;
 		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
 
@@ -2552,6 +2554,8 @@ app.post("/api/sessions/:id/tokens", requireAuth, async (req, res) => {
 				max_hp: max_hp ?? 0,
 				initiative_value: initiative_value ?? 0,
 				is_on_map: is_on_map ?? false,
+				token_color: token_color || null,
+				token_size: token_size || "M",
 			})
 			.select()
 			.single();

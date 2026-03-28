@@ -63,11 +63,21 @@ interface Props {
 	onTokenRemove?: (tokenId: string) => void;
 	onTokenHpChange?: (tokenId: string, delta: number) => void;
 	onDeployMap: (map: BattleMap) => void;
-	onDeployEntity: (entity: SceneEntityBasic) => void;
+	onDeployEntity: (entity: SceneEntityBasic, iconKey?: string) => void;
+	onChangeTokenIcon: (tokenId: string, iconKey: string) => void;
+	onUpdateToken: (
+		tokenId: string,
+		updates: { token_color?: string; token_size?: string },
+	) => void;
+	selectedToken: SessionToken | null;
+	onTokenSelect: (token: SessionToken | null) => void;
 	onSelectScene: (sceneId: string) => void;
 	onGoToScene: (scene: SceneWithEntities) => void;
 	onStartCombat: () => void;
-	onConfirmCombat: (participantIds: string[], surprise: "none" | "heroes" | "enemies") => void;
+	onConfirmCombat: (
+		participantIds: string[],
+		surprise: "none" | "heroes" | "enemies",
+	) => void;
 	onEndCombat: () => void;
 	onReorderInitiative: (newOrder: string[]) => void;
 	onEndTurn: () => void;
@@ -77,7 +87,11 @@ interface Props {
 	onCloseDados: () => void;
 	onOpenFicha: (member: SessionMember) => void;
 	onCloseFicha: () => void;
-	onSaveFicha: (memberId: string, characterId: string, updates: Record<string, unknown>) => Promise<void>;
+	onSaveFicha: (
+		memberId: string,
+		characterId: string,
+		updates: Record<string, unknown>,
+	) => Promise<void>;
 	onCancelCombatDialog: () => void;
 }
 
@@ -106,6 +120,10 @@ export function PartidaComponent({
 	onTokenHpChange,
 	onDeployMap,
 	onDeployEntity,
+	onChangeTokenIcon,
+	onUpdateToken,
+	selectedToken,
+	onTokenSelect,
 	onSelectScene,
 	onGoToScene,
 	onStartCombat,
@@ -206,7 +224,8 @@ export function PartidaComponent({
 					onViewChange={onMapViewChange}
 					onTokenMove={onTokenMove}
 					onTokenRemove={isDM ? onTokenRemove : undefined}
-				onTokenHpChange={isDM ? onTokenHpChange : undefined}
+					onTokenHpChange={isDM ? onTokenHpChange : undefined}
+					onTokenSelect={isDM ? onTokenSelect : undefined}
 				/>
 
 				{/* Right: DM panel (DM only) */}
@@ -229,6 +248,9 @@ export function PartidaComponent({
 								onGoToScene={onGoToScene}
 								onDeployMap={onDeployMap}
 								onDeployEntity={onDeployEntity}
+								onChangeTokenIcon={onChangeTokenIcon}
+								onUpdateToken={onUpdateToken}
+								selectedToken={selectedToken}
 								onStartCombat={onStartCombat}
 								onEndCombat={onEndCombat}
 								onEndSession={onEndSession}
@@ -239,10 +261,7 @@ export function PartidaComponent({
 			</div>
 
 			{/* ── Bottom toolbar ── */}
-			<BarraInferior
-				onOpenDados={onOpenDados}
-				campaignTitle={campaignTitle}
-			/>
+			<BarraInferior onOpenDados={onOpenDados} campaignTitle={campaignTitle} />
 
 			{/* ── Overlays ── */}
 			{showDados && <DadosOverlay onClose={onCloseDados} />}
