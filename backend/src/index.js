@@ -18,14 +18,22 @@ if (process.env.SMTP_HOST) {
 	});
 }
 
-const sendSessionEmail = async (to, campaignTitle, sessionNumber, dmName, appUrl) => {
+const sendSessionEmail = async (
+	to,
+	campaignTitle,
+	sessionNumber,
+	dmName,
+	appUrl,
+) => {
 	if (!transporter) {
 		console.log(`[EMAIL skipped – SMTP not configured] → ${to}`);
 		return;
 	}
 	try {
 		await transporter.sendMail({
-			from: process.env.SMTP_FROM || "Beyond The Dungeon <noreply@beyondthedungeon.org>",
+			from:
+				process.env.SMTP_FROM ||
+				"Beyond The Dungeon <noreply@beyondthedungeon.org>",
 			to,
 			subject: `¡La partida comienza! – ${campaignTitle} (Sesión ${sessionNumber})`,
 			html: `
@@ -51,9 +59,8 @@ const sendSessionEmail = async (to, campaignTitle, sessionNumber, dmName, appUrl
 const app = express();
 
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // healthcheck para Docker / monitorización
 app.get("/health", (req, res) => {
@@ -69,7 +76,7 @@ app.get("/api/ping", (req, res) => {
 app.get("/api/supabase-status", (req, res) => {
 	const hasUrl = Boolean(process.env.SUPABASE_URL);
 	const hasKey = Boolean(
-		process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+		process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY,
 	);
 
 	res.json({
@@ -252,7 +259,10 @@ const requireAuth = async (req, res, next) => {
 		}
 
 		const token = authHeader.split(" ")[1];
-		const { data: { user }, error } = await supabase.auth.getUser(token);
+		const {
+			data: { user },
+			error,
+		} = await supabase.auth.getUser(token);
 
 		if (error || !user) {
 			return res.status(401).json({
@@ -274,7 +284,8 @@ const requireAuth = async (req, res, next) => {
 // 🆕 Endpoint: listar todas las fichas del usuario autenticado
 app.get("/api/character-sheets", requireAuth, async (req, res) => {
 	try {
-		const campaignId = typeof req.query.campaign === "string" ? req.query.campaign : null;
+		const campaignId =
+			typeof req.query.campaign === "string" ? req.query.campaign : null;
 
 		// Crear cliente autenticado con el token del usuario
 		const userToken = req.headers.authorization.replace("Bearer ", "");
@@ -288,7 +299,7 @@ app.get("/api/character-sheets", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		let query = authenticatedSupabase
@@ -296,7 +307,7 @@ app.get("/api/character-sheets", requireAuth, async (req, res) => {
 			.select(
 				campaignId
 					? "*"
-					: "id, user_id, campaign_id, name, classes, race, created_at, updated_at"
+					: "id, user_id, campaign_id, name, classes, race, inventory, created_at, updated_at",
 			)
 			.eq("user_id", req.user.id)
 			.eq("is_npc", false)
@@ -320,8 +331,8 @@ app.get("/api/character-sheets", requireAuth, async (req, res) => {
 		const charactersWithLevel = (data || []).map((char) => {
 			const level = Array.isArray(char.classes)
 				? char.classes.reduce((sum, cls) => sum + (cls.level || 0), 0)
-				: (char.classes?.level || 1);
-			return { ...char, level };
+				: char.classes?.level || 1;
+			return { ...char, level, has_inventory: char.inventory != null };
 		});
 
 		res.json({ characters: charactersWithLevel });
@@ -368,7 +379,7 @@ app.get("/api/character-sheet", requireAuth, async (req, res) => {
 app.get("/api/character-sheet/:id", requireAuth, async (req, res) => {
 	try {
 		const { id } = req.params;
-		
+
 		// Crear cliente autenticado con el token del usuario
 		const userToken = req.headers.authorization.replace("Bearer ", "");
 		const { createClient } = await import("@supabase/supabase-js");
@@ -381,9 +392,9 @@ app.get("/api/character-sheet/:id", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
-		
+
 		const { data, error } = await authenticatedSupabase
 			.from("characters")
 			.select("*")
@@ -423,7 +434,10 @@ app.post("/api/character-sheet", requireAuth, async (req, res) => {
 		};
 
 		console.log("🔍 Intentando crear personaje para user_id:", req.user.id);
-		console.log("📝 Datos del personaje:", JSON.stringify(characterData, null, 2));
+		console.log(
+			"📝 Datos del personaje:",
+			JSON.stringify(characterData, null, 2),
+		);
 
 		// Crear cliente autenticado con el token del usuario
 		const userToken = req.headers.authorization.replace("Bearer ", "");
@@ -437,12 +451,20 @@ app.post("/api/character-sheet", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		// Verificar el usuario autenticado
-		const { data: { user }, error: authError } = await authenticatedSupabase.auth.getUser();
-		console.log("👤 Usuario autenticado:", user?.id, "Error:", authError?.message);
+		const {
+			data: { user },
+			error: authError,
+		} = await authenticatedSupabase.auth.getUser();
+		console.log(
+			"👤 Usuario autenticado:",
+			user?.id,
+			"Error:",
+			authError?.message,
+		);
 
 		const { data, error } = await authenticatedSupabase
 			.from("characters")
@@ -491,7 +513,7 @@ app.put("/api/character-sheet/:id", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		// Verificar que la ficha existe y pertenece al usuario
@@ -558,7 +580,7 @@ app.delete("/api/character-sheet/:id", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		// Verificar que la ficha existe y pertenece al usuario
@@ -622,7 +644,7 @@ app.get("/api/battle-maps", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -664,7 +686,7 @@ app.get("/api/battle-maps/:id", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -702,7 +724,9 @@ app.post("/api/battle-maps", requireAuth, async (req, res) => {
 			name: req.body.name,
 			grid_size: req.body.grid_size,
 			grid_color: req.body.grid_color,
-			image_data: req.body.image_data ? `${req.body.image_data.substring(0, 50)}...` : null
+			image_data: req.body.image_data
+				? `${req.body.image_data.substring(0, 50)}...`
+				: null,
 		});
 
 		const userToken = req.headers.authorization.replace("Bearer ", "");
@@ -716,7 +740,7 @@ app.post("/api/battle-maps", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		const mapData = {
@@ -774,7 +798,7 @@ app.put("/api/battle-maps/:id", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		// Verificar que el mapa existe y pertenece al usuario
@@ -839,7 +863,7 @@ app.delete("/api/battle-maps/:id", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		// Verificar que el mapa existe y pertenece al usuario
@@ -901,7 +925,7 @@ app.get("/api/campaigns", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const {
@@ -914,8 +938,8 @@ app.get("/api/campaigns", async (req, res) => {
 
 		// Preferred path: RPC that returns campaigns where user is DM or member.
 		// This avoids depending on restrictive SELECT RLS policies on campaigns.
-		const { data: rpcCampaigns, error: rpcError } = await authenticatedSupabase
-			.rpc("get_my_campaigns");
+		const { data: rpcCampaigns, error: rpcError } =
+			await authenticatedSupabase.rpc("get_my_campaigns");
 
 		if (!rpcError) {
 			return res.json({
@@ -938,10 +962,11 @@ app.get("/api/campaigns", async (req, res) => {
 		}
 
 		// Get campaign ids where user is a member
-		const { data: memberships, error: membersError } = await authenticatedSupabase
-			.from("campaign_members")
-			.select("campaign_id")
-			.eq("user_id", user.id);
+		const { data: memberships, error: membersError } =
+			await authenticatedSupabase
+				.from("campaign_members")
+				.select("campaign_id")
+				.eq("user_id", user.id);
 
 		if (membersError) {
 			return res.status(500).json({
@@ -951,7 +976,7 @@ app.get("/api/campaigns", async (req, res) => {
 		}
 
 		const memberCampaignIds = Array.from(
-			new Set((memberships || []).map((m) => m.campaign_id).filter(Boolean))
+			new Set((memberships || []).map((m) => m.campaign_id).filter(Boolean)),
 		);
 
 		let memberCampaigns = [];
@@ -979,7 +1004,7 @@ app.get("/api/campaigns", async (req, res) => {
 
 		const campaigns = Array.from(uniqueCampaignsMap.values()).sort(
 			(a, b) =>
-				new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+				new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
 		);
 
 		res.json({ campaigns, count: campaigns.length });
@@ -1006,7 +1031,7 @@ app.get("/api/campaigns/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -1046,7 +1071,7 @@ app.get("/api/campaigns/:id/my-character", requireAuth, async (req, res) => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				},
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -1088,7 +1113,7 @@ app.post("/api/campaigns", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const {
@@ -1102,17 +1127,16 @@ app.post("/api/campaigns", async (req, res) => {
 		const { title, description, notes } = req.body;
 
 		// Create campaign
-		const { data: campaign, error: campaignError } =
-			await authenticatedSupabase
-				.from("campaigns")
-				.insert({
-					dm_id: user.id,
-					title,
-					description,
-					notes,
-				})
-				.select()
-				.single();
+		const { data: campaign, error: campaignError } = await authenticatedSupabase
+			.from("campaigns")
+			.insert({
+				dm_id: user.id,
+				title,
+				description,
+				notes,
+			})
+			.select()
+			.single();
 
 		if (campaignError) {
 			return res.status(500).json({
@@ -1167,7 +1191,7 @@ app.put("/api/campaigns/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const {
@@ -1219,7 +1243,7 @@ app.delete("/api/campaigns/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const {
@@ -1268,7 +1292,7 @@ app.put("/api/campaigns/:id/transfer-dm", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const {
@@ -1288,7 +1312,9 @@ app.put("/api/campaigns/:id/transfer-dm", async (req, res) => {
 			.single();
 
 		if (checkError || !campaign) {
-			return res.status(403).json({ error: "Solo el DM puede transferir el rol" });
+			return res
+				.status(403)
+				.json({ error: "Solo el DM puede transferir el rol" });
 		}
 
 		// Verify new DM is a member
@@ -1360,7 +1386,7 @@ app.get("/api/campaigns/:id/members", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -1419,7 +1445,7 @@ app.delete("/api/campaigns/:campaignId/members/:userId", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { error } = await authenticatedSupabase
@@ -1461,7 +1487,7 @@ app.get("/api/campaign-invitations", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const {
@@ -1511,7 +1537,7 @@ app.post("/api/campaigns/:id/invitations", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const {
@@ -1523,12 +1549,13 @@ app.post("/api/campaigns/:id/invitations", async (req, res) => {
 		}
 
 		// Find user by username or email in profiles table (case-insensitive)
-		const { data: profileMatch, error: profileError } = await authenticatedSupabase
-			.from("profiles")
-			.select("id, username, email")
-			.or(`username.ilike.${username},email.ilike.${username}`)
-			.limit(1)
-			.single();
+		const { data: profileMatch, error: profileError } =
+			await authenticatedSupabase
+				.from("profiles")
+				.select("id, username, email")
+				.or(`username.ilike.${username},email.ilike.${username}`)
+				.limit(1)
+				.single();
 
 		if (profileError || !profileMatch) {
 			return res.status(404).json({
@@ -1608,7 +1635,7 @@ app.put("/api/campaign-invitations/:token/accept", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${authToken}` } },
-			}
+			},
 		);
 
 		const {
@@ -1629,7 +1656,9 @@ app.put("/api/campaign-invitations/:token/accept", async (req, res) => {
 			.single();
 
 		if (invError || !invitation) {
-			return res.status(404).json({ error: "Invitación no encontrada o expirada" });
+			return res
+				.status(404)
+				.json({ error: "Invitación no encontrada o expirada" });
 		}
 
 		// Check expiration
@@ -1683,7 +1712,7 @@ app.put("/api/campaign-invitations/:token/reject", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${authToken}` } },
-			}
+			},
 		);
 
 		const {
@@ -1731,7 +1760,7 @@ app.delete("/api/campaign-invitations/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { error } = await authenticatedSupabase
@@ -1774,7 +1803,7 @@ app.get("/api/campaigns/:campaignId/chapters", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -1815,7 +1844,7 @@ app.post("/api/campaigns/:campaignId/chapters", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -1861,7 +1890,7 @@ app.put("/api/chapters/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -1902,7 +1931,7 @@ app.delete("/api/chapters/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { error } = await authenticatedSupabase
@@ -1945,7 +1974,7 @@ app.get("/api/chapters/:chapterId/scenes", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -1993,7 +2022,7 @@ app.post("/api/chapters/:chapterId/scenes", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -2049,7 +2078,7 @@ app.put("/api/scenes/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -2097,7 +2126,7 @@ app.delete("/api/scenes/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { error } = await authenticatedSupabase
@@ -2140,7 +2169,7 @@ app.get("/api/scenes/:sceneId/entities", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -2180,7 +2209,7 @@ app.post("/api/scenes/:sceneId/entities", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { data, error } = await authenticatedSupabase
@@ -2226,7 +2255,7 @@ app.delete("/api/scene-entities/:id", async (req, res) => {
 			process.env.SUPABASE_ANON_KEY,
 			{
 				global: { headers: { Authorization: `Bearer ${token}` } },
-			}
+			},
 		);
 
 		const { error } = await authenticatedSupabase
@@ -2300,8 +2329,12 @@ app.post("/api/campaigns/:id/session/start", requireAuth, async (req, res) => {
 			.eq("id", campaignId)
 			.single();
 
-		if (cError || !campaign) return res.status(404).json({ error: "Campaña no encontrada" });
-		if (campaign.dm_id !== dmId) return res.status(403).json({ error: "Solo el DM puede iniciar la sesión" });
+		if (cError || !campaign)
+			return res.status(404).json({ error: "Campaña no encontrada" });
+		if (campaign.dm_id !== dmId)
+			return res
+				.status(403)
+				.json({ error: "Solo el DM puede iniciar la sesión" });
 
 		// Buscar sesión pausada existente
 		const { data: existingSession } = await db
@@ -2379,7 +2412,7 @@ app.post("/api/campaigns/:id/session/start", requireAuth, async (req, res) => {
 							campaign.title,
 							session.session_number,
 							dmName,
-							appUrl
+							appUrl,
 						);
 					}
 				}
@@ -2402,7 +2435,8 @@ app.put("/api/sessions/:id/state", requireAuth, async (req, res) => {
 
 		const updates = {};
 		if (session_state !== undefined) updates.session_state = session_state;
-		if (current_scene_id !== undefined) updates.current_scene_id = current_scene_id;
+		if (current_scene_id !== undefined)
+			updates.current_scene_id = current_scene_id;
 		if (current_map_id !== undefined) updates.current_map_id = current_map_id;
 
 		const { data, error } = await db
@@ -2414,7 +2448,10 @@ app.put("/api/sessions/:id/state", requireAuth, async (req, res) => {
 			.single();
 
 		if (error) return res.status(500).json({ error: error.message });
-		if (!data) return res.status(403).json({ error: "No autorizado o sesión no encontrada" });
+		if (!data)
+			return res
+				.status(403)
+				.json({ error: "No autorizado o sesión no encontrada" });
 		res.json({ session: data });
 	} catch (err) {
 		res.status(500).json({ error: err.message });
@@ -2430,11 +2467,12 @@ app.put("/api/sessions/:id/end", requireAuth, async (req, res) => {
 		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
 
 		const updates = {
-			status: "paused",           // paused = reanudable en otra sesión
+			status: "paused", // paused = reanudable en otra sesión
 			ended_at: new Date().toISOString(),
 		};
 		if (session_state !== undefined) updates.session_state = session_state;
-		if (current_scene_id !== undefined) updates.current_scene_id = current_scene_id;
+		if (current_scene_id !== undefined)
+			updates.current_scene_id = current_scene_id;
 		if (current_map_id !== undefined) updates.current_map_id = current_map_id;
 
 		const { data, error } = await db
@@ -2446,7 +2484,10 @@ app.put("/api/sessions/:id/end", requireAuth, async (req, res) => {
 			.single();
 
 		if (error) return res.status(500).json({ error: error.message });
-		if (!data) return res.status(403).json({ error: "No autorizado o sesión no encontrada" });
+		if (!data)
+			return res
+				.status(403)
+				.json({ error: "No autorizado o sesión no encontrada" });
 
 		// Keep token map positions/state when pausing so resumed sessions restore
 		// the battlefield exactly as it was.
@@ -2480,9 +2521,18 @@ app.post("/api/sessions/:id/tokens", requireAuth, async (req, res) => {
 	try {
 		const { id: sessionId } = req.params;
 		const {
-			token_type, character_id, user_id,
-			entity_ref_id, entity_name, entity_image,
-			x, y, current_hp, max_hp, initiative_value, is_on_map,
+			token_type,
+			character_id,
+			user_id,
+			entity_ref_id,
+			entity_name,
+			entity_image,
+			x,
+			y,
+			current_hp,
+			max_hp,
+			initiative_value,
+			is_on_map,
 		} = req.body;
 		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
 
@@ -2538,21 +2588,25 @@ app.put("/api/sessions/:id/tokens/:tokenId", requireAuth, async (req, res) => {
 });
 
 // ── DELETE /api/sessions/:id/tokens/:tokenId ─────────────────────────────────
-app.delete("/api/sessions/:id/tokens/:tokenId", requireAuth, async (req, res) => {
-	try {
-		const { tokenId } = req.params;
-		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
-		const { error } = await db
-			.from("session_tokens")
-			.delete()
-			.eq("id", tokenId);
+app.delete(
+	"/api/sessions/:id/tokens/:tokenId",
+	requireAuth,
+	async (req, res) => {
+		try {
+			const { tokenId } = req.params;
+			const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+			const { error } = await db
+				.from("session_tokens")
+				.delete()
+				.eq("id", tokenId);
 
-		if (error) return res.status(500).json({ error: error.message });
-		res.json({ success: true });
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}
-});
+			if (error) return res.status(500).json({ error: error.message });
+			res.json({ success: true });
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	},
+);
 
 // ── GET /api/sessions/:id/combat ─────────────────────────────────────────────
 app.get("/api/sessions/:id/combat", requireAuth, async (req, res) => {
@@ -2599,56 +2653,67 @@ app.put("/api/sessions/:id/combat", requireAuth, async (req, res) => {
 
 // ── GET /api/campaigns/:id/members-with-characters ───────────────────────────
 // Devuelve los miembros de una campaña junto con su personaje en esa campaña.
-app.get("/api/campaigns/:id/members-with-characters", requireAuth, async (req, res) => {
-	try {
-		const { id: campaignId } = req.params;
-		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+app.get(
+	"/api/campaigns/:id/members-with-characters",
+	requireAuth,
+	async (req, res) => {
+		try {
+			const { id: campaignId } = req.params;
+			const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
 
-		const { data: memberships } = await db
-			.from("campaign_members")
-			.select("user_id, role")
-			.eq("campaign_id", campaignId);
+			const { data: memberships } = await db
+				.from("campaign_members")
+				.select("user_id, role")
+				.eq("campaign_id", campaignId);
 
-		const { data: campaign } = await db
-			.from("campaigns")
-			.select("dm_id")
-			.eq("id", campaignId)
-			.single();
+			const { data: campaign } = await db
+				.from("campaigns")
+				.select("dm_id")
+				.eq("id", campaignId)
+				.single();
 
-		const allMembers = memberships || [];
-		// Incluir al DM en la lista de miembros si no está ya
-		const userIds = allMembers.map((m) => m.user_id);
-		if (campaign && !userIds.includes(campaign.dm_id)) {
-			allMembers.push({ user_id: campaign.dm_id, role: "dm" });
+			const allMembers = memberships || [];
+			// Incluir al DM en la lista de miembros si no está ya
+			const userIds = allMembers.map((m) => m.user_id);
+			if (campaign && !userIds.includes(campaign.dm_id)) {
+				allMembers.push({ user_id: campaign.dm_id, role: "dm" });
+			}
+
+			const { data: profiles } = await db
+				.from("profiles")
+				.select("id, display_name, username, avatar_url, email")
+				.in(
+					"id",
+					allMembers.map((m) => m.user_id),
+				);
+
+			const { data: characters } = await db
+				.from("characters")
+				.select(
+					"id, user_id, name, avatar_url, stats, classes, race, inventory, spells_known, equipment, notes, experience_points",
+				)
+				.eq("campaign_id", campaignId)
+				.eq("is_npc", false);
+
+			const result = allMembers.map((m) => {
+				const profile = (profiles || []).find((p) => p.id === m.user_id);
+				const character = (characters || []).find(
+					(c) => c.user_id === m.user_id,
+				);
+				return {
+					user_id: m.user_id,
+					role: m.role,
+					profile: profile || null,
+					character: character || null,
+				};
+			});
+
+			res.json({ members: result });
+		} catch (err) {
+			res.status(500).json({ error: err.message });
 		}
-
-		const { data: profiles } = await db
-			.from("profiles")
-			.select("id, display_name, username, avatar_url, email")
-			.in("id", allMembers.map((m) => m.user_id));
-
-		const { data: characters } = await db
-			.from("characters")
-			.select("id, user_id, name, avatar_url, stats, classes, race, inventory, spells_known, equipment, notes, experience_points")
-			.eq("campaign_id", campaignId)
-			.eq("is_npc", false);
-
-		const result = allMembers.map((m) => {
-			const profile = (profiles || []).find((p) => p.id === m.user_id);
-			const character = (characters || []).find((c) => c.user_id === m.user_id);
-			return {
-				user_id: m.user_id,
-				role: m.role,
-				profile: profile || null,
-				character: character || null,
-			};
-		});
-
-		res.json({ members: result });
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}
-});
+	},
+);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
