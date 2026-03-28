@@ -49,6 +49,8 @@ export interface SessionToken {
 	max_hp: number;
 	initiative_value: number;
 	is_on_map: boolean;
+	token_color: string | null;
+	token_size: "S" | "M" | "L" | "XL" | null;
 	created_at: string;
 	updated_at: string;
 }
