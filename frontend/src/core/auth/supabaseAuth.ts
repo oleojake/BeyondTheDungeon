@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import i18n from "@/i18n/config";
 
 export type AuthUser = {
   id: string;
@@ -9,16 +10,16 @@ export function mapSupabaseError(msg?: string) {
   const m = (msg || "").toLowerCase();
 
   if (m.includes("invalid login credentials"))
-    return "Email o contraseña incorrectos.";
+    return i18n.t("auth.errors.invalidCredentials");
   if (m.includes("email not confirmed"))
-    return "Debes confirmar tu email antes de iniciar sesión.";
+    return i18n.t("auth.errors.emailNotConfirmed");
   if (m.includes("user already registered"))
-    return "Ya existe un usuario con ese email.";
+    return i18n.t("auth.errors.emailAlreadyRegistered");
   if (m.includes("password") && m.includes("length"))
-    return "La contraseña no cumple la longitud mínima.";
-  if (m.includes("invalid email")) return "El email no es válido.";
+    return i18n.t("auth.errors.passwordTooShort");
+  if (m.includes("invalid email")) return i18n.t("auth.errors.invalidEmail");
 
-  return msg || "Ha ocurrido un error inesperado.";
+  return msg || i18n.t("auth.errors.unexpected");
 }
 
 export async function signIn(email: string, password: string) {
@@ -28,7 +29,7 @@ export async function signIn(email: string, password: string) {
   });
 
   if (error) throw new Error(mapSupabaseError(error.message));
-  if (!data.user) throw new Error("No se ha podido iniciar sesión.");
+  if (!data.user) throw new Error(i18n.t("auth.errors.signInFailed"));
 
   return {
     id: data.user.id,
@@ -60,13 +61,11 @@ export async function signUp(params: {
   // Supabase can return success with an empty identities array when the user
   // already exists and email enumeration protection is enabled.
   if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-    throw new Error(
-      "Ese email ya esta registrado. Si no recuerdas la contrasena, usa la recuperacion de cuenta."
-    );
+    throw new Error(i18n.t("auth.errors.signupEmailExists"));
   }
 
   if (!data.user) {
-    throw new Error("No se pudo crear la cuenta. Intentalo de nuevo en unos segundos.");
+    throw new Error(i18n.t("auth.errors.signUpFailed"));
   }
 
   // Ojo: si tienes confirmación por email, puede que NO haya sesión aún.

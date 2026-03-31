@@ -1,7 +1,9 @@
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { routes } from "@/router";
 
 export const Hero = () => {
+	const { t } = useTranslation();
 	return (
 		<section className="relative pt-32 pb-20 px-6 overflow-hidden min-h-[90vh]">
 			{/* Background Image */}
@@ -24,13 +26,13 @@ export const Hero = () => {
 							to={routes.register}
 							className="px-8 py-4 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-bold rounded-lg shadow-2xl hover:shadow-primary/50 transition-all hover:scale-105 backdrop-blur-sm"
 						>
-							Crea cuenta gratis
+							{t("home.hero.ctaCreate")}
 						</Link>
 						<a
 							href="#herramientas"
 							className="px-8 py-4 bg-white/20 hover:bg-white/30 backdrop-blur-md border-2 border-white/40 text-white font-semibold rounded-lg transition-all hover:scale-105 shadow-xl"
 						>
-							Explora la mazmorra
+							{t("home.hero.ctaExplore")}
 						</a>
 					</div>
 				</div>

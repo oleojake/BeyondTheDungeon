@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +29,6 @@ import { switchRoutes } from "@/router/routes";
 import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X } from "lucide-react";
 
 export const MiFichaScene = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const characterId = searchParams.get("id");
@@ -153,10 +151,10 @@ export const MiFichaScene = () => {
 
       if (character?.id) {
         await updateCharacterSheet(character.id, formData);
-        alert({t("scenes.characterSheet.success.updated")});
+        alert("¡Ficha actualizada correctamente!");
       } else {
         await createCharacterSheet(formData);
-        alert({t("scenes.characterSheet.success.created")});
+        alert("¡Ficha creada correctamente!");
       }
 
       // Redirigir a Mis Fichas después de un breve delay
@@ -306,14 +304,14 @@ export const MiFichaScene = () => {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder={t("scenes.characterSheet.basicInfo.namePlaceholder")}
+                    placeholder="Ej: Thorin Escudo de Roble"
                   />
                 </div>
                 <div>
                   <Label htmlFor="race">Raza</Label>
                   <Select value={race} onValueChange={setRace}>
                     <SelectTrigger id="race">
-                      <SelectValue placeholder={t("scenes.characterSheet.basicInfo.racePlaceholder")} />
+                      <SelectValue placeholder="Selecciona una raza" />
                     </SelectTrigger>
                     <SelectContent>
                       {DND_RACES.map((r) => (
@@ -347,7 +345,7 @@ export const MiFichaScene = () => {
                         onValueChange={(value) => updateClass(index, "name", value)}
                       >
                         <SelectTrigger id={`class-${index}`}>
-                          <SelectValue placeholder={t("scenes.characterSheet.basicInfo.classPlaceholder")} />
+                          <SelectValue placeholder="Selecciona una clase" />
                         </SelectTrigger>
                         <SelectContent>
                           {DND_CLASSES.map((c) => (
@@ -400,7 +398,7 @@ export const MiFichaScene = () => {
                   <Label htmlFor="background">Trasfondo</Label>
                   <Select value={background} onValueChange={setBackground}>
                     <SelectTrigger id="background">
-                      <SelectValue placeholder={t("scenes.characterSheet.basicInfo.backgroundPlaceholder")} />
+                      <SelectValue placeholder="Selecciona un trasfondo" />
                     </SelectTrigger>
                     <SelectContent>
                       {DND_BACKGROUNDS.map((b) => (
@@ -435,7 +433,7 @@ export const MiFichaScene = () => {
                 <Textarea
                   value={stats.personality_traits}
                   onChange={(e) => updateStat("personality_traits", e.target.value)}
-                  placeholder={t("scenes.characterSheet.basicInfo.personalityPlaceholder")}
+                  placeholder="Describe los rasgos de personalidad..."
                   rows={3}
                 />
               </div>
@@ -446,7 +444,7 @@ export const MiFichaScene = () => {
                   <Textarea
                     value={stats.ideals}
                     onChange={(e) => updateStat("ideals", e.target.value)}
-                    placeholder={t("scenes.characterSheet.basicInfo.idealsPlaceholder")}
+                    placeholder="Ideales del personaje..."
                     rows={3}
                   />
                 </div>
@@ -455,7 +453,7 @@ export const MiFichaScene = () => {
                   <Textarea
                     value={stats.bonds}
                     onChange={(e) => updateStat("bonds", e.target.value)}
-                    placeholder={t("scenes.characterSheet.basicInfo.bondsPlaceholder")}
+                    placeholder="Vínculos..."
                     rows={3}
                   />
                 </div>
@@ -464,7 +462,7 @@ export const MiFichaScene = () => {
                   <Textarea
                     value={stats.flaws}
                     onChange={(e) => updateStat("flaws", e.target.value)}
-                    placeholder={t("scenes.characterSheet.basicInfo.flawsPlaceholder")}
+                    placeholder="Defectos..."
                     rows={3}
                   />
                 </div>
@@ -476,7 +474,7 @@ export const MiFichaScene = () => {
                   <Input
                     value={stats.languages}
                     onChange={(e) => updateStat("languages", e.target.value)}
-                    placeholder={t("scenes.characterSheet.basicInfo.languagesPlaceholder")}
+                    placeholder="Común, Enano, Élfico..."
                   />
                 </div>
                 <div>
@@ -491,7 +489,7 @@ export const MiFichaScene = () => {
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={t("scenes.characterSheet.basicInfo.proficienciesPlaceholder")} />
+                        <SelectValue placeholder="Selecciona competencias..." />
                       </SelectTrigger>
                       <SelectContent>
                         {DND_PROFICIENCIES.map((prof) => (
@@ -644,7 +642,7 @@ export const MiFichaScene = () => {
                   <Input
                     value={stats.hit_dice}
                     onChange={(e) => updateStat("hit_dice", e.target.value)}
-                    placeholder={t("scenes.characterSheet.combat.hitDicePlaceholder")}
+                    placeholder="Ej: 5d8"
                   />
                 </div>
               </CardContent>
@@ -756,7 +754,7 @@ export const MiFichaScene = () => {
               <Textarea
                 value={stats.features_traits}
                 onChange={(e) => updateStat("features_traits", e.target.value)}
-                placeholder={t("scenes.characterSheet.skills.featuresPlaceholder")}
+                placeholder="Describe los rasgos de raza, clase, trasfondo, dotes..."
                 rows={8}
               />
             </CardContent>

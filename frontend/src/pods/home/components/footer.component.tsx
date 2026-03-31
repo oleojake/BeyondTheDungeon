@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 export const Footer = () => {
+	const { t } = useTranslation();
 	return (
 		<footer className="bg-stone-100 dark:bg-dark-lighter border-t border-stone-300 dark:border-dark-border py-12 px-6 transition-colors duration-300">
 			<div className="container mx-auto max-w-6xl">
@@ -14,29 +17,29 @@ export const Footer = () => {
 							</span>
 						</div>
 						<p className="text-stone-600 dark:text-stone-400 text-sm">
-							Las herramientas que tu mesa necesita.
+							{t("home.footer.tagline")}
 						</p>
 					</div>
 
 					{/* Links */}
 					<div>
 						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
-							Herramientas
+							{t("home.footer.tools")}
 						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
-									Campañas
+									{t("nav.campaigns")}
 								</a>
 							</li>
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
-									Personajes
+									{t("nav.characterSheets")}
 								</a>
 							</li>
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
-									Dados
+									{t("nav.dice")}
 								</a>
 							</li>
 						</ul>
@@ -44,7 +47,7 @@ export const Footer = () => {
 
 					<div>
 						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
-							Comunidad
+							{t("home.footer.community")}
 						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
@@ -67,22 +70,22 @@ export const Footer = () => {
 
 					<div>
 						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
-							Legal
+							{t("home.footer.legal")}
 						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
-									Términos
+									{t("home.footer.terms")}
 								</a>
 							</li>
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
-									Privacidad
+									{t("home.footer.privacy")}
 								</a>
 							</li>
 							<li>
 								<a href="#" className="hover:text-primary transition-colors">
-									Contacto
+									{t("home.footer.contact")}
 								</a>
 							</li>
 						</ul>
@@ -92,8 +95,7 @@ export const Footer = () => {
 				{/* Bottom */}
 				<div className="border-t border-stone-300 dark:border-dark-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
 					<p className="text-stone-600 dark:text-stone-400 text-sm">
-						© {new Date().getFullYear()} Beyond the Dungeon. Todos los derechos
-						reservados.
+						© {new Date().getFullYear()} Beyond the Dungeon. {t("home.footer.allRightsReserved")}
 					</p>
 					<div className="flex items-center gap-4">
 						<a

@@ -10,7 +10,15 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, ArrowLeft, Skull } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { fetchMonsterById, type Monster } from "@/core/api/backend.service";
+import {
+	translateCompendiumDescription,
+	translateCompendiumName,
+	translateCompendiumNamedEntry,
+	translateEnumList,
+	translateEnumValue,
+} from "@/i18n/compendium";
 
 const DND5E_API_URL = "https://www.dnd5eapi.co";
 
@@ -20,6 +28,7 @@ export const BestiarioDetalleScene = () => {
 	const [monster, setMonster] = useState<Monster | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		if (id) {
@@ -80,7 +89,7 @@ export const BestiarioDetalleScene = () => {
 			setError(
 				err instanceof Error
 					? err.message
-					: "No se pudo cargar el monstruo. Verifica que el backend esté corriendo.",
+					: t("compendium.bestiary.error"),
 			);
 		} finally {
 			setLoading(false);
@@ -89,9 +98,9 @@ export const BestiarioDetalleScene = () => {
 
 	// Helper function to format armor class
 	const formatArmorClass = (ac: any) => {
-		if (!ac) return "N/A";
+		if (!ac) return t("common.notAvailable");
 		if (Array.isArray(ac)) {
-			if (ac.length === 0) return "N/A";
+			if (ac.length === 0) return t("common.notAvailable");
 			const first = ac[0];
 			if (typeof first === "object" && first.value !== undefined) {
 				return first.type ? `${first.value} (${first.type})` : first.value;
@@ -103,9 +112,12 @@ export const BestiarioDetalleScene = () => {
 
 	// Helper function to format speed
 	const formatSpeed = (speed: any) => {
-		if (!speed) return "N/A";
+		if (!speed) return t("common.notAvailable");
 		return Object.entries(speed)
-			.map(([key, value]) => `${key}: ${value}`)
+			.map(
+				([key, value]) =>
+					`${translateEnumValue(t, "dnd.speeds", key)}: ${value}`,
+			)
 			.join(", ");
 	};
 
@@ -113,7 +125,9 @@ export const BestiarioDetalleScene = () => {
 		return (
 			<div className="flex flex-col items-center justify-center py-12 gap-4">
 				<Loader2 className="h-12 w-12 animate-spin text-amber-500" />
-				<p className="text-sm text-gray-400">Cargando criatura...</p>
+				<p className="text-sm text-gray-400">
+					{t("compendium.bestiary.loadingSingle")}
+				</p>
 			</div>
 		);
 	}
@@ -127,17 +141,45 @@ export const BestiarioDetalleScene = () => {
 					className="gap-2"
 				>
 					<ArrowLeft className="h-4 w-4" />
-					Volver al Bestiario
+					{t("compendium.bestiary.backToList")}
 				</Button>
 				<Alert variant="destructive" className="bg-red-950/50 border-red-900">
 					<AlertCircle className="h-4 w-4" />
 					<AlertDescription className="text-red-200">
-						{error || "Monstruo no encontrado"}
+						{error || t("compendium.bestiary.notFound")}
 					</AlertDescription>
 				</Alert>
 			</div>
 		);
 	}
+
+	const translatedName = translateCompendiumName(
+		t,
+		"bestiary",
+		monster.id,
+		monster.name,
+	);
+	const translatedDesc = translateCompendiumDescription(
+		t,
+		"bestiary",
+		monster.id,
+		monster.desc,
+	);
+	const translatedSize = translateEnumValue(t, "dnd.sizes", monster.size);
+	const translatedType = translateEnumValue(t, "dnd.creatureTypes", monster.type);
+	const translatedAlignment = translateEnumValue(
+		t,
+		"dnd.alignments",
+		monster.alignment,
+	);
+	const translatedLanguages = monster.languages
+		? monster.languages
+				.split(",")
+				.map((lang) =>
+					translateEnumValue(t, "dnd.languages", lang.trim()),
+				)
+				.join(", ")
+		: "";
 
 	return (
 		<div className="container mx-auto p-6 space-y-6">
@@ -148,7 +190,7 @@ export const BestiarioDetalleScene = () => {
 				className="gap-2 border-amber-600/30 text-amber-200 hover:bg-amber-950/30 hover:text-amber-100"
 			>
 				<ArrowLeft className="h-4 w-4" />
-				Volver al Bestiario
+				{t("compendium.bestiary.backToList")}
 			</Button>
 
 			{/* Hero header */}
@@ -191,33 +233,35 @@ export const BestiarioDetalleScene = () => {
 									<div className="flex items-center gap-3 mb-2">
 										<Skull className="h-6 w-6 text-amber-400" />
 										<h1 className="text-4xl font-extrabold text-white drop-shadow-lg">
-											{monster.name}
+											{translatedName}
 										</h1>
 									</div>
 									{monster.size && monster.type && (
 										<p className="text-amber-200/90 text-sm">
-											{monster.size} {monster.type}
+											{translatedSize} {translatedType}
 											{monster.subtype && ` (${monster.subtype})`}
-											{monster.alignment && ` · ${monster.alignment}`}
+											{translatedAlignment && ` · ${translatedAlignment}`}
 										</p>
 									)}
 									{monster.desc && (
 										<p className="mt-2 text-gray-300 text-sm italic max-w-2xl">
-											{monster.desc}
+											{translatedDesc}
 										</p>
 									)}
 								</div>
 								{monster.challenge_rating !== undefined && (
 									<div className="flex flex-col items-center bg-amber-600/80 backdrop-blur-sm rounded-xl px-5 py-3 border border-amber-500/50 shadow-lg">
 										<span className="text-xs text-amber-200 uppercase tracking-widest">
-											CR
+											{t("compendium.bestiary.challengeRatingShort")}
 										</span>
 										<span className="text-3xl font-black text-white">
 											{monster.challenge_rating}
 										</span>
 										{monster.xp !== undefined && (
 											<span className="text-xs text-amber-200">
-												{monster.xp.toLocaleString()} XP
+												{t("compendium.bestiary.xpValue", {
+													value: monster.xp.toLocaleString(),
+												})}
 											</span>
 										)}
 									</div>
@@ -231,13 +275,15 @@ export const BestiarioDetalleScene = () => {
 			{/* Basic Stats */}
 			<Card className="bg-dark-card border-dark-border">
 				<CardHeader>
-					<CardTitle className="text-amber-100">Estadísticas Básicas</CardTitle>
+					<CardTitle className="text-amber-100">
+						{t("compendium.bestiary.basicStats")}
+					</CardTitle>
 				</CardHeader>
 				<CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{monster.armor_class !== undefined && (
 						<div className="flex flex-col">
 							<span className="text-xs text-gray-400 uppercase">
-								Clase de Armadura
+								{t("compendium.bestiary.armorClassFull")}
 							</span>
 							<span className="text-lg font-semibold text-amber-200">
 								{formatArmorClass(monster.armor_class)}
@@ -247,7 +293,7 @@ export const BestiarioDetalleScene = () => {
 					{monster.hit_points !== undefined && (
 						<div className="flex flex-col">
 							<span className="text-xs text-gray-400 uppercase">
-								Puntos de Golpe
+								{t("compendium.bestiary.hitPointsFull")}
 							</span>
 							<span className="text-lg font-semibold text-amber-200">
 								{monster.hit_points}
@@ -257,7 +303,9 @@ export const BestiarioDetalleScene = () => {
 					)}
 					{monster.speed && (
 						<div className="flex flex-col">
-							<span className="text-xs text-gray-400 uppercase">Velocidad</span>
+							<span className="text-xs text-gray-400 uppercase">
+								{t("compendium.bestiary.speed")}
+							</span>
 							<span className="text-sm text-gray-200">
 								{formatSpeed(monster.speed)}
 							</span>
@@ -266,7 +314,7 @@ export const BestiarioDetalleScene = () => {
 					{monster.proficiency_bonus !== undefined && (
 						<div className="flex flex-col">
 							<span className="text-xs text-gray-400 uppercase">
-								Bonificador de Competencia
+								{t("compendium.bestiary.proficiencyBonus")}
 							</span>
 							<span className="text-lg font-semibold text-amber-200">
 								+{monster.proficiency_bonus}
@@ -276,10 +324,12 @@ export const BestiarioDetalleScene = () => {
 					{monster.xp !== undefined && (
 						<div className="flex flex-col">
 							<span className="text-xs text-gray-400 uppercase">
-								Experiencia
+								{t("compendium.bestiary.experience")}
 							</span>
 							<span className="text-lg font-semibold text-amber-200">
-								{monster.xp.toLocaleString()} XP
+								{t("compendium.bestiary.xpValue", {
+									value: monster.xp.toLocaleString(),
+								})}
 							</span>
 						</div>
 					)}
@@ -296,13 +346,15 @@ export const BestiarioDetalleScene = () => {
 				<Card className="bg-dark-card border-dark-border">
 					<CardHeader>
 						<CardTitle className="text-amber-100">
-							Puntuaciones de Habilidad
+							{t("compendium.bestiary.abilityScores")}
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 						{monster.strength !== undefined && (
 							<div className="flex flex-col items-center p-3 bg-dark-lighter rounded-lg">
-								<span className="text-xs text-gray-400 uppercase">FUE</span>
+								<span className="text-xs text-gray-400 uppercase">
+									{t("dnd.abilitiesShort.strength")}
+								</span>
 								<span className="text-2xl font-bold text-amber-200">
 									{monster.strength}
 								</span>
@@ -314,7 +366,9 @@ export const BestiarioDetalleScene = () => {
 						)}
 						{monster.dexterity !== undefined && (
 							<div className="flex flex-col items-center p-3 bg-dark-lighter rounded-lg">
-								<span className="text-xs text-gray-400 uppercase">DES</span>
+								<span className="text-xs text-gray-400 uppercase">
+									{t("dnd.abilitiesShort.dexterity")}
+								</span>
 								<span className="text-2xl font-bold text-amber-200">
 									{monster.dexterity}
 								</span>
@@ -326,7 +380,9 @@ export const BestiarioDetalleScene = () => {
 						)}
 						{monster.constitution !== undefined && (
 							<div className="flex flex-col items-center p-3 bg-dark-lighter rounded-lg">
-								<span className="text-xs text-gray-400 uppercase">CON</span>
+								<span className="text-xs text-gray-400 uppercase">
+									{t("dnd.abilitiesShort.constitution")}
+								</span>
 								<span className="text-2xl font-bold text-amber-200">
 									{monster.constitution}
 								</span>
@@ -338,7 +394,9 @@ export const BestiarioDetalleScene = () => {
 						)}
 						{monster.intelligence !== undefined && (
 							<div className="flex flex-col items-center p-3 bg-dark-lighter rounded-lg">
-								<span className="text-xs text-gray-400 uppercase">INT</span>
+								<span className="text-xs text-gray-400 uppercase">
+									{t("dnd.abilitiesShort.intelligence")}
+								</span>
 								<span className="text-2xl font-bold text-amber-200">
 									{monster.intelligence}
 								</span>
@@ -350,7 +408,9 @@ export const BestiarioDetalleScene = () => {
 						)}
 						{monster.wisdom !== undefined && (
 							<div className="flex flex-col items-center p-3 bg-dark-lighter rounded-lg">
-								<span className="text-xs text-gray-400 uppercase">SAB</span>
+								<span className="text-xs text-gray-400 uppercase">
+									{t("dnd.abilitiesShort.wisdom")}
+								</span>
 								<span className="text-2xl font-bold text-amber-200">
 									{monster.wisdom}
 								</span>
@@ -362,7 +422,9 @@ export const BestiarioDetalleScene = () => {
 						)}
 						{monster.charisma !== undefined && (
 							<div className="flex flex-col items-center p-3 bg-dark-lighter rounded-lg">
-								<span className="text-xs text-gray-400 uppercase">CAR</span>
+								<span className="text-xs text-gray-400 uppercase">
+									{t("dnd.abilitiesShort.charisma")}
+								</span>
 								<span className="text-2xl font-bold text-amber-200">
 									{monster.charisma}
 								</span>
@@ -380,14 +442,20 @@ export const BestiarioDetalleScene = () => {
 			{monster.proficiencies && monster.proficiencies.length > 0 && (
 				<Card className="bg-dark-card border-dark-border">
 					<CardHeader>
-						<CardTitle className="text-amber-100">Competencias</CardTitle>
+						<CardTitle className="text-amber-100">
+							{t("compendium.bestiary.proficiencies")}
+						</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 							{monster.proficiencies.map((prof: any, idx: number) => (
 								<div key={idx} className="flex justify-between text-sm">
 									<span className="text-gray-400">
-										{prof.proficiency?.name || "Unknown"}:
+										{translateEnumValue(
+											t,
+											"dnd.proficiencies",
+											prof.proficiency?.name || t("common.unknown"),
+										)}:
 									</span>
 									<span className="text-gray-200 font-semibold">
 										+{prof.value}
@@ -409,7 +477,7 @@ export const BestiarioDetalleScene = () => {
 				<Card className="bg-dark-card border-dark-border">
 					<CardHeader>
 						<CardTitle className="text-amber-100">
-							Resistencias e Inmunidades
+							{t("compendium.bestiary.resistancesTitle")}
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-3">
@@ -417,10 +485,14 @@ export const BestiarioDetalleScene = () => {
 							monster.damage_vulnerabilities.length > 0 && (
 								<div>
 									<span className="text-sm text-gray-400">
-										Vulnerabilidades al Daño:{" "}
+										{t("compendium.bestiary.damageVulnerabilities")}:{" "}
 									</span>
 									<span className="text-sm text-gray-200">
-										{monster.damage_vulnerabilities.join(", ")}
+										{translateEnumList(
+											t,
+											"dnd.damageTypes",
+											monster.damage_vulnerabilities,
+										).join(", ")}
 									</span>
 								</div>
 							)}
@@ -428,10 +500,14 @@ export const BestiarioDetalleScene = () => {
 							monster.damage_resistances.length > 0 && (
 								<div>
 									<span className="text-sm text-gray-400">
-										Resistencias al Daño:{" "}
+										{t("compendium.bestiary.damageResistances")}:{" "}
 									</span>
 									<span className="text-sm text-gray-200">
-										{monster.damage_resistances.join(", ")}
+										{translateEnumList(
+											t,
+											"dnd.damageTypes",
+											monster.damage_resistances,
+										).join(", ")}
 									</span>
 								</div>
 							)}
@@ -439,10 +515,14 @@ export const BestiarioDetalleScene = () => {
 							monster.damage_immunities.length > 0 && (
 								<div>
 									<span className="text-sm text-gray-400">
-										Inmunidades al Daño:{" "}
+										{t("compendium.bestiary.damageImmunities")}:{" "}
 									</span>
 									<span className="text-sm text-gray-200">
-										{monster.damage_immunities.join(", ")}
+										{translateEnumList(
+											t,
+											"dnd.damageTypes",
+											monster.damage_immunities,
+										).join(", ")}
 									</span>
 								</div>
 							)}
@@ -450,12 +530,16 @@ export const BestiarioDetalleScene = () => {
 							monster.condition_immunities.length > 0 && (
 								<div>
 									<span className="text-sm text-gray-400">
-										Inmunidades a Condiciones:{" "}
+										{t("compendium.bestiary.conditionImmunities")}:{" "}
 									</span>
 									<span className="text-sm text-gray-200">
-										{monster.condition_immunities
-											.map((c: any) => c.name || c)
-											.join(", ")}
+										{translateEnumList(
+											t,
+											"dnd.conditions",
+											monster.condition_immunities.map(
+												(c: any) => c.name || c,
+											),
+										).join(", ")}
 									</span>
 								</div>
 							)}
@@ -467,24 +551,33 @@ export const BestiarioDetalleScene = () => {
 			{(monster.senses || monster.languages) && (
 				<Card className="bg-dark-card border-dark-border">
 					<CardHeader>
-						<CardTitle className="text-amber-100">Sentidos e Idiomas</CardTitle>
+						<CardTitle className="text-amber-100">
+							{t("compendium.bestiary.sensesAndLanguages")}
+						</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-3">
 						{monster.senses && (
 							<div>
-								<span className="text-sm text-gray-400">Sentidos: </span>
+								<span className="text-sm text-gray-400">
+									{t("compendium.bestiary.senses")}:{" "}
+								</span>
 								<span className="text-sm text-gray-200">
 									{Object.entries(monster.senses)
-										.map(([key, value]) => `${key}: ${value}`)
+										.map(
+											([key, value]) =>
+												`${translateEnumValue(t, "dnd.senses", key)}: ${value}`,
+										)
 										.join(", ")}
 								</span>
 							</div>
 						)}
 						{monster.languages && (
 							<div>
-								<span className="text-sm text-gray-400">Idiomas: </span>
+								<span className="text-sm text-gray-400">
+									{t("compendium.bestiary.languages")}:{" "}
+								</span>
 								<span className="text-sm text-gray-200">
-									{monster.languages}
+									{translatedLanguages || monster.languages}
 								</span>
 							</div>
 						)}
@@ -497,23 +590,35 @@ export const BestiarioDetalleScene = () => {
 				<Card className="bg-dark-card border-dark-border">
 					<CardHeader>
 						<CardTitle className="text-amber-100">
-							Habilidades Especiales
+							{t("compendium.bestiary.specialAbilities")}
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						{monster.special_abilities.map((ability: any, idx: number) => (
-							<div key={idx} className="border-l-2 border-amber-600/50 pl-4">
-								<h4 className="font-semibold text-amber-200 mb-1">
-									{ability.name}
-								</h4>
-								<p className="text-sm text-gray-300">{ability.desc}</p>
-								{ability.usage && (
-									<p className="text-xs text-gray-500 mt-1">
-										Uso: {ability.usage.times} veces {ability.usage.type}
+						{monster.special_abilities.map((ability: any, idx: number) => {
+							const translatedAbility = translateCompendiumNamedEntry(
+								t,
+								`compendiumData.bestiary.${monster.id}.special_abilities`,
+								ability.name,
+								ability.desc,
+							);
+							return (
+								<div key={idx} className="border-l-2 border-amber-600/50 pl-4">
+									<h4 className="font-semibold text-amber-200 mb-1">
+										{translatedAbility.name}
+									</h4>
+									<p className="text-sm text-gray-300">
+										{translatedAbility.desc}
 									</p>
-								)}
-							</div>
-						))}
+									{ability.usage && (
+										<p className="text-xs text-gray-500 mt-1">
+											{t("compendium.bestiary.usage")}:{" "}
+											{ability.usage.times} {t("common.times")} {" "}
+											{ability.usage.type}
+										</p>
+									)}
+								</div>
+							);
+						})}
 					</CardContent>
 				</Card>
 			)}
@@ -522,37 +627,56 @@ export const BestiarioDetalleScene = () => {
 			{monster.actions && monster.actions.length > 0 && (
 				<Card className="bg-dark-card border-dark-border">
 					<CardHeader>
-						<CardTitle className="text-amber-100">Acciones</CardTitle>
+						<CardTitle className="text-amber-100">
+							{t("compendium.bestiary.actions")}
+						</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						{monster.actions.map((action: any, idx: number) => (
-							<div key={idx} className="border-l-2 border-amber-600/50 pl-4">
-								<h4 className="font-semibold text-amber-200 mb-1">
-									{action.name}
-									{action.attack_bonus &&
-										` (+${action.attack_bonus} al ataque)`}
-								</h4>
-								<p className="text-sm text-gray-300">{action.desc}</p>
-								{action.damage && action.damage.length > 0 && (
-									<div className="mt-2 text-xs text-gray-400">
-										Daño:{" "}
-										{action.damage
-											.map(
-												(d: any) =>
-													`${d.damage_dice} ${d.damage_type?.name || ""}`,
-											)
-											.join(", ")}
-									</div>
-								)}
-								{action.usage && (
-									<p className="text-xs text-gray-500 mt-1">
-										{action.usage.type === "recharge on roll"
-											? `Recarga ${action.usage.min_value}-6 en ${action.usage.dice}`
-											: `${action.usage.times} veces ${action.usage.type}`}
+						{monster.actions.map((action: any, idx: number) => {
+							const translatedAction = translateCompendiumNamedEntry(
+								t,
+								`compendiumData.bestiary.${monster.id}.actions`,
+								action.name,
+								action.desc,
+							);
+							return (
+								<div key={idx} className="border-l-2 border-amber-600/50 pl-4">
+									<h4 className="font-semibold text-amber-200 mb-1">
+										{translatedAction.name}
+										{action.attack_bonus &&
+											` (+${action.attack_bonus} ${t("compendium.bestiary.toHit")})`}
+									</h4>
+									<p className="text-sm text-gray-300">
+										{translatedAction.desc}
 									</p>
-								)}
-							</div>
-						))}
+									{action.damage && action.damage.length > 0 && (
+										<div className="mt-2 text-xs text-gray-400">
+											{t("compendium.bestiary.damage")}:{" "}
+											{action.damage
+												.map(
+													(d: any) =>
+														`${d.damage_dice} ${translateEnumValue(
+															t,
+															"dnd.damageTypes",
+															d.damage_type?.name || "",
+														)}`,
+											)
+												.join(", ")}
+										</div>
+									)}
+									{action.usage && (
+										<p className="text-xs text-gray-500 mt-1">
+											{action.usage.type === "recharge on roll"
+												? t("compendium.bestiary.recharge", {
+													min: action.usage.min_value,
+													dice: action.usage.dice,
+												})
+												: `${action.usage.times} ${t("common.times")} ${action.usage.type}`}
+										</p>
+									)}
+								</div>
+							);
+						})}
 					</CardContent>
 				</Card>
 			)}
@@ -562,33 +686,46 @@ export const BestiarioDetalleScene = () => {
 				<Card className="bg-dark-card border-dark-border border-amber-600/30">
 					<CardHeader>
 						<CardTitle className="text-amber-100">
-							Acciones Legendarias
+							{t("compendium.bestiary.legendaryActions")}
 						</CardTitle>
 						<CardDescription className="text-gray-400">
-							Esta criatura puede realizar 3 acciones legendarias, eligiendo
-							entre las opciones siguientes.
+							{t("compendium.bestiary.legendaryActionsHint")}
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						{monster.legendary_actions.map((action: any, idx: number) => (
-							<div key={idx} className="border-l-2 border-amber-500 pl-4">
-								<h4 className="font-semibold text-amber-200 mb-1">
-									{action.name}
-								</h4>
-								<p className="text-sm text-gray-300">{action.desc}</p>
-								{action.damage && action.damage.length > 0 && (
-									<div className="mt-2 text-xs text-gray-400">
-										Daño:{" "}
-										{action.damage
-											.map(
-												(d: any) =>
-													`${d.damage_dice} ${d.damage_type?.name || ""}`,
-											)
-											.join(", ")}
-									</div>
-								)}
+						{monster.legendary_actions.map((action: any, idx: number) => {
+							const translatedAction = translateCompendiumNamedEntry(
+								t,
+								`compendiumData.bestiary.${monster.id}.legendary_actions`,
+								action.name,
+								action.desc,
+							);
+							return (
+								<div key={idx} className="border-l-2 border-amber-500 pl-4">
+									<h4 className="font-semibold text-amber-200 mb-1">
+										{translatedAction.name}
+									</h4>
+									<p className="text-sm text-gray-300">
+										{translatedAction.desc}
+									</p>
+									{action.damage && action.damage.length > 0 && (
+										<div className="mt-2 text-xs text-gray-400">
+											{t("compendium.bestiary.damage")}:{" "}
+											{action.damage
+												.map(
+													(d: any) =>
+														`${d.damage_dice} ${translateEnumValue(
+															t,
+															"dnd.damageTypes",
+															d.damage_type?.name || "",
+														)}`,
+												)
+												.join(", ")}
+										</div>
+									)}
 							</div>
-						))}
+							);
+						})}
 					</CardContent>
 				</Card>
 			)}
@@ -597,17 +734,29 @@ export const BestiarioDetalleScene = () => {
 			{monster.reactions && monster.reactions.length > 0 && (
 				<Card className="bg-dark-card border-dark-border">
 					<CardHeader>
-						<CardTitle className="text-amber-100">Reacciones</CardTitle>
+						<CardTitle className="text-amber-100">
+							{t("compendium.bestiary.reactions")}
+						</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						{monster.reactions.map((reaction: any, idx: number) => (
-							<div key={idx} className="border-l-2 border-amber-600/50 pl-4">
-								<h4 className="font-semibold text-amber-200 mb-1">
-									{reaction.name}
-								</h4>
-								<p className="text-sm text-gray-300">{reaction.desc}</p>
-							</div>
-						))}
+						{monster.reactions.map((reaction: any, idx: number) => {
+							const translatedReaction = translateCompendiumNamedEntry(
+								t,
+								`compendiumData.bestiary.${monster.id}.reactions`,
+								reaction.name,
+								reaction.desc,
+							);
+							return (
+								<div key={idx} className="border-l-2 border-amber-600/50 pl-4">
+									<h4 className="font-semibold text-amber-200 mb-1">
+										{translatedReaction.name}
+									</h4>
+									<p className="text-sm text-gray-300">
+										{translatedReaction.desc}
+									</p>
+								</div>
+							);
+						})}
 					</CardContent>
 				</Card>
 			)}

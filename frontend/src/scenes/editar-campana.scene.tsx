@@ -6,6 +6,7 @@
 // ================================================
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { ProfileLayout } from "@/layout";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,7 @@ import {
 } from "lucide-react";
 
 export function EditarCampanaScene() {
+	const { t } = useTranslation();
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 
@@ -252,7 +254,7 @@ export function EditarCampanaScene() {
 			setSceneEntities(entitiesData);
 		} catch (error) {
 			console.error("Error al cargar campaña:", error);
-			alert("Error al cargar campaña");
+			alert(t("scenes.editCampaign.errors.loadCampaign"));
 			navigate("/mis-campanas");
 		} finally {
 			setLoading(false);
@@ -267,7 +269,7 @@ export function EditarCampanaScene() {
 			navigate(`/partida/${id}`);
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Error";
-			alert(`Error al iniciar sesión: ${msg}`);
+			alert(t("scenes.editCampaign.errors.startSession", { msg }));
 			setStartingSession(false);
 		}
 	};
@@ -278,10 +280,10 @@ export function EditarCampanaScene() {
 		try {
 			const updated = await updateCampaign(id, editedCampaign);
 			setCampaign(updated);
-			alert("Campaña actualizada correctamente");
+			alert(t("scenes.editCampaign.messages.campaignUpdated"));
 		} catch (error) {
 			console.error("Error al guardar campaña:", error);
-			alert("Error al guardar campaña");
+			alert(t("scenes.editCampaign.errors.saveCampaign"));
 		}
 	};
 
@@ -294,10 +296,10 @@ export function EditarCampanaScene() {
 			setInviteUsername("");
 			const updatedMembers = await listCampaignMembers(id);
 			setMembers(updatedMembers);
-			alert("Jugador añadido a la campaña correctamente");
+			alert(t("scenes.editCampaign.messages.playerAdded"));
 		} catch (error) {
 			console.error("Error al añadir jugador:", error);
-			const errorMsg = error instanceof Error ? error.message : "Error al añadir jugador";
+			const errorMsg = error instanceof Error ? error.message : t("scenes.editCampaign.errors.addPlayer");
 			alert(errorMsg);
 		} finally {
 			setInviteLoading(false);
@@ -305,14 +307,14 @@ export function EditarCampanaScene() {
 	};
 
 	const handleRemoveMember = async (userId: string) => {
-		if (!id || !confirm("¿Eliminar este jugador?")) return;
+		if (!id || !confirm(t("scenes.editCampaign.confirm.removePlayer"))) return;
 
 		try {
 			await removeCampaignMember(id, userId);
 			setMembers(members.filter((m) => m.user_id !== userId));
 		} catch (error) {
 			console.error("Error al eliminar miembro:", error);
-			alert("Error al eliminar miembro");
+			alert(t("scenes.editCampaign.errors.removeMember"));
 		}
 	};
 
@@ -335,12 +337,12 @@ export function EditarCampanaScene() {
 			setChapterForm({ title: "", content: "", order_index: 0 });
 		} catch (error) {
 			console.error("Error al guardar capítulo:", error);
-			alert("Error al guardar capítulo");
+			alert(t("scenes.editCampaign.errors.saveChapter"));
 		}
 	};
 
 	const handleDeleteChapter = async (chapterId: string) => {
-		if (!confirm("¿Eliminar este capítulo y todas sus escenas?")) return;
+		if (!confirm(t("scenes.editCampaign.confirm.deleteChapter"))) return;
 
 		try {
 			await deleteChapter(chapterId);
@@ -350,7 +352,7 @@ export function EditarCampanaScene() {
 			setScenes(newScenes);
 		} catch (error) {
 			console.error("Error al eliminar capítulo:", error);
-			alert("Error al eliminar capítulo");
+			alert(t("scenes.editCampaign.errors.deleteChapter"));
 		}
 	};
 
@@ -411,12 +413,12 @@ export function EditarCampanaScene() {
 			setCurrentChapterId("");
 		} catch (error) {
 			console.error("Error al guardar escena:", error);
-			alert("Error al guardar escena");
+			alert(t("scenes.editCampaign.errors.saveScene"));
 		}
 	};
 
 	const handleDeleteScene = async (chapterId: string, sceneId: string) => {
-		if (!confirm("¿Eliminar esta escena?")) return;
+		if (!confirm(t("scenes.editCampaign.confirm.deleteScene"))) return;
 
 		try {
 			await deleteScene(sceneId);
@@ -429,7 +431,7 @@ export function EditarCampanaScene() {
 			setSceneEntities(newEntities);
 		} catch (error) {
 			console.error("Error al eliminar escena:", error);
-			alert("Error al eliminar escena");
+			alert(t("scenes.editCampaign.errors.deleteScene"));
 		}
 	};
 
@@ -439,18 +441,18 @@ export function EditarCampanaScene() {
 		
 		if (entityForm.entity_type === "npc") {
 			if (!entityForm.entity_name) {
-				alert("Por favor, ingresa el nombre del NPC");
+				alert(t("scenes.editCampaign.errors.npcNameRequired"));
 				return;
 			}
 		} else if (entityForm.entity_type === "map") {
 			if (!entityForm.entity_id || !entityForm.entity_name) {
-				alert("Por favor, selecciona un mapa");
+				alert(t("scenes.editCampaign.errors.selectMap"));
 				return;
 			}
 		} else {
 			// monster, item, spell - require selection
 			if (!selectedEntity || !entityForm.entity_id) {
-				alert("Por favor, selecciona una entidad del compendio");
+				alert(t("scenes.editCampaign.errors.selectCompendiumEntity"));
 				return;
 			}
 		}
@@ -500,7 +502,7 @@ export function EditarCampanaScene() {
 			setAvailableMaps([]);
 		} catch (error) {
 			console.error("Error al añadir entidad:", error);
-			const msg = error instanceof Error ? error.message : "Error al añadir entidad";
+			const msg = error instanceof Error ? error.message : t("scenes.editCampaign.errors.addEntity");
 			alert(msg);
 		}
 	};
@@ -541,7 +543,7 @@ export function EditarCampanaScene() {
 	};
 
 	const handleDeleteEntity = async (sceneId: string, entityId: string) => {
-		if (!confirm("¿Eliminar esta entidad?")) return;
+		if (!confirm(t("scenes.editCampaign.confirm.deleteEntity"))) return;
 
 		try {
 			await deleteSceneEntity(entityId);
@@ -551,7 +553,7 @@ export function EditarCampanaScene() {
 			});
 		} catch (error) {
 			console.error("Error al eliminar entidad:", error);
-			alert("Error al eliminar entidad");
+			alert(t("scenes.editCampaign.errors.deleteEntity"));
 		}
 	};
 
@@ -571,10 +573,10 @@ export function EditarCampanaScene() {
 			<ProfileLayout>
 				<div className="container mx-auto py-8 px-4 text-center">
 					<h2 className="text-2xl font-bold mb-4">
-						No tienes acceso a esta campaña
+						{t("scenes.editCampaign.noAccess.title")}
 					</h2>
 					<Button onClick={() => navigate("/mis-campanas")}>
-						Volver a Mis Campañas
+						{t("scenes.editCampaign.noAccess.back")}
 					</Button>
 				</div>
 			</ProfileLayout>
@@ -591,12 +593,12 @@ export function EditarCampanaScene() {
 							{campaign.title}
 						</h1>
 						<p className="text-muted-foreground mt-1">
-							{isDM ? "Editar campaña como Dungeon Master" : "Información de la campaña"}
+							{isDM ? t("scenes.editCampaign.header.dmSubtitle") : t("scenes.editCampaign.header.playerSubtitle")}
 						</p>
 					</div>
 					<div className="flex gap-2">
 						<Button variant="outline" onClick={() => navigate("/mis-campanas")}>
-							Volver
+							{t("common.back")}
 						</Button>
 						{isDM && (
 							<>
@@ -607,7 +609,7 @@ export function EditarCampanaScene() {
 										onClick={() => navigate(`/partida/${id}`)}
 									>
 										<Play className="mr-2 h-4 w-4" />
-										Ir a la partida activa
+											{t("scenes.editCampaign.header.goActiveGame")}
 									</Button>
 								) : (
 									<Button
@@ -619,19 +621,19 @@ export function EditarCampanaScene() {
 										{sessionStatus?.status === "paused" ? (
 											<>
 												<RotateCcw className="mr-2 h-4 w-4" />
-												{startingSession ? "Reanudando..." : "Reanudar campaña"}
+												{startingSession ? t("scenes.editCampaign.header.resuming") : t("scenes.editCampaign.header.resume")}
 											</>
 										) : (
 											<>
 												<Play className="mr-2 h-4 w-4" />
-												{startingSession ? "Iniciando..." : "Comenzar campaña"}
+												{startingSession ? t("scenes.editCampaign.header.starting") : t("scenes.editCampaign.header.start")}
 											</>
 										)}
 									</Button>
 								)}
 								<Button onClick={handleSaveCampaign}>
 									<Save className="mr-2 h-4 w-4" />
-									Guardar Cambios
+									{t("scenes.editCampaign.header.saveChanges")}
 								</Button>
 							</>
 						)}
@@ -642,13 +644,13 @@ export function EditarCampanaScene() {
 				<Tabs defaultValue="general" className="space-y-6">
 					{isDM ? (
 						<TabsList className="grid w-full grid-cols-3">
-							<TabsTrigger value="general">General</TabsTrigger>
-							<TabsTrigger value="players">Jugadores</TabsTrigger>
-							<TabsTrigger value="content">Capítulos y Escenas</TabsTrigger>
+							<TabsTrigger value="general">{t("scenes.editCampaign.tabs.general")}</TabsTrigger>
+							<TabsTrigger value="players">{t("scenes.editCampaign.tabs.players")}</TabsTrigger>
+							<TabsTrigger value="content">{t("scenes.editCampaign.tabs.content")}</TabsTrigger>
 						</TabsList>
 					) : (
 						<TabsList className="grid w-full grid-cols-1">
-							<TabsTrigger value="general">General</TabsTrigger>
+							<TabsTrigger value="general">{t("scenes.editCampaign.tabs.general")}</TabsTrigger>
 						</TabsList>
 					)}
 
@@ -656,14 +658,14 @@ export function EditarCampanaScene() {
 					<TabsContent value="general" className="space-y-6">
 						<Card>
 							<CardHeader>
-								<CardTitle>Información General</CardTitle>
+								<CardTitle>{t("scenes.editCampaign.general.title")}</CardTitle>
 								<CardDescription>
-									{isDM ? "Datos básicos de la campaña" : "Información de la campaña en la que participas"}
+									{isDM ? t("scenes.editCampaign.general.dmDescription") : t("scenes.editCampaign.general.playerDescription")}
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-4">
 								<div>
-									<label className="text-sm font-medium text-foreground">Título</label>
+									<label className="text-sm font-medium text-foreground">{t("scenes.editCampaign.general.titleLabel")}</label>
 									{isDM ? (
 										<Input
 											value={editedCampaign.title}
@@ -684,7 +686,7 @@ export function EditarCampanaScene() {
 									<>
 										<div>
 											<label className="text-sm font-medium text-foreground">
-												Descripción
+												{t("scenes.editCampaign.general.descriptionLabel")}
 											</label>
 											<Textarea
 												value={editedCampaign.description}
@@ -695,12 +697,12 @@ export function EditarCampanaScene() {
 													})
 												}
 												rows={4}
-												placeholder="Descripción de la campaña..."
+												placeholder={t("scenes.editCampaign.general.descriptionPlaceholder")}
 											/>
 										</div>
 										<div>
 											<label className="text-sm font-medium text-foreground">
-												Notas Privadas (DM)
+												{t("scenes.editCampaign.general.privateNotesLabel")}
 											</label>
 											<Textarea
 												value={editedCampaign.notes}
@@ -711,7 +713,7 @@ export function EditarCampanaScene() {
 													})
 												}
 												rows={6}
-												placeholder="Notas privadas del DM..."
+												placeholder={t("scenes.editCampaign.general.privateNotesPlaceholder")}
 											/>
 										</div>
 									</>
@@ -727,17 +729,17 @@ export function EditarCampanaScene() {
 							<CardHeader>
 								<CardTitle className="flex items-center gap-2">
 									<Users className="h-5 w-5" />
-									Añadir Jugadores
+									{t("scenes.editCampaign.players.addTitle")}
 								</CardTitle>
 								<CardDescription>
-								Añade jugadores a tu campaña por nombre de usuario
+								{t("scenes.editCampaign.players.addDescription")}
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<div className="flex gap-2">
 								<Input
 									type="text"
-									placeholder="nombre_usuario"
+									placeholder={t("scenes.editCampaign.players.usernamePlaceholder")}
 									value={inviteUsername}
 									onChange={(e) => setInviteUsername(e.target.value)}
 									style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif", textTransform: "none" }}
@@ -747,7 +749,7 @@ export function EditarCampanaScene() {
 									disabled={inviteLoading || !inviteUsername.trim()}
 									>
 										<UserPlus className="mr-2 h-4 w-4" />
-										Añadir Jugador
+										{t("scenes.editCampaign.players.addButton")}
 									</Button>
 								</div>
 							</CardContent>
@@ -755,7 +757,7 @@ export function EditarCampanaScene() {
 
 						<Card>
 							<CardHeader>
-								<CardTitle>Miembros de la Campaña ({members.length})</CardTitle>
+								<CardTitle>{t("scenes.editCampaign.players.membersTitle", { count: members.length })}</CardTitle>
 							</CardHeader>
 							<CardContent>
 								<div className="space-y-2">
@@ -766,10 +768,10 @@ export function EditarCampanaScene() {
 										>
 											<div>
 												<div className="font-medium">
-													{member.username || member.email || "Usuario"}
+													{member.username || member.email || t("scenes.editCampaign.players.userFallback")}
 												</div>
 												<div className="text-sm text-muted-foreground">
-													{member.role === "dm" ? "Dungeon Master" : "Jugador"}
+													{member.role === "dm" ? t("scenes.editCampaign.players.roles.dm") : t("scenes.editCampaign.players.roles.player")}
 												</div>
 											</div>
 											{member.user_id !== userId && (
@@ -793,7 +795,7 @@ export function EditarCampanaScene() {
 					{isDM && (
 						<TabsContent value="content" className="space-y-6">
 						<div className="flex justify-between items-center">
-							<h2 className="text-2xl font-bold">Capítulos y Escenas</h2>
+							<h2 className="text-2xl font-bold">{t("scenes.editCampaign.content.title")}</h2>
 							<Button
 								onClick={() => {
 									setEditingChapter(null);
@@ -802,7 +804,7 @@ export function EditarCampanaScene() {
 								}}
 							>
 								<Plus className="mr-2 h-4 w-4" />
-								Nuevo Capítulo
+								{t("scenes.editCampaign.content.newChapter")}
 							</Button>
 						</div>
 
@@ -811,10 +813,10 @@ export function EditarCampanaScene() {
 								<CardContent className="py-12 text-center">
 									<BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
 									<h3 className="text-lg font-semibold mb-2">
-										No hay capítulos aún
+										{t("scenes.editCampaign.content.noChaptersTitle")}
 									</h3>
 									<p className="text-muted-foreground mb-4">
-										Crea el primer capítulo para organizar tu campaña
+										{t("scenes.editCampaign.content.noChaptersDescription")}
 									</p>
 								</CardContent>
 							</Card>
@@ -832,7 +834,7 @@ export function EditarCampanaScene() {
 												<div className="text-left">
 													<div className="font-semibold">{chapter.title}</div>
 													<div className="text-sm text-muted-foreground">
-														{scenes[chapter.id]?.length || 0} escenas
+														{t("scenes.editCampaign.content.scenesCount", { count: scenes[chapter.id]?.length || 0 })}
 													</div>
 												</div>
 											</div>
@@ -860,7 +862,7 @@ export function EditarCampanaScene() {
 														setChapterDialog(true);
 													}}
 												>
-													Editar Capítulo
+													{t("scenes.editCampaign.content.editChapter")}
 												</Button>
 												<Button
 													size="sm"
@@ -868,7 +870,7 @@ export function EditarCampanaScene() {
 													onClick={() => handleOpenSceneDialog(chapter.id)}
 												>
 													<Plus className="mr-2 h-4 w-4" />
-													Nueva Escena
+													{t("scenes.editCampaign.content.newScene")}
 												</Button>
 												<Button
 													size="sm"
@@ -902,7 +904,7 @@ export function EditarCampanaScene() {
 																			)
 																		}
 																	>
-																		Editar
+																		{t("common.edit")}
 																	</Button>
 																	<Button
 																		size="sm"
@@ -924,7 +926,7 @@ export function EditarCampanaScene() {
 															{scene.narration_text && (
 																<div>
 																	<div className="text-xs font-semibold text-muted-foreground mb-1">
-																		NARRACIÓN:
+																		{t("scenes.editCampaign.content.narration")}
 																	</div>
 																	<div className="border-l-4 border-primary pl-3 bg-primary/5">
 																		<FormattedText
@@ -938,7 +940,7 @@ export function EditarCampanaScene() {
 															{scene.dm_notes && (
 																<div>
 																	<div className="text-xs font-semibold text-muted-foreground mb-1">
-																		NOTAS DM:
+																		{t("scenes.editCampaign.content.dmNotes")}
 																	</div>
 																	<div className="text-sm text-muted-foreground italic">
 																		{scene.dm_notes}
@@ -950,7 +952,7 @@ export function EditarCampanaScene() {
 															{scene.battle_map_id && (
 																<div className="flex items-center gap-2 text-sm">
 																	<Map className="h-4 w-4" />
-																	<span>Mapa de batalla asociado</span>
+																	<span>{t("scenes.editCampaign.content.associatedMap")}</span>
 																</div>
 															)}
 
@@ -959,7 +961,7 @@ export function EditarCampanaScene() {
 																<div>
 																	<div className="flex items-center justify-between mb-2">
 																		<div className="text-xs font-semibold text-muted-foreground">
-																			ENTIDADES:
+																			{t("scenes.editCampaign.content.entities")}
 																		</div>
 																	</div>
 																	<div className="flex flex-wrap gap-2">
@@ -1005,7 +1007,7 @@ export function EditarCampanaScene() {
 																}}
 															>
 																<Plus className="mr-2 h-3 w-3" />
-																Añadir Entidad
+																{t("scenes.editCampaign.content.addEntity")}
 															</Button>
 														</CardContent>
 													</Card>
@@ -1025,35 +1027,35 @@ export function EditarCampanaScene() {
 					<DialogContent className="max-w-2xl">
 						<DialogHeader>
 							<DialogTitle>
-								{editingChapter ? "Editar Capítulo" : "Nuevo Capítulo"}
+								{editingChapter ? t("scenes.editCampaign.chapterDialog.editTitle") : t("scenes.editCampaign.chapterDialog.newTitle")}
 							</DialogTitle>
 						</DialogHeader>
 						<div className="space-y-4 py-4">
 							<div>
-								<label className="text-sm font-medium text-foreground">Título</label>
+								<label className="text-sm font-medium text-foreground">{t("scenes.editCampaign.chapterDialog.titleLabel")}</label>
 								<Input
 									value={chapterForm.title}
 									onChange={(e) =>
 										setChapterForm({ ...chapterForm, title: e.target.value })
 									}
-									placeholder="Título del capítulo"
+									placeholder={t("scenes.editCampaign.chapterDialog.titlePlaceholder")}
 								/>
 							</div>
 							<RichTextEditor
-								label="Contenido"
+								label={t("scenes.editCampaign.chapterDialog.contentLabel")}
 								value={chapterForm.content}
 								onChange={(content) =>
 									setChapterForm({ ...chapterForm, content })
 								}
-								placeholder="Describe el capítulo, objetivos, etc."
+								placeholder={t("scenes.editCampaign.chapterDialog.contentPlaceholder")}
 							/>
 						</div>
 						<DialogFooter>
 							<Button variant="outline" onClick={() => setChapterDialog(false)}>
-								Cancelar
+								{t("common.cancel")}
 							</Button>
 							<Button onClick={handleSaveChapter}>
-								{editingChapter ? "Actualizar" : "Crear"} Capítulo
+								{editingChapter ? t("scenes.editCampaign.actions.update") : t("common.create")} {t("scenes.editCampaign.chapterDialog.entityName")}
 							</Button>
 						</DialogFooter>
 					</DialogContent>
@@ -1064,33 +1066,33 @@ export function EditarCampanaScene() {
 					<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
 						<DialogHeader>
 							<DialogTitle>
-								{editingScene ? "Editar Escena" : "Nueva Escena"}
+								{editingScene ? t("scenes.editCampaign.sceneDialog.editTitle") : t("scenes.editCampaign.sceneDialog.newTitle")}
 							</DialogTitle>
 							<DialogDescription>
-								Las escenas contienen la narración, notas del DM y entidades
+								{t("scenes.editCampaign.sceneDialog.description")}
 							</DialogDescription>
 						</DialogHeader>
 						<div className="space-y-4 py-4">
 							<div>
-								<label className="text-sm font-medium text-foreground">Título</label>
+								<label className="text-sm font-medium text-foreground">{t("scenes.editCampaign.sceneDialog.titleLabel")}</label>
 								<Input
 									value={sceneForm.title}
 									onChange={(e) =>
 										setSceneForm({ ...sceneForm, title: e.target.value })
 									}
-									placeholder="Título de la escena"
+									placeholder={t("scenes.editCampaign.sceneDialog.titlePlaceholder")}
 								/>
 							</div>
 							<RichTextEditor
-								label="Texto de Narración (para los jugadores)"
+								label={t("scenes.editCampaign.sceneDialog.narrationLabel")}
 								value={sceneForm.narration_text}
 								onChange={(narration_text) =>
 									setSceneForm({ ...sceneForm, narration_text })
 								}
-								placeholder="Texto que narrarás a los jugadores. Usa **negrita** para énfasis y > para diálogos"
+								placeholder={t("scenes.editCampaign.sceneDialog.narrationPlaceholder")}
 							/>
 							<div>
-								<label className="text-sm font-medium text-foreground">Notas del DM (privadas)</label>
+								<label className="text-sm font-medium text-foreground">{t("scenes.editCampaign.sceneDialog.dmNotesLabel")}</label>
 								<Textarea
 									value={sceneForm.dm_notes}
 									onChange={(e) => {
@@ -1099,17 +1101,17 @@ export function EditarCampanaScene() {
 										e.target.style.height = 'auto';
 										e.target.style.height = e.target.scrollHeight + 'px';
 									}}
-									placeholder="Notas privadas, recordatorios, etc."
+									placeholder={t("scenes.editCampaign.sceneDialog.dmNotesPlaceholder")}
 									className="min-h-[100px] resize-none overflow-hidden"
 								/>
 							</div>
 						</div>
 						<DialogFooter>
 							<Button variant="outline" onClick={() => setSceneDialog(false)}>
-								Cancelar
+								{t("common.cancel")}
 							</Button>
 							<Button onClick={handleSaveScene}>
-								{editingScene ? "Actualizar" : "Crear"} Escena
+								{editingScene ? t("scenes.editCampaign.actions.update") : t("common.create")} {t("scenes.editCampaign.sceneDialog.entityName")}
 							</Button>
 						</DialogFooter>
 					</DialogContent>
@@ -1119,14 +1121,14 @@ export function EditarCampanaScene() {
 				<Dialog open={entityDialog} onOpenChange={setEntityDialog}>
 					<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
 						<DialogHeader>
-							<DialogTitle>Añadir Entidad a la Escena</DialogTitle>
+							<DialogTitle>{t("scenes.editCampaign.entityDialog.title")}</DialogTitle>
 							<DialogDescription>
-								Asocia monstruos, objetos, hechizos, NPCs y mapas de batalla a esta escena
+								{t("scenes.editCampaign.entityDialog.description")}
 							</DialogDescription>
 						</DialogHeader>
 						<div className="space-y-4 py-4">
 							<div>
-								<label className="text-sm font-medium text-foreground">Tipo de Entidad</label>
+								<label className="text-sm font-medium text-foreground">{t("scenes.editCampaign.entityDialog.typeLabel")}</label>
 								<Select
 									value={entityForm.entity_type}
 									onValueChange={(value: "monster" | "item" | "spell" | "npc" | "map") => {
@@ -1145,11 +1147,11 @@ export function EditarCampanaScene() {
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="monster">Monstruo</SelectItem>
-										<SelectItem value="item">Objeto</SelectItem>
-										<SelectItem value="spell">Hechizo</SelectItem>
+										<SelectItem value="monster">{t("scenes.editCampaign.entityTypes.monster")}</SelectItem>
+										<SelectItem value="item">{t("scenes.editCampaign.entityTypes.item")}</SelectItem>
+										<SelectItem value="spell">{t("scenes.editCampaign.entityTypes.spell")}</SelectItem>
 										<SelectItem value="npc">NPC</SelectItem>
-										<SelectItem value="map">Mapa de Batalla</SelectItem>
+										<SelectItem value="map">{t("scenes.editCampaign.entityTypes.map")}</SelectItem>
 									</SelectContent>
 								</Select>
 							</div>
@@ -1158,11 +1160,14 @@ export function EditarCampanaScene() {
 							{(entityForm.entity_type === "monster" || entityForm.entity_type === "item" || entityForm.entity_type === "spell") && !selectedEntity && (
 								<div className="border rounded-md p-6 bg-muted/50">
 									<p className="text-sm text-muted-foreground mb-3">
-										Selecciona {
-											entityForm.entity_type === "monster" ? "un monstruo" :
-											entityForm.entity_type === "item" ? "un objeto" :
-											"un hechizo"
-										} del compendio
+										{t("scenes.editCampaign.entityDialog.selectFromCompendium", {
+											type:
+												entityForm.entity_type === "monster"
+													? t("scenes.editCampaign.entityDialog.monsterOne")
+													: entityForm.entity_type === "item"
+														? t("scenes.editCampaign.entityDialog.itemOne")
+														: t("scenes.editCampaign.entityDialog.spellOne"),
+										})}
 									</p>
 									<Button
 										onClick={() => {
@@ -1183,7 +1188,7 @@ export function EditarCampanaScene() {
 										{entityForm.entity_type === "monster" && <Skull className="mr-2 h-4 w-4" />}
 										{entityForm.entity_type === "item" && <Package className="mr-2 h-4 w-4" />}
 										{entityForm.entity_type === "spell" && <Wand2 className="mr-2 h-4 w-4" />}
-										Ir al Compendio
+										{t("scenes.editCampaign.entityDialog.goCompendium")}
 									</Button>
 								</div>
 							)}
@@ -1209,25 +1214,25 @@ export function EditarCampanaScene() {
 												});
 											}}
 										>
-											Cambiar
+											{t("scenes.editCampaign.actions.change")}
 										</Button>
 									</div>
 									{/* Show compact preview based on type */}
 									{selectedEntity.entityType === "monster" && (
 										<div className="text-sm space-y-1 text-muted-foreground">
-											{Boolean(selectedEntity.data?.size) && <p>Tamaño: {String(selectedEntity.data.size)}</p>}
+											{Boolean(selectedEntity.data?.size) && <p>{t("scenes.editCampaign.entityDialog.preview.size")}: {String(selectedEntity.data.size)}</p>}
 											{selectedEntity.data?.challenge_rating !== undefined && (
-												<p>CR: {String(selectedEntity.data.challenge_rating)}</p>
+												<p>{t("scenes.editCampaign.entityDialog.preview.cr")}: {String(selectedEntity.data.challenge_rating)}</p>
 											)}
 										</div>
 									)}
 									{selectedEntity.entityType === "spell" && (
 										<div className="text-sm space-y-1 text-muted-foreground">
 											{selectedEntity.data?.level !== undefined && (
-												<p>Nivel: {selectedEntity.data.level === 0 ? "Truco" : String(selectedEntity.data.level)}</p>
+												<p>{t("scenes.editCampaign.entityDialog.preview.level")}: {selectedEntity.data.level === 0 ? t("scenes.editCampaign.entityDialog.preview.cantrip") : String(selectedEntity.data.level)}</p>
 											)}
 											{Boolean(selectedEntity.data?.school) && (
-												<p>Escuela: {typeof selectedEntity.data.school === 'object' ? String((selectedEntity.data.school as {name?: string})?.name || '') : String(selectedEntity.data.school)}</p>
+												<p>{t("scenes.editCampaign.entityDialog.preview.school")}: {typeof selectedEntity.data.school === 'object' ? String((selectedEntity.data.school as {name?: string})?.name || '') : String(selectedEntity.data.school)}</p>
 											)}
 										</div>
 									)}
@@ -1238,7 +1243,7 @@ export function EditarCampanaScene() {
 							{entityForm.entity_type === "npc" && (
 								<div className="space-y-3">
 									<div>
-										<label className="text-sm font-medium text-foreground">Nombre del NPC</label>
+										<label className="text-sm font-medium text-foreground">{t("scenes.editCampaign.entityDialog.npcNameLabel")}</label>
 										<Input
 											value={entityForm.entity_name}
 											onChange={(e) =>
@@ -1248,15 +1253,15 @@ export function EditarCampanaScene() {
 													entity_id: e.target.value.toLowerCase().replace(/\s+/g, '-') 
 												})
 											}
-											placeholder="ej: Rey Arturo, Tabernero, Mago Oscuro"
+											placeholder={t("scenes.editCampaign.entityDialog.npcNamePlaceholder")}
 										/>
 									</div>
 									<div>
-										<label className="text-sm font-medium text-foreground">Notas (opcional)</label>
+										<label className="text-sm font-medium text-foreground">{t("scenes.editCampaign.entityDialog.notesLabel")}</label>
 										<Textarea
 											value={entityForm.notes}
 											onChange={(e) => setEntityForm({ ...entityForm, notes: e.target.value })}
-											placeholder="Descripción, motivaciones, estadísticas..."
+											placeholder={t("scenes.editCampaign.entityDialog.notesPlaceholder")}
 											className="min-h-[100px]"
 										/>
 									</div>
@@ -1266,7 +1271,7 @@ export function EditarCampanaScene() {
 							{/* Map selector */}
 							{entityForm.entity_type === "map" && (
 								<div>
-									<label className="text-sm font-medium text-foreground">Seleccionar Mapa</label>
+									<label className="text-sm font-medium text-foreground">{t("scenes.editCampaign.entityDialog.selectMapLabel")}</label>
 									<Select
 										value={entityForm.entity_id}
 										onValueChange={(value) => {
@@ -1279,13 +1284,13 @@ export function EditarCampanaScene() {
 										}}
 									>
 										<SelectTrigger>
-											<SelectValue placeholder="Elige un mapa..." />
+											<SelectValue placeholder={t("scenes.editCampaign.entityDialog.selectMapPlaceholder")} />
 										</SelectTrigger>
 										<SelectContent>
 											{loadingMaps ? (
-												<div className="p-2 text-sm text-muted-foreground">Cargando mapas...</div>
+												<div className="p-2 text-sm text-muted-foreground">{t("scenes.editCampaign.entityDialog.loadingMaps")}</div>
 											) : availableMaps.length === 0 ? (
-												<div className="p-2 text-sm text-muted-foreground">No tienes mapas creados</div>
+												<div className="p-2 text-sm text-muted-foreground">{t("scenes.editCampaign.entityDialog.noMaps")}</div>
 											) : (
 												availableMaps.map((map) => (
 													<SelectItem key={map.id} value={map.id}>
@@ -1302,15 +1307,15 @@ export function EditarCampanaScene() {
 							{selectedEntity && (entityForm.entity_type === "monster" || entityForm.entity_type === "item" || entityForm.entity_type === "spell") && (
 								<div>
 									<label className="text-sm font-medium text-foreground">
-										Alias/Nombre Personalizado (opcional)
+										{t("scenes.editCampaign.entityDialog.aliasLabel")}
 									</label>
 									<Input
 										value={entityForm.alias}
 										onChange={(e) => setEntityForm({ ...entityForm, alias: e.target.value })}
-										placeholder={`Por defecto: ${selectedEntity.name}`}
+										placeholder={t("scenes.editCampaign.entityDialog.aliasPlaceholder", { name: selectedEntity.name })}
 									/>
 									<p className="text-xs text-muted-foreground mt-1">
-										Deja en blanco para usar el nombre original
+										{t("scenes.editCampaign.entityDialog.aliasHint")}
 									</p>
 								</div>
 							)}
@@ -1328,7 +1333,7 @@ export function EditarCampanaScene() {
 									battle_map_id: null,
 								});
 							}}>
-								Cancelar
+								{t("common.cancel")}
 							</Button>
 							<Button 
 								onClick={handleAddEntity}
@@ -1338,7 +1343,7 @@ export function EditarCampanaScene() {
 									((entityForm.entity_type === "monster" || entityForm.entity_type === "item" || entityForm.entity_type === "spell") && !selectedEntity)
 								}
 							>
-								Añadir Entidad
+								{t("scenes.editCampaign.content.addEntity")}
 							</Button>
 						</DialogFooter>
 					</DialogContent>

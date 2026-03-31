@@ -6,7 +6,6 @@
 // Player: if session active → /partida/:id ; else → character sheet modal
 // ================================================
 
-import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProfileLayout } from "@/layout";
@@ -122,7 +121,6 @@ async function assignCharacterToCampaign(characterId: string, campaignId: string
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function MisCampanasScene() {
-	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [campaigns, setCampaigns] = useState<Campaign[]>([]);
 	const [invitations, setInvitations] = useState<CampaignInvitation[]>([]);
@@ -198,7 +196,7 @@ export function MisCampanasScene() {
 
 	const handleCreateCampaign = async () => {
 		if (!newCampaign.title.trim()) {
-			alert(t("scenes.campaigns.errors.titleRequired"));
+			alert("El título es obligatorio");
 			return;
 		}
 		setCreateLoading(true);
@@ -217,12 +215,12 @@ export function MisCampanasScene() {
 	};
 
 	const handleDeleteCampaign = async (id: string) => {
-		if (!confirm(t("scenes.campaigns.errors.deleteConfirm"))) return;
+		if (!confirm("¿Estás seguro de eliminar esta campaña?")) return;
 		try {
 			await deleteCampaign(id);
 			setCampaigns(campaigns.filter((c) => c.id !== id));
 		} catch {
-			alert(t("scenes.campaigns.errors.deleteFailed"));
+			alert("Error al eliminar campaña");
 		}
 	};
 
@@ -232,7 +230,7 @@ export function MisCampanasScene() {
 			setInvitations(invitations.filter((inv) => inv.token !== token));
 			await loadData();
 		} catch {
-			alert(t("scenes.campaigns.errors.acceptFailed"));
+			alert("Error al aceptar invitación");
 		}
 	};
 
@@ -241,7 +239,7 @@ export function MisCampanasScene() {
 			await rejectInvitation(token);
 			setInvitations(invitations.filter((inv) => inv.token !== token));
 		} catch {
-			alert(t("scenes.campaigns.errors.rejectFailed"));
+			alert("Error al rechazar invitación");
 		}
 	};
 
@@ -356,7 +354,7 @@ export function MisCampanasScene() {
 										onChange={(e) =>
 											setNewCampaign({ ...newCampaign, title: e.target.value })
 										}
-										placeholder={t("scenes.campaigns.createDialog.titlePlaceholder")}
+										placeholder="Ej: La Mina Perdida de Phandelver"
 									/>
 								</div>
 								<div>
@@ -366,7 +364,7 @@ export function MisCampanasScene() {
 										onChange={(e) =>
 											setNewCampaign({ ...newCampaign, description: e.target.value })
 										}
-										placeholder={t("scenes.campaigns.createDialog.descPlaceholder")}
+										placeholder="Descripción de la campaña..."
 										rows={3}
 									/>
 								</div>
@@ -377,7 +375,7 @@ export function MisCampanasScene() {
 										onChange={(e) =>
 											setNewCampaign({ ...newCampaign, notes: e.target.value })
 										}
-										placeholder={t("scenes.campaigns.createDialog.notesPlaceholder")}
+										placeholder="Notas privadas del DM..."
 										rows={3}
 									/>
 								</div>
@@ -387,7 +385,7 @@ export function MisCampanasScene() {
 									Cancelar
 								</Button>
 								<Button onClick={handleCreateCampaign} disabled={createLoading}>
-									{createLoading ? {t("scenes.campaigns.createDialog.creating")} : {t("scenes.campaigns.createDialog.create")}}
+									{createLoading ? "Creando..." : "Crear Campaña"}
 								</Button>
 							</DialogFooter>
 						</DialogContent>
@@ -489,7 +487,7 @@ export function MisCampanasScene() {
 											</div>
 										</div>
 										<CardDescription className="line-clamp-2">
-											{campaign.description || {t("scenes.campaigns.noDescription")}}
+											{campaign.description || "Sin descripción"}
 										</CardDescription>
 									</CardHeader>
 									<CardContent>
@@ -542,15 +540,15 @@ export function MisCampanasScene() {
 															<>
 																<RotateCcw className="h-3 w-3 mr-1" />
 																{startingSession === campaign.id
-																	? {t("scenes.campaigns.resuming")}
-																	: {t("scenes.campaigns.resume")}}
+																	? "Reanudando..."
+																	: "Reanudar campaña"}
 															</>
 														) : (
 															<>
 																<Play className="h-3 w-3 mr-1" />
 																{startingSession === campaign.id
-																	? {t("scenes.campaigns.starting")}
-																	: {t("scenes.campaigns.start")}}
+																	? "Iniciando..."
+																	: "Comenzar campaña"}
 															</>
 														)}
 													</Button>
@@ -678,7 +676,7 @@ export function MisCampanasScene() {
 										disabled={!selectedCharacterId || assigningCharacter}
 										onClick={handleAssignCharacter}
 									>
-										{assigningCharacter ? {t("scenes.campaigns.characterModal.assigning")} : {t("scenes.campaigns.characterModal.assignButton")}}
+										{assigningCharacter ? "Asignando..." : "Asignar ficha a esta campaña"}
 									</Button>
 								</div>
 							) : (
@@ -760,8 +758,8 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 				<TabsContent value="combate">
 					<div className="grid grid-cols-3 gap-2 text-sm">
 						{[
-							{ k: "current_hp", l: {t("scenes.campaigns.characterTabs.hpCurrent")} },
-							{ k: "max_hp", l: {t("scenes.campaigns.characterTabs.hpMax")} },
+							{ k: "current_hp", l: "HP Act." },
+							{ k: "max_hp", l: "HP Máx" },
 							{ k: "armor_class", l: "CA" },
 							{ k: "initiative", l: "Iniciativa" },
 							{ k: "speed", l: "Velocidad" },
@@ -779,19 +777,19 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 						<div>
 							<p className="font-medium mb-1">Equipo</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.equipment as string) || {t("scenes.campaigns.characterTabs.noEquipment")}}
+								{(char.equipment as string) || "Sin equipo registrado."}
 							</p>
 						</div>
 						<div>
 							<p className="font-medium mb-1">Inventario</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.inventory as string) || {t("scenes.campaigns.characterTabs.emptyInventory")}}
+								{(char.inventory as string) || "Inventario vacío."}
 							</p>
 						</div>
 						<div>
 							<p className="font-medium mb-1">Hechizos</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.spells_known as string) || {t("scenes.campaigns.characterTabs.noSpells")}}
+								{(char.spells_known as string) || "Sin hechizos registrados."}
 							</p>
 						</div>
 					</div>
@@ -799,7 +797,7 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 
 				<TabsContent value="notas">
 					<p className="text-sm text-muted-foreground whitespace-pre-wrap">
-						{(char.notes as string) || {t("scenes.campaigns.characterTabs.noNotes")}}
+						{(char.notes as string) || "Sin notas."}
 					</p>
 				</TabsContent>
 			</Tabs>

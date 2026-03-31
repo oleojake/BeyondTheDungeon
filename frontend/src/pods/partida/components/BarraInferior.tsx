@@ -6,6 +6,7 @@
 // ================================================
 
 import { Dice5, BookOpen, Swords } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function BarraInferior({ onOpenDados, campaignTitle }: Props) {
+	const { t } = useTranslation();
 	const openBestiario = () =>
 		window.open("/bestiario", "_blank");
 	const openHechizos = () =>
@@ -35,7 +37,7 @@ export function BarraInferior({ onOpenDados, campaignTitle }: Props) {
 					onClick={onOpenDados}
 				>
 					<Dice5 className="w-4 h-4 mr-1" />
-					Dados
+					{t("session.toolbar.dice")}
 				</Button>
 
 				<Button
@@ -45,7 +47,7 @@ export function BarraInferior({ onOpenDados, campaignTitle }: Props) {
 					onClick={openBestiario}
 				>
 					<Swords className="w-4 h-4 mr-1" />
-					Bestiario
+					{t("session.toolbar.bestiary")}
 				</Button>
 
 				<Button
@@ -55,7 +57,7 @@ export function BarraInferior({ onOpenDados, campaignTitle }: Props) {
 					onClick={openHechizos}
 				>
 					<BookOpen className="w-4 h-4 mr-1" />
-					Hechizos
+					{t("session.toolbar.spells")}
 				</Button>
 
 				<Button
@@ -65,7 +67,7 @@ export function BarraInferior({ onOpenDados, campaignTitle }: Props) {
 					onClick={openObjetos}
 				>
 					<BookOpen className="w-4 h-4 mr-1" />
-					Objetos
+					{t("session.toolbar.items")}
 				</Button>
 			</div>
 		</footer>

@@ -1,0 +1,1313 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "noResults": "No results",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "viewDetails": "View details",
+    "clearFilters": "Clear filters",
+    "all": "All",
+    "notAvailable": "N/A",
+    "show": "Show:",
+    "pageOf": "Page {{current}} of {{total}}",
+    "toggleLanguage": "Toggle language",
+    "switchToEnglish": "Switch to English",
+    "switchToSpanish": "Switch to Spanish",
+    "toggleTheme": "Toggle theme",
+    "unknown": "Unknown",
+    "times": "times",
+    "saving": "Saving...",
+    "on": "ON",
+    "off": "OFF",
+    "reset": "Reset"
+  },
+  "nav": {
+    "home": "Home",
+    "homeSubtitle": "Back to home",
+    "campaigns": "My Campaigns",
+    "campaignsSubtitle": "Manage your adventures",
+    "inventory": "Inventory",
+    "inventorySubtitle": "Your equipment and items",
+    "characterSheets": "My Sheets",
+    "characterSheetsSubtitle": "Your characters",
+    "maps": "My Maps",
+    "mapsSubtitle": "Battle maps",
+    "dice": "Dice Roller",
+    "diceSubtitle": "Roll the dice",
+    "settings": "Settings",
+    "settingsSubtitle": "Preferences",
+    "bestiary": "Bestiary",
+    "spells": "Spells",
+    "items": "Items",
+    "tools": "Tools"
+  },
+  "auth": {
+    "login": {
+      "title": "Log In",
+      "subtitle": "Access your Beyond the Dungeon account",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Log In",
+      "submitting": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account", 
+      "backToHome": "Back to home",
+      "welcome": "Welcome back, adventurer",
+      "errors": {
+        "missingFields": "Email and password are required"
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join Beyond the Dungeon and start your adventure",
+      "username": "Username",
+      "usernamePlaceholder": "Your adventurer name",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "How others will see you",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "Create a secure password",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "submit": "Create Account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "login": "Log in",
+      "backToHome": "Back to home",
+      "welcome": "Join the adventure, adventurer",
+      "termsAccept": "I accept the terms and conditions",
+      "termsPrefix": "I accept the",
+      "termsAnd": "and the",
+      "terms": "terms and conditions",
+      "privacy": "privacy policy",
+      "errors": {
+        "usernameRequired": "Username is required",
+        "usernameMin": "Minimum 3 characters",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email",
+        "passwordRequired": "Password is required",
+        "passwordMin": "Minimum 8 characters",
+        "passwordMismatch": "Passwords do not match",
+        "termsRequired": "You must accept the terms and conditions",
+        "registerFailed": "Error registering user.",
+        "emailResent": "That email is already registered. We resent the confirmation email. Check Spam/Promotions.",
+        "unknown": "Unknown error"
+      },
+      "success": "Account created. Check your email (including Spam/Promotions) to confirm, then log in."
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "emailNotConfirmed": "You must confirm your email before logging in.",
+      "emailAlreadyRegistered": "An account with that email already exists.",
+      "passwordTooShort": "The password does not meet the minimum length.",
+      "invalidEmail": "The email is not valid.",
+      "unexpected": "An unexpected error occurred.",
+      "signInFailed": "Could not sign in.",
+      "signupEmailExists": "That email is already registered. If you forgot your password, use account recovery.",
+      "signUpFailed": "Could not create the account. Try again in a few seconds."
+    },
+    "logout": "Log out",
+    "profile": "My Profile",
+    "myProfile": "My Profile",
+    "login": "Log in",
+    "register": "Create account"
+  },
+  "home": {
+    "hero": {
+      "title": "The digital tools your D&D table needs",
+      "subtitle": "Manage your campaigns, characters, maps and more from one place",
+      "ctaCreate": "Create free account",
+      "ctaExplore": "Explore the dungeon"
+    },
+    "features": {
+      "title": "Organize and play RPGs without complications",
+      "titleLine1": "Organize and play RPGs",
+      "titleLine2": "without complications",
+      "subtitle": "Campaigns, sheets, dice, maps, and community. All in one place",
+      "secondaryTitle": "All your tools in one place",
+      "secondarySubtitle": "Manage your sessions in a professional, simple way",
+      "campaigns": {
+        "title": "Campaign Management",
+        "description": "Create and manage your adventures with ease"
+      },
+      "characterSheets": {
+        "title": "Character Sheets",
+        "description": "Digital active sheets for your heroes"
+      },
+      "dice": {
+        "title": "Virtual Dice",
+        "description": "Roll the dice with a single click"
+      },
+      "maps": {
+        "title": "Battle Maps",
+        "description": "Visualize and control the battlefield"
+      },
+      "bestiary": {
+        "title": "Bestiary Lookup",
+        "description": "Access all D&D 5e creatures"
+      },
+      "spells": {
+        "title": "Spells and Rules",
+        "description": "Find spells quickly"
+      },
+      "items": {
+        "title": "Items and Equipment",
+        "description": "Complete equipment catalog"
+      },
+      "inventory": {
+        "title": "Inventory",
+        "description": "Manage your characters' equipment"
+      },
+      "viewAll": "View All Tools →"
+    },
+    "cta": {
+      "title": "Ready to start your adventure?",
+      "subtitle": "Join over 1,000 game masters already using Beyond The Dungeon",
+      "createAccount": "Create Free Account",
+      "viewDemo": "View Demo",
+      "noCreditCard": "No credit card · 2 minute setup"
+    },
+    "footer": {
+      "tagline": "The tools your table needs",
+      "tools": "Tools",
+      "community": "Community",
+      "legal": "Legal",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "contact": "Contact",
+      "allRightsReserved": "All rights reserved"
+    }
+  },
+  "routes": {
+    "myCampaigns": "My Campaigns",
+    "inventory": "Inventory",
+    "myCharacterSheets": "My Character Sheets",
+    "myCharacterSheet": "My Character Sheet",
+    "myMaps": "My Maps",
+    "battleMap": "Battle Map",
+    "diceRoller": "Dice Roller",
+    "settings": "Settings",
+    "editCampaign": "Edit Campaign",
+    "session": "Session",
+    "dashboard": "Dashboard"
+  },
+  "meta": {
+    "homeTitle": "Beyond the Dungeon - Digital tools for your RPG table",
+    "homeDescription": "Organize and play RPGs without complications. Campaigns, sheets, dice, maps and community for D&D and more. Create your free account.",
+    "loginTitle": "Log In - Beyond the Dungeon",
+    "loginDescription": "Access your account to manage your adventures in Beyond the Dungeon.",
+    "registerTitle": "Create Account - Beyond the Dungeon",
+    "registerDescription": "Join Beyond the Dungeon. Create your free account and start managing your RPG sessions with the best tools."
+  },
+  "scenes": {
+    "campaigns": {
+      "title": "My Campaigns",
+      "subtitle": "Manage your D&D adventures as DM or player",
+      "newCampaign": "New Campaign",
+      "createFirst": "Create First Campaign",
+      "noCampaigns": "You don't have any campaigns yet",
+      "noCampaignsDesc": "Create a new campaign or wait to be invited to one",
+      "edit": "Edit",
+      "start": "Start campaign",
+      "starting": "Starting...",
+      "resume": "Resume campaign",
+      "resuming": "Resuming...",
+      "joinGame": "Join game",
+      "viewSheet": "View my sheet",
+      "enterGame": "Enter game",
+      "inGame": "In game",
+      "paused": "Paused · Session {{number}}",
+      "dm": "DM",
+      "noDescription": "No description",
+      "createdOn": "Created on {{date}}",
+      "createDialog": {
+        "title": "Create New Campaign",
+        "description": "Create a new campaign and become the Dungeon Master",
+        "titleLabel": "Title *",
+        "titlePlaceholder": "E.g.: Lost Mine of Phandelver",
+        "descLabel": "Description",
+        "descPlaceholder": "Campaign description...",
+        "notesLabel": "Private Notes (DM)",
+        "notesPlaceholder": "DM's private notes...",
+        "creating": "Creating...",
+        "create": "Create Campaign"
+      },
+      "invitations": {
+        "title": "Pending Invitations ({{count}})",
+        "invited": "You have been invited to join this campaign",
+        "accept": "Accept",
+        "reject": "Reject"
+      },
+      "characterModal": {
+        "title": "{{title}} – My Character",
+        "description": "Check the campaign description and your character sheet status.",
+        "campaignDesc": "Campaign description",
+        "noDescription": "No description.",
+        "joinActive": "Join active game",
+        "noCharacter": "You don't have a character assigned to this campaign yet.",
+        "assignLabel": "Assign one of my sheets",
+        "selectPlaceholder": "Select a sheet...",
+        "alreadyAssigned": "(already assigned to another campaign)",
+        "assigning": "Assigning...",
+        "assignButton": "Assign sheet to this campaign",
+        "noSheets": "You don't have any character sheets yet.",
+        "goToSheets": "Go to My Sheets"
+      },
+      "characterTabs": {
+        "info": "Info",
+        "combat": "Combat",
+        "equipment": "Equipment",
+        "notes": "Notes",
+        "hpCurrent": "Current HP",
+        "hpMax": "Max HP",
+        "ac": "AC",
+        "initiative": "Initiative",
+        "speed": "Speed",
+        "equipment": "Equipment",
+        "noEquipment": "No equipment registered.",
+        "inventory": "Inventory",
+        "emptyInventory": "Empty inventory.",
+        "spells": "Spells",
+        "noSpells": "No spells registered.",
+        "noNotes": "No notes."
+      },
+      "errors": {
+        "titleRequired": "Title is required",
+        "createFailed": "Error creating campaign: {{msg}}",
+        "deleteFailed": "Error deleting campaign",
+        "deleteConfirm": "Are you sure you want to delete this campaign?",
+        "acceptFailed": "Error accepting invitation",
+        "rejectFailed": "Error rejecting invitation",
+        "startFailed": "Error starting session: {{msg}}",
+        "loadSheetsFailed": "Could not load your sheets",
+        "assignFailed": "Could not assign the sheet"
+      }
+    },
+    "characterSheet": {
+      "title": "My Character Sheet",
+      "subtitle": "D&D 5th Edition Sheet",
+      "save": "Save Sheet",
+      "saving": "Saving...",
+      "tabs": {
+        "info": "Info",
+        "stats": "Attributes",
+        "combat": "Combat",
+        "skills": "Skills",
+        "inventory": "Inventory"
+      },
+      "basicInfo": {
+        "title": "Basic Information",
+        "description": "General character data",
+        "name": "Character Name",
+        "namePlaceholder": "E.g.: Thorin Oakenshield",
+        "race": "Race",
+        "racePlaceholder": "Select a race",
+        "classAndLevel": "Class and Level",
+        "class": "Class {{number}}",
+        "classPlaceholder": "Select a class",
+        "level": "Level",
+        "multiclass": "Multiclass",
+        "addClass": "Add Class",
+        "background": "Background",
+        "backgroundPlaceholder": "Select a background",
+        "xp": "Experience Points",
+        "makePublic": "Make sheet public",
+        "personalityTraits": "Personality Traits",
+        "personalityPlaceholder": "Describe personality traits...",
+        "ideals": "Ideals",
+        "idealsPlaceholder": "Character ideals...",
+        "bonds": "Bonds",
+        "bondsPlaceholder": "Bonds...",
+        "flaws": "Flaws",
+        "flawsPlaceholder": "Flaws...",
+        "languages": "Languages",
+        "languagesPlaceholder": "Common, Dwarvish, Elvish...",
+        "proficiencies": "Proficiencies",
+        "proficienciesPlaceholder": "Select proficiencies..."
+      },
+      "stats": {
+        "title": "Attributes",
+        "description": "Ability scores (8-20)",
+        "modifier": "Modifier: {{value}}",
+        "profBonus": "Proficiency Bonus",
+        "profBonusHint": "Range: +2 to +6 (by level)",
+        "savingThrows": "Saving Throws",
+        "savingThrowsDesc": "Mark proficiencies (max 2)"
+      },
+      "combat": {
+        "hitPoints": "Hit Points",
+        "maxHp": "Max HP",
+        "currentHp": "Current HP",
+        "tempHp": "Temporary HP",
+        "hitDice": "Hit Dice",
+        "hitDicePlaceholder": "E.g.: 5d8",
+        "defenseMovement": "Defense and Movement",
+        "armorClass": "Armor Class (AC)",
+        "initiative": "Initiative",
+        "initiativeHint": "Base: +{{value}} (Dexterity)",
+        "speed": "Speed (feet)",
+        "deathSaves": "Death Saving Throws",
+        "successes": "Successes",
+        "failures": "Failures"
+      },
+      "skills": {
+        "title": "Skills",
+        "description": "Mark skills you are proficient in",
+        "featuresTraits": "Features and Traits",
+        "featuresPlaceholder": "Describe racial, class, background traits, feats..."
+      },
+      "success": {
+        "updated": "Sheet updated successfully!",
+        "created": "Sheet created successfully!"
+      },
+      "errors": {
+        "updateFailed": "Error updating sheet",
+        "createFailed": "Error creating sheet"
+      }
+    },
+    "characterSheets": {
+      "title": "My Character Sheets",
+      "subtitle": "Manage your D&D 5e characters",
+      "newSheet": "Create New Sheet",
+      "createFirst": "Create First Sheet",
+      "loading": "Loading sheets...",
+      "noSheets": "You don't have any sheets created",
+      "noSheetsDesc": "Create your first character sheet to start your adventure",
+      "character": "character",
+      "characters": "characters",
+      "level": "Level {{level}}",
+      "noName": "No name",
+      "noRace": "No race",
+      "noClass": "No class",
+      "errors": {
+        "loadFailed": "Error loading sheets",
+        "deleteFailed": "Error deleting sheet",
+        "deleteConfirm": "Delete sheet \"{{name}}\"?"
+      }
+    },
+    "maps": {
+      "title": "My Battle Maps",
+      "subtitle": "Manage your saved battle maps",
+      "newMap": "New Map",
+      "loading": "Loading maps...",
+      "map": "map",
+      "maps": "maps",
+      "noMaps": "You haven't saved any battle maps yet",
+      "createFirst": "Create Your First Map",
+      "grid": "Grid: {{size}}px",
+      "created": "Created: {{date}}",
+      "modified": "Modified: {{date}}",
+      "open": "Open",
+      "errors": {
+        "loadFailed": "Error loading maps",
+        "deleteFailed": "Error deleting map",
+        "deleteConfirm": "Delete map \"{{name}}\"?"
+      }
+    },
+    "profileSettings": {
+      "title": "Settings",
+      "subtitle": "Manage your account, preferences and privacy options.",
+      "devNotice": "The settings section is under development. You will soon be able to customize your experience.",
+      "comingSoon": "Coming soon",
+      "sections": {
+        "userProfile": {
+          "title": "User Profile",
+          "description": "Manage your personal information and account preferences"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Configure how and when to receive notifications"
+        },
+        "privacySecurity": {
+          "title": "Privacy and Security",
+          "description": "Control your privacy and security options"
+        },
+        "appearance": {
+          "title": "Appearance",
+          "description": "Customize the theme and appearance of the app"
+        }
+      }
+    },
+    "profile": {
+      "title": "My Campaigns",
+      "subtitle": "Manage your adventures, characters and progress in your active campaigns.",
+      "createCampaign": "Create Campaign",
+      "loading": "Loading campaigns...",
+      "active": "active campaign",
+      "activePlural": "active campaigns",
+      "noCampaigns": "You have no active campaigns",
+      "noCampaignsDesc": "Create your first campaign to start your adventure.",
+      "dm": "DM",
+      "player": "Player",
+      "editCampaign": "Edit Campaign",
+      "viewCampaign": "View Campaign"
+    },
+    "inventory": {
+      "title": "Inventory",
+      "subtitle": "Manage your equipment and objects"
+    },
+    "inventoryScene": {
+      "common": {
+        "empty": "empty",
+        "loadingCompendium": "Loading compendium...",
+        "characterAlt": "Character"
+      },
+      "slots": {
+        "helmet": "Helmet",
+        "amulet": "Amulet",
+        "armor": "Armor",
+        "cloak": "Cloak",
+        "mainhand": "Main hand",
+        "offhand": "Off hand / Shield",
+        "gloves": "Gloves",
+        "ring1": "Left ring",
+        "belt": "Belt",
+        "ring2": "Right ring",
+        "boots": "Boots",
+        "mount": "Mount"
+      },
+      "slotPicker": {
+        "equip": "Equip",
+        "searchPlaceholder": "Search {{slot}}...",
+        "addCustom": "Add as custom item",
+        "searchAll": "Search in the whole compendium ({{count}})",
+        "searchAllWithObjects": "Search in the whole compendium ({{count}} objects)",
+        "results": "{{count}} result",
+        "results_other": "{{count}} results",
+        "objects": "{{count}} objects",
+        "noResults": "No results - press + to add as custom item"
+      },
+      "autocomplete": {
+        "results": "{{count}} result",
+        "results_other": "{{count}} results",
+        "objectsFiltered": "{{count}} objects - type to filter",
+        "noResults": "No results - press + to add as custom item"
+      },
+      "header": {
+        "title": "Inventory",
+        "subtitle": "Manage your character's equipment, consumables, and coins"
+      },
+      "save": {
+        "saving": "Saving...",
+        "saved": "Saved!",
+        "error": "Error saving",
+        "loginToSave": "Sign in to save",
+        "chooseCharacter": "Choose a character"
+      },
+      "guestBanner": {
+        "textBefore": "You can explore the inventory freely. To save changes on a character,",
+        "login": "sign in",
+        "or": "or",
+        "register": "create an account"
+      },
+      "characterSelector": {
+        "loading": "Loading characters...",
+        "noCharacters": "You don't have characters yet.",
+        "createFirst": "Create one first",
+        "linkedTo": "Linked to:",
+        "change": "Change",
+        "choose": "Choose a character:",
+        "selectPlaceholder": "- select -",
+        "loadConfirm": "Load saved inventory from \"{{name}}\"?\n\nAccept -> replace current inventory with character inventory.\nCancel -> keep current inventory and link it to the character."
+      },
+      "weight": {
+        "current": "Current weight",
+        "enterManual": "Enter manually",
+        "backToAuto": "Back to auto calculation",
+        "manual": "manual",
+        "auto": "auto",
+        "max": "Max capacity",
+        "mountBonus": "+{{value}} lb mount ->",
+        "totalWithMount": "{{value}} lb total",
+        "overloaded": "Overloaded!",
+        "loadedPercent": "{{value}}% loaded"
+      },
+      "equipment": {
+        "title": "Equipped gear",
+        "hint": "Click a slot to search and equip an item"
+      },
+      "sections": {
+        "potions": "Potions",
+        "potionsDesc": "Potions and magical brews",
+        "searchPotions": "Search potions...",
+        "scrolls": "Scrolls",
+        "scrollsDesc": "Spell scrolls and recipes",
+        "searchScrolls": "Search scrolls...",
+        "bag": "Inventory",
+        "objectsCount": "{{count}} objects",
+        "bagDesc": "All items: unequipped equippable gear, tools, consumables, etc.",
+        "ammo": "Ammunition",
+        "ammoDesc": "Arrows, bolts, thrown daggers...",
+        "searchAmmo": "Search ammunition...",
+        "wallet": "Wallet"
+      },
+      "currency": {
+        "pp": "Platinum",
+        "po": "Gold",
+        "pe": "Electrum",
+        "pa": "Silver",
+        "pc": "Copper"
+      },
+      "footer": {
+        "createAccount": "Create an account",
+        "createAccountSuffix": "to save your inventory linked to a character.",
+        "linkCharacterHint": "Link a character above to be able to save.",
+        "savedIn": "Saved successfully in",
+        "error": "Error saving. Try again.",
+        "unsavedHint": "Changes are not saved automatically."
+      }
+    },
+    "editCampaign": {
+      "actions": {
+        "update": "Update",
+        "change": "Change"
+      },
+      "errors": {
+        "loadCampaign": "Error loading campaign",
+        "startSession": "Error starting session: {{msg}}",
+        "saveCampaign": "Error saving campaign",
+        "addPlayer": "Error adding player",
+        "removeMember": "Error removing member",
+        "saveChapter": "Error saving chapter",
+        "deleteChapter": "Error deleting chapter",
+        "saveScene": "Error saving scene",
+        "deleteScene": "Error deleting scene",
+        "npcNameRequired": "Please enter NPC name",
+        "selectMap": "Please select a map",
+        "selectCompendiumEntity": "Please select a compendium entity",
+        "addEntity": "Error adding entity",
+        "deleteEntity": "Error deleting entity"
+      },
+      "messages": {
+        "campaignUpdated": "Campaign updated successfully",
+        "playerAdded": "Player added to campaign successfully"
+      },
+      "confirm": {
+        "removePlayer": "Remove this player?",
+        "deleteChapter": "Delete this chapter and all its scenes?",
+        "deleteScene": "Delete this scene?",
+        "deleteEntity": "Delete this entity?"
+      },
+      "noAccess": {
+        "title": "You don't have access to this campaign",
+        "back": "Back to My Campaigns"
+      },
+      "header": {
+        "dmSubtitle": "Edit campaign as Dungeon Master",
+        "playerSubtitle": "Campaign information",
+        "goActiveGame": "Go to active game",
+        "resuming": "Resuming...",
+        "resume": "Resume campaign",
+        "starting": "Starting...",
+        "start": "Start campaign",
+        "saveChanges": "Save changes"
+      },
+      "tabs": {
+        "general": "General",
+        "players": "Players",
+        "content": "Chapters and Scenes"
+      },
+      "general": {
+        "title": "General Information",
+        "dmDescription": "Basic campaign data",
+        "playerDescription": "Campaign information you participate in",
+        "titleLabel": "Title",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Campaign description...",
+        "privateNotesLabel": "Private Notes (DM)",
+        "privateNotesPlaceholder": "DM private notes..."
+      },
+      "players": {
+        "addTitle": "Add Players",
+        "addDescription": "Add players to your campaign by username",
+        "usernamePlaceholder": "username",
+        "addButton": "Add Player",
+        "membersTitle": "Campaign Members ({{count}})",
+        "userFallback": "User",
+        "roles": {
+          "dm": "Dungeon Master",
+          "player": "Player"
+        }
+      },
+      "content": {
+        "title": "Chapters and Scenes",
+        "newChapter": "New Chapter",
+        "noChaptersTitle": "No chapters yet",
+        "noChaptersDescription": "Create the first chapter to organize your campaign",
+        "scenesCount": "{{count}} scenes",
+        "editChapter": "Edit Chapter",
+        "newScene": "New Scene",
+        "narration": "NARRATION:",
+        "dmNotes": "DM NOTES:",
+        "associatedMap": "Associated battle map",
+        "entities": "ENTITIES:",
+        "addEntity": "Add Entity"
+      },
+      "chapterDialog": {
+        "editTitle": "Edit Chapter",
+        "newTitle": "New Chapter",
+        "titleLabel": "Title",
+        "titlePlaceholder": "Chapter title",
+        "contentLabel": "Content",
+        "contentPlaceholder": "Describe the chapter, objectives, etc.",
+        "entityName": "Chapter"
+      },
+      "sceneDialog": {
+        "editTitle": "Edit Scene",
+        "newTitle": "New Scene",
+        "description": "Scenes contain narration, DM notes, and entities",
+        "titleLabel": "Title",
+        "titlePlaceholder": "Scene title",
+        "narrationLabel": "Narration text (for players)",
+        "narrationPlaceholder": "Text you will narrate to players. Use **bold** for emphasis and > for dialog",
+        "dmNotesLabel": "DM notes (private)",
+        "dmNotesPlaceholder": "Private notes, reminders, etc.",
+        "entityName": "Scene"
+      },
+      "entityTypes": {
+        "monster": "Monster",
+        "item": "Item",
+        "spell": "Spell",
+        "map": "Battle Map"
+      },
+      "entityDialog": {
+        "title": "Add Entity to Scene",
+        "description": "Link monsters, items, spells, NPCs and battle maps to this scene",
+        "typeLabel": "Entity Type",
+        "selectFromCompendium": "Select {{type}} from the compendium",
+        "monsterOne": "a monster",
+        "itemOne": "an item",
+        "spellOne": "a spell",
+        "goCompendium": "Go to Compendium",
+        "preview": {
+          "size": "Size",
+          "cr": "CR",
+          "level": "Level",
+          "cantrip": "Cantrip",
+          "school": "School"
+        },
+        "npcNameLabel": "NPC name",
+        "npcNamePlaceholder": "e.g.: King Arthur, Innkeeper, Dark Mage",
+        "notesLabel": "Notes (optional)",
+        "notesPlaceholder": "Description, motivations, stats...",
+        "selectMapLabel": "Select map",
+        "selectMapPlaceholder": "Choose a map...",
+        "loadingMaps": "Loading maps...",
+        "noMaps": "You don't have created maps",
+        "aliasLabel": "Alias/Custom Name (optional)",
+        "aliasPlaceholder": "Default: {{name}}",
+        "aliasHint": "Leave empty to use original name"
+      }
+    },
+    "dice": {
+      "title": "Dice Roller",
+      "subtitle": "Select the dice type and get a random result"
+    }
+  },
+  "compendium": {
+    "resultsCount": "Showing {{from}}-{{to}} of {{total}}",
+    "bestiary": {
+      "title": "Bestiary",
+      "headerTitle": "Bestiary Compendium",
+      "subtitleDefault": "Browse creature and monster stats for your adventures.",
+      "subtitleSelect": "Select a monster to add to the scene.",
+      "selectModeHint": "Click a monster to add it to your scene.",
+      "searchPlaceholder": "Search creature by name...",
+      "loading": "Loading bestiary...",
+      "loadingSingle": "Loading creature...",
+      "error": "Unable to load the bestiary. Check that the backend is running.",
+      "emptyTitle": "No creatures available",
+      "emptyDescription": "The bestiary is empty. Make sure the database is populated.",
+      "noResultsTitle": "No results found",
+      "noResultsDescription": "No creatures match \"{{query}}\"",
+      "resultsLabel_one": "creature found",
+      "resultsLabel_other": "creatures found",
+      "challengeRating": "CR {{value}}",
+      "challengeRatingShort": "CR",
+      "xpValue": "{{value}} XP",
+      "backToList": "Back to Bestiary",
+      "notFound": "Monster not found",
+      "basicStats": "Basic Stats",
+      "armorClass": "AC:",
+      "armorClassFull": "Armor Class",
+      "hitPoints": "HP:",
+      "hitPointsFull": "Hit Points",
+      "speed": "Speed",
+      "proficiencyBonus": "Proficiency Bonus",
+      "experience": "Experience",
+      "abilityScores": "Ability Scores",
+      "proficiencies": "Proficiencies",
+      "resistancesTitle": "Resistances and Immunities",
+      "damageVulnerabilities": "Damage Vulnerabilities",
+      "damageResistances": "Damage Resistances",
+      "damageImmunities": "Damage Immunities",
+      "conditionImmunities": "Condition Immunities",
+      "sensesAndLanguages": "Senses and Languages",
+      "senses": "Senses",
+      "languages": "Languages",
+      "specialAbilities": "Special Abilities",
+      "usage": "Usage",
+      "actions": "Actions",
+      "toHit": "to hit",
+      "damage": "Damage",
+      "recharge": "Recharge {{min}}-6 on {{dice}}",
+      "legendaryActions": "Legendary Actions",
+      "legendaryActionsHint": "This creature can take 3 legendary actions, choosing from the options below.",
+      "reactions": "Reactions",
+      "noExtraData": "No additional data"
+    },
+    "spells": {
+      "title": "Spells",
+      "headerTitle": "Spell Compendium",
+      "subtitleDefault": "Explore the complete spellbook of spells and enchantments.",
+      "subtitleSelect": "Select a spell to add to the scene.",
+      "selectModeHint": "Click a spell to add it to your scene.",
+      "searchPlaceholder": "Search spell by name...",
+      "levelLabel": "Level:",
+      "cantrips": "Cantrips",
+      "cantrip": "Cantrip",
+      "levelShort": "Lv {{level}}",
+      "levelFull": "Level {{level}}",
+      "loading": "Loading spells...",
+      "loadingSingle": "Loading spell...",
+      "error": "Unable to load spells. Check that the backend is running.",
+      "emptyTitle": "No spells available",
+      "emptyDescription": "The spellbook is empty. Make sure the database is populated.",
+      "noResultsTitle": "No results found",
+      "noResultsDescription": "No spells match your search",
+      "resultsLabel_one": "spell found",
+      "resultsLabel_other": "spells found",
+      "concentration": "Concentration",
+      "ritual": "Ritual",
+      "backToList": "Back to Spells",
+      "notFound": "Spell not found",
+      "basicInfo": "Basic Info",
+      "castingTime": "Casting Time",
+      "range": "Range",
+      "components": "Components",
+      "duration": "Duration",
+      "description": "Description",
+      "higherLevels": "At Higher Levels",
+      "damage": "Damage",
+      "healing": "Healing",
+      "damageType": "Type",
+      "areaOfEffect": "Area of Effect",
+      "areaOfEffectValue": "{{type}} of {{size}} feet",
+      "classes": "Available Classes"
+    },
+    "items": {
+      "title": "Items and Equipment",
+      "headerTitle": "Items Compendium",
+      "subtitleDefault": "Browse weapons, armor, and magic items for your adventures.",
+      "subtitleSelect": "Select an item to add to the scene.",
+      "selectModeHint": "Click an item to add it to your scene.",
+      "searchPlaceholder": "Search item by name...",
+      "categoryLabel": "Category:",
+      "loading": "Loading items...",
+      "error": "Unable to load items. Check that the backend is running.",
+      "emptyTitle": "No items available",
+      "emptyDescription": "The catalog is empty. Make sure the database is populated.",
+      "noResultsTitle": "No results found",
+      "noResultsDescription": "No items match \"{{query}}\"",
+      "resultsLabel_one": "item found",
+      "resultsLabel_other": "items found",
+      "cost": "Cost:",
+      "weight": "Weight:",
+      "weightValue": "{{value}} lb",
+      "damage": "Damage:",
+      "twoHandedDamage": "Damage (two hands):",
+      "armorClass": "AC:",
+      "strMinimum": "Min STR:",
+      "range": "Range:"
+    }
+  },
+  "session": {
+    "title": "Session",
+    "player": "Player",
+    "toolbar": {
+      "dice": "Dice",
+      "bestiary": "Bestiary",
+      "spells": "Spells",
+      "items": "Items"
+    },
+    "end": "End session",
+    "dm": {
+      "tabs": {
+        "maps": "Maps",
+        "enemies": "Enemies",
+        "npcs": "NPCs",
+        "items": "Items",
+        "spells": "Spells"
+      },
+      "mapLoader": {
+        "title": "Load map directly",
+        "placeholder": "Choose map...",
+        "load": "Load"
+      },
+      "story": "Story",
+      "noChapters": "No chapters.",
+      "go": "Go",
+      "notes": "DM Notes",
+      "noEntities": "No entities of this type.",
+      "deployMap": "Deploy map",
+      "deployEntity": "Add to map"
+    },
+    "sheet": {
+      "missing": "This player has no character sheet in this campaign.",
+      "unsavedTitle": "Unsaved changes",
+      "unsavedMessage": "You have unsaved changes. Are you sure you want to close without saving?",
+      "closeWithoutSaving": "Close without saving",
+      "saved": "Changes saved successfully",
+      "tabs": {
+        "stats": "Stats",
+        "combat": "Combat",
+        "inventory": "Inventory"
+      },
+      "experience": "Experience",
+      "experienceValue": "{{value}} XP",
+      "combat": {
+        "maxHp": "Max HP",
+        "currentHp": "Current HP",
+        "tempHp": "Temp HP",
+        "armorClass": "AC",
+        "initiative": "Initiative",
+        "speed": "Speed",
+        "proficiency": "Prof. Bonus"
+      }
+    }
+  },
+  "combat": {
+    "header": "Combat – Round {{round}}",
+    "endTurn": "End turn",
+    "removeFromCombat": "Remove from combat",
+    "end": "End combat",
+    "start": {
+      "title": "Start Combat",
+      "button": "Start combat",
+      "confirm": "Start!",
+      "groups": {
+        "heroes": "Heroes",
+        "enemies": "Enemies",
+        "npcs": "NPCs"
+      },
+      "empty": "No participants in the selected scene.",
+      "emptyHint": "Select a scene with heroes/enemies/NPCs to start combat.",
+      "surprise": {
+        "label": "Surprise?",
+        "none": "No surprise",
+        "heroes": "Heroes catch the enemies by surprise",
+        "enemies": "Enemies catch the heroes by surprise"
+      },
+      "surpriseHint": {
+        "enemies": "Surprised heroes cannot act in the first turn (D&D 5e Surprise rules).",
+        "heroes": "Surprised enemies cannot act in the first turn (D&D 5e Surprise rules)."
+      }
+    }
+  },
+  "inventory": {
+    "errors": {
+      "invalidStructured": "Not a structured inventory. Visualization unavailable.",
+      "notStructuredEdit": "Not a structured inventory. Edit as text."
+    },
+    "empty": "Inventory empty",
+    "summary": {
+      "equipped": "Equipped"
+    },
+    "sections": {
+      "equipped": "Equipped Gear",
+      "equippedItems": "Equipped Items:",
+      "potions": "Potions ({{count}})",
+      "scrolls": "Scrolls ({{count}})",
+      "ammo": "Ammunition ({{count}})",
+      "bag": "Inventory ({{count}} items)",
+      "potionsTitle": "Potions",
+      "potionsSubtitle": "Potions and magical brews",
+      "scrollsTitle": "Scrolls",
+      "scrollsSubtitle": "Spell scrolls and recipes",
+      "ammoTitle": "Ammunition",
+      "ammoSubtitle": "Projectiles and thrown weapons",
+      "bagTitle": "Inventory",
+      "bagSubtitle": "All items",
+      "bagCount": "{{count}} items",
+      "currency": "Coins"
+    },
+    "placeholders": {
+      "searchPotions": "Search potions…",
+      "searchScrolls": "Search scrolls…",
+      "searchAmmo": "Search ammunition…",
+      "notes": "Notes about your inventory, special items, quests..."
+    },
+    "hints": {
+      "equipSlot": "Click a slot to search and equip an item"
+    },
+    "availableItems": {
+      "title": "Available items to equip",
+      "empty": "No items in the bag"
+    },
+    "count": {
+      "objects": "items",
+      "potions": "potions",
+      "scrolls": "scrolls",
+      "ammo": "ammo"
+    },
+    "currencyInline": "{{po}}gp{{pa}}",
+    "currency": {
+      "pp": "Platinum",
+      "po": "Gold",
+      "pe": "Electrum",
+      "pa": "Silver",
+      "pc": "Copper"
+    },
+    "slots": {
+      "helmet": "Helmet",
+      "amulet": "Amulet",
+      "armor": "Armor",
+      "cloak": "Cloak",
+      "gloves": "Gloves",
+      "mainhand": "Main hand",
+      "offhand": "Off hand",
+      "ringLeft": "Left ring",
+      "belt": "Belt",
+      "ringRight": "Right ring",
+      "boots": "Boots",
+      "mount": "Mount"
+    },
+    "weight": {
+      "title": "Weight",
+      "current": "Current Weight",
+      "max": "Max capacity",
+      "manualTitle": "Enter manually",
+      "autoTitle": "Back to automatic calculation",
+      "auto": "auto",
+      "manual": "manual",
+      "mountBonus": "+{{mount}} lb mount → {{total}} lb total",
+      "overEncumbered": "Over encumbered!",
+      "hint": "Use auto for Strength × 15 or manual to set max capacity."
+    },
+    "weightLb": "{{value}} lb"
+  },
+  "dice": {
+    "overlay": {
+      "title": "Dice Roll",
+      "quantity": "Quantity",
+      "modifier": "Modifier",
+      "empty": "Click a die to roll!"
+    },
+    "scene": {
+      "title": "Dice Roller",
+      "subtitle": "Select the die type and get a random result.",
+      "pickDie": "Pick your die",
+      "faces": "{{faces}} faces",
+      "modifiersTitle": "Modifiers",
+      "advantage": "Advantage (roll 2 dice, take the higher)",
+      "disadvantage": "Disadvantage (roll 2 dice, take the lower)",
+      "modifier": "Modifier:",
+      "history": "Roll History",
+      "clearHistory": "Clear",
+      "results": "Results: {{first}} and {{second}} ({{mode}})",
+      "result": "Result: {{value}}",
+      "advantageLabel": "Advantage",
+      "disadvantageLabel": "Disadvantage",
+      "rolling": "Rolling d{{die}}{{advantage}}{{disadvantage}}",
+      "advantageTag": " (with Advantage)",
+      "disadvantageTag": " (with Disadvantage)",
+      "rollingDesc": "Rolling the die...",
+      "resultDesc": "Result obtained!",
+      "die": "Die {{index}}",
+      "critical": "Critical! Maximum result",
+      "fumble": "Fumble! Minimum result",
+      "selectedHigher": "Selected result (higher): {{value}}",
+      "selectedLower": "Selected result (lower): {{value}}",
+      "rollAgain": "Roll again"
+    }
+  },
+  "map": {
+    "empty": "No map loaded",
+    "token": {
+      "removeHp": "Remove 1 HP",
+      "addHp": "Add 1 HP",
+      "removeFromMap": "Remove from map"
+    },
+    "controls": {
+      "grid": "Grid",
+      "size": "Size",
+      "color": "Color",
+      "opacity": "Opacity",
+      "zoom": "Zoom"
+    }
+  },
+  "mapEditor": {
+    "title": "Battle Map",
+    "load": {
+      "title": "Load Map",
+      "placeholder": "Select an image",
+      "button": "Select Image"
+    },
+    "grid": {
+      "title": "Grid",
+      "show": "Show grid",
+      "size": "Size: {{value}}px",
+      "color": "Grid color",
+      "opacity": "Opacity"
+    },
+    "view": {
+      "title": "View",
+      "zoom": "Zoom: {{value}}%",
+      "zoomOut": "Zoom out",
+      "zoomIn": "Zoom in",
+      "reset": "Reset view",
+      "drag": "Drag to pan"
+    },
+    "save": {
+      "button": "Save Map"
+    },
+    "authHint": "Sign in to save your maps",
+    "empty": "Load an image to get started",
+    "prompts": {
+      "name": "Map name:",
+      "defaultName": "My Map"
+    },
+    "messages": {
+      "saved": "Map saved successfully",
+      "loadingImage": "Loading image...",
+      "saving": "Saving map..."
+    },
+    "errors": {
+      "loadFailed": "Could not load the map",
+      "invalidImage": "Please select an image file",
+      "authRequired": "You must sign in to save maps",
+      "noMap": "No map loaded",
+      "saveFailed": "Error saving the map"
+    }
+  },
+  "campaigns": {
+    "errors": {
+      "notFound": "Campaign not found.",
+      "loadFailed": "Error loading the campaign."
+    },
+    "actions": {
+      "backToList": "Back to My Campaigns"
+    }
+  },
+  "authCallback": {
+    "title": "Email Confirmation",
+    "subtitle": "Processing your confirmation request",
+    "backToLogin": "Back to login",
+    "messages": {
+      "loading": "Confirming your email...",
+      "confirmed": "Email confirmed successfully! Redirecting...",
+      "confirmedLogin": "Email confirmed! Redirecting to login...",
+      "verifyFailed": "Could not verify the email. Please try again.",
+      "confirmError": "Error confirming the email. Please contact support."
+    }
+  },
+  "dnd": {
+    "abilities": {
+      "strength": "Strength",
+      "dexterity": "Dexterity",
+      "constitution": "Constitution",
+      "intelligence": "Intelligence",
+      "wisdom": "Wisdom",
+      "charisma": "Charisma"
+    },
+    "abilitiesShort": {
+      "strength": "STR",
+      "dexterity": "DEX",
+      "constitution": "CON",
+      "intelligence": "INT",
+      "wisdom": "WIS",
+      "charisma": "CHA"
+    },
+    "sizes": {
+      "tiny": "Tiny",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "huge": "Huge",
+      "gargantuan": "Gargantuan"
+    },
+    "alignments": {
+      "lawful_good": "Lawful Good",
+      "neutral_good": "Neutral Good",
+      "chaotic_good": "Chaotic Good",
+      "lawful_neutral": "Lawful Neutral",
+      "neutral": "Neutral",
+      "chaotic_neutral": "Chaotic Neutral",
+      "lawful_evil": "Lawful Evil",
+      "neutral_evil": "Neutral Evil",
+      "chaotic_evil": "Chaotic Evil",
+      "unaligned": "Unaligned"
+    },
+    "creatureTypes": {
+      "aberration": "Aberration",
+      "beast": "Beast",
+      "celestial": "Celestial",
+      "construct": "Construct",
+      "dragon": "Dragon",
+      "elemental": "Elemental",
+      "fey": "Fey",
+      "fiend": "Fiend",
+      "giant": "Giant",
+      "humanoid": "Humanoid",
+      "monstrosity": "Monstrosity",
+      "ooze": "Ooze",
+      "plant": "Plant",
+      "undead": "Undead"
+    },
+    "damageTypes": {
+      "acid": "Acid",
+      "bludgeoning": "Bludgeoning",
+      "cold": "Cold",
+      "fire": "Fire",
+      "force": "Force",
+      "lightning": "Lightning",
+      "necrotic": "Necrotic",
+      "piercing": "Piercing",
+      "poison": "Poison",
+      "psychic": "Psychic",
+      "radiant": "Radiant",
+      "slashing": "Slashing",
+      "thunder": "Thunder"
+    },
+    "conditions": {
+      "blinded": "Blinded",
+      "charmed": "Charmed",
+      "deafened": "Deafened",
+      "frightened": "Frightened",
+      "grappled": "Grappled",
+      "incapacitated": "Incapacitated",
+      "invisible": "Invisible",
+      "paralyzed": "Paralyzed",
+      "petrified": "Petrified",
+      "poisoned": "Poisoned",
+      "prone": "Prone",
+      "restrained": "Restrained",
+      "stunned": "Stunned",
+      "unconscious": "Unconscious",
+      "exhaustion": "Exhaustion"
+    },
+    "senses": {
+      "blindsight": "Blindsight",
+      "darkvision": "Darkvision",
+      "tremorsense": "Tremorsense",
+      "truesight": "Truesight",
+      "passive_perception": "Passive Perception"
+    },
+    "speeds": {
+      "walk": "Walk",
+      "fly": "Fly",
+      "swim": "Swim",
+      "burrow": "Burrow",
+      "climb": "Climb"
+    },
+    "languages": {
+      "common": "Common",
+      "dwarvish": "Dwarvish",
+      "elvish": "Elvish",
+      "giant": "Giant",
+      "gnomish": "Gnomish",
+      "goblin": "Goblin",
+      "halfling": "Halfling",
+      "orc": "Orc",
+      "abyssal": "Abyssal",
+      "celestial": "Celestial",
+      "draconic": "Draconic",
+      "deep_speech": "Deep Speech",
+      "infernal": "Infernal",
+      "primordial": "Primordial",
+      "sylvan": "Sylvan",
+      "undercommon": "Undercommon"
+    },
+    "magicSchools": {
+      "abjuration": "Abjuration",
+      "conjuration": "Conjuration",
+      "divination": "Divination",
+      "enchantment": "Enchantment",
+      "evocation": "Evocation",
+      "illusion": "Illusion",
+      "necromancy": "Necromancy",
+      "transmutation": "Transmutation"
+    },
+    "equipmentCategories": {
+      "weapon": "Weapon",
+      "armor": "Armor",
+      "adventuring_gear": "Adventuring Gear",
+      "tools": "Tools",
+      "potion": "Potion",
+      "wondrous_items": "Wondrous Items",
+      "ring": "Ring",
+      "rod": "Rod",
+      "staff": "Staff",
+      "wand": "Wand",
+      "scroll": "Scroll",
+      "ammunition": "Ammunition",
+      "mounts_and_vehicles": "Mounts and Vehicles"
+    },
+    "weaponProperties": {
+      "ammunition": "Ammunition",
+      "finesse": "Finesse",
+      "heavy": "Heavy",
+      "light": "Light",
+      "loading": "Loading",
+      "ranged": "Ranged",
+      "reach": "Reach",
+      "special": "Special",
+      "thrown": "Thrown",
+      "two_handed": "Two-Handed",
+      "versatile": "Versatile"
+    },
+    "areaEffects": {
+      "cone": "Cone",
+      "cube": "Cube",
+      "cylinder": "Cylinder",
+      "line": "Line",
+      "sphere": "Sphere"
+    },
+    "classes": {
+      "barbarian": "Barbarian",
+      "bard": "Bard",
+      "cleric": "Cleric",
+      "druid": "Druid",
+      "fighter": "Fighter",
+      "monk": "Monk",
+      "paladin": "Paladin",
+      "ranger": "Ranger",
+      "rogue": "Rogue",
+      "sorcerer": "Sorcerer",
+      "warlock": "Warlock",
+      "wizard": "Wizard",
+      "artificer": "Artificer"
+    },
+    "proficiencies": {
+      "perception": "Perception",
+      "stealth": "Stealth",
+      "athletics": "Athletics",
+      "acrobatics": "Acrobatics",
+      "arcana": "Arcana",
+      "history": "History",
+      "insight": "Insight",
+      "intimidation": "Intimidation",
+      "investigation": "Investigation",
+      "medicine": "Medicine",
+      "nature": "Nature",
+      "religion": "Religion",
+      "survival": "Survival"
+    }
+  }
+}

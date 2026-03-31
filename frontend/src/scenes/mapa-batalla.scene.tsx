@@ -25,6 +25,7 @@ import {
   createBattleMap,
   getBattleMap,
 } from "@/core/api/battle-map.service";
+import { useTranslation } from "react-i18next";
 
 interface MapState {
   image: string | null;
@@ -60,6 +61,7 @@ const getAlphaFromRgba = (rgba: string): number => {
 };
 
 export const MapaBatallaScene = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -115,7 +117,7 @@ export const MapaBatallaScene = () => {
       });
     } catch (error) {
       console.error("Error al cargar mapa:", error);
-      alert("No se pudo cargar el mapa");
+      alert(t("mapEditor.errors.loadFailed"));
     }
   };
 
@@ -210,7 +212,7 @@ export const MapaBatallaScene = () => {
 
     // Verificar que es una imagen
     if (!file.type.startsWith("image/")) {
-      alert("Por favor selecciona un archivo de imagen");
+      alert(t("mapEditor.errors.invalidImage"));
       return;
     }
 
@@ -271,16 +273,19 @@ export const MapaBatallaScene = () => {
 
   const handleSaveMap = async () => {
     if (!isAuthenticated) {
-      alert("Debes iniciar sesión para guardar mapas");
+      alert(t("mapEditor.errors.authRequired"));
       return;
     }
 
     if (!mapState.image) {
-      alert("No hay ningún mapa cargado");
+      alert(t("mapEditor.errors.noMap"));
       return;
     }
 
-    const mapName = prompt("Nombre del mapa:", mapState.imageName || "Mi Mapa");
+    const mapName = prompt(
+      t("mapEditor.prompts.name"),
+      mapState.imageName || t("mapEditor.prompts.defaultName")
+    );
     if (!mapName) return;
 
     setIsSaving(true);
@@ -291,11 +296,11 @@ export const MapaBatallaScene = () => {
         grid_size: mapState.gridSize,
         grid_color: mapState.gridColor,
       });
-      alert("Mapa guardado correctamente");
+      alert(t("mapEditor.messages.saved"));
       setMapState((prev) => ({ ...prev, imageName: mapName }));
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert(error instanceof Error ? error.message : "Error al guardar el mapa");
+      alert(error instanceof Error ? error.message : t("mapEditor.errors.saveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -308,7 +313,7 @@ export const MapaBatallaScene = () => {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-            <p className="text-sm font-medium text-amber-400">Cargando imagen...</p>
+            <p className="text-sm font-medium text-amber-400">{t("mapEditor.messages.loadingImage")}</p>
           </div>
         </div>
       )}
@@ -318,7 +323,7 @@ export const MapaBatallaScene = () => {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-            <p className="text-sm font-medium text-amber-400">Guardando mapa...</p>
+            <p className="text-sm font-medium text-amber-400">{t("mapEditor.messages.saving")}</p>
           </div>
         </div>
       )}
@@ -328,14 +333,14 @@ export const MapaBatallaScene = () => {
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-amber-100">Mapa de Batalla</h1>
+            <h1 className="text-2xl font-bold text-amber-100">{t("mapEditor.title")}</h1>
             <Button
               variant="ghost"
               onClick={() => navigate(-1)}
               className="flex items-center gap-1.5 text-amber-400 hover:text-amber-200 hover:bg-amber-900/30 text-xs"
             >
               <House className="h-4 w-4" />
-              Volver
+              {t("common.back")}
             </Button>
           </div>
 
@@ -344,10 +349,10 @@ export const MapaBatallaScene = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <Upload className="h-5 w-5" />
-                Cargar Mapa
+                {t("mapEditor.load.title")}
               </CardTitle>
               <CardDescription className="text-amber-600">
-                {mapState.imageName || "Selecciona una imagen"}
+                {mapState.imageName || t("mapEditor.load.placeholder")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -363,7 +368,7 @@ export const MapaBatallaScene = () => {
                 className="w-full bg-amber-700 hover:bg-amber-600 text-amber-100"
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Seleccionar Imagen
+                {t("mapEditor.load.button")}
               </Button>
             </CardContent>
           </Card>
@@ -373,7 +378,7 @@ export const MapaBatallaScene = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <Grid3x3 className="h-5 w-5" />
-                Cuadrícula
+                {t("mapEditor.grid.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -387,12 +392,14 @@ export const MapaBatallaScene = () => {
                   }
                   className="h-4 w-4 accent-amber-500"
                 />
-                <Label htmlFor="showGrid" className="text-amber-300">Mostrar cuadrícula</Label>
+                <Label htmlFor="showGrid" className="text-amber-300">{t("mapEditor.grid.show")}</Label>
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="gridSize" className="text-amber-300">Tamaño: {mapState.gridSize}px</Label>
+                  <Label htmlFor="gridSize" className="text-amber-300">
+                    {t("mapEditor.grid.size", { value: mapState.gridSize })}
+                  </Label>
                 </div>
                 <Slider
                   id="gridSize"
@@ -408,7 +415,7 @@ export const MapaBatallaScene = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gridColor" className="text-amber-300">Color de cuadrícula</Label>
+                <Label htmlFor="gridColor" className="text-amber-300">{t("mapEditor.grid.color")}</Label>
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
@@ -440,7 +447,7 @@ export const MapaBatallaScene = () => {
                       disabled={!mapState.showGrid}
                     />
                     <div className="flex justify-between text-xs text-amber-600">
-                      <span>Opacidad</span>
+                      <span>{t("mapEditor.grid.opacity")}</span>
                       <span>{Math.round(getAlphaFromRgba(mapState.gridColor) * 100)}%</span>
                     </div>
                   </div>
@@ -454,12 +461,12 @@ export const MapaBatallaScene = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <ZoomIn className="h-5 w-5" />
-                Vista
+                {t("mapEditor.view.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-amber-300">Zoom: {Math.round(mapState.zoom * 100)}%</Label>
+                <Label className="text-amber-300">{t("mapEditor.view.zoom", { value: Math.round(mapState.zoom * 100) })}</Label>
               </div>
 
               <div className="flex gap-2">
@@ -471,7 +478,7 @@ export const MapaBatallaScene = () => {
                   disabled={!mapState.image}
                 >
                   <ZoomOut className="mr-2 h-4 w-4" />
-                  Alejar
+                  {t("mapEditor.view.zoomOut")}
                 </Button>
                 <Button
                   onClick={handleZoomIn}
@@ -481,7 +488,7 @@ export const MapaBatallaScene = () => {
                   disabled={!mapState.image}
                 >
                   <ZoomIn className="mr-2 h-4 w-4" />
-                  Acercar
+                  {t("mapEditor.view.zoomIn")}
                 </Button>
               </div>
 
@@ -493,12 +500,12 @@ export const MapaBatallaScene = () => {
                 disabled={!mapState.image}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Restablecer Vista
+                  {t("mapEditor.view.reset")}
               </Button>
 
               <div className="text-sm text-amber-600">
                 <Move className="inline h-4 w-4 mr-1" />
-                Arrastra para desplazar
+                {t("mapEditor.view.drag")}
               </div>
             </CardContent>
           </Card>
@@ -509,7 +516,7 @@ export const MapaBatallaScene = () => {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                   <Save className="h-5 w-5" />
-                  Guardar
+                  {t("common.save")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -519,7 +526,7 @@ export const MapaBatallaScene = () => {
                   disabled={!mapState.image || isSaving}
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? "Guardando..." : "Guardar Mapa"}
+                  {isSaving ? t("common.saving") : t("mapEditor.save.button")}
                 </Button>
               </CardContent>
             </Card>
@@ -529,7 +536,7 @@ export const MapaBatallaScene = () => {
             <Card className="border-amber-800/30 bg-amber-950/40">
               <CardContent className="pt-6">
                 <p className="text-sm text-amber-500 text-center">
-                  Inicia sesión para guardar tus mapas
+                  {t("mapEditor.authHint")}
                 </p>
               </CardContent>
             </Card>
@@ -544,7 +551,7 @@ export const MapaBatallaScene = () => {
             <div className="text-center space-y-4">
               <Upload className="h-16 w-16 mx-auto text-amber-800/50" />
               <p className="text-xl text-amber-700/60">
-                Carga una imagen para comenzar
+                {t("mapEditor.empty")}
               </p>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Settings, ScrollText, Map, Scroll, Dices, Home, Package } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { NavMain } from "@/components/nav-main";
 import { cn } from "@/lib/utils";
@@ -8,56 +9,63 @@ import { useSidebar } from "@/components/ui/sidebar-context";
 import {
 	Sidebar,
 	SidebarContent,
+	SidebarFooter,
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 
 // Opciones de gestión de cuenta/perfil con subtítulos y badges opcionales
-export const navMain = [
-  {
-    title: "Inicio",
-    url: "/",
-    icon: Home,
-    subtitle: "Volver a la página principal",
-  },
-  {
-    title: "Mis Campañas",
-    url: "/mis-campanas",
-    icon: Scroll,
-    subtitle: "Gestiona tus aventuras y jugadores",
-    isActive: true,
-  },
-  {
-    title: "Inventario",
-    url: "/inventario",
-    icon: Package,
-    subtitle: "Gestiona tu equipo y objetos",
-  },
-  {
-    title: "Mis Fichas",
-    url: "/mis-fichas",
-    icon: ScrollText,
-    subtitle: "Lista de personajes creados",
-  },
-  {
-    title: "Mis Mapas",
-    url: "/mis-mapas",
-    icon: Map,
-    subtitle: "Mapas y escenarios de batalla",
-  },
-  {
-    title: "Tirada de Dados",
-    url: "/dados",
-    icon: Dices,
-    subtitle: "Lanza dados y genera tiradas",
-  },
-  {
-    title: "Configuración",
-    url: "/profile/settings",
-    icon: Settings,
-    subtitle: "Ajustes de cuenta y preferencias",
-  },
-];
+export const useNavMain = () => {
+  const { t } = useTranslation();
+
+  return [
+    {
+      title: t('nav.home'),
+      url: "/",
+      icon: Home,
+      subtitle: t('nav.homeSubtitle'),
+    },
+    {
+      title: t('nav.campaigns'),
+      url: "/mis-campanas",
+      icon: Scroll,
+      subtitle: t('nav.campaignsSubtitle'),
+      isActive: true,
+    },
+    {
+      title: t('nav.inventory'),
+      url: "/inventario",
+      icon: Package,
+      subtitle: t('nav.inventorySubtitle'),
+    },
+    {
+      title: t('nav.characterSheets'),
+      url: "/mis-fichas",
+      icon: ScrollText,
+      subtitle: t('nav.characterSheetsSubtitle'),
+    },
+    {
+      title: t('nav.maps'),
+      url: "/mis-mapas",
+      icon: Map,
+      subtitle: t('nav.mapsSubtitle'),
+    },
+    {
+      title: t('nav.dice'),
+      url: "/dados",
+      icon: Dices,
+      subtitle: t('nav.diceSubtitle'),
+    },
+    {
+      title: t('nav.settings'),
+      url: "/profile/settings",
+      icon: Settings,
+      subtitle: t('nav.settingsSubtitle'),
+    },
+  ];
+};
 
 function SidebarBrand() {
 	const { state } = useSidebar();
@@ -91,6 +99,8 @@ function SidebarBrand() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const navMain = useNavMain();
+
 	return (
 		<Sidebar
 			collapsible="icon"
@@ -171,6 +181,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<SidebarContent>
 				<NavMain items={navMain} />
 			</SidebarContent>
+			<SidebarFooter>
+				<div className="flex items-center justify-center gap-2 p-2">
+					<LanguageToggle />
+					<ThemeToggle />
+				</div>
+			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>
 	);

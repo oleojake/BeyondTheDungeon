@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { routes } from "@/router";
 import type { RegisterComponentProps } from "@/interfaces/registerProps";
 
@@ -10,6 +11,7 @@ export const RegisterComponent = ({
   onChange,
   onSubmit,
 }: RegisterComponentProps) => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-dark dark:via-dark-lighter dark:to-dark flex items-center justify-center p-6 transition-colors duration-300">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
@@ -51,7 +53,7 @@ export const RegisterComponent = ({
                   Beyond the Dungeon
                 </h1>
               </div>
-              <p className="text-gray-400">Únete a la aventura, aventurero</p>
+              <p className="text-gray-400">{t("auth.register.welcome")}</p>
             </div>
 
             {/* Register Form */}
@@ -76,7 +78,7 @@ export const RegisterComponent = ({
                   htmlFor="username"
                   className="block text-sm font-medium text-gray-300 mb-2"
                 >
-                  Nombre de usuario
+                  {t("auth.register.username")}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -99,7 +101,7 @@ export const RegisterComponent = ({
                     id="username"
                     value={formData.username}
                     onChange={(e) => onChange("username", e.target.value)}
-                    placeholder="Tu nombre de aventurero"
+                    placeholder={t("auth.register.usernamePlaceholder")}
                     className={`w-full pl-12 pr-4 py-3 bg-dark border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${
                       errors.username
                         ? "border-error focus:border-error"
@@ -118,7 +120,7 @@ export const RegisterComponent = ({
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-300 mb-2"
                 >
-                  Nombre a mostrar
+                  {t("auth.register.displayName")}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -141,7 +143,7 @@ export const RegisterComponent = ({
                     id="displayName"
                     value={formData.displayName}
                     onChange={(e) => onChange("displayName", e.target.value)}
-                    placeholder="Cómo te verán los demás"
+                    placeholder={t("auth.register.displayNamePlaceholder")}
                     className={`w-full pl-12 pr-4 py-3 bg-dark border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${
                       errors.displayName
                         ? "border-error focus:border-error"
@@ -162,7 +164,7 @@ export const RegisterComponent = ({
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-300 mb-2"
                 >
-                  Email
+                  {t("auth.register.email")}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -185,7 +187,7 @@ export const RegisterComponent = ({
                     id="email"
                     value={formData.email}
                     onChange={(e) => onChange("email", e.target.value)}
-                    placeholder="tu@email.com"
+                    placeholder={t("auth.register.emailPlaceholder")}
                     className={`w-full pl-12 pr-4 py-3 bg-dark border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${
                       errors.email
                         ? "border-error focus:border-error"
@@ -204,7 +206,7 @@ export const RegisterComponent = ({
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-300 mb-2"
                 >
-                  Contraseña
+                  {t("auth.register.password")}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -227,7 +229,7 @@ export const RegisterComponent = ({
                     id="password"
                     value={formData.password}
                     onChange={(e) => onChange("password", e.target.value)}
-                    placeholder="Crea una contraseña segura"
+                    placeholder={t("auth.register.passwordPlaceholder")}
                     className={`w-full pl-12 pr-4 py-3 bg-dark border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${
                       errors.password
                         ? "border-error focus:border-error"
@@ -246,7 +248,7 @@ export const RegisterComponent = ({
                   htmlFor="confirmPassword"
                   className="block text-sm font-medium text-gray-300 mb-2"
                 >
-                  Confirmar contraseña
+                  {t("auth.register.confirmPassword")}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -271,7 +273,7 @@ export const RegisterComponent = ({
                     onChange={(e) =>
                       onChange("confirmPassword", e.target.value)
                     }
-                    placeholder="Repite tu contraseña"
+                    placeholder={t("auth.register.confirmPasswordPlaceholder")}
                     className={`w-full pl-12 pr-4 py-3 bg-dark border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${
                       errors.confirmPassword
                         ? "border-error focus:border-error"
@@ -297,19 +299,19 @@ export const RegisterComponent = ({
                     className="mt-1 w-4 h-4 rounded border-dark-border bg-dark text-primary focus:ring-primary focus:ring-offset-0"
                   />
                   <label htmlFor="terms" className="text-sm text-gray-400">
-                    Acepto los{" "}
+                    {t("auth.register.termsPrefix")}{" "}
                     <a
                       href="#"
                       className="text-primary hover:text-primary-light"
                     >
-                      términos y condiciones
+                      {t("auth.register.terms")}
                     </a>{" "}
-                    y la{" "}
+                    {t("auth.register.termsAnd")}{" "}
                     <a
                       href="#"
                       className="text-primary hover:text-primary-light"
                     >
-                      política de privacidad
+                      {t("auth.register.privacy")}
                     </a>
                   </label>
                 </div>
@@ -324,19 +326,19 @@ export const RegisterComponent = ({
                 disabled={loading}
                 className="w-full py-3 bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent-dark text-white font-bold rounded-lg shadow-lg shadow-primary/30 transition-all hover:scale-[1.02] hover:shadow-primary/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {loading ? "Registrando..." : "Crear Cuenta"}
+                {loading ? t("auth.register.submitting") : t("auth.register.submit")}
               </button>
             </form>
 
             {/* Login Link */}
             <div className="mt-6 text-center">
               <p className="text-gray-400 text-sm">
-                ¿Ya tienes cuenta?{" "}
+                {t("auth.register.hasAccount")}{" "}
                 <Link
                   to={routes.login}
                   className="text-primary hover:text-primary-light font-semibold transition-colors"
                 >
-                  Iniciar sesión
+                  {t("auth.register.login")}
                 </Link>
               </p>
             </div>
@@ -361,7 +363,7 @@ export const RegisterComponent = ({
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              Volver al inicio
+              {t("auth.register.backToHome")}
             </Link>
           </div>
         </div>

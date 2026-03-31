@@ -5,6 +5,7 @@
 // Se usa en inventario.scene.tsx, FichaOverlay.tsx, y mi-ficha.scene.tsx
 
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,6 +63,7 @@ export function InventoryManager({
   onNotesChange,
   readOnly = false,
 }: InventoryManagerProps) {
+  const { t } = useTranslation();
   // Parse JSON initial state
   const [inventory, setInventory] = useState<InventoryState>(() => {
     try {
@@ -211,7 +213,7 @@ export function InventoryManager({
     <div className="space-y-6">
       {/* PAPERDOLL - EQUIPO EQUIPADO */}
       <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-        <h2 className="text-xl font-semibold text-amber-300 mb-4">⚔️ Equipo Equipado</h2>
+        <h2 className="text-xl font-semibold text-amber-300 mb-4">⚔️ {t("inventory.sections.equipped")}</h2>
         <div className="relative w-fit mx-auto">
           <Silhouette />
           <div
@@ -235,7 +237,7 @@ export function InventoryManager({
         </div>
         {!readOnly && (
           <p className="text-xs text-amber-700/50 text-center mt-3">
-            Haz clic en un slot para buscar y equipar un objeto
+            {t("inventory.hints.equipSlot")}
           </p>
         )}
       </section>
@@ -262,17 +264,17 @@ export function InventoryManager({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
           <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-            🧪 Pociones
+            🧪 {t("inventory.sections.potionsTitle")}
           </h2>
           <p className="text-xs text-amber-600/70 mb-3 italic">
-            Pociones y brebajes mágicos
+            {t("inventory.sections.potionsSubtitle")}
           </p>
           <ConsumableSection
             items={inventory.potions}
             rowColor="bg-amber-900/25 border-amber-800/35"
             allItems={compendiumItems}
             categoryFilter={FILTER_POTIONS}
-            inputPlaceholder="Busca pociones…"
+            inputPlaceholder={t("inventory.placeholders.searchPotions")}
             onSelect={(name) => addConsumable("potions", name)}
             onChangeQty={(id, d) => changeQty("potions", id, d)}
             onRemove={(id) => removeItem("potions", id)}
@@ -282,17 +284,17 @@ export function InventoryManager({
 
         <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
           <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-            📜 Pergaminos
+            📜 {t("inventory.sections.scrollsTitle")}
           </h2>
           <p className="text-xs text-amber-600/70 mb-3 italic">
-            Pergaminos de conjuros y recetas
+            {t("inventory.sections.scrollsSubtitle")}
           </p>
           <ConsumableSection
             items={inventory.scrolls}
             rowColor="bg-amber-900/25 border-amber-800/35"
             allItems={compendiumItems}
             categoryFilter={FILTER_SCROLLS}
-            inputPlaceholder="Busca pergaminos…"
+            inputPlaceholder={t("inventory.placeholders.searchScrolls")}
             onSelect={(name) => addConsumable("scrolls", name)}
             onChangeQty={(id, d) => changeQty("scrolls", id, d)}
             onRemove={(id) => removeItem("scrolls", id)}
@@ -304,17 +306,17 @@ export function InventoryManager({
       {/* MUNICIÓN */}
       <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
         <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-          🎯 Munición
+          🎯 {t("inventory.sections.ammoTitle")}
         </h2>
         <p className="text-xs text-amber-600/70 mb-3 italic">
-          Proyectiles y armas de lanzamiento
+          {t("inventory.sections.ammoSubtitle")}
         </p>
         <ConsumableSection
           items={inventory.ammo}
           rowColor="bg-amber-900/25 border-amber-800/35"
           allItems={compendiumItems}
           categoryFilter={FILTER_AMMO}
-          inputPlaceholder="Busca munición…"
+          inputPlaceholder={t("inventory.placeholders.searchAmmo")}
           onSelect={(name) => addConsumable("ammo", name)}
           onChangeQty={(id, d) => changeQty("ammo", id, d)}
           onRemove={(id) => removeItem("ammo", id)}
@@ -325,13 +327,13 @@ export function InventoryManager({
       {/* BOLSA */}
       <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
         <div className="flex items-baseline gap-3 mb-1">
-          <h2 className="text-xl font-semibold text-amber-300">📦 Inventario</h2>
+          <h2 className="text-xl font-semibold text-amber-300">📦 {t("inventory.sections.bagTitle")}</h2>
           <span className="text-xs text-amber-600">
-            {inventory.bag.reduce((s, i) => s + i.quantity, 0)} objetos
+            {t("inventory.sections.bagCount", { count: inventory.bag.reduce((s, i) => s + i.quantity, 0) })}
           </span>
         </div>
         <p className="text-xs text-amber-700/60 mb-3 italic">
-          Todos los objetos
+          {t("inventory.sections.bagSubtitle")}
         </p>
         <BagSection
           items={inventory.bag}
@@ -347,11 +349,11 @@ export function InventoryManager({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* PESO */}
         <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-          <h2 className="text-xl font-semibold text-amber-300 mb-4">⚖️ Peso</h2>
+          <h2 className="text-xl font-semibold text-amber-300 mb-4">⚖️ {t("inventory.weight.title")}</h2>
           <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-amber-950/20 rounded border border-amber-700/30">
                 <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-widest text-amber-600">Peso Actual</p>
+                  <p className="text-[10px] uppercase tracking-widest text-amber-600">{t("inventory.weight.current")}</p>
                   <p className={`text-2xl font-bold ${overEncumbered ? "text-red-400" : "text-amber-200"}`}>
                     {currentWeight.toFixed(1)}
                   </p>
@@ -359,7 +361,7 @@ export function InventoryManager({
                 <div className="h-16 w-1 bg-amber-800/50 rounded" />
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2">
-                    <p className="text-[10px] uppercase tracking-widest text-amber-600">Capacidad máx.</p>
+                    <p className="text-[10px] uppercase tracking-widest text-amber-600">{t("inventory.weight.max")}</p>
                     {!readOnly && onMaxCarryWeightChange && autoMaxCarryWeight !== undefined && (
                       <button
                         onClick={() => {
@@ -373,12 +375,12 @@ export function InventoryManager({
                         }}
                         title={
                           autoCapacity
-                            ? "Introducir manualmente"
-                            : "Volver al cálculo automático"
+                            ? t("inventory.weight.manualTitle")
+                            : t("inventory.weight.autoTitle")
                         }
                         className="text-[9px] px-1.5 py-0.5 rounded border border-amber-800/50 text-amber-600 hover:text-amber-400 hover:border-amber-600/60 transition-colors"
                       >
-                        {autoCapacity ? "auto" : "manual"}
+                        {autoCapacity ? t("inventory.weight.auto") : t("inventory.weight.manual")}
                       </button>
                     )}
                   </div>
@@ -409,19 +411,22 @@ export function InventoryManager({
                   )}
                   {mountCapacity > 0 && (
                     <p className="text-[10px] text-amber-500/80 mt-0.5">
-                      +{mountCapacity} lb montura → <span className="text-amber-300">{effectiveMax.toFixed(1)} lb total</span>
+                      {t("inventory.weight.mountBonus", {
+                        mount: mountCapacity,
+                        total: effectiveMax.toFixed(1),
+                      })}
                     </p>
                   )}
                 </div>
               </div>
 
               {overEncumbered && (
-                <p className="text-xs text-red-400 font-semibold mb-2">⚠️ ¡Sobrecargado!</p>
+                <p className="text-xs text-red-400 font-semibold mb-2">⚠️ {t("inventory.weight.overEncumbered")}</p>
               )}
 
               {!readOnly && (
                 <p className="text-[10px] text-amber-700/80 mt-1 italic">
-                  Usa auto para aplicar fuerza × 15 o manual para personalizar la capacidad máxima.
+                  {t("inventory.weight.hint")}
                 </p>
               )}
             </div>
@@ -429,11 +434,11 @@ export function InventoryManager({
 
         {/* MONEDAS */}
         <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-          <h2 className="text-xl font-semibold text-amber-300 mb-4">💰 Monedas</h2>
+          <h2 className="text-xl font-semibold text-amber-300 mb-4">💰 {t("inventory.sections.currency")}</h2>
           <div className="space-y-2">
             {(["pp", "po", "pe", "pa", "pc"] as const).map((coin) => (
               <div key={coin} className="flex items-center gap-2">
-                <label className="text-xs text-amber-600 w-12 uppercase">{coin}</label>
+                <label className="text-xs text-amber-600 w-12 uppercase">{t(`inventory.currency.${coin}`)}</label>
                 <Input
                   type="number"
                   min={0}
@@ -453,7 +458,7 @@ export function InventoryManager({
         <NotesSection
           value={notes}
           onChange={onNotesChange}
-          placeholder="Notas sobre tu inventario, ítems especiales, misiones..."
+          placeholder={t("inventory.placeholders.notes")}
           readOnly={readOnly}
         />
       )}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
 import { LoginComponent } from "./login.component";
 import { routes } from "@/router";
 import { signIn } from "@/core/auth/supabaseAuth";
@@ -12,6 +13,7 @@ interface FormData {
 export const LoginContainer = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { t } = useTranslation();
 
 	const [formData, setFormData] = useState<FormData>({
 		email: (location.state as { email?: string })?.email || "",
@@ -30,7 +32,7 @@ export const LoginContainer = () => {
 		setError(null);
 
 		if (!formData.email || !formData.password) {
-			setError("Email y contraseña son requeridos");
+			setError(t("auth.login.errors.missingFields"));
 			return;
 		}
 
@@ -39,7 +41,7 @@ export const LoginContainer = () => {
 			await signIn(formData.email, formData.password);
 			navigate(routes.misCampanas);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Error desconocido");
+			setError(err instanceof Error ? err.message : t("common.unknown"));
 		} finally {
 			setLoading(false);
 		}

@@ -8,6 +8,7 @@
 // ================================================
 
 import { X, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import type { SessionToken, CombatState } from "../partida.vm";
 
@@ -30,6 +31,7 @@ export function OrdenCombate({
 	onRemove,
 	onEndTurn,
 }: Props) {
+	const { t } = useTranslation();
 	const [draggedId, setDraggedId] = useState<string | null>(null);
 
 	const orderedTokens = combatState.initiative_order
@@ -63,7 +65,7 @@ export function OrdenCombate({
 	return (
 		<div className="flex items-center gap-2 px-4 py-2 bg-[#0d0608] border-b border-red-900/40 overflow-x-auto shrink-0">
 			<span className="text-xs text-red-400 font-semibold whitespace-nowrap mr-2">
-				⚔️ Combate – Ronda {combatState.round_number}
+				⚔️ {t("combat.header", { round: combatState.round_number })}
 			</span>
 
 			<div className="flex items-center gap-2 flex-1 overflow-x-auto">
@@ -126,7 +128,7 @@ export function OrdenCombate({
 										onRemove(token.id);
 									}}
 									className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500"
-									title="Quitar del combate"
+									title={t("combat.removeFromCombat")}
 								>
 									<X className="w-2.5 h-2.5 text-white" />
 								</button>
@@ -142,7 +144,7 @@ export function OrdenCombate({
 					onClick={onEndTurn}
 					className="px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white text-xs font-semibold rounded whitespace-nowrap"
 				>
-					Terminar turno
+					{t("combat.endTurn")}
 				</button>
 			)}
 		</div>

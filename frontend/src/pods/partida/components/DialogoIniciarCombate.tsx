@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTranslation } from "react-i18next";
 import {
 	Select,
 	SelectContent,
@@ -41,6 +42,7 @@ export function DialogoIniciarCombate({
 	onConfirm,
 	onCancel,
 }: Props) {
+	const { t } = useTranslation();
 	const [selected, setSelected] = useState<Set<string>>(
 		() => new Set(participants.map((p) => p.id))
 	);
@@ -120,19 +122,19 @@ export function DialogoIniciarCombate({
 			<DialogContent className="bg-[#1a0e06] border-amber-800/50 max-w-lg text-gray-200">
 				<DialogHeader>
 					<DialogTitle className="text-amber-300">
-						⚔️ Iniciar Enfrentamiento
+						⚔️ {t("combat.start.title")}
 					</DialogTitle>
 				</DialogHeader>
 
 				<div className="max-h-80 overflow-y-auto py-2">
-					{renderGroup("Héroes", tokensByType.player)}
-					{renderGroup("Enemigos", tokensByType.enemy)}
-					{renderGroup("NPCs", tokensByType.npc)}
+					{renderGroup(t("combat.start.groups.heroes"), tokensByType.player)}
+					{renderGroup(t("combat.start.groups.enemies"), tokensByType.enemy)}
+					{renderGroup(t("combat.start.groups.npcs"), tokensByType.npc)}
 					{participants.length === 0 && (
 						<p className="text-gray-500 text-sm text-center py-4">
-							No hay participantes en la escena seleccionada.
+							{t("combat.start.empty")}
 							<br />
-							Selecciona una escena con heroes/enemigos/NPC para iniciar combate.
+							{t("combat.start.emptyHint")}
 						</p>
 					)}
 				</div>
@@ -140,7 +142,7 @@ export function DialogoIniciarCombate({
 				{/* Surprise */}
 				<div className="flex items-center gap-3 border-t border-gray-700 pt-3">
 					<label className="text-sm text-gray-300 whitespace-nowrap">
-						¿Sorpresa?
+						{t("combat.start.surprise.label")}
 					</label>
 					<Select
 						value={surprise}
@@ -152,12 +154,12 @@ export function DialogoIniciarCombate({
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent className="bg-gray-800 border-gray-600">
-							<SelectItem value="none">Sin sorpresa</SelectItem>
+							<SelectItem value="none">{t("combat.start.surprise.none")}</SelectItem>
 							<SelectItem value="heroes">
-								Los héroes pillan por sorpresa a los enemigos
+								{t("combat.start.surprise.heroes")}
 							</SelectItem>
 							<SelectItem value="enemies">
-								Los enemigos pillan por sorpresa a los héroes
+								{t("combat.start.surprise.enemies")}
 							</SelectItem>
 						</SelectContent>
 					</Select>
@@ -166,21 +168,21 @@ export function DialogoIniciarCombate({
 				{surprise !== "none" && (
 					<p className="text-xs text-amber-500 bg-amber-900/20 rounded p-2">
 						{surprise === "enemies"
-							? "Los héroes sorprendidos no pueden actuar en el primer turno (D&D 5e Reglas de Sorpresa)."
-							: "Los enemigos sorprendidos no pueden actuar en el primer turno (D&D 5e Reglas de Sorpresa)."}
+							? t("combat.start.surpriseHint.enemies")
+							: t("combat.start.surpriseHint.heroes")}
 					</p>
 				)}
 
 				<DialogFooter>
 					<Button variant="outline" onClick={onCancel}>
-						Cancelar
+						{t("common.cancel")}
 					</Button>
 					<Button
 						onClick={handleConfirm}
 						className="bg-red-700 hover:bg-red-600 text-white"
 						disabled={selected.size === 0}
 					>
-						¡Comenzar!
+						{t("combat.start.confirm")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

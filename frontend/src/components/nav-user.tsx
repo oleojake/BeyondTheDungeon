@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsUpDown, LogOut, UserRound } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -28,13 +29,14 @@ type NavUserProps = {
 export function NavUser({ fallbackUser }: NavUserProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const nameFromEmail = (email?: string | null) =>
-    email ? email.split("@")[0] : "Invitado";
+    email ? email.split("@")[0] : t('common.guest');
 
   const displayName = user?.email
     ? nameFromEmail(user.email)
-    : fallbackUser?.name || "Invitado";
+    : fallbackUser?.name || t('common.guest');
 
   const displayEmail = user?.email || fallbackUser?.email || "";
   const displayAvatar = fallbackUser?.avatar || "";
@@ -88,7 +90,7 @@ export function NavUser({ fallbackUser }: NavUserProps) {
           className="cursor-pointer text-white hover:text-white hover:bg-amber-300/10 focus:bg-amber-300/10"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Cerrar sesión
+          {t('auth.logout')}
         </DropdownMenuItem>
         {!user && (
           <DropdownMenuItem
@@ -96,7 +98,7 @@ export function NavUser({ fallbackUser }: NavUserProps) {
             className="cursor-pointer text-amber-800 hover:text-white hover:bg-amber-300/10 focus:bg-amber-300/10"
           >
             <UserRound className="mr-2 h-4 w-4 text-amber-500" />
-            Iniciar sesión
+            {t('auth.login')}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

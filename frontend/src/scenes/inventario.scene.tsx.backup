@@ -1,6 +1,5 @@
 ﻿import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { useAuth } from "@/core/auth/useAuth";
 import { Button } from "@/components/ui/button";
 import { InventoryManager } from "@/pods/partida/components/inventory/InventoryManager";
@@ -307,7 +306,6 @@ function EquipSlot({
   onClear: () => void;
   onOpen: () => void;
 }) {
-  const { t } = useTranslation();
   const Icon = slot.icon;
   return (
     <div
@@ -318,7 +316,7 @@ function EquipSlot({
         transform: "translate(-50%, -50%)",
       }}
       onClick={onOpen}
-      title={t(`scenes.inventoryScene.slots.${slot.key}`)}
+      title={slot.label}
       className={[
         "group relative flex flex-col items-center justify-center gap-0.5 py-1",
         "w-20 h-24 rounded-lg cursor-pointer select-none transition-all duration-200",
@@ -330,7 +328,7 @@ function EquipSlot({
       {item ? (
         <>
           <span className="text-[8px] font-bold tracking-widest text-amber-400/90 uppercase text-center leading-none px-1">
-            {t(`scenes.inventoryScene.slots.${slot.key}`)}
+            {slot.label}
           </span>
           <Icon className="w-6 h-6 text-amber-500/55 my-0.5" />
           <span className="text-[11px] text-amber-100 text-center leading-tight font-semibold px-1.5 line-clamp-2 max-w-full">
@@ -349,11 +347,11 @@ function EquipSlot({
       ) : (
         <>
           <span className="text-[8px] font-bold tracking-widest text-amber-500/90 uppercase group-hover:text-amber-400 transition-colors text-center leading-none px-1">
-            {t(`scenes.inventoryScene.slots.${slot.key}`)}
+            {slot.label}
           </span>
           <Icon className="w-7 h-7 text-amber-600/65 group-hover:text-amber-500/80 transition-colors my-0.5" />
           <span className="text-[8px] text-amber-600/60 group-hover:text-amber-500/80 text-center leading-tight px-1 transition-colors">
-            {t("scenes.inventoryScene.common.empty")}
+            vacío
           </span>
         </>
       )}
@@ -382,7 +380,6 @@ function SlotPickerModal({
   ) => void;
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [searchAll, setSearchAll] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -440,7 +437,7 @@ function SlotPickerModal({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-amber-900/40">
           <h3 className="text-amber-300 font-semibold text-sm">
-            {t("scenes.inventoryScene.slotPicker.equip")} - <span className="text-amber-500">{slotLabel}</span>
+            Equipar — <span className="text-amber-500">{slotLabel}</span>
           </h3>
           <button
             onClick={onClose}
@@ -463,12 +460,12 @@ function SlotPickerModal({
                   else handleCustom();
                 }
               }}
-              placeholder={t("scenes.inventoryScene.slotPicker.searchPlaceholder", { slot: slotLabel.toLowerCase() })}
+              placeholder={`Busca ${slotLabel.toLowerCase()}…`}
               className="flex-1 bg-amber-950/40 border border-amber-700/50 rounded-lg px-3 py-1.5 text-amber-100 placeholder:text-amber-600/70 text-sm focus:outline-none focus:border-amber-500"
             />
             <button
               onClick={handleCustom}
-              title={t("scenes.inventoryScene.slotPicker.addCustom")}
+              title="Añadir como objeto custom"
               className="px-3 py-1.5 rounded-lg border border-amber-700/70 text-amber-400 hover:bg-amber-700/30 text-sm font-semibold shrink-0"
             >
               +
@@ -482,12 +479,12 @@ function SlotPickerModal({
                 onChange={(e) => setSearchAll(e.target.checked)}
                 className="accent-amber-600 w-3 h-3"
               />
-              {t("scenes.inventoryScene.slotPicker.searchAll", { count: allItems.length })}
+              Buscar en todo el compendio ({allItems.length})
             </label>
             <span className="text-[10px] text-amber-600/60">
               {query.trim()
-                ? t("scenes.inventoryScene.slotPicker.results", { count: suggestions.length })
-                : t("scenes.inventoryScene.slotPicker.objects", { count: pool.length })}
+                ? `${suggestions.length} resultado${suggestions.length !== 1 ? "s" : ""}`
+                : `${pool.length} objetos`}
             </span>
           </div>
         </div>
@@ -495,11 +492,11 @@ function SlotPickerModal({
         <div className="overflow-y-auto flex-1 divide-y divide-amber-900/20">
           {allItems.length === 0 ? (
             <p className="px-4 py-6 text-xs text-amber-600 italic text-center">
-              {t("scenes.inventoryScene.common.loadingCompendium")}
+              Cargando compendio…
             </p>
           ) : suggestions.length === 0 ? (
             <p className="px-4 py-4 text-xs text-amber-600 italic text-center">
-              {t("scenes.inventoryScene.slotPicker.noResults")}
+              Sin resultados — pulsa + para añadir como objeto custom
             </p>
           ) : (
             suggestions.map((item) => {
@@ -561,7 +558,6 @@ function AutocompleteInput({
   ) => void;
   hideSearchAll?: boolean;
 }) {
-  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [searchAll, setSearchAll] = useState(false);
   const [open, setOpen] = useState(false);
@@ -643,19 +639,19 @@ function AutocompleteInput({
             <div className="px-3 py-1 border-b border-amber-900/40 flex items-center justify-between">
               <span className="text-[10px] text-amber-600/70">
                 {query.trim()
-                  ? t("scenes.inventoryScene.autocomplete.results", { count: suggestions.length })
-                  : t("scenes.inventoryScene.autocomplete.objectsFiltered", { count: pool.length })}
+                  ? `${suggestions.length} resultado${suggestions.length !== 1 ? "s" : ""}`
+                  : `${pool.length} objetos — escribe para filtrar`}
               </span>
             </div>
           )}
           <div className="max-h-56 overflow-y-auto">
             {allItems.length === 0 ? (
               <p className="px-3 py-3 text-xs text-amber-600 italic text-center">
-                {t("scenes.inventoryScene.common.loadingCompendium")}
+                Cargando compendio…
               </p>
             ) : suggestions.length === 0 ? (
               <p className="px-3 py-2 text-xs text-amber-600 italic">
-                {t("scenes.inventoryScene.autocomplete.noResults")}
+                Sin resultados — pulsa + para añadir como objeto custom
               </p>
             ) : (
               suggestions.map((item) => {
@@ -701,7 +697,7 @@ function AutocompleteInput({
                   onChange={(e) => setSearchAll(e.target.checked)}
                   className="accent-amber-600 w-3 h-3"
                 />
-                {t("scenes.inventoryScene.slotPicker.searchAllWithObjects", { count: allItems.length })}
+                Buscar en todo el compendio ({allItems.length} objetos)
               </label>
             </div>
           )}
@@ -942,7 +938,6 @@ function BagSection({
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export const InventarioScene = () => {
-  const { t } = useTranslation();
   const { user, session } = useAuth();
   const [inventory, setInventory] = useState<InventoryState>(emptyInventory);
   const [compendiumItems, setCompendiumItems] = useState<CompendiumItem[]>([]);
@@ -1192,13 +1187,14 @@ export const InventarioScene = () => {
 
   const CURRENCY_LABELS: {
     key: keyof Currency;
+    label: string;
     color: string;
   }[] = [
-    { key: "pp", color: "text-slate-300" },
-    { key: "po", color: "text-yellow-400" },
-    { key: "pe", color: "text-teal-400" },
-    { key: "pa", color: "text-gray-300" },
-    { key: "pc", color: "text-orange-400" },
+    { key: "pp", label: "Platino", color: "text-slate-300" },
+    { key: "po", label: "Oro", color: "text-yellow-400" },
+    { key: "pe", label: "Electrum", color: "text-teal-400" },
+    { key: "pa", label: "Plata", color: "text-gray-300" },
+    { key: "pc", label: "Cobre", color: "text-orange-400" },
   ];
 
   const weightPct =
@@ -1216,10 +1212,10 @@ export const InventarioScene = () => {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <Package className="h-8 w-8 text-amber-200" />
-                <h1 className="text-3xl font-bold text-amber-50">{t("scenes.inventoryScene.header.title")}</h1>
+                <h1 className="text-3xl font-bold text-amber-50">Inventario</h1>
               </div>
               <p className="text-sm text-amber-100/90">
-                {t("scenes.inventoryScene.header.subtitle")}
+                Gestiona el equipo, consumibles y monedas de tu personaje
               </p>
             </div>
             <Button
@@ -1243,16 +1239,16 @@ export const InventarioScene = () => {
                   <LogIn className="w-4 h-4" />
                 ))}
               {saveStatus === "saving"
-                ? t("scenes.inventoryScene.save.saving")
+                ? "Guardando…"
                 : saveStatus === "saved"
-                  ? t("scenes.inventoryScene.save.saved")
+                  ? "¡Guardado!"
                   : saveStatus === "error"
-                    ? t("scenes.inventoryScene.save.error")
+                    ? "Error al guardar"
                     : !user
-                      ? t("scenes.inventoryScene.save.loginToSave")
+                      ? "Inicia sesión para guardar"
                       : !linkedCharId
-                        ? t("scenes.inventoryScene.save.chooseCharacter")
-                        : t("common.save")}
+                        ? "Elige un personaje"
+                        : "Guardar"}
             </Button>
           </div>
         </section>
@@ -1262,19 +1258,20 @@ export const InventarioScene = () => {
             <div className="flex items-start gap-3 rounded-lg border border-amber-700/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-300">
               <Info className="w-4 h-4 mt-0.5 shrink-0" />
               <span>
-                {t("scenes.inventoryScene.guestBanner.textBefore")} {" "}
+                Puedes explorar el inventario libremente. Para guardar los
+                cambios en un personaje,{" "}
                 <Link
                   to={routes.login}
                   className="underline hover:text-amber-100"
                 >
-                  {t("scenes.inventoryScene.guestBanner.login")}
+                  inicia sesión
                 </Link>{" "}
-                {t("scenes.inventoryScene.guestBanner.or")}{" "}
+                o{" "}
                 <Link
                   to={routes.register}
                   className="underline hover:text-amber-100"
                 >
-                  {t("scenes.inventoryScene.guestBanner.register")}
+                  crea una cuenta
                 </Link>
                 .
               </span>
@@ -1288,23 +1285,23 @@ export const InventarioScene = () => {
               {charsLoading ? (
                 <span className="text-amber-500 flex items-center gap-2">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  {t("scenes.inventoryScene.characterSelector.loading")}
+                  Cargando personajes…
                 </span>
               ) : characters.length === 0 ? (
                 <span className="text-amber-600">
-                  {t("scenes.inventoryScene.characterSelector.noCharacters")} {" "}
+                  No tienes personajes aún.{" "}
                   <Link
                     to={routes.misFichas}
                     className="underline hover:text-amber-400"
                   >
-                    {t("scenes.inventoryScene.characterSelector.createFirst")}
+                    Crea uno primero
                   </Link>
                   .
                 </span>
               ) : linkedCharId ? (
                 <div className="flex items-center gap-3 flex-1 flex-wrap">
                   <span className="text-amber-300">
-                    {t("scenes.inventoryScene.characterSelector.linkedTo")} {" "}
+                    Vinculado a:{" "}
                     <strong className="text-amber-200">{linkedCharName}</strong>
                   </span>
                   <button
@@ -1314,13 +1311,13 @@ export const InventarioScene = () => {
                     }}
                     className="text-amber-600 hover:text-amber-400 text-xs underline"
                   >
-                    {t("scenes.inventoryScene.characterSelector.change")}
+                    Cambiar
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 flex-1 flex-wrap">
                   <span className="text-amber-500 shrink-0">
-                    {t("scenes.inventoryScene.characterSelector.choose")}
+                    Elige un personaje:
                   </span>
                   <select
                     defaultValue=""
@@ -1337,7 +1334,7 @@ export const InventarioScene = () => {
                         Object.values(inventory.equipped).some(Boolean);
                       if (hasLocal) {
                         const load = window.confirm(
-                          t("scenes.inventoryScene.characterSelector.loadConfirm", { name: char.name }),
+                          `¿Cargar el inventario guardado de "${char.name}"?\n\nAceptar → reemplaza el inventario actual con el del personaje.\nCancelar → mantiene el inventario actual y lo vincula al personaje.`,
                         );
                         if (load) loadCharInventory(char.id, char.name);
                         else {
@@ -1351,7 +1348,7 @@ export const InventarioScene = () => {
                     className="bg-amber-950/60 border border-amber-700/50 rounded px-2 py-1 text-amber-200 text-xs focus:outline-none focus:border-amber-500"
                   >
                     <option value="" disabled>
-                      {t("scenes.inventoryScene.characterSelector.selectPlaceholder")}
+                      — selecciona —
                     </option>
                     {characters.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -1371,7 +1368,7 @@ export const InventarioScene = () => {
               <div className="text-center">
                 <div className="flex items-center gap-2 justify-center mb-0.5">
                   <p className="text-[10px] uppercase tracking-widest text-amber-600">
-                    {t("scenes.inventoryScene.weight.current")}
+                    Peso actual
                   </p>
                   <button
                     onClick={() => {
@@ -1381,12 +1378,12 @@ export const InventarioScene = () => {
                     }}
                     title={
                       autoWeight
-                        ? t("scenes.inventoryScene.weight.enterManual")
-                        : t("scenes.inventoryScene.weight.backToAuto")
+                        ? "Introducir manualmente"
+                        : "Volver al cálculo automático"
                     }
                     className="text-[9px] px-1.5 py-0.5 rounded border border-amber-800/50 text-amber-600 hover:text-amber-400 hover:border-amber-600/60 transition-colors"
                   >
-                    {autoWeight ? t("scenes.inventoryScene.weight.manual") : t("scenes.inventoryScene.weight.auto")}
+                    {autoWeight ? "manual" : "auto"}
                   </button>
                 </div>
                 {autoWeight ? (
@@ -1429,7 +1426,7 @@ export const InventarioScene = () => {
               <div className="text-amber-800/40 text-xl">|</div>
               <div className="text-center">
                 <p className="text-[10px] uppercase tracking-widest text-amber-600 mb-0.5">
-                  {t("scenes.inventoryScene.weight.max")}
+                  Capacidad máx.
                 </p>
                 <div className="flex items-baseline gap-1 justify-center">
                   <input
@@ -1447,9 +1444,9 @@ export const InventarioScene = () => {
                 </div>
                 {mountCapacity > 0 && (
                   <p className="text-[10px] text-amber-500/80 mt-0.5">
-                    {t("scenes.inventoryScene.weight.mountBonus", { value: mountCapacity })}{" "}
+                    +{mountCapacity} lb montura →{" "}
                     <span className="text-amber-300">
-                      {t("scenes.inventoryScene.weight.totalWithMount", { value: effectiveMax })}
+                      {effectiveMax} lb total
                     </span>
                   </p>
                 )}
@@ -1466,8 +1463,8 @@ export const InventarioScene = () => {
                     className={`text-[10px] text-right mt-0.5 ${overEncumbered ? "text-red-400" : "text-amber-700"}`}
                   >
                     {overEncumbered
-                      ? t("scenes.inventoryScene.weight.overloaded")
-                      : t("scenes.inventoryScene.weight.loadedPercent", { value: Math.round(weightPct) })}
+                      ? "¡Sobrecargado!"
+                      : `${Math.round(weightPct)}% cargado`}
                   </p>
                 </div>
               )}
@@ -1479,12 +1476,12 @@ export const InventarioScene = () => {
 				════════════════════════════════════════════════════════════ */}
           <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
             <h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
-              <Shirt className="w-5 h-5" /> {t("scenes.inventoryScene.equipment.title")}
+              <Shirt className="w-5 h-5" /> Equipo equipado
             </h2>
             <div className="relative mx-auto" style={{ width: 480, height: 600 }}>
               <img
                 src="/bg-inventary.png"
-                alt={t("scenes.inventoryScene.common.characterAlt")}
+                alt="Personaje"
                 className="absolute inset-0 w-full h-full object-cover rounded-xl pointer-events-none select-none"
               />
               {/* Gradiente oscuro para mejorar contraste de los slots */}
@@ -1500,7 +1497,7 @@ export const InventarioScene = () => {
               ))}
             </div>
             <p className="text-xs text-amber-700/50 text-center mt-3">
-              {t("scenes.inventoryScene.equipment.hint")}
+              Haz clic en un slot para buscar y equipar un objeto
             </p>
           </section>
           {openSlot &&
@@ -1509,7 +1506,7 @@ export const InventarioScene = () => {
               if (!slot) return null;
               return (
                 <SlotPickerModal
-                  slotLabel={t(`scenes.inventoryScene.slots.${slot.key}`)}
+                  slotLabel={slot.label}
                   slotKey={slot.key}
                   allItems={compendiumItems}
                   onEquip={(name, weight, srdIndex, tags, capacity) =>
@@ -1526,17 +1523,17 @@ export const InventarioScene = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
               <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-                <FlaskConical className="w-5 h-5" /> {t("scenes.inventoryScene.sections.potions")}
+                <FlaskConical className="w-5 h-5" /> Pociones
               </h2>
               <p className="text-xs text-amber-600/70 mb-3 italic">
-                {t("scenes.inventoryScene.sections.potionsDesc")}
+                Pociones y brebajes mágicos
               </p>
               <ConsumableSection
                 items={inventory.potions}
                 rowColor="bg-amber-900/25 border-amber-800/35"
                 allItems={compendiumItems}
                 categoryFilter={FILTER_POTIONS}
-                inputPlaceholder={t("scenes.inventoryScene.sections.searchPotions")}
+                inputPlaceholder="Busca pociones…"
                 onSelect={(name, weight, srdIndex, tags) =>
                   addConsumable("potions", name, weight, srdIndex, tags)
                 }
@@ -1547,17 +1544,17 @@ export const InventarioScene = () => {
 
             <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
               <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-                <ScrollText className="w-5 h-5" /> {t("scenes.inventoryScene.sections.scrolls")}
+                <ScrollText className="w-5 h-5" /> Pergaminos
               </h2>
               <p className="text-xs text-amber-600/70 mb-3 italic">
-                {t("scenes.inventoryScene.sections.scrollsDesc")}
+                Pergaminos de conjuros y recetas
               </p>
               <ConsumableSection
                 items={inventory.scrolls}
                 rowColor="bg-amber-900/25 border-amber-800/35"
                 allItems={compendiumItems}
                 categoryFilter={FILTER_SCROLLS}
-                inputPlaceholder={t("scenes.inventoryScene.sections.searchScrolls")}
+                inputPlaceholder="Busca pergaminos…"
                 onSelect={(name, weight, srdIndex, tags) =>
                   addConsumable("scrolls", name, weight, srdIndex, tags)
                 }
@@ -1573,14 +1570,15 @@ export const InventarioScene = () => {
           <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
             <div className="flex items-baseline gap-3 mb-1">
               <h2 className="text-xl font-semibold text-amber-300 flex items-center gap-2">
-                <Package className="w-5 h-5" /> {t("scenes.inventoryScene.sections.bag")}
+                <Package className="w-5 h-5" /> Inventario
               </h2>
               <span className="text-xs text-amber-600">
-                {t("scenes.inventoryScene.sections.objectsCount", { count: inventory.bag.reduce((s, i) => s + i.quantity, 0) })}
+                {inventory.bag.reduce((s, i) => s + i.quantity, 0)} objetos
               </span>
             </div>
             <p className="text-xs text-amber-700/60 mb-3 italic">
-              {t("scenes.inventoryScene.sections.bagDesc")}
+              Todos los objetos: equipables no equipados, herramientas,
+              consumibles, etc.
             </p>
             <BagSection
               items={inventory.bag}
@@ -1596,17 +1594,17 @@ export const InventarioScene = () => {
 				════════════════════════════════════════════════════════════ */}
           <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
             <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-              <Target className="w-5 h-5" /> {t("scenes.inventoryScene.sections.ammo")}
+              <Target className="w-5 h-5" /> Munición
             </h2>
             <p className="text-xs text-amber-600/70 mb-3 italic">
-              {t("scenes.inventoryScene.sections.ammoDesc")}
+              Flechas, virotes, dagas arrojadizas…
             </p>
             <ConsumableSection
               items={inventory.ammo}
               rowColor="bg-amber-900/25 border-amber-800/35"
               allItems={compendiumItems}
               categoryFilter={FILTER_AMMO}
-              inputPlaceholder={t("scenes.inventoryScene.sections.searchAmmo")}
+              inputPlaceholder="Busca munición…"
               onSelect={(name, weight, srdIndex, tags) =>
                 addConsumable("ammo", name, weight, srdIndex, tags)
               }
@@ -1618,10 +1616,10 @@ export const InventarioScene = () => {
           {/* Monedero – ancho reducido y centrado */}
           <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5 mx-auto w-full max-w-md">
             <h2 className="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2">
-              <Coins className="w-5 h-5" /> {t("scenes.inventoryScene.sections.wallet")}
+              <Coins className="w-5 h-5" /> Monedero
             </h2>
             <div className="grid grid-cols-5 gap-2">
-              {CURRENCY_LABELS.map(({ key, color }) => (
+              {CURRENCY_LABELS.map(({ key, label, color }) => (
                 <div
                   key={key}
                   className="flex flex-col items-center gap-1 rounded-lg border border-amber-800/30 bg-black/20 p-2"
@@ -1629,7 +1627,7 @@ export const InventarioScene = () => {
                   <span
                     className={`text-[10px] font-semibold ${color} text-center`}
                   >
-                    {t(`scenes.inventoryScene.currency.${key}`)}
+                    {label}
                   </span>
                   <input
                     type="number"
@@ -1658,27 +1656,28 @@ export const InventarioScene = () => {
                     to={routes.register}
                     className="underline hover:text-amber-400"
                   >
-                    {t("scenes.inventoryScene.footer.createAccount")}
+                    Crea una cuenta
                   </Link>{" "}
-                  {t("scenes.inventoryScene.footer.createAccountSuffix")}
+                  para guardar tu inventario vinculado a un personaje.
                 </span>
               </p>
             ) : !linkedCharId ? (
               <p className="text-sm text-amber-600">
-                {t("scenes.inventoryScene.footer.linkCharacterHint")}
+                Vincula un personaje arriba para poder guardar.
               </p>
             ) : saveStatus === "saved" ? (
               <p className="text-sm text-green-400 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" /> {t("scenes.inventoryScene.footer.savedIn")} {" "}
+                <CheckCircle2 className="w-4 h-4" /> Guardado correctamente en{" "}
                 <strong>{linkedCharName}</strong>.
               </p>
             ) : saveStatus === "error" ? (
               <p className="text-sm text-red-400 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" /> {t("scenes.inventoryScene.footer.error")}
+                <AlertCircle className="w-4 h-4" /> Error al guardar. Inténtalo
+                de nuevo.
               </p>
             ) : (
               <p className="text-sm text-amber-700">
-                {t("scenes.inventoryScene.footer.unsavedHint")}
+                Los cambios no se guardan automáticamente.
               </p>
             )}
             <Button
@@ -1702,16 +1701,16 @@ export const InventarioScene = () => {
                   <LogIn className="w-4 h-4" />
                 ))}
               {saveStatus === "saving"
-                ? t("scenes.inventoryScene.save.saving")
+                ? "Guardando…"
                 : saveStatus === "saved"
-                  ? t("scenes.inventoryScene.save.saved")
+                  ? "¡Guardado!"
                   : saveStatus === "error"
-                    ? t("scenes.inventoryScene.save.error")
+                    ? "Error al guardar"
                     : !user
-                      ? t("scenes.inventoryScene.save.loginToSave")
+                      ? "Inicia sesión para guardar"
                       : !linkedCharId
-                        ? t("scenes.inventoryScene.save.chooseCharacter")
-                        : t("common.save")}
+                        ? "Elige un personaje"
+                        : "Guardar"}
             </Button>
           </div>
         </div>

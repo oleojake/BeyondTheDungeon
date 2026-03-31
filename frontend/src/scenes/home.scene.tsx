@@ -1,19 +1,21 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { AppLayout } from "@/layout";
 import { HomeContainer } from "@/pods/home";
 
 export const HomeScene = () => {
+	const { t } = useTranslation();
 	useEffect(() => {
-		document.title = "Beyond the Dungeon - Herramientas para tu mesa de rol";
+		document.title = t("meta.homeTitle");
 
 		const metaDescription = document.querySelector('meta[name="description"]');
 		if (metaDescription) {
 			metaDescription.setAttribute(
 				"content",
-				"Organiza y juega rol sin complicaciones. Campañas, fichas, dados, mapas y comunidad para D&D y más. Crea tu cuenta gratis."
+				t("meta.homeDescription")
 			);
 		}
-	}, []);
+	}, [t]);
 
 	return (
 		<AppLayout>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { RegisterComponent } from "./register.component";
 import { routes } from "@/router";
 import type { FormData, FormErrors } from "@/interfaces/forms";
@@ -7,6 +8,7 @@ import { resendSignUpConfirmation, signUp } from "@/core/auth/supabaseAuth";
 
 export const RegisterContainer = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<FormData>({
     username: "",
     displayName: "",
@@ -23,23 +25,23 @@ export const RegisterContainer = () => {
     const newErrors: FormErrors = {};
 
     if (!formData.username.trim())
-      newErrors.username = "El nombre de usuario es requerido";
+      newErrors.username = t("auth.register.errors.usernameRequired");
     else if (formData.username.length < 3)
-      newErrors.username = "Mínimo 3 caracteres";
+      newErrors.username = t("auth.register.errors.usernameMin");
 
-    if (!formData.email.trim()) newErrors.email = "El email es requerido";
+    if (!formData.email.trim()) newErrors.email = t("auth.register.errors.emailRequired");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      newErrors.email = "Email inválido";
+      newErrors.email = t("auth.register.errors.emailInvalid");
 
-    if (!formData.password) newErrors.password = "La contraseña es requerida";
+    if (!formData.password) newErrors.password = t("auth.register.errors.passwordRequired");
     else if (formData.password.length < 8)
-      newErrors.password = "Mínimo 8 caracteres";
+      newErrors.password = t("auth.register.errors.passwordMin");
 
     if (formData.password !== formData.confirmPassword)
-      newErrors.confirmPassword = "Las contraseñas no coinciden";
+      newErrors.confirmPassword = t("auth.register.errors.passwordMismatch");
 
     if (!formData.terms)
-      newErrors.terms = "Debes aceptar los términos y condiciones";
+      newErrors.terms = t("auth.register.errors.termsRequired");
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -68,7 +70,7 @@ export const RegisterContainer = () => {
       });
 
       setSuccess(
-        "Cuenta creada. Revisa tu email (incluida Spam/Promociones) para confirmar y luego inicia sesion."
+        t("auth.register.success")
       );
       setTimeout(
         () => navigate(routes.login, { state: { email: formData.email } }),
@@ -76,13 +78,13 @@ export const RegisterContainer = () => {
       );
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Error al registrar usuario.";
+        error instanceof Error ? error.message : t("auth.register.errors.registerFailed");
 
       if (message.toLowerCase().includes("email ya esta registrado")) {
         try {
           await resendSignUpConfirmation(formData.email);
           setSuccess(
-            "Ese email ya estaba registrado. Te hemos reenviado el correo de confirmacion. Revisa Spam/Promociones."
+            t("auth.register.errors.emailResent")
           );
           setErrors({});
           return;
@@ -92,7 +94,7 @@ export const RegisterContainer = () => {
       }
 
       setErrors({
-        general: message,
+        general: message || t("auth.register.errors.unknown"),
       });
       setSuccess(null);
     } finally {

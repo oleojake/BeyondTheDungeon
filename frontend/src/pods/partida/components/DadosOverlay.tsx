@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { X, Dice5 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 interface DiceResult {
@@ -25,6 +26,7 @@ function rollDie(sides: number): number {
 }
 
 export function DadosOverlay({ onClose }: Props) {
+	const { t } = useTranslation();
 	const [quantity, setQuantity] = useState(1);
 	const [modifier, setModifier] = useState(0);
 	const [results, setResults] = useState<DiceResult[]>([]);
@@ -48,7 +50,7 @@ export function DadosOverlay({ onClose }: Props) {
 				<div className="flex items-center justify-between mb-4">
 					<h2 className="text-xl font-bold text-amber-300 flex items-center gap-2">
 						<Dice5 className="w-5 h-5" />
-						Tirada de Dados
+						{t("dice.overlay.title")}
 					</h2>
 					<button
 						onClick={onClose}
@@ -61,7 +63,7 @@ export function DadosOverlay({ onClose }: Props) {
 				{/* Controls */}
 				<div className="flex items-center gap-4 mb-4">
 					<div className="flex flex-col gap-1">
-						<label className="text-xs text-gray-400">Cantidad</label>
+						<label className="text-xs text-gray-400">{t("dice.overlay.quantity")}</label>
 						<div className="flex items-center gap-1">
 							<button
 								onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -82,7 +84,7 @@ export function DadosOverlay({ onClose }: Props) {
 					</div>
 
 					<div className="flex flex-col gap-1">
-						<label className="text-xs text-gray-400">Modificador</label>
+						<label className="text-xs text-gray-400">{t("dice.overlay.modifier")}</label>
 						<div className="flex items-center gap-1">
 							<button
 								onClick={() => setModifier(modifier - 1)}
@@ -122,7 +124,7 @@ export function DadosOverlay({ onClose }: Props) {
 				<div className="space-y-2 max-h-48 overflow-y-auto">
 					{results.length === 0 && (
 						<p className="text-gray-500 text-sm text-center py-4">
-							¡Pulsa un dado para tirar!
+							{t("dice.overlay.empty")}
 						</p>
 					)}
 					{results.map((r) => (

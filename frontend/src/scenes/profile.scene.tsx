@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ProfileLayout } from "@/layout/profile.layout";
 import { Users, Plus, ArrowRight } from "lucide-react";
 import {
@@ -24,6 +25,7 @@ export const ProfileScene: React.FC = () => {
 };
 
 const ProfileContent: React.FC = () => {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [campaigns, setCampaigns] = useState<Campaign[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ const ProfileContent: React.FC = () => {
 			const campaignsData = await listCampaigns();
 			setCampaigns(campaignsData);
 		} catch (error) {
-			console.error("Error al cargar campañas:", error);
+			console.error("Error loading campaigns:", error);
 			setCampaigns([]);
 		} finally {
 			setLoading(false);
@@ -62,22 +64,22 @@ const ProfileContent: React.FC = () => {
 				<div className="flex items-center gap-3 mb-2">
 					<Users className="h-8 w-8 text-amber-200" />
 					<h1 className="text-3xl font-extrabold text-amber-50">
-						Mis Campañas
+						{t("scenes.profile.title")}
 					</h1>
 				</div>
 				<p className="mt-2 text-sm text-amber-100/90">
-					Gestiona tus aventuras, personajes y progreso en tus campañas activas.
+					{t("scenes.profile.subtitle")}
 				</p>
 			</section>
 
 			{/* Create Campaign Button */}
 			<div className="flex justify-end">
-				<Button 
+				<Button
 					onClick={() => navigate("/mis-campanas")}
 					className="inline-flex items-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 px-6 py-3 text-sm font-semibold text-white shadow-lg transition"
 				>
 					<Plus className="h-5 w-5" />
-					Crear Campaña
+					{t("scenes.profile.createCampaign")}
 				</Button>
 			</div>
 
@@ -104,7 +106,7 @@ const ProfileContent: React.FC = () => {
 				<div className="flex items-center justify-between">
 					<p className="text-sm text-gray-400">
 						{campaigns.length}{" "}
-						{campaigns.length === 1 ? "campaña activa" : "campañas activas"}
+						{campaigns.length === 1 ? t("scenes.profile.active") : t("scenes.profile.activePlural")}
 					</p>
 				</div>
 			)}
@@ -134,7 +136,7 @@ const ProfileContent: React.FC = () => {
 										variant="outline"
 										className="bg-amber-950/50 border-amber-600/50 text-amber-300 shrink-0"
 									>
-										{isDM(campaign) ? "DM" : "Jugador"}
+										{isDM(campaign) ? t("scenes.profile.dm") : t("scenes.profile.player")}
 									</Badge>
 								</div>
 							</CardHeader>
@@ -148,7 +150,7 @@ const ProfileContent: React.FC = () => {
 											navigate(`/editar-campana/${campaign.id}`);
 										}}
 									>
-										<span>{isDM(campaign) ? "Editar Campaña" : "Ver Campaña"}</span>
+										<span>{isDM(campaign) ? t("scenes.profile.editCampaign") : t("scenes.profile.viewCampaign")}</span>
 										<ArrowRight className="ml-2 h-4 w-4" />
 									</Button>
 								</div>
@@ -166,18 +168,18 @@ const ProfileContent: React.FC = () => {
 							<Users className="h-16 w-16 text-gray-500" />
 							<div>
 								<h3 className="text-lg font-semibold text-white mb-2">
-									No tienes campañas activas
+									{t("scenes.profile.noCampaigns")}
 								</h3>
 								<p className="text-sm text-gray-400">
-									Crea tu primera campaña para comenzar tu aventura.
+									{t("scenes.profile.noCampaignsDesc")}
 								</p>
 							</div>
-							<Button 
+							<Button
 								onClick={() => navigate("/mis-campanas")}
 								className="mt-4 bg-amber-600 hover:bg-amber-700 text-white"
 							>
 								<Plus className="mr-2 h-4 w-4" />
-								Crear Primera Campaña
+								{t("scenes.profile.createCampaign")}
 							</Button>
 						</div>
 					</CardContent>

@@ -13,7 +13,13 @@ import {
 	Sparkles,
 	Info,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { fetchSpells, type Spell } from "@/core/api/backend.service";
+import {
+	translateCompendiumName,
+	translateCompendiumDescriptionArray,
+	translateEnumValue,
+} from "@/i18n/compendium";
 
 export const HechizosScene = () => {
 	const location = useLocation();
@@ -29,6 +35,7 @@ export const HechizosScene = () => {
 	const [levelFilter, setLevelFilter] = useState<string>("all");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(25);
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		loadSpells();
@@ -67,7 +74,7 @@ export const HechizosScene = () => {
 			setError(
 				err instanceof Error
 					? err.message
-					: "No se pudo cargar los hechizos. Verifica que el backend esté corriendo.",
+					: t("compendium.spells.error"),
 			);
 		} finally {
 			setLoading(false);
@@ -135,13 +142,13 @@ export const HechizosScene = () => {
 				<div className="flex items-center gap-3 mb-2">
 					<Sparkles className="h-8 w-8 text-amber-200" />
 					<h1 className="text-3xl font-extrabold text-amber-50">
-						Compendio de Hechizos
+						{t("compendium.spells.headerTitle")}
 					</h1>
 				</div>
 				<p className="mt-2 text-sm text-amber-100/90">
 					{selectMode
-						? "Selecciona un hechizo para añadir a la escena."
-						: "Explora el grimorio completo de hechizos y encantamientos."}
+						? t("compendium.spells.subtitleSelect")
+						: t("compendium.spells.subtitleDefault")}
 				</p>
 			</section>
 
@@ -150,7 +157,7 @@ export const HechizosScene = () => {
 				<Alert className="bg-blue-950/50 border-blue-600/50">
 					<Info className="h-4 w-4 text-blue-400" />
 					<AlertDescription className="text-blue-200">
-						Haz clic en un hechizo para añadirlo a tu escena.
+						{t("compendium.spells.selectModeHint")}
 					</AlertDescription>
 				</Alert>
 			)}
@@ -162,7 +169,7 @@ export const HechizosScene = () => {
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
 						<Input
 							type="text"
-							placeholder="Buscar hechizo por nombre..."
+							placeholder={t("compendium.spells.searchPlaceholder")}
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 							className="pl-10 bg-dark-lighter border-dark-border text-white placeholder:text-gray-400"
@@ -170,7 +177,9 @@ export const HechizosScene = () => {
 					</div>
 
 					<div className="flex flex-wrap items-center gap-2">
-						<span className="text-sm text-gray-400">Nivel:</span>
+						<span className="text-sm text-gray-400">
+							{t("compendium.spells.levelLabel")}
+						</span>
 						<Button
 							size="sm"
 							variant={levelFilter === "all" ? "default" : "outline"}
@@ -179,7 +188,7 @@ export const HechizosScene = () => {
 								levelFilter === "all" ? "bg-amber-600 hover:bg-amber-700" : ""
 							}
 						>
-							Todos
+							{t("common.all")}
 						</Button>
 						{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
 							<Button
@@ -195,7 +204,7 @@ export const HechizosScene = () => {
 										: ""
 								}
 							>
-								{level === 0 ? "Trucos" : level}
+								{level === 0 ? t("compendium.spells.cantrips") : level}
 							</Button>
 						))}
 					</div>
@@ -206,7 +215,9 @@ export const HechizosScene = () => {
 			{loading && (
 				<div className="flex flex-col items-center justify-center py-12 gap-4">
 					<Loader2 className="h-12 w-12 animate-spin text-amber-500" />
-					<p className="text-sm text-gray-400">Cargando hechizos...</p>
+					<p className="text-sm text-gray-400">
+						{t("compendium.spells.loading")}
+					</p>
 				</div>
 			)}
 
@@ -226,11 +237,10 @@ export const HechizosScene = () => {
 							<BookOpen className="h-16 w-16 text-gray-500" />
 							<div>
 								<h3 className="text-lg font-semibold text-white mb-2">
-									No hay hechizos disponibles
+									{t("compendium.spells.emptyTitle")}
 								</h3>
 								<p className="text-sm text-gray-400">
-									El grimorio está vacío. Asegúrate de que la base de datos esté
-									poblada.
+									{t("compendium.spells.emptyDescription")}
 								</p>
 							</div>
 						</div>
@@ -249,10 +259,10 @@ export const HechizosScene = () => {
 								<Search className="h-16 w-16 text-gray-500" />
 								<div>
 									<h3 className="text-lg font-semibold text-white mb-2">
-										No se encontraron resultados
+										{t("compendium.spells.noResultsTitle")}
 									</h3>
 									<p className="text-sm text-gray-400">
-										No hay hechizos que coincidan con tu búsqueda
+										{t("compendium.spells.noResultsDescription")}
 									</p>
 								</div>
 							</div>
@@ -265,28 +275,53 @@ export const HechizosScene = () => {
 				<>
 					<div className="flex items-center justify-between">
 						<p className="text-sm text-gray-400">
-							Mostrando {(currentPage - 1) * itemsPerPage + 1}–
-							{Math.min(currentPage * itemsPerPage, filteredSpells.length)} de{" "}
-							{filteredSpells.length}{" "}
-							{filteredSpells.length === 1
-								? "hechizo encontrado"
-								: "hechizos encontrados"}
+							{t("compendium.resultsCount", {
+								from: (currentPage - 1) * itemsPerPage + 1,
+								to: Math.min(currentPage * itemsPerPage, filteredSpells.length),
+								total: filteredSpells.length,
+							})} {" "}
+							{t("compendium.spells.resultsLabel", {
+								count: filteredSpells.length,
+							})}
 						</p>
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{paginatedSpells.map((spell) => {
+							const translatedName = translateCompendiumName(
+								t,
+								"spells",
+								spell.id,
+								spell.name,
+							);
+							const translatedDesc = translateCompendiumDescriptionArray(
+								t,
+								"spells",
+								spell.id,
+								spell.desc,
+							);
+							const translatedSchool = spell.school
+								? translateEnumValue(
+										t,
+										"dnd.magicSchools",
+										typeof spell.school === "object"
+											? spell.school.name
+											: spell.school,
+									)
+								: "";
 							const SpellCard = (
 								<Card className="bg-dark-card border-dark-border hover:border-amber-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-600/10 cursor-pointer group h-full">
 									<CardHeader>
 										<div className="flex items-start justify-between gap-2 mb-2">
 											<CardTitle className="text-amber-100 group-hover:text-amber-300 transition-colors flex-1">
-												{spell.name}
+												{translatedName}
 											</CardTitle>
 											<Badge
 												className={`${getLevelColor(spell.level || 0)} text-white shrink-0`}
 											>
-												{spell.level === 0 ? "Truco" : `Nv ${spell.level}`}
+												{spell.level === 0
+													? t("compendium.spells.cantrip")
+													: t("compendium.spells.levelShort", { level: spell.level })}
 											</Badge>
 										</div>
 										<div className="flex flex-wrap gap-1">
@@ -294,9 +329,10 @@ export const HechizosScene = () => {
 												<Badge
 													className={`${getSchoolColor(spell.school)} text-white text-xs`}
 												>
-													{typeof spell.school === "object"
-														? spell.school.name
-														: spell.school}
+													{translatedSchool ||
+														(typeof spell.school === "object"
+															? spell.school.name
+															: spell.school)}
 												</Badge>
 											)}
 											{spell.concentration && (
@@ -304,7 +340,7 @@ export const HechizosScene = () => {
 													variant="outline"
 													className="bg-purple-950/50 border-purple-600/50 text-purple-300 text-xs"
 												>
-													Concentración
+													{t("compendium.spells.concentration")}
 												</Badge>
 											)}
 											{spell.ritual && (
@@ -312,7 +348,7 @@ export const HechizosScene = () => {
 													variant="outline"
 													className="bg-cyan-950/50 border-cyan-600/50 text-cyan-300 text-xs"
 												>
-													Ritual
+													{t("compendium.spells.ritual")}
 												</Badge>
 											)}
 										</div>
@@ -320,7 +356,9 @@ export const HechizosScene = () => {
 									<CardContent className="space-y-2">
 										{spell.casting_time && (
 											<div className="flex items-center justify-between text-sm">
-												<span className="text-gray-400">Tiempo:</span>
+												<span className="text-gray-400">
+													{t("compendium.spells.castingTime")}
+												</span>
 												<span className="text-gray-200">
 													{spell.casting_time}
 												</span>
@@ -328,27 +366,38 @@ export const HechizosScene = () => {
 										)}
 										{spell.range && (
 											<div className="flex items-center justify-between text-sm">
-												<span className="text-gray-400">Alcance:</span>
+												<span className="text-gray-400">
+													{t("compendium.spells.range")}
+												</span>
 												<span className="text-gray-200">{spell.range}</span>
 											</div>
 										)}
 										{spell.components && (
 											<div className="flex items-center justify-between text-sm">
-												<span className="text-gray-400">Componentes:</span>
+												<span className="text-gray-400">
+													{t("compendium.spells.components")}
+												</span>
 												<span className="text-gray-200">
 													{Array.isArray(spell.components)
 														? spell.components.join(", ")
 														: typeof spell.components === "string"
 															? spell.components
-															: "N/A"}
+															: t("common.notAvailable")}
 												</span>
 											</div>
 										)}
 										{spell.duration && (
 											<div className="flex items-center justify-between text-sm">
-												<span className="text-gray-400">Duración:</span>
+												<span className="text-gray-400">
+													{t("compendium.spells.duration")}
+												</span>
 												<span className="text-gray-200">{spell.duration}</span>
 											</div>
+										)}
+										{translatedDesc.length > 0 && (
+											<p className="text-xs text-gray-400 line-clamp-2">
+												{translatedDesc[0]}
+											</p>
 										)}
 									</CardContent>
 								</Card>
@@ -393,7 +442,9 @@ export const HechizosScene = () => {
 					{/* Pagination */}
 					<div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
 						<div className="flex items-center gap-2">
-							<span className="text-sm text-gray-400">Mostrar:</span>
+							<span className="text-sm text-gray-400">
+								{t("common.show")}
+							</span>
 							{[25, 50, 100].map((n) => (
 								<Button
 									key={n}
@@ -416,10 +467,13 @@ export const HechizosScene = () => {
 									onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
 									disabled={currentPage === 1}
 								>
-									Anterior
+									{t("common.previous")}
 								</Button>
 								<span className="text-sm text-gray-400">
-									Página {currentPage} de {totalPages}
+									{t("common.pageOf", {
+										current: currentPage,
+										total: totalPages,
+									})}
 								</span>
 								<Button
 									variant="outline"
@@ -429,7 +483,7 @@ export const HechizosScene = () => {
 									}
 									disabled={currentPage === totalPages}
 								>
-									Siguiente
+									{t("common.next")}
 								</Button>
 							</div>
 						)}

@@ -13,7 +13,13 @@ import {
 	Package,
 	Info,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { fetchItems, type Item } from "@/core/api/backend.service";
+import {
+	translateCompendiumName,
+	translateCompendiumDescriptionArray,
+	translateEnumValue,
+} from "@/i18n/compendium";
 
 export const ObjetosScene = () => {
 	const location = useLocation();
@@ -29,6 +35,7 @@ export const ObjetosScene = () => {
 	const [categoryFilter, setCategoryFilter] = useState<string>("all");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(25);
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		loadItems();
@@ -69,7 +76,7 @@ export const ObjetosScene = () => {
 			setError(
 				err instanceof Error
 					? err.message
-					: "No se pudo cargar los objetos. Verifica que el backend esté corriendo.",
+					: t("compendium.items.error"),
 			);
 		} finally {
 			setLoading(false);
@@ -97,7 +104,7 @@ export const ObjetosScene = () => {
 
 	// Helper function to format cost
 	const formatCost = (cost: any) => {
-		if (!cost) return "N/A";
+		if (!cost) return t("common.notAvailable");
 		if (typeof cost === "object" && cost.quantity !== undefined && cost.unit) {
 			return `${cost.quantity} ${cost.unit}`;
 		}
@@ -128,13 +135,13 @@ export const ObjetosScene = () => {
 				<div className="flex items-center gap-3 mb-2">
 					<Package className="h-8 w-8 text-amber-200" />
 					<h1 className="text-3xl font-extrabold text-amber-50">
-						Compendio de Objetos
+						{t("compendium.items.headerTitle")}
 					</h1>
 				</div>
 				<p className="mt-2 text-sm text-amber-100/90">
 					{selectMode
-						? "Selecciona un objeto para añadir a la escena."
-						: "Consulta armas, armaduras y objetos mágicos para tus aventuras."}
+						? t("compendium.items.subtitleSelect")
+						: t("compendium.items.subtitleDefault")}
 				</p>
 			</section>
 
@@ -143,7 +150,7 @@ export const ObjetosScene = () => {
 				<Alert className="bg-blue-950/50 border-blue-600/50">
 					<Info className="h-4 w-4 text-blue-400" />
 					<AlertDescription className="text-blue-200">
-						Haz clic en un objeto para añadirlo a tu escena.
+						{t("compendium.items.selectModeHint")}
 					</AlertDescription>
 				</Alert>
 			)}
@@ -155,7 +162,7 @@ export const ObjetosScene = () => {
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
 						<Input
 							type="text"
-							placeholder="Buscar objeto por nombre..."
+							placeholder={t("compendium.items.searchPlaceholder")}
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 							className="pl-10 bg-dark-lighter border-dark-border text-white placeholder:text-gray-400"
@@ -163,7 +170,9 @@ export const ObjetosScene = () => {
 					</div>
 
 					<div className="flex flex-wrap items-center gap-2">
-						<span className="text-sm text-gray-400">Categoría:</span>
+						<span className="text-sm text-gray-400">
+							{t("compendium.items.categoryLabel")}
+						</span>
 						<Button
 							size="sm"
 							variant={categoryFilter === "all" ? "default" : "outline"}
@@ -174,7 +183,7 @@ export const ObjetosScene = () => {
 									: ""
 							}
 						>
-							Todas
+							{t("common.all")}
 						</Button>
 						{[
 							"Weapon",
@@ -202,33 +211,11 @@ export const ObjetosScene = () => {
 										: ""
 								}
 							>
-								{category === "Adventuring Gear"
-									? "Equipo"
-									: category === "Tools"
-										? "Herramientas"
-										: category === "Weapon"
-											? "Armas"
-											: category === "Armor"
-												? "Armaduras"
-												: category === "Potion"
-													? "Pociones"
-													: category === "Wondrous Items"
-														? "Objetos Maravillosos"
-														: category === "Ring"
-															? "Anillos"
-															: category === "Rod"
-																? "Varas"
-																: category === "Staff"
-																	? "Bastones"
-																	: category === "Wand"
-																		? "Varitas"
-																		: category === "Scroll"
-																			? "Pergaminos"
-																			: category === "Ammunition"
-																				? "Munición"
-																				: category === "Mounts and Vehicles"
-																					? "Monturas y Vehículos"
-																					: category}
+								{translateEnumValue(
+									t,
+									"dnd.equipmentCategories",
+									category,
+								)}
 							</Button>
 						))}
 					</div>
@@ -239,7 +226,9 @@ export const ObjetosScene = () => {
 			{loading && (
 				<div className="flex flex-col items-center justify-center py-12 gap-4">
 					<Loader2 className="h-12 w-12 animate-spin text-amber-500" />
-					<p className="text-sm text-gray-400">Cargando objetos...</p>
+					<p className="text-sm text-gray-400">
+						{t("compendium.items.loading")}
+					</p>
 				</div>
 			)}
 
@@ -259,11 +248,10 @@ export const ObjetosScene = () => {
 							<BookOpen className="h-16 w-16 text-gray-500" />
 							<div>
 								<h3 className="text-lg font-semibold text-white mb-2">
-									No hay objetos disponibles
+									{t("compendium.items.emptyTitle")}
 								</h3>
 								<p className="text-sm text-gray-400">
-									El catálogo está vacío. Asegúrate de que la base de datos esté
-									poblada.
+									{t("compendium.items.emptyDescription")}
 								</p>
 							</div>
 						</div>
@@ -279,10 +267,12 @@ export const ObjetosScene = () => {
 							<Search className="h-16 w-16 text-gray-500" />
 							<div>
 								<h3 className="text-lg font-semibold text-white mb-2">
-									No se encontraron resultados
+									{t("compendium.items.noResultsTitle")}
 								</h3>
 								<p className="text-sm text-gray-400">
-									No hay objetos que coincidan con "{searchTerm}"
+									{t("compendium.items.noResultsDescription", {
+										query: searchTerm,
+									})}
 								</p>
 							</div>
 						</div>
@@ -295,29 +285,53 @@ export const ObjetosScene = () => {
 				<>
 					<div className="flex items-center justify-between">
 						<p className="text-sm text-gray-400">
-							Mostrando {(currentPage - 1) * itemsPerPage + 1}–
-							{Math.min(currentPage * itemsPerPage, filteredItems.length)} de{" "}
-							{filteredItems.length}{" "}
-							{filteredItems.length === 1
-								? "objeto encontrado"
-								: "objetos encontrados"}
+							{t("compendium.resultsCount", {
+								from: (currentPage - 1) * itemsPerPage + 1,
+								to: Math.min(currentPage * itemsPerPage, filteredItems.length),
+								total: filteredItems.length,
+							})} {" "}
+							{t("compendium.items.resultsLabel", {
+								count: filteredItems.length,
+							})}
 						</p>
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-						{paginatedItems.map((item) => (
-							<div
-								key={item.id}
-								onClick={() => {
-									if (selectMode) {
-										navigate(`/editar-campana/${campaignId}`, {
-											state: {
-												selectedEntity: {
-													id: item.id,
-													name: item.name,
-													entityType: "item",
-													data: item,
-												},
+						{paginatedItems.map((item) => {
+							const translatedName = translateCompendiumName(
+								t,
+								"items",
+								item.id,
+								item.name,
+							);
+							const translatedDesc = translateCompendiumDescriptionArray(
+								t,
+								"items",
+								item.id,
+								item.desc,
+							);
+							const translatedCategory = item.equipment_category
+								? translateEnumValue(
+										t,
+										"dnd.equipmentCategories",
+										typeof item.equipment_category === "object"
+											? item.equipment_category?.name
+											: item.equipment_category,
+									)
+								: "";
+							return (
+								<div
+									key={item.id}
+									onClick={() => {
+										if (selectMode) {
+											navigate(`/editar-campana/${campaignId}`, {
+												state: {
+													selectedEntity: {
+														id: item.id,
+														name: item.name,
+														entityType: "item",
+														data: item,
+													},
 												sceneId,
 											},
 										});
@@ -334,16 +348,17 @@ export const ObjetosScene = () => {
 										<div className="flex items-start justify-between gap-2">
 											<div className="flex-1 min-w-0">
 												<CardTitle className="text-amber-100 truncate">
-													{item.name}
+													{translatedName}
 												</CardTitle>
 												{item.equipment_category && (
 													<div className="mt-1">
 														<Badge
 															className={`${getCategoryColor(item.equipment_category)} text-white text-xs`}
 														>
-															{typeof item.equipment_category === "object"
-																? item.equipment_category.name
-																: item.equipment_category}
+															{translatedCategory ||
+																(typeof item.equipment_category === "object"
+																	? item.equipment_category.name
+																	: item.equipment_category)}
 														</Badge>
 													</div>
 												)}
@@ -355,7 +370,9 @@ export const ObjetosScene = () => {
 										<div className="grid grid-cols-2 gap-2 text-sm">
 											{item.cost && (
 												<div className="flex flex-col">
-													<span className="text-gray-400 text-xs">Coste:</span>
+														<span className="text-gray-400 text-xs">
+															{t("compendium.items.cost")}
+														</span>
 													<span className="text-gray-200 font-semibold">
 														{formatCost(item.cost)}
 													</span>
@@ -363,9 +380,13 @@ export const ObjetosScene = () => {
 											)}
 											{item.weight !== undefined && (
 												<div className="flex flex-col">
-													<span className="text-gray-400 text-xs">Peso:</span>
+														<span className="text-gray-400 text-xs">
+															{t("compendium.items.weight")}
+														</span>
 													<span className="text-gray-200 font-semibold">
-														{item.weight} lb
+															{t("compendium.items.weightValue", {
+																value: item.weight,
+															})}
 													</span>
 												</div>
 											)}
@@ -375,16 +396,22 @@ export const ObjetosScene = () => {
 										{item.damage && (
 											<div className="space-y-1">
 												<div className="flex items-center justify-between text-sm">
-													<span className="text-gray-400">Daño:</span>
+													<span className="text-gray-400">
+														{t("compendium.items.damage")}
+													</span>
 													<span className="text-gray-200 font-semibold">
 														{item.damage.damage_dice}{" "}
-														{item.damage.damage_type?.name || ""}
+														{translateEnumValue(
+															t,
+															"dnd.damageTypes",
+															item.damage.damage_type?.name || "",
+														)}
 													</span>
 												</div>
 												{item.two_handed_damage && (
 													<div className="flex items-center justify-between text-sm">
 														<span className="text-gray-400">
-															Daño (2 manos):
+															{t("compendium.items.twoHandedDamage")}
 														</span>
 														<span className="text-gray-200 font-semibold">
 															{item.two_handed_damage.damage_dice}
@@ -398,7 +425,9 @@ export const ObjetosScene = () => {
 										{item.armor_class && (
 											<div className="space-y-1">
 												<div className="flex items-center justify-between text-sm">
-													<span className="text-gray-400">CA:</span>
+													<span className="text-gray-400">
+														{t("compendium.items.armorClass")}
+													</span>
 													<span className="text-gray-200 font-semibold">
 														{typeof item.armor_class === "object"
 															? item.armor_class.base ||
@@ -409,7 +438,9 @@ export const ObjetosScene = () => {
 												</div>
 												{item.str_minimum && (
 													<div className="flex items-center justify-between text-sm">
-														<span className="text-gray-400">FUE mínima:</span>
+														<span className="text-gray-400">
+															{t("compendium.items.strMinimum")}
+														</span>
 														<span className="text-gray-200 font-semibold">
 															{item.str_minimum}
 														</span>
@@ -421,7 +452,9 @@ export const ObjetosScene = () => {
 										{/* Range */}
 										{item.range && (
 											<div className="flex items-center justify-between text-sm">
-												<span className="text-gray-400">Alcance:</span>
+												<span className="text-gray-400">
+													{t("compendium.items.range")}
+												</span>
 												<span className="text-gray-200 font-semibold">
 													{typeof item.range === "object" &&
 													item.range.normal !== undefined
@@ -429,7 +462,7 @@ export const ObjetosScene = () => {
 														: typeof item.range === "string" ||
 															  typeof item.range === "number"
 															? item.range
-															: "N/A"}
+															: t("common.notAvailable")}
 												</span>
 											</div>
 										)}
@@ -443,7 +476,11 @@ export const ObjetosScene = () => {
 														variant="outline"
 														className="bg-amber-950/30 border-amber-600/30 text-amber-300 text-xs"
 													>
-														{prop.name || prop}
+																{translateEnumValue(
+																t,
+																"dnd.weaponProperties",
+																prop.name || prop,
+															)}
 													</Badge>
 												))}
 											</div>
@@ -452,19 +489,26 @@ export const ObjetosScene = () => {
 										{/* Description */}
 										{item.desc && item.desc.length > 0 && (
 											<p className="text-xs text-gray-400 italic mt-2 line-clamp-2">
-												{Array.isArray(item.desc) ? item.desc[0] : item.desc}
+													{translatedDesc.length > 0
+														? translatedDesc[0]
+														: Array.isArray(item.desc)
+															? item.desc[0]
+															: item.desc}
 											</p>
 										)}
 									</CardContent>
 								</Card>
 							</div>
-						))}
+						);
+						})}
 					</div>
 
 					{/* Pagination */}
 					<div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
 						<div className="flex items-center gap-2">
-							<span className="text-sm text-gray-400">Mostrar:</span>
+							<span className="text-sm text-gray-400">
+								{t("common.show")}
+							</span>
 							{[25, 50, 100].map((n) => (
 								<Button
 									key={n}
@@ -487,10 +531,13 @@ export const ObjetosScene = () => {
 									onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
 									disabled={currentPage === 1}
 								>
-									Anterior
+									{t("common.previous")}
 								</Button>
 								<span className="text-sm text-gray-400">
-									Página {currentPage} de {totalPages}
+									{t("common.pageOf", {
+										current: currentPage,
+										total: totalPages,
+									})}
 								</span>
 								<Button
 									variant="outline"
@@ -500,7 +547,7 @@ export const ObjetosScene = () => {
 									}
 									disabled={currentPage === totalPages}
 								>
-									Siguiente
+									{t("common.next")}
 								</Button>
 							</div>
 						)}

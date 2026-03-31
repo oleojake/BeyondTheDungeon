@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Save, AlertCircle, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,14 +32,14 @@ export interface CharacterUpdates {
 	experience_points?: number;
 }
 
-const ABILITY_LABELS: Record<string, string> = {
-	strength: "Fuerza",
-	dexterity: "Destreza",
-	constitution: "Constitución",
-	intelligence: "Inteligencia",
-	wisdom: "Sabiduría",
-	charisma: "Carisma",
-};
+const ABILITY_KEYS = [
+	"strength",
+	"dexterity",
+	"constitution",
+	"intelligence",
+	"wisdom",
+	"charisma",
+] as const;
 
 function calcMod(score: number): string {
 	const mod = Math.floor((score - 10) / 2);
@@ -56,6 +57,7 @@ function calculateAutoMaxCarryWeight(strength: number, race: string): number {
 }
 
 export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
+	const { t } = useTranslation();
 	const char = member.character;
 	const stats = (char?.stats ?? {}) as Record<string, unknown>;
 
@@ -100,9 +102,9 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 		return (
 			<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
 				<div className="bg-[#1a0e06] border border-amber-800/50 rounded-xl p-8 text-center">
-					<p className="text-amber-300">Este jugador no tiene ficha en esta campaña.</p>
+					<p className="text-amber-300">{t("session.sheet.missing")}</p>
 					<Button variant="outline" className="mt-4" onClick={onClose}>
-						Cerrar
+						{t("common.close")}
 					</Button>
 				</div>
 			</div>
@@ -139,7 +141,7 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 	};
 
 	const displayName =
-		member.profile?.display_name || member.profile?.username || "Jugador";
+		member.profile?.display_name || member.profile?.username || t("session.player");
 	const classes = char.classes
 		.map((c) => `${c.name} ${c.level}`)
 		.join(" / ");
@@ -151,10 +153,10 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 					<div className="bg-[#1a0e06] border border-amber-800/50 rounded-xl p-6 max-w-sm shadow-2xl">
 						<div className="flex items-center gap-3 mb-4">
 							<AlertCircle className="w-6 h-6 text-amber-500" />
-							<h3 className="text-lg font-bold text-amber-300">Cambios sin guardar</h3>
+							<h3 className="text-lg font-bold text-amber-300">{t("session.sheet.unsavedTitle")}</h3>
 						</div>
 						<p className="text-gray-300 mb-6">
-							Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar sin guardar?
+							{t("session.sheet.unsavedMessage")}
 						</p>
 						<div className="flex gap-3">
 							<Button
@@ -162,13 +164,13 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 								onClick={() => setShowCloseConfirm(false)}
 								className="flex-1"
 							>
-								Cancelar
+								{t("common.cancel")}
 							</Button>
 							<Button
 								onClick={onClose}
 								className="flex-1 bg-red-700 hover:bg-red-600 text-white"
 							>
-								Cerrar sin guardar
+								{t("session.sheet.closeWithoutSaving")}
 							</Button>
 						</div>
 					</div>
@@ -181,7 +183,7 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 					{saveSuccess && (
 						<div className="bg-green-900/30 border-b border-green-800/50 px-4 py-3 flex items-center gap-2 text-green-300">
 							<CheckCircle className="w-5 h-5" />
-							<span>Cambios guardados exitosamente</span>
+							<span>{t("session.sheet.saved")}</span>
 						</div>
 					)}
 
@@ -215,7 +217,7 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 									}`}
 								>
 									<Save className="w-4 h-4 mr-1" />
-									{saving ? "Guardando..." : "Guardar"}
+									{saving ? t("common.saving") : t("common.save")}
 								</Button>
 							)}
 							<button onClick={handleCloseWithWarning} className="text-gray-400 hover:text-white">
@@ -229,22 +231,22 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 
 					<Tabs defaultValue="stats" className="p-4">
 						<TabsList className="bg-gray-800/50 mb-4">
-							<TabsTrigger value="stats">Stats</TabsTrigger>
-							<TabsTrigger value="combate">Combate</TabsTrigger>
-							<TabsTrigger value="inventario">Inventario</TabsTrigger>
+							<TabsTrigger value="stats">{t("session.sheet.tabs.stats")}</TabsTrigger>
+							<TabsTrigger value="combate">{t("session.sheet.tabs.combat")}</TabsTrigger>
+							<TabsTrigger value="inventario">{t("session.sheet.tabs.inventory")}</TabsTrigger>
 						</TabsList>
 
 						{/* ── Stats ── */}
 						<TabsContent value="stats">
 							<div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-								{Object.entries(ABILITY_LABELS).map(([key, label]) => {
+								{ABILITY_KEYS.map((key) => {
 									const value = Number(editStats[key] ?? 10);
 									return (
 										<div
 											key={key}
 											className="flex flex-col items-center gap-1 bg-gray-800/40 rounded p-2"
 										>
-											<span className="text-xs text-gray-400">{label}</span>
+											<span className="text-xs text-gray-400">{t(`dnd.abilities.${key}`)}</span>
 											{canEdit ? (
 												<Input
 													type="number"
@@ -273,7 +275,7 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 							</div>
 							<div className="mt-4 flex items-center gap-4">
 								<div className="flex flex-col gap-1">
-									<label className="text-xs text-gray-400">Experiencia</label>
+									<label className="text-xs text-gray-400">{t("session.sheet.experience")}</label>
 									{canEdit ? (
 										<Input
 											type="number"
@@ -285,7 +287,7 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 											className="w-28 bg-gray-700 border-gray-600 text-amber-300 h-8"
 										/>
 									) : (
-										<span className="text-amber-300 font-bold">{expPoints} XP</span>
+										<span className="text-amber-300 font-bold">{t("session.sheet.experienceValue", { value: expPoints })}</span>
 									)}
 								</div>
 							</div>
@@ -295,13 +297,13 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 						<TabsContent value="combate">
 							<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
 								{[
-									{ key: "max_hp", label: "HP Máx" },
-									{ key: "current_hp", label: "HP Act." },
-									{ key: "temp_hp", label: "HP Temp" },
-									{ key: "armor_class", label: "CA" },
-									{ key: "initiative", label: "Iniciativa" },
-									{ key: "speed", label: "Velocidad" },
-									{ key: "proficiency_bonus", label: "Bon. Comp." },
+									{ key: "max_hp", label: t("session.sheet.combat.maxHp") },
+									{ key: "current_hp", label: t("session.sheet.combat.currentHp") },
+									{ key: "temp_hp", label: t("session.sheet.combat.tempHp") },
+									{ key: "armor_class", label: t("session.sheet.combat.armorClass") },
+									{ key: "initiative", label: t("session.sheet.combat.initiative") },
+									{ key: "speed", label: t("session.sheet.combat.speed") },
+									{ key: "proficiency_bonus", label: t("session.sheet.combat.proficiency") },
 								].map(({ key, label }) => {
 									const value = Number(editStats[key] ?? 0);
 									return (

@@ -2,11 +2,14 @@ import { Link, useNavigate, useLocation } from "react-router";
 import { routes } from "@/router";
 import { useAuth } from "@/core/auth/useAuth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useTranslation } from "react-i18next";
 
 export const Navbar = () => {
 	const { user, loading, logout } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { t } = useTranslation();
 
 	const handleHerramientas = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -40,36 +43,37 @@ export const Navbar = () => {
 							onClick={handleHerramientas}
 							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium"
 						>
-							Herramientas
+							{t('nav.tools')}
 						</a>
 						<Link
 							to={routes.bestiario}
 							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium"
 						>
-							Bestiario
+							{t('nav.bestiary')}
 						</Link>
 						<Link
 							to={routes.hechizos}
 							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium"
 						>
-							Hechizos
+							{t('nav.spells')}
 						</Link>
 						<Link
 							to={routes.dados}
 							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium"
 						>
-							Dados
+							{t('nav.dice')}
 						</Link>
 						<Link
 							to={routes.mapaBatalla}
 							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium"
 						>
-							Mapas
+							{t('nav.maps')}
 						</Link>
 					</div>
 
 					{/* Auth Buttons */}
 					<div className="flex items-center gap-3">
+						<LanguageToggle />
 						<ThemeToggle />
 						{/* mientras carga la sesión, evita parpadeos */}
 						{loading ? null : user ? (
@@ -78,14 +82,14 @@ export const Navbar = () => {
 									to={routes.misCampanas}
 									className="px-4 py-2 text-stone-800 dark:text-amber-50 hover:text-primary transition-colors font-medium"
 								>
-									Mi Perfil
+									{t('auth.myProfile')}
 								</Link>
 
 								<button
 									onClick={() => logout()}
 									className="px-6 py-2 bg-amber-100 dark:bg-dark-card border border-stone-300 dark:border-dark-border text-stone-800 dark:text-amber-50 font-semibold rounded-lg hover:border-primary transition-all"
 								>
-									Salir
+									{t('auth.logout')}
 								</button>
 							</>
 						) : (
@@ -94,13 +98,13 @@ export const Navbar = () => {
 									to={routes.login}
 									className="hidden md:block px-4 py-2 text-stone-800 dark:text-amber-50 hover:text-primary transition-colors font-medium"
 								>
-									Iniciar Sesión
+									{t('auth.login')}
 								</Link>
 								<Link
 									to={routes.register}
 									className="px-6 py-2 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-semibold rounded-lg transition-all hover:scale-105 shadow-md hover:shadow-lg"
 								>
-									Crear Cuenta
+									{t('auth.register')}
 								</Link>
 							</>
 						)}

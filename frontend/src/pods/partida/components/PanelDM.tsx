@@ -21,6 +21,7 @@ import {
 	LogOut,
 	Eye,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	Select,
@@ -65,15 +66,6 @@ interface Props {
 
 type EntityTab = "map" | "monster" | "npc" | "item" | "spell";
 
-const ENTITY_TABS: { key: EntityTab; label: string; icon: React.ReactNode }[] =
-	[
-		{ key: "map", label: "Mapas", icon: <Map className="w-3 h-3" /> },
-		{ key: "monster", label: "Enemigos", icon: <Sword className="w-3 h-3" /> },
-		{ key: "npc", label: "NPCs", icon: <Users className="w-3 h-3" /> },
-		{ key: "item", label: "Objetos", icon: <Package className="w-3 h-3" /> },
-		{ key: "spell", label: "Hechizos", icon: <Sparkles className="w-3 h-3" /> },
-	];
-
 export function PanelDM({
 	chapters,
 	selectedSceneId,
@@ -90,10 +82,19 @@ export function PanelDM({
 	onEndCombat,
 	onEndSession,
 }: Props) {
+	const { t } = useTranslation();
 	const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
 		new Set()
 	);
 	const [entityTab, setEntityTab] = useState<EntityTab>("map");
+		const ENTITY_TABS: { key: EntityTab; label: string; icon: React.ReactNode }[] =
+			[
+				{ key: "map", label: t("session.dm.tabs.maps"), icon: <Map className="w-3 h-3" /> },
+				{ key: "monster", label: t("session.dm.tabs.enemies"), icon: <Sword className="w-3 h-3" /> },
+				{ key: "npc", label: t("session.dm.tabs.npcs"), icon: <Users className="w-3 h-3" /> },
+				{ key: "item", label: t("session.dm.tabs.items"), icon: <Package className="w-3 h-3" /> },
+				{ key: "spell", label: t("session.dm.tabs.spells"), icon: <Sparkles className="w-3 h-3" /> },
+			];
 	const [selectedEntity, setSelectedEntity] = useState<SceneEntityBasic | null>(
 		null
 	);
@@ -152,7 +153,7 @@ export function PanelDM({
 						onClick={onEndCombat}
 					>
 						<StopCircle className="w-4 h-4 mr-1" />
-						Terminar enfrentamiento
+						{t("combat.end")}
 					</Button>
 				) : (
 					<Button
@@ -161,7 +162,7 @@ export function PanelDM({
 						onClick={onStartCombat}
 					>
 						<Sword className="w-4 h-4 mr-1" />
-						Comenzar enfrentamiento
+						{t("combat.start.button")}
 					</Button>
 				)}
 
@@ -172,14 +173,14 @@ export function PanelDM({
 					onClick={onEndSession}
 				>
 					<LogOut className="w-4 h-4 mr-1" />
-					Terminar sesión
+					{t("session.end")}
 				</Button>
 			</div>
 
 			{/* ─ Map selector (always visible) ─ */}
 			<div className="p-3 border-b border-amber-900/30">
 				<label className="text-xs text-gray-400 block mb-1">
-					Cargar mapa directamente
+					{t("session.dm.mapLoader.title")}
 				</label>
 				<div className="flex gap-2">
 					<Select
@@ -187,7 +188,7 @@ export function PanelDM({
 						onValueChange={setSelectedMapId}
 					>
 						<SelectTrigger className="bg-gray-800 border-gray-600 text-gray-200 h-7 text-xs flex-1">
-							<SelectValue placeholder="Elige mapa..." />
+							<SelectValue placeholder={t("session.dm.mapLoader.placeholder")} />
 						</SelectTrigger>
 						<SelectContent className="bg-gray-800 border-gray-600 text-gray-200">
 							{availableMaps.map((m) => (
@@ -204,7 +205,7 @@ export function PanelDM({
 						className="bg-amber-700 hover:bg-amber-600 text-white h-7 text-xs"
 					>
 						<Map className="w-3 h-3 mr-1" />
-						Cargar
+						{t("session.dm.mapLoader.load")}
 					</Button>
 				</div>
 			</div>
@@ -213,10 +214,10 @@ export function PanelDM({
 			<div className="flex-1 overflow-y-auto">
 				<div className="p-3 border-b border-amber-900/30">
 					<h3 className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-2">
-						Historia
+						{t("session.dm.story")}
 					</h3>
 					{chapters.length === 0 && (
-						<p className="text-xs text-gray-500">Sin capítulos.</p>
+						<p className="text-xs text-gray-500">{t("session.dm.noChapters")}</p>
 					)}
 					{chapters.map((chapter) => (
 						<div key={chapter.id} className="mb-1">
@@ -269,7 +270,7 @@ export function PanelDM({
 								onClick={() => onGoToScene(selectedScene)}
 							>
 								<Play className="w-2.5 h-2.5 mr-1" />
-								Ir
+								{t("session.dm.go")}
 							</Button>
 						</div>
 
@@ -283,7 +284,7 @@ export function PanelDM({
 						{/* DM Notes */}
 						{selectedScene.dm_notes && (
 							<div className="text-xs text-amber-200/70 bg-amber-900/20 rounded p-2 mb-3 max-h-24 overflow-y-auto">
-								<span className="font-bold text-amber-400">Notas DM: </span>
+								<span className="font-bold text-amber-400">{t("session.dm.notes")}: </span>
 								{selectedScene.dm_notes}
 							</div>
 						)}
@@ -332,7 +333,7 @@ export function PanelDM({
 								</button>
 							))}
 							{entitiesOfType(entityTab).length === 0 && (
-								<p className="text-xs text-gray-500 italic">Sin entidades de este tipo.</p>
+								<p className="text-xs text-gray-500 italic">{t("session.dm.noEntities")}</p>
 							)}
 						</div>
 
@@ -345,7 +346,9 @@ export function PanelDM({
 								className="w-full h-7 text-xs bg-green-700 hover:bg-green-600 text-white"
 							>
 								<Rocket className="w-3 h-3 mr-1" />
-								{entityTab === "map" ? "Desplegar mapa" : "Introducir en mapa"}
+								{entityTab === "map"
+									? t("session.dm.deployMap")
+									: t("session.dm.deployEntity")}
 							</Button>
 						)}
 					</div>

@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { routes } from "@/router";
+import { useTranslation } from "react-i18next";
 
 interface FormData {
   email: string;
@@ -21,6 +22,8 @@ export const LoginComponent = ({
   onChange,
   onSubmit,
 }: LoginProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-dark dark:via-dark-lighter dark:to-dark flex items-center justify-center p-6 transition-colors duration-300">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
@@ -62,7 +65,7 @@ export const LoginComponent = ({
                   Beyond the Dungeon
                 </h1>
               </div>
-              <p className="text-gray-600 dark:text-gray-400">Bienvenido de vuelta, aventurero</p>
+              <p className="text-gray-600 dark:text-gray-400">{t('auth.login.welcome')}</p>
             </div>
 
             {/* Login Form */}
@@ -78,7 +81,7 @@ export const LoginComponent = ({
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  Email
+                  {t('auth.login.email')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -101,7 +104,7 @@ export const LoginComponent = ({
                     id="email"
                     value={formData.email}
                     onChange={(e) => onChange("email", e.target.value)}
-                    placeholder="tu@email.com"
+                    placeholder={t('auth.login.emailPlaceholder')}
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-dark border border-gray-300 dark:border-dark-border rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                   />
                 </div>
@@ -113,7 +116,7 @@ export const LoginComponent = ({
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  Contraseña
+                  {t('auth.login.password')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -136,7 +139,7 @@ export const LoginComponent = ({
                     id="password"
                     value={formData.password}
                     onChange={(e) => onChange("password", e.target.value)}
-                    placeholder="Introduce tu contraseña"
+                    placeholder={t('auth.login.passwordPlaceholder')}
                     className="w-full pl-12 pr-12 py-3 bg-gray-50 dark:bg-dark border border-gray-300 dark:border-dark-border rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                   />
                   <button
@@ -172,7 +175,7 @@ export const LoginComponent = ({
                   href="#"
                   className="text-sm text-primary hover:text-primary-light transition-colors"
                 >
-                  ¿Olvidaste tu contraseña?
+                  {t('auth.login.forgotPassword')}
                 </a>
               </div>
 
@@ -182,19 +185,19 @@ export const LoginComponent = ({
                 disabled={loading}
                 className="w-full py-3 bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-accent-dark text-white font-bold rounded-lg shadow-lg shadow-primary/30 transition-all hover:scale-[1.02] hover:shadow-primary/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {loading ? "Ingresando..." : "Entrar"}
+                {loading ? t('auth.login.submitting') : t('auth.login.submit')}
               </button>
             </form>
 
             {/* Register Link */}
             <div className="mt-6 text-center">
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                ¿No tienes cuenta?{" "}
+                {t('auth.login.noAccount')} {" "}
                 <Link
                   to={routes.register}
                   className="text-primary hover:text-primary-light font-semibold transition-colors"
                 >
-                  Crear cuenta
+                  {t('auth.login.createAccount')}
                 </Link>
               </p>
             </div>
@@ -219,7 +222,7 @@ export const LoginComponent = ({
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              Volver al inicio
+              {t('auth.login.backToHome')}
             </Link>
           </div>
         </div>

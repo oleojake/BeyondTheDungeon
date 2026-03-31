@@ -16,6 +16,7 @@ import {
 	useImperativeHandle,
 } from "react";
 import { X, User, Plus, Minus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { SessionToken, CombatState, MapViewState } from "../partida.vm";
 
 export interface MapaPartidaRef {
@@ -71,6 +72,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 		},
 		ref
 	) => {
+		const { t } = useTranslation();
 		const canvasRef = useRef<HTMLCanvasElement>(null);
 		const containerRef = useRef<HTMLDivElement>(null);
 		const [imageObj, setImageObj] = useState<HTMLImageElement | null>(null);
@@ -152,7 +154,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 				ctx.font = "16px sans-serif";
 				ctx.textAlign = "center";
 				ctx.fillText(
-					"No hay mapa cargado",
+					t("map.empty"),
 					canvas.width / 2,
 					canvas.height / 2
 				);
@@ -351,7 +353,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 												onTokenHpChange?.(token.id, -1);
 											}}
 											className="w-5 h-5 rounded-full bg-red-700 hover:bg-red-500 flex items-center justify-center shadow-md"
-											title="Quitar 1 HP"
+											title={t("map.token.removeHp")}
 										>
 											<Minus className="w-3 h-3 text-white" />
 										</button>
@@ -361,7 +363,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 												onTokenHpChange?.(token.id, +1);
 											}}
 											className="w-5 h-5 rounded-full bg-green-700 hover:bg-green-500 flex items-center justify-center shadow-md"
-											title="Añadir 1 HP"
+											title={t("map.token.addHp")}
 										>
 											<Plus className="w-3 h-3 text-white" />
 										</button>
@@ -371,7 +373,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 												onTokenRemove?.(token.id);
 											}}
 											className="w-5 h-5 rounded-full bg-gray-600 hover:bg-gray-400 flex items-center justify-center shadow-md"
-											title="Quitar del mapa"
+											title={t("map.token.removeFromMap")}
 										>
 											<X className="w-3 h-3 text-white" />
 										</button>
@@ -444,7 +446,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 				{isDM && (
 					<div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm rounded-xl p-3 flex flex-col gap-2 w-52 text-xs">
 						<div className="flex items-center justify-between text-gray-300">
-							<span>Cuadrícula</span>
+							<span>{t("map.controls.grid")}</span>
 							<button
 								onClick={onToggleGrid}
 								className={`px-2 py-0.5 rounded text-xs ${
@@ -453,12 +455,12 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 										: "bg-gray-700 text-gray-400"
 								}`}
 							>
-								{mapView.showGrid ? "ON" : "OFF"}
+								{mapView.showGrid ? t("common.on") : t("common.off")}
 							</button>
 						</div>
 
 						<div className="flex items-center gap-2 text-gray-300">
-							<span className="w-16 shrink-0">Tamaño</span>
+							<span className="w-16 shrink-0">{t("map.controls.size")}</span>
 							<input
 								type="range"
 								min={20}
@@ -471,7 +473,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 						</div>
 
 						<div className="flex items-center gap-2 text-gray-300">
-							<span className="w-16 shrink-0">Color</span>
+							<span className="w-16 shrink-0">{t("map.controls.color")}</span>
 							<input
 								type="color"
 								value={rgbaToHex(mapView.gridColor)}
@@ -481,7 +483,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 						</div>
 
 						<div className="flex items-center gap-2 text-gray-300">
-							<span className="w-16 shrink-0">Opacidad</span>
+							<span className="w-16 shrink-0">{t("map.controls.opacity")}</span>
 							<input
 								type="range"
 								min={0}
@@ -493,7 +495,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 						</div>
 
 						<div className="flex items-center gap-1 text-gray-300">
-							<span className="w-16 shrink-0">Zoom</span>
+							<span className="w-16 shrink-0">{t("map.controls.zoom")}</span>
 							<button
 								onClick={() =>
 									onViewChange({
@@ -522,7 +524,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 							<button
 								onClick={() => onViewChange({ ...mapView, zoom: 1, panX: 0, panY: 0 })}
 								className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center"
-								title="Reset"
+								title={t("common.reset")}
 							>
 								↺
 							</button>

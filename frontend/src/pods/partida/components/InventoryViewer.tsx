@@ -2,8 +2,9 @@
 // InventoryViewer – Visual representation of JSON inventory
 // ================================================
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Package, FlaskConical, ScrollText, Target, Coins, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 interface EquippedItem {
@@ -46,6 +47,7 @@ interface Props {
 }
 
 export function InventoryViewer({ inventory }: Props) {
+	const { t } = useTranslation();
 	const [showAvailableItems, setShowAvailableItems] = useState(false);
 	let parsed: InventoryState | null = null;
 
@@ -60,10 +62,28 @@ export function InventoryViewer({ inventory }: Props) {
 	if (!parsed) {
 		return (
 			<div className="text-xs text-gray-400 italic p-2 bg-gray-900/30 rounded border border-gray-700">
-				No es un inventario estructurado. Edita como texto.
+				{t("inventory.errors.notStructuredEdit")}
 			</div>
 		);
 	}
+
+	const slotLabels = useMemo(
+		() => ({
+			helmet: t("inventory.slots.helmet"),
+			amulet: t("inventory.slots.amulet"),
+			armor: t("inventory.slots.armor"),
+			cloak: t("inventory.slots.cloak"),
+			gloves: t("inventory.slots.gloves"),
+			mainhand: t("inventory.slots.mainhand"),
+			offhand: t("inventory.slots.offhand"),
+			ring1: t("inventory.slots.ringLeft"),
+			belt: t("inventory.slots.belt"),
+			ring2: t("inventory.slots.ringRight"),
+			boots: t("inventory.slots.boots"),
+			mount: t("inventory.slots.mount"),
+		}),
+		[t]
+	);
 
 	const equippedCount = Object.values(parsed.equipped).filter((item) => item !== null).length;
 	const totalBagItems = parsed.bag.reduce((sum, item) => sum + item.quantity, 0);
@@ -83,13 +103,16 @@ export function InventoryViewer({ inventory }: Props) {
 			{/* ─── Resumen Equipado ─── */}
 			<div className="grid grid-cols-2 gap-2 bg-amber-950/20 p-2 rounded border border-amber-700/30">
 				<div className="text-center">
-					<p className="text-amber-600">⚔️ Equipado</p>
+					<p className="text-amber-600">⚔️ {t("inventory.summary.equipped")}</p>
 					<p className="text-lg font-bold text-amber-300">{equippedCount}</p>
 				</div>
 				<div className="text-center">
-					<p className="text-amber-600">💰 Monedas</p>
+					<p className="text-amber-600">💰 {t("inventory.sections.currency")}</p>
 					<p className="text-amber-300 text-xs">
-						{parsed.currency.po}po {parsed.currency.pa && `${parsed.currency.pa}pa`}
+						{t("inventory.currencyInline", {
+							po: parsed.currency.po,
+							pa: parsed.currency.pa ? ` ${parsed.currency.pa}pa` : "",
+						})}
 					</p>
 				</div>
 			</div>
@@ -97,7 +120,7 @@ export function InventoryViewer({ inventory }: Props) {
 			{/* ─── Items Equipados (Slots Ocupados) ─── */}
 			{equippedCount > 0 && (
 				<div className="space-y-1">
-					<p className="text-amber-600 font-semibold">Items Equipados:</p>
+					<p className="text-amber-600 font-semibold">{t("inventory.sections.equippedItems")}</p>
 					<div className="space-y-1 max-h-32 overflow-y-auto">
 						{Object.entries(parsed.equipped)
 							.filter(([, item]) => item !== null)
@@ -106,7 +129,7 @@ export function InventoryViewer({ inventory }: Props) {
 									key={slot}
 									className="flex justify-between text-gray-300 bg-gray-800/30 px-2 py-1 rounded text-xs hover:bg-gray-800/50 transition-colors"
 								>
-									<span className="capitalize text-gray-500">{slot.replace(/([A-Z])/g, " $1").trim()}:</span>
+									<span className="capitalize text-gray-500">{slotLabels[slot as keyof typeof slotLabels] ?? slot}:</span>
 									<span className="text-amber-300 font-semibold truncate">{item?.name}</span>
 								</div>
 							))}
@@ -120,28 +143,28 @@ export function InventoryViewer({ inventory }: Props) {
 					<div className="bg-gray-800/20 p-1 rounded border border-gray-700">
 						<Package className="w-4 h-4 mx-auto mb-1 text-gray-500" />
 						<p className="text-amber-300 font-bold">{totalBagItems}</p>
-						<p className="text-xs">objetos</p>
+						<p className="text-xs">{t("inventory.count.objects")}</p>
 					</div>
 				)}
 				{totalPotions > 0 && (
 					<div className="bg-gray-800/20 p-1 rounded border border-gray-700">
 						<FlaskConical className="w-4 h-4 mx-auto mb-1 text-red-500" />
 						<p className="text-amber-300 font-bold">{totalPotions}</p>
-						<p className="text-xs">pociones</p>
+						<p className="text-xs">{t("inventory.count.potions")}</p>
 					</div>
 				)}
 				{totalScrolls > 0 && (
 					<div className="bg-gray-800/20 p-1 rounded border border-gray-700">
 						<ScrollText className="w-4 h-4 mx-auto mb-1 text-blue-500" />
 						<p className="text-amber-300 font-bold">{totalScrolls}</p>
-						<p className="text-xs">pergaminos</p>
+						<p className="text-xs">{t("inventory.count.scrolls")}</p>
 					</div>
 				)}
 				{totalAmmo > 0 && (
 					<div className="bg-gray-800/20 p-1 rounded border border-gray-700">
 						<Target className="w-4 h-4 mx-auto mb-1 text-green-500" />
 						<p className="text-amber-300 font-bold">{totalAmmo}</p>
-						<p className="text-xs">munición</p>
+						<p className="text-xs">{t("inventory.count.ammo")}</p>
 					</div>
 				)}
 			</div>
@@ -155,7 +178,7 @@ export function InventoryViewer({ inventory }: Props) {
 						onClick={() => setShowAvailableItems(!showAvailableItems)}
 						className="w-full text-xs h-7 justify-between"
 					>
-						<span>📦 Items disponibles para equipar</span>
+						<span>📦 {t("inventory.availableItems.title")}</span>
 						<ChevronDown
 							className={`w-3 h-3 transition-transform ${
 								showAvailableItems ? "rotate-180" : ""
@@ -178,7 +201,7 @@ export function InventoryViewer({ inventory }: Props) {
 									))}
 								</div>
 							) : (
-								<p className="text-gray-500 text-xs italic">No hay objetos en la bolsa</p>
+								<p className="text-gray-500 text-xs italic">{t("inventory.availableItems.empty")}</p>
 							)}
 						</div>
 					)}

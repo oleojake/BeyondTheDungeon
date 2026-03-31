@@ -7,6 +7,7 @@
 // ================================================
 
 import { User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { SessionMember, SessionToken } from "../partida.vm";
 
 interface Props {
@@ -24,6 +25,7 @@ export function PanelJugadores({
 	currentUserId,
 	onOpenFicha,
 }: Props) {
+	const { t } = useTranslation();
 	// Only show non-DM members (players) in this panel
 	const players = members.filter((m) => m.role !== "dm");
 
@@ -36,7 +38,7 @@ export function PanelJugadores({
 					member.character?.name ||
 					member.profile?.display_name ||
 					member.profile?.username ||
-					"Jugador";
+					t("session.player");
 				const avatarUrl =
 					member.character?.avatar_url || member.profile?.avatar_url;
 

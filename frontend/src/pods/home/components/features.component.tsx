@@ -1,65 +1,68 @@
 import { Link } from "react-router-dom";
-
-const FEATURES = [
-	{
-		icon: "/campaigns.png", // Cambia al nombre de tu imagen
-		title: "Gestión de Campañas",
-		description: "Crea y administra tus aventuras con facilidad.",
-		color: "from-primary to-primary-dark",
-		url: "/mis-campanas",
-	},
-	{
-		icon: "/characters.png",
-		title: "Fichas de Personaje",
-		description: "Fichas digitales activas para tus héroes.",
-		color: "from-secondary to-secondary-dark",
-		url: "/mi-ficha",
-	},
-	{
-		icon: "/dice.png",
-		title: "Dados Virtuales",
-		description: "Tira dados en todas las formas y tamaños.",
-		color: "from-accent to-accent-dark",
-		url: "/dados",
-	},
-	{
-		icon: "/maps.png",
-		title: "Mapas de Batalla",
-		description: "Visualiza combates con mapas simples y claros.",
-		color: "from-primary to-accent",
-		url: "/mapa-batalla",
-	},
-	{
-		icon: "/creatures.png",
-		title: "Consulta de Bestiario",
-		description: "Accede a estadísticas de criaturas al instante.",
-		color: "from-secondary to-primary",
-		url: "/bestiario",
-	},
-	{
-		icon: "/magic.png",
-		title: "Hechizos y Reglas",
-		description: "Consulta hechizos y reglas rápidamente.",
-		color: "from-accent to-secondary",
-		url: "/hechizos",
-	},
-	{
-		icon: "",
-		title: "Objetos y Equipo",
-		description: "Armas, armaduras y objetos mágicos del SRD.",
-		color: "from-yellow-700 to-amber-900",
-		url: "/objetos",
-	},
-	{
-		icon: "",
-		title: "Inventario",
-		description: "Gestiona el equipo, pociones y monedas de tu personaje.",
-		color: "from-amber-800 to-orange-900",
-		url: "/inventario",
-	},
-];
+import { useTranslation } from "react-i18next";
 
 export const Features = () => {
+	const { t } = useTranslation();
+
+	const features = [
+		{
+			icon: "/campaigns.png",
+			title: t("home.features.campaigns.title"),
+			description: t("home.features.campaigns.description"),
+			color: "from-primary to-primary-dark",
+			url: "/mis-campanas",
+		},
+		{
+			icon: "/characters.png",
+			title: t("home.features.characterSheets.title"),
+			description: t("home.features.characterSheets.description"),
+			color: "from-secondary to-secondary-dark",
+			url: "/mi-ficha",
+		},
+		{
+			icon: "/dice.png",
+			title: t("home.features.dice.title"),
+			description: t("home.features.dice.description"),
+			color: "from-accent to-accent-dark",
+			url: "/dados",
+		},
+		{
+			icon: "/maps.png",
+			title: t("home.features.maps.title"),
+			description: t("home.features.maps.description"),
+			color: "from-primary to-accent",
+			url: "/mapa-batalla",
+		},
+		{
+			icon: "/creatures.png",
+			title: t("home.features.bestiary.title"),
+			description: t("home.features.bestiary.description"),
+			color: "from-secondary to-primary",
+			url: "/bestiario",
+		},
+		{
+			icon: "/magic.png",
+			title: t("home.features.spells.title"),
+			description: t("home.features.spells.description"),
+			color: "from-accent to-secondary",
+			url: "/hechizos",
+		},
+		{
+			icon: "",
+			title: t("home.features.items.title"),
+			description: t("home.features.items.description"),
+			color: "from-yellow-700 to-amber-900",
+			url: "/objetos",
+		},
+		{
+			icon: "",
+			title: t("home.features.inventory.title"),
+			description: t("home.features.inventory.description"),
+			color: "from-amber-800 to-orange-900",
+			url: "/inventario",
+		},
+	];
+
 	return (
 		<section
 			id="herramientas"
@@ -68,26 +71,25 @@ export const Features = () => {
 			<div className="container mx-auto max-w-6xl">
 				<div className="text-center mb-16 space-y-4">
 					<h1 className="text-5xl md:text-6xl font-bold text-stone-800 dark:text-amber-50">
-						Organiza y juega rol
+						{t("home.features.titleLine1")}
 						<br />
 						<span className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 dark:from-amber-300 dark:via-yellow-200 dark:to-amber-300 bg-clip-text text-transparent">
-							sin complicaciones
+							{t("home.features.titleLine2")}
 						</span>
 					</h1>
 					<p className="text-xl text-stone-700 dark:text-stone-300 max-w-2xl mx-auto">
-						Campañas, fichas, dados, mapas simples y comunidad. Todo en un solo
-						lugar.
+						{t("home.features.subtitle")}
 					</p>
 					<h2 className="text-3xl font-bold text-stone-800 dark:text-amber-50 pt-8">
-						Todas tus herramientas en un solo lugar
+						{t("home.features.secondaryTitle")}
 					</h2>
 					<p className="text-stone-600 dark:text-stone-300 text-lg">
-						Gestiona tus partidas de forma profesional y sencilla
+						{t("home.features.secondarySubtitle")}
 					</p>
 				</div>
 
 				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-					{FEATURES.map((feature, index) => (
+					{features.map((feature, index) => (
 						<Link
 							key={index}
 							to={feature.url}
@@ -120,7 +122,7 @@ export const Features = () => {
 				{/* View All Button */}
 				<div className="text-center mt-12">
 					<button className="px-8 py-3 bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold rounded-lg transition-all hover:scale-105">
-						Ver Todas las Herramientas →
+						{t("home.features.viewAll")}
 					</button>
 				</div>
 			</div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18n";
 import { ProfileLayout } from "@/layout/profile.layout";
 import { Settings, User, Bell, Shield, Palette } from "lucide-react";
 import {
@@ -19,32 +20,34 @@ export const ProfileSettingsScene: React.FC = () => {
 };
 
 const SettingsContent: React.FC = () => {
+	const { t } = useTranslation();
+
 	const settingsSections = [
 		{
 			id: 1,
-			title: "Perfil de Usuario",
-			description: "Gestiona tu información personal y preferencias de cuenta",
+			title: t("scenes.profileSettings.sections.userProfile.title"),
+			description: t("scenes.profileSettings.sections.userProfile.description"),
 			icon: User,
 			available: false,
 		},
 		{
 			id: 2,
-			title: "Notificaciones",
-			description: "Configura cómo y cuándo recibir notificaciones",
+			title: t("scenes.profileSettings.sections.notifications.title"),
+			description: t("scenes.profileSettings.sections.notifications.description"),
 			icon: Bell,
 			available: false,
 		},
 		{
 			id: 3,
-			title: "Privacidad y Seguridad",
-			description: "Controla tu privacidad y opciones de seguridad",
+			title: t("scenes.profileSettings.sections.privacySecurity.title"),
+			description: t("scenes.profileSettings.sections.privacySecurity.description"),
 			icon: Shield,
 			available: false,
 		},
 		{
 			id: 4,
-			title: "Apariencia",
-			description: "Personaliza el tema y la apariencia de la aplicación",
+			title: t("scenes.profileSettings.sections.appearance.title"),
+			description: t("scenes.profileSettings.sections.appearance.description"),
 			icon: Palette,
 			available: false,
 		},
@@ -57,19 +60,18 @@ const SettingsContent: React.FC = () => {
 				<div className="flex items-center gap-3 mb-2">
 					<Settings className="h-8 w-8 text-amber-200" />
 					<h1 className="text-3xl font-bold text-amber-50">
-						Configuración
+						{t("scenes.profileSettings.title")}
 					</h1>
 				</div>
 				<p className="text-sm text-amber-100/90">
-					Gestiona tu cuenta, preferencias y opciones de privacidad.
+					{t("scenes.profileSettings.subtitle")}
 				</p>
 			</section>
 
 			{/* Development Notice */}
 			<Alert className="bg-amber-950/50 border-amber-600/50">
 				<AlertDescription className="text-amber-200">
-					La sección de configuración está en desarrollo. Próximamente podrás
-					personalizar tu experiencia.
+					{t("scenes.profileSettings.devNotice")}
 				</AlertDescription>
 			</Alert>
 
@@ -99,7 +101,7 @@ const SettingsContent: React.FC = () => {
 							</CardHeader>
 							<CardContent>
 								<p className="text-xs text-gray-500 italic">
-									Próximamente disponible
+									{t("scenes.profileSettings.comingSoon")}
 								</p>
 							</CardContent>
 						</Card>

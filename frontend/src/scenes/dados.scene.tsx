@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -48,6 +49,7 @@ const DiceIcon = ({ faces }: { faces: number }) => {
 };
 
 export const DadosScene = () => {
+  const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDice, setSelectedDice] = useState<number | null>(null);
   const [rollResult, setRollResult] = useState<number | null>(null);
@@ -133,17 +135,17 @@ export const DadosScene = () => {
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
         <div className="flex items-center gap-3 mb-2">
           <Dices className="h-8 w-8 text-amber-200" />
-          <h1 className="text-3xl font-bold text-amber-50">Lanzador de Dados</h1>
+          <h1 className="text-3xl font-bold text-amber-50">{t("dice.scene.title")}</h1>
         </div>
         <p className="text-sm text-amber-100/90">
-          Selecciona el tipo de dado y obtén un resultado aleatorio.
+          {t("dice.scene.subtitle")}
         </p>
       </section>
 
       {/* Botones de dados */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Selecciona tu dado</CardTitle>
+          <CardTitle>{t("dice.scene.pickDie")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-6">
@@ -157,7 +159,7 @@ export const DadosScene = () => {
                 className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent hover:border-purple-500 transition-all duration-200 hover:bg-accent"
               >
                 <DiceIcon faces={faces} />
-                <span className="text-sm font-medium">{faces} caras</span>
+                <span className="text-sm font-medium">{t("dice.scene.faces", { faces })}</span>
               </button>
             ))}
           </div>
@@ -166,7 +168,7 @@ export const DadosScene = () => {
           
           {/* Modificadores */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Modificadores</h3>
+            <h3 className="text-lg font-semibold">{t("dice.scene.modifiersTitle")}</h3>
             
             <div className="flex items-center space-x-2">
               <Checkbox 
@@ -178,7 +180,7 @@ export const DadosScene = () => {
                 }}
               />
               <Label htmlFor="advantage" className="cursor-pointer">
-                Ventaja (tirar 2 dados, elegir el mayor)
+                {t("dice.scene.advantage")}
               </Label>
             </div>
             
@@ -192,13 +194,13 @@ export const DadosScene = () => {
                 }}
               />
               <Label htmlFor="disadvantage" className="cursor-pointer">
-                Desventaja (tirar 2 dados, elegir el menor)
+                {t("dice.scene.disadvantage")}
               </Label>
             </div>
             
             <div className="flex items-center gap-4">
               <Label htmlFor="modifier" className="whitespace-nowrap">
-                Modificador:
+                {t("dice.scene.modifier")}
               </Label>
               <Select
                 value={modifier.toString()}
@@ -224,7 +226,7 @@ export const DadosScene = () => {
       {history.length > 0 && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Historial de Tiradas</CardTitle>
+            <CardTitle>{t("dice.scene.history")}</CardTitle>
             <Button 
               variant="outline" 
               size="sm" 
@@ -232,7 +234,7 @@ export const DadosScene = () => {
               className="flex items-center gap-2"
             >
               <Trash2 className="h-4 w-4" />
-              Limpiar
+              {t("dice.scene.clearHistory")}
             </Button>
           </CardHeader>
           <CardContent>
@@ -250,14 +252,18 @@ export const DadosScene = () => {
                       <p className="font-semibold text-lg">
                         {(roll.hasAdvantage || roll.hasDisadvantage) && roll.result2 ? (
                           <>
-                            Resultados: {roll.result} y {roll.result2} ({roll.hasAdvantage ? 'Ventaja' : 'Desventaja'})
+                            {t("dice.scene.results", {
+                              first: roll.result,
+                              second: roll.result2,
+                              mode: roll.hasAdvantage ? t("dice.scene.advantageLabel") : t("dice.scene.disadvantageLabel"),
+                            })}
                             {roll.modifier !== 0 && (
                               <> ({roll.hasAdvantage ? Math.max(roll.result, roll.result2) : Math.min(roll.result, roll.result2)} {roll.modifier >= 0 ? '+' : ''}{roll.modifier} = {roll.finalResult})</>
                             )}
                           </>
                         ) : (
                           <>
-                            Resultado: {roll.result}
+                            {t("dice.scene.result", { value: roll.result })}
                             {roll.modifier !== 0 && (
                               <> ({roll.result} {roll.modifier >= 0 ? '+' : ''}{roll.modifier} = {roll.finalResult})</>
                             )}
@@ -290,10 +296,14 @@ export const DadosScene = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-2xl text-center text-foreground">
-              🎲 Tirando d{selectedDice} {hasAdvantage && "(con Ventaja)"} {hasDisadvantage && "(con Desventaja)"}
+              🎲 {t("dice.scene.rolling", {
+                die: selectedDice,
+                advantage: hasAdvantage ? t("dice.scene.advantageTag") : "",
+                disadvantage: hasDisadvantage ? t("dice.scene.disadvantageTag") : "",
+              })}
             </DialogTitle>
             <DialogDescription className="text-center text-foreground/80">
-              {isRolling ? "Rodando el dado..." : "¡Resultado obtenido!"}
+              {isRolling ? t("dice.scene.rollingDesc") : t("dice.scene.resultDesc")}
             </DialogDescription>
           </DialogHeader>
           
@@ -314,7 +324,7 @@ export const DadosScene = () => {
                       >
                         {rollResult}
                       </div>
-                      <span className="text-xs text-foreground/60 mt-1">Dado 1</span>
+                      <span className="text-xs text-foreground/60 mt-1">{t("dice.scene.die", { index: 1 })}</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <div
@@ -328,7 +338,7 @@ export const DadosScene = () => {
                       >
                         {rollResult2}
                       </div>
-                      <span className="text-xs text-foreground/60 mt-1">Dado 2</span>
+                      <span className="text-xs text-foreground/60 mt-1">{t("dice.scene.die", { index: 2 })}</span>
                     </div>
                   </div>
                 ) : (
@@ -365,22 +375,22 @@ export const DadosScene = () => {
             
             {!isRolling && !hasAdvantage && !hasDisadvantage && rollResult === selectedDice && (
               <p className="mt-4 text-green-600 dark:text-green-400 font-semibold animate-pulse">
-                ¡Crítico! Máximo resultado
+                {t("dice.scene.critical")}
               </p>
             )}
             {!isRolling && !hasAdvantage && !hasDisadvantage && rollResult === 1 && (
               <p className="mt-4 text-red-600 dark:text-red-400 font-semibold animate-pulse">
-                ¡Pifia! Resultado mínimo
+                {t("dice.scene.fumble")}
               </p>
             )}
             {!isRolling && hasAdvantage && rollResult2 !== null && (
               <p className="mt-4 text-foreground font-semibold">
-                Resultado seleccionado (mayor): {Math.max(rollResult!, rollResult2)}
+                {t("dice.scene.selectedHigher", { value: Math.max(rollResult!, rollResult2) })}
               </p>
             )}
             {!isRolling && hasDisadvantage && rollResult2 !== null && (
               <p className="mt-4 text-foreground font-semibold">
-                Resultado seleccionado (menor): {Math.min(rollResult!, rollResult2)}
+                {t("dice.scene.selectedLower", { value: Math.min(rollResult!, rollResult2) })}
               </p>
             )}
           </div>
@@ -393,13 +403,13 @@ export const DadosScene = () => {
               disabled={isRolling}
               variant="default"
             >
-              Tirar de nuevo
+              {t("dice.scene.rollAgain")}
             </Button>
             <Button 
               onClick={() => setIsDialogOpen(false)} 
               variant="outline"
             >
-              Cerrar
+              {t("common.close")}
             </Button>
           </div>
         </DialogContent>

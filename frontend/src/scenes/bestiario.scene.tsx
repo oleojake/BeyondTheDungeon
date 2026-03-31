@@ -19,7 +19,13 @@ import {
 	Skull,
 	Info,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { fetchBestiary, type Monster } from "@/core/api/backend.service";
+import {
+	translateCompendiumName,
+	translateCompendiumDescription,
+	translateEnumValue,
+} from "@/i18n/compendium";
 const DND5E_API_URL = "https://www.dnd5eapi.co";
 
 export const BestiarioScene = () => {
@@ -35,6 +41,7 @@ export const BestiarioScene = () => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(25);
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		loadMonsters();
@@ -76,7 +83,7 @@ export const BestiarioScene = () => {
 			setError(
 				err instanceof Error
 					? err.message
-					: "No se pudo cargar el bestiario. Verifica que el backend esté corriendo.",
+					: t("compendium.bestiary.error"),
 			);
 		} finally {
 			setLoading(false);
@@ -100,13 +107,13 @@ export const BestiarioScene = () => {
 				<div className="flex items-center gap-3 mb-2">
 					<Skull className="h-8 w-8 text-amber-200" />
 					<h1 className="text-3xl font-extrabold text-amber-50">
-						Compendio del Bestiario
+						{t("compendium.bestiary.headerTitle")}
 					</h1>
 				</div>
 				<p className="mt-2 text-sm text-amber-100/90">
 					{selectMode
-						? "Selecciona un monstruo para añadir a la escena."
-						: "Consulta las estadísticas de criaturas y monstruos para tus aventuras."}
+						? t("compendium.bestiary.subtitleSelect")
+						: t("compendium.bestiary.subtitleDefault")}
 				</p>
 			</section>
 
@@ -115,7 +122,7 @@ export const BestiarioScene = () => {
 				<Alert className="bg-blue-950/50 border-blue-600/50">
 					<Info className="h-4 w-4 text-blue-400" />
 					<AlertDescription className="text-blue-200">
-						Haz clic en un monstruo para añadirlo a tu escena.
+						{t("compendium.bestiary.selectModeHint")}
 					</AlertDescription>
 				</Alert>
 			)}
@@ -127,7 +134,7 @@ export const BestiarioScene = () => {
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
 						<Input
 							type="text"
-							placeholder="Buscar criatura por nombre..."
+							placeholder={t("compendium.bestiary.searchPlaceholder")}
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 							className="pl-10 bg-dark-lighter border-dark-border text-white placeholder:text-gray-400"
@@ -140,7 +147,9 @@ export const BestiarioScene = () => {
 			{loading && (
 				<div className="flex flex-col items-center justify-center py-12 gap-4">
 					<Loader2 className="h-12 w-12 animate-spin text-amber-500" />
-					<p className="text-sm text-gray-400">Cargando bestiario...</p>
+					<p className="text-sm text-gray-400">
+						{t("compendium.bestiary.loading")}
+					</p>
 				</div>
 			)}
 
@@ -160,11 +169,10 @@ export const BestiarioScene = () => {
 							<BookOpen className="h-16 w-16 text-gray-500" />
 							<div>
 								<h3 className="text-lg font-semibold text-white mb-2">
-									No hay criaturas disponibles
+									{t("compendium.bestiary.emptyTitle")}
 								</h3>
 								<p className="text-sm text-gray-400">
-									El bestiario está vacío. Asegúrate de que la base de datos
-									esté poblada.
+									{t("compendium.bestiary.emptyDescription")}
 								</p>
 							</div>
 						</div>
@@ -183,10 +191,12 @@ export const BestiarioScene = () => {
 								<Search className="h-16 w-16 text-gray-500" />
 								<div>
 									<h3 className="text-lg font-semibold text-white mb-2">
-										No se encontraron resultados
+										{t("compendium.bestiary.noResultsTitle")}
 									</h3>
 									<p className="text-sm text-gray-400">
-										No hay criaturas que coincidan con "{searchTerm}"
+										{t("compendium.bestiary.noResultsDescription", {
+											query: searchTerm,
+										})}
 									</p>
 								</div>
 							</div>
@@ -199,17 +209,46 @@ export const BestiarioScene = () => {
 				<>
 					<div className="flex items-center justify-between">
 						<p className="text-sm text-gray-400">
-							Mostrando {(currentPage - 1) * itemsPerPage + 1}–
-							{Math.min(currentPage * itemsPerPage, filteredMonsters.length)} de{" "}
-							{filteredMonsters.length}{" "}
-							{filteredMonsters.length === 1
-								? "criatura encontrada"
-								: "criaturas encontradas"}
+							{t("compendium.resultsCount", {
+								from: (currentPage - 1) * itemsPerPage + 1,
+								to: Math.min(currentPage * itemsPerPage, filteredMonsters.length),
+								total: filteredMonsters.length,
+							})} {" "}
+							{t("compendium.bestiary.resultsLabel", {
+								count: filteredMonsters.length,
+							})}
 						</p>
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{paginatedMonsters.map((monster) => {
+							const translatedName = translateCompendiumName(
+								t,
+								"bestiary",
+								monster.id,
+								monster.name,
+							);
+							const translatedDesc = translateCompendiumDescription(
+								t,
+								"bestiary",
+								monster.id,
+								monster.desc,
+							);
+							const translatedSize = translateEnumValue(
+								t,
+								"dnd.sizes",
+								monster.size,
+							);
+							const translatedType = translateEnumValue(
+								t,
+								"dnd.creatureTypes",
+								monster.type,
+							);
+							const translatedAlignment = translateEnumValue(
+								t,
+								"dnd.alignments",
+								monster.alignment,
+							);
 							const imageUrl = (
 								monster.image ||
 								monster.image_url ||
@@ -225,14 +264,16 @@ export const BestiarioScene = () => {
 										<div className="relative w-full h-60 overflow-hidden bg-stone-900">
 											<img
 												src={imageUrl}
-												alt={monster.name}
+												alt={translatedName}
 												className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
 												loading="lazy"
 											/>
 											<div className="absolute inset-0 bg-gradient-to-t from-dark-card via-dark-card/40 to-transparent" />
 											{monster.challenge_rating !== undefined && (
 												<Badge className="absolute top-3 right-3 bg-amber-600/90 text-white border-0 shadow-lg">
-													CR {monster.challenge_rating}
+														{t("compendium.bestiary.challengeRating", {
+															value: monster.challenge_rating,
+														})}
 												</Badge>
 											)}
 										</div>
@@ -241,7 +282,9 @@ export const BestiarioScene = () => {
 											<Skull className="h-8 w-8 text-amber-700/50" />
 											{monster.challenge_rating !== undefined && (
 												<Badge className="absolute top-3 right-3 bg-amber-600/90 text-white border-0">
-													CR {monster.challenge_rating}
+														{t("compendium.bestiary.challengeRating", {
+															value: monster.challenge_rating,
+														})}
 												</Badge>
 											)}
 										</div>
@@ -249,12 +292,12 @@ export const BestiarioScene = () => {
 
 									<CardHeader className="pb-2">
 										<CardTitle className="text-amber-100 group-hover:text-amber-300 transition-colors">
-											{monster.name}
+												{translatedName}
 										</CardTitle>
 										{monster.size && monster.type && (
 											<CardDescription className="text-gray-400 text-xs">
-												{monster.size} {monster.type}
-												{monster.alignment && ` · ${monster.alignment}`}
+													{translatedSize} {translatedType}
+													{translatedAlignment && ` · ${translatedAlignment}`}
 											</CardDescription>
 										)}
 									</CardHeader>
@@ -262,7 +305,9 @@ export const BestiarioScene = () => {
 									<CardContent className="pt-0 space-y-2">
 										{monster.armor_class !== undefined && (
 											<div className="flex items-center justify-between text-sm">
-												<span className="text-gray-400">CA:</span>
+													<span className="text-gray-400">
+														{t("compendium.bestiary.armorClass")}
+													</span>
 												<span className="text-amber-200 font-semibold">
 													{monster.armor_class}
 												</span>
@@ -270,7 +315,9 @@ export const BestiarioScene = () => {
 										)}
 										{monster.hit_points !== undefined && (
 											<div className="flex items-center justify-between text-sm">
-												<span className="text-gray-400">PG:</span>
+													<span className="text-gray-400">
+														{t("compendium.bestiary.hitPoints")}
+													</span>
 												<span className="text-amber-200 font-semibold">
 													{monster.hit_points}
 												</span>
@@ -278,9 +325,14 @@ export const BestiarioScene = () => {
 										)}
 										{!monster.armor_class && !monster.hit_points && (
 											<p className="text-xs text-gray-500 italic">
-												Sin datos adicionales
+													{t("compendium.bestiary.noExtraData")}
 											</p>
 										)}
+											{translatedDesc && (
+												<p className="text-xs text-gray-400 line-clamp-2">
+													{translatedDesc}
+												</p>
+											)}
 									</CardContent>
 								</Card>
 							);
@@ -324,7 +376,9 @@ export const BestiarioScene = () => {
 					{/* Pagination */}
 					<div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
 						<div className="flex items-center gap-2">
-							<span className="text-sm text-gray-400">Mostrar:</span>
+							<span className="text-sm text-gray-400">
+								{t("common.show")}
+							</span>
 							{[25, 50, 100].map((n) => (
 								<Button
 									key={n}
@@ -347,10 +401,13 @@ export const BestiarioScene = () => {
 									onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
 									disabled={currentPage === 1}
 								>
-									Anterior
+									{t("common.previous")}
 								</Button>
 								<span className="text-sm text-gray-400">
-									Página {currentPage} de {totalPages}
+									{t("common.pageOf", {
+										current: currentPage,
+										total: totalPages,
+									})}
 								</span>
 								<Button
 									variant="outline"
@@ -360,7 +417,7 @@ export const BestiarioScene = () => {
 									}
 									disabled={currentPage === totalPages}
 								>
-									Siguiente
+									{t("common.next")}
 								</Button>
 							</div>
 						)}

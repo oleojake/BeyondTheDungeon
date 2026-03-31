@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { supabase } from "@/lib/supabase";
 import { routes } from "@/router";
+import { useTranslation } from "react-i18next";
 import {
 	Card,
 	CardContent,
@@ -14,10 +15,11 @@ import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 export const AuthCallbackScene = () => {
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 	const [status, setStatus] = useState<"loading" | "success" | "error">(
 		"loading",
 	);
-	const [message, setMessage] = useState("Confirmando tu email...");
+	const [message, setMessage] = useState(t("authCallback.messages.loading"));
 
 	useEffect(() => {
 		const handleEmailConfirmation = async () => {
@@ -31,7 +33,7 @@ export const AuthCallbackScene = () => {
 
 				if (data.session) {
 					setStatus("success");
-					setMessage("¡Email confirmado correctamente! Redirigiendo...");
+					setMessage(t("authCallback.messages.confirmed"));
 					setTimeout(() => navigate(routes.misCampanas), 2000);
 				} else {
 					// Si no hay sesión pero tampoco error, verifica si hay un código en la URL
@@ -43,11 +45,11 @@ export const AuthCallbackScene = () => {
 					if (accessToken) {
 						// Supabase ya debe haber procesado el token
 						setStatus("success");
-						setMessage("¡Email confirmado! Redirigiendo al login...");
+						setMessage(t("authCallback.messages.confirmedLogin"));
 						setTimeout(() => navigate(routes.login), 2000);
 					} else {
 						throw new Error(
-							"No se pudo verificar el email. Por favor, intenta de nuevo.",
+							t("authCallback.messages.verifyFailed"),
 						);
 					}
 				}
@@ -57,7 +59,7 @@ export const AuthCallbackScene = () => {
 				setMessage(
 					err instanceof Error
 						? err.message
-						: "Error al confirmar el email. Por favor, contacta con soporte.",
+						: t("authCallback.messages.confirmError"),
 				);
 			}
 		};
@@ -69,9 +71,9 @@ export const AuthCallbackScene = () => {
 		<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
-					<CardTitle>Confirmación de Email</CardTitle>
+					<CardTitle>{t("authCallback.title")}</CardTitle>
 					<CardDescription>
-						Procesando tu solicitud de confirmación
+						{t("authCallback.subtitle")}
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
@@ -104,7 +106,7 @@ export const AuthCallbackScene = () => {
 								onClick={() => navigate(routes.login)}
 								className="text-sm text-primary hover:underline"
 							>
-								Volver al login
+								{t("authCallback.backToLogin")}
 							</button>
 						</div>
 					)}

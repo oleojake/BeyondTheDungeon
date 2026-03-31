@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Loader2, Plus, Trash2, Map, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ export const MisMapasScene = () => {
 };
 
 const MisMapasContent = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [maps, setMaps] = useState<BattleMapListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,14 +46,14 @@ const MisMapasContent = () => {
       const response = await listBattleMaps();
       setMaps(response.maps);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al cargar los mapas");
+      setError(err instanceof Error ? err.message : t("scenes.maps.errors.loadFailed"));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Eliminar el mapa "${name}"?`)) return;
+    if (!confirm(t("scenes.maps.errors.deleteConfirm", { name }))) return;
 
     try {
       setDeleting(id);
@@ -59,7 +61,7 @@ const MisMapasContent = () => {
       await deleteBattleMap(id);
       setMaps((prev) => prev.filter((m) => m.id !== id));
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al eliminar el mapa");
+      setError(err instanceof Error ? err.message : t("scenes.maps.errors.deleteFailed"));
     } finally {
       setDeleting(null);
     }
@@ -86,10 +88,10 @@ const MisMapasContent = () => {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Map className="h-8 w-8 text-amber-200" />
-              <h1 className="text-3xl font-bold text-amber-50">Mis Mapas de Batalla</h1>
+              <h1 className="text-3xl font-bold text-amber-50">{t("scenes.maps.title")}</h1>
             </div>
             <p className="text-sm text-amber-100/90">
-              Gestiona tus mapas de batalla guardados
+              {t("scenes.maps.subtitle")}
             </p>
           </div>
           <Button
@@ -97,7 +99,7 @@ const MisMapasContent = () => {
             className="bg-amber-600 hover:bg-amber-700 text-white"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Nuevo Mapa
+            {t("scenes.maps.newMap")}
           </Button>
         </div>
       </section>
@@ -105,7 +107,7 @@ const MisMapasContent = () => {
       {/* Results count */}
       {!loading && maps.length > 0 && (
         <p className="text-sm text-muted-foreground">
-          {maps.length} {maps.length === 1 ? "mapa" : "mapas"}
+          {maps.length} {maps.length === 1 ? t("scenes.maps.map") : t("scenes.maps.maps")}
         </p>
       )}
 
@@ -131,13 +133,13 @@ const MisMapasContent = () => {
           <CardContent className="pt-6 text-center">
             <Map className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <p className="text-muted-foreground mb-4">
-              Aún no has guardado ningún mapa de batalla
+              {t("scenes.maps.noMaps")}
             </p>
             <Button
               onClick={() => navigate(switchRoutes.mapaBatalla)}
               variant="outline"
             >
-              Crear tu Primer Mapa
+              {t("scenes.maps.createFirst")}
             </Button>
           </CardContent>
         </Card>
@@ -152,19 +154,19 @@ const MisMapasContent = () => {
                   <div className="space-y-1 flex-1">
                     <CardTitle className="text-lg">{map.name}</CardTitle>
                     <CardDescription>
-                      Cuadrícula: {map.grid_size}px
+                      {t("scenes.maps.grid", { size: map.grid_size })}
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="text-sm text-muted-foreground">
-                  <p>Creado: {formatDate(map.created_at)}</p>
+                  <p>{t("scenes.maps.created", { date: formatDate(map.created_at) })}</p>
                   {map.updated_at !== map.created_at && (
-                    <p>Modificado: {formatDate(map.updated_at)}</p>
+                    <p>{t("scenes.maps.modified", { date: formatDate(map.updated_at) })}</p>
                   )}
                 </div>
-                
+
                 <div className="flex gap-2">
                   <Button
                     onClick={() => handleViewMap(map.id)}
@@ -172,7 +174,7 @@ const MisMapasContent = () => {
                     size="sm"
                   >
                     <Eye className="mr-2 h-4 w-4" />
-                    Abrir
+                    {t("scenes.maps.open")}
                   </Button>
                   <Button
                     onClick={() => handleDelete(map.id, map.name)}
