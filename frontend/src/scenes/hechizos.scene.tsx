@@ -31,8 +31,9 @@ export const HechizosScene = () => {
 	const {
 		searchTerm,
 		setSearchTerm,
-		filterValue: levelFilter,
-		setFilterValue: setLevelFilter,
+		filterValues: levelFilters,
+		toggleFilter: toggleLevel,
+		isFilterActive: isLevelActive,
 		currentPage,
 		setCurrentPage,
 		itemsPerPage,
@@ -88,10 +89,10 @@ export const HechizosScene = () => {
 					.toLowerCase()
 					.includes(searchTerm.toLowerCase());
 				const matchesLevel =
-					levelFilter === "all" || spell.level?.toString() === levelFilter;
+					levelFilters.length === 0 || levelFilters.includes(spell.level?.toString() ?? "");
 				return matchesSearch && matchesLevel;
 			}),
-		[spells, searchTerm, levelFilter],
+		[spells, searchTerm, levelFilters],
 	);
 
 	const totalPages = Math.ceil(filteredSpells.length / itemsPerPage);
@@ -182,26 +183,16 @@ export const HechizosScene = () => {
 
 					<div className="flex flex-wrap items-center gap-2">
 						<span className="text-sm text-gray-400">Nivel:</span>
-						<Button
-							size="sm"
-							variant={levelFilter === "all" ? "default" : "outline"}
-							onClick={() => setLevelFilter("all")}
-							className={
-								levelFilter === "all" ? "bg-amber-600 hover:bg-amber-700" : ""
-							}
-						>
-							Todos
-						</Button>
 						{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
 							<Button
 								key={level}
 								size="sm"
 								variant={
-									levelFilter === level.toString() ? "default" : "outline"
+									isLevelActive(level.toString()) ? "default" : "outline"
 								}
-								onClick={() => setLevelFilter(level.toString())}
+								onClick={() => toggleLevel(level.toString())}
 								className={
-									levelFilter === level.toString()
+									isLevelActive(level.toString())
 										? "bg-amber-600 hover:bg-amber-700"
 										: ""
 								}

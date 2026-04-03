@@ -4,21 +4,22 @@ import { useSearchParams } from "react-router-dom";
 interface UseCompendiumFiltersOptions {
   /** Query-param key for the category/type filter (e.g. "level", "category"). Omit if not needed. */
   filterKey?: string;
-  /** Default value for the category filter when absent. */
-  filterDefault?: string;
   /** Default items per page. */
   defaultPerPage?: number;
 }
 
 export function useCompendiumFilters(opts: UseCompendiumFiltersOptions = {}) {
-  const { filterKey, filterDefault = "all", defaultPerPage = 25 } = opts;
+  const { filterKey, defaultPerPage = 25 } = opts;
   const [searchParams, setSearchParams] = useSearchParams();
 
   // --- read from URL ---
   const searchTerm = searchParams.get("q") ?? "";
-  const filterValue = filterKey
-    ? (searchParams.get(filterKey) ?? filterDefault)
-    : filterDefault;
+  const filterValues: string[] = useMemo(() => {
+    if (!filterKey) return [];
+    const raw = searchParams.get(filterKey);
+    if (!raw) return [];
+    return raw.split(",").filter(Boolean);
+  }, [searchParams, filterKey]);
   const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
   const itemsPerPage = Number(searchParams.get("perPage")) || defaultPerPage;
 
@@ -46,12 +47,32 @@ export function useCompendiumFilters(opts: UseCompendiumFiltersOptions = {}) {
     [setParam],
   );
 
-  const setFilterValue = useCallback(
+  /** Toggle a single value in/out of the multi-select filter. */
+  const toggleFilter = useCallback(
     (v: string) => {
       if (!filterKey) return;
-      setParam(filterKey, v === filterDefault ? "" : v);
+      const current = new Set(filterValues);
+      if (current.has(v)) {
+        current.delete(v);
+      } else {
+        current.add(v);
+      }
+      const serialized = Array.from(current).join(",");
+      setParam(filterKey, serialized);
     },
-    [setParam, filterKey, filterDefault],
+    [filterKey, filterValues, setParam],
+  );
+
+  /** Clear all filter selections (show all). */
+  const clearFilter = useCallback(() => {
+    if (!filterKey) return;
+    setParam(filterKey, "");
+  }, [filterKey, setParam]);
+
+  /** Check if a value is currently selected. */
+  const isFilterActive = useCallback(
+    (v: string) => filterValues.includes(v),
+    [filterValues],
   );
 
   const setCurrentPage = useCallback(
@@ -71,9 +92,9 @@ export function useCompendiumFilters(opts: UseCompendiumFiltersOptions = {}) {
   const hasActiveFilters = useMemo(
     () =>
       searchTerm !== "" ||
-      (filterKey ? filterValue !== filterDefault : false) ||
+      filterValues.length > 0 ||
       currentPage > 1,
-    [searchTerm, filterKey, filterValue, filterDefault, currentPage],
+    [searchTerm, filterValues, currentPage],
   );
 
   const clearFilters = useCallback(() => {
@@ -83,8 +104,10 @@ export function useCompendiumFilters(opts: UseCompendiumFiltersOptions = {}) {
   return {
     searchTerm,
     setSearchTerm,
-    filterValue,
-    setFilterValue,
+    filterValues,
+    toggleFilter,
+    clearFilter,
+    isFilterActive,
     currentPage,
     setCurrentPage,
     itemsPerPage,

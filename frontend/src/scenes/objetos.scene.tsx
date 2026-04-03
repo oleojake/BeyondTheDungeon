@@ -31,8 +31,9 @@ export const ObjetosScene = () => {
 	const {
 		searchTerm,
 		setSearchTerm,
-		filterValue: categoryFilter,
-		setFilterValue: setCategoryFilter,
+		filterValues: categoryFilters,
+		toggleFilter: toggleCategory,
+		isFilterActive: isCategoryActive,
 		currentPage,
 		setCurrentPage,
 		itemsPerPage,
@@ -94,10 +95,10 @@ export const ObjetosScene = () => {
 						? item.equipment_category?.name
 						: item.equipment_category;
 				const matchesCategory =
-					categoryFilter === "all" || itemCategory === categoryFilter;
+					categoryFilters.length === 0 || categoryFilters.includes(itemCategory ?? "");
 				return matchesSearch && matchesCategory;
 			}),
-		[items, searchTerm, categoryFilter],
+		[items, searchTerm, categoryFilters],
 	);
 
 	const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
@@ -175,18 +176,6 @@ export const ObjetosScene = () => {
 
 					<div className="flex flex-wrap items-center gap-2">
 						<span className="text-sm text-gray-400">Categoría:</span>
-						<Button
-							size="sm"
-							variant={categoryFilter === "all" ? "default" : "outline"}
-							onClick={() => setCategoryFilter("all")}
-							className={
-								categoryFilter === "all"
-									? "bg-amber-600 hover:bg-amber-700"
-									: ""
-							}
-						>
-							Todas
-						</Button>
 						{[
 							"Weapon",
 							"Armor",
@@ -205,10 +194,10 @@ export const ObjetosScene = () => {
 							<Button
 								key={category}
 								size="sm"
-								variant={categoryFilter === category ? "default" : "outline"}
-								onClick={() => setCategoryFilter(category)}
+								variant={isCategoryActive(category) ? "default" : "outline"}
+								onClick={() => toggleCategory(category)}
 								className={
-									categoryFilter === category
+									isCategoryActive(category)
 										? "bg-amber-600 hover:bg-amber-700"
 										: ""
 								}
