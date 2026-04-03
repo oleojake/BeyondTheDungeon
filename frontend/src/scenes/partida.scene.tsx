@@ -25,7 +25,7 @@ export function PartidaScene() {
 
 	useEffect(() => {
 		if (!campaignId) {
-			navigate("/mis-campanas");
+			navigate("/profile/campanas");
 			return;
 		}
 
@@ -72,7 +72,7 @@ export function PartidaScene() {
 				<div className="text-center">
 					<p className="text-red-400 mb-4">{error ?? "Campaña no encontrada."}</p>
 					<button
-						onClick={() => navigate("/mis-campanas")}
+						onClick={() => navigate("/profile/campanas")}
 						className="text-amber-400 underline"
 					>
 						Volver a Mis Campañas
