@@ -93,7 +93,7 @@ export const HechizosDetalleScene = () => {
   if (error || !spell) {
     return (
       <div className="container mx-auto p-6 max-w-7xl space-y-6">
-        <Button onClick={() => navigate("/hechizos")} variant="outline" className="gap-2">
+        <Button onClick={() => navigate(-1)} variant="outline" className="gap-2">
           <ArrowLeft className="h-4 w-4" />
           Volver a Hechizos
         </Button>
@@ -107,7 +107,7 @@ export const HechizosDetalleScene = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-7xl space-y-6">
-      <Button onClick={() => navigate("/hechizos")} variant="outline" className="gap-2 border-amber-600/30 text-amber-200 hover:bg-amber-950/30 hover:text-amber-100">
+      <Button onClick={() => navigate(-1)} variant="outline" className="gap-2 border-amber-600/30 text-amber-200 hover:bg-amber-950/30 hover:text-amber-100">
         <ArrowLeft className="h-4 w-4" />
         Volver a Hechizos
       </Button>

@@ -122,7 +122,7 @@ export const BestiarioDetalleScene = () => {
 		return (
 			<div className="container mx-auto p-6 max-w-7xl space-y-6">
 				<Button
-					onClick={() => navigate("/bestiario")}
+					onClick={() => navigate(-1)}
 					variant="outline"
 					className="gap-2"
 				>
@@ -143,7 +143,7 @@ export const BestiarioDetalleScene = () => {
 		<div className="container mx-auto p-6 max-w-7xl space-y-6">
 			{/* Back Button */}
 			<Button
-				onClick={() => navigate("/bestiario")}
+				onClick={() => navigate(-1)}
 				variant="outline"
 				className="gap-2 border-amber-600/30 text-amber-200 hover:bg-amber-950/30 hover:text-amber-100"
 			>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,10 @@ import {
 	BookOpen,
 	Package,
 	Info,
+	X,
 } from "lucide-react";
 import { fetchItems, type Item } from "@/core/api/backend.service";
+import { useCompendiumFilters } from "@/hooks/use-compendium-filters";
 
 export const ObjetosScene = () => {
 	const location = useLocation();
@@ -25,18 +27,23 @@ export const ObjetosScene = () => {
 	const [items, setItems] = useState<Item[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [categoryFilter, setCategoryFilter] = useState<string>("all");
-	const [currentPage, setCurrentPage] = useState(1);
-	const [itemsPerPage, setItemsPerPage] = useState(25);
+
+	const {
+		searchTerm,
+		setSearchTerm,
+		filterValue: categoryFilter,
+		setFilterValue: setCategoryFilter,
+		currentPage,
+		setCurrentPage,
+		itemsPerPage,
+		setItemsPerPage,
+		hasActiveFilters,
+		clearFilters,
+	} = useCompendiumFilters({ filterKey: "category" });
 
 	useEffect(() => {
 		loadItems();
 	}, []);
-
-	useEffect(() => {
-		setCurrentPage(1);
-	}, [searchTerm, categoryFilter, itemsPerPage]);
 
 	const loadItems = async () => {
 		try {
@@ -76,18 +83,22 @@ export const ObjetosScene = () => {
 		}
 	};
 
-	const filteredItems = items.filter((item) => {
-		const matchesSearch = item.name
-			.toLowerCase()
-			.includes(searchTerm.toLowerCase());
-		const itemCategory =
-			typeof item.equipment_category === "object"
-				? item.equipment_category?.name
-				: item.equipment_category;
-		const matchesCategory =
-			categoryFilter === "all" || itemCategory === categoryFilter;
-		return matchesSearch && matchesCategory;
-	});
+	const filteredItems = useMemo(
+		() =>
+			items.filter((item) => {
+				const matchesSearch = item.name
+					.toLowerCase()
+					.includes(searchTerm.toLowerCase());
+				const itemCategory =
+					typeof item.equipment_category === "object"
+						? item.equipment_category?.name
+						: item.equipment_category;
+				const matchesCategory =
+					categoryFilter === "all" || itemCategory === categoryFilter;
+				return matchesSearch && matchesCategory;
+			}),
+		[items, searchTerm, categoryFilter],
+	);
 
 	const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 	const paginatedItems = filteredItems.slice(
@@ -232,6 +243,19 @@ export const ObjetosScene = () => {
 							</Button>
 						))}
 					</div>
+					{hasActiveFilters && (
+						<div className="flex items-center">
+							<Button
+								size="sm"
+								variant="ghost"
+								onClick={clearFilters}
+								className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-1.5"
+							>
+								<X className="h-3.5 w-3.5" />
+								Limpiar filtros
+							</Button>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 

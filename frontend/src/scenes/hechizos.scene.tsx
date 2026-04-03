@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,10 @@ import {
 	BookOpen,
 	Sparkles,
 	Info,
+	X,
 } from "lucide-react";
 import { fetchSpells, type Spell } from "@/core/api/backend.service";
+import { useCompendiumFilters } from "@/hooks/use-compendium-filters";
 
 export const HechizosScene = () => {
 	const location = useLocation();
@@ -25,18 +27,23 @@ export const HechizosScene = () => {
 	const [spells, setSpells] = useState<Spell[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [levelFilter, setLevelFilter] = useState<string>("all");
-	const [currentPage, setCurrentPage] = useState(1);
-	const [itemsPerPage, setItemsPerPage] = useState(25);
+
+	const {
+		searchTerm,
+		setSearchTerm,
+		filterValue: levelFilter,
+		setFilterValue: setLevelFilter,
+		currentPage,
+		setCurrentPage,
+		itemsPerPage,
+		setItemsPerPage,
+		hasActiveFilters,
+		clearFilters,
+	} = useCompendiumFilters({ filterKey: "level" });
 
 	useEffect(() => {
 		loadSpells();
 	}, []);
-
-	useEffect(() => {
-		setCurrentPage(1);
-	}, [searchTerm, levelFilter, itemsPerPage]);
 
 	const loadSpells = async () => {
 		try {
@@ -74,14 +81,18 @@ export const HechizosScene = () => {
 		}
 	};
 
-	const filteredSpells = spells.filter((spell) => {
-		const matchesSearch = spell.name
-			.toLowerCase()
-			.includes(searchTerm.toLowerCase());
-		const matchesLevel =
-			levelFilter === "all" || spell.level?.toString() === levelFilter;
-		return matchesSearch && matchesLevel;
-	});
+	const filteredSpells = useMemo(
+		() =>
+			spells.filter((spell) => {
+				const matchesSearch = spell.name
+					.toLowerCase()
+					.includes(searchTerm.toLowerCase());
+				const matchesLevel =
+					levelFilter === "all" || spell.level?.toString() === levelFilter;
+				return matchesSearch && matchesLevel;
+			}),
+		[spells, searchTerm, levelFilter],
+	);
 
 	const totalPages = Math.ceil(filteredSpells.length / itemsPerPage);
 	const paginatedSpells = filteredSpells.slice(
@@ -199,6 +210,19 @@ export const HechizosScene = () => {
 							</Button>
 						))}
 					</div>
+					{hasActiveFilters && (
+						<div className="flex items-center">
+							<Button
+								size="sm"
+								variant="ghost"
+								onClick={clearFilters}
+								className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-1.5"
+							>
+								<X className="h-3.5 w-3.5" />
+								Limpiar filtros
+							</Button>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 
