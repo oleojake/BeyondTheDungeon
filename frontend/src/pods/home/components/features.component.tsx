@@ -6,14 +6,14 @@ const FEATURES = [
 		title: "Gestión de Campañas",
 		description: "Crea y administra tus aventuras con facilidad.",
 		color: "from-primary to-primary-dark",
-		url: "/mis-campanas",
+		url: "/profile/campanas",
 	},
 	{
 		icon: "/characters.png",
 		title: "Fichas de Personaje",
 		description: "Fichas digitales activas para tus héroes.",
 		color: "from-secondary to-secondary-dark",
-		url: "/mi-ficha",
+		url: "/fichas/nueva",
 	},
 	{
 		icon: "/dice.png",
