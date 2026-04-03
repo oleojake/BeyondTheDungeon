@@ -120,7 +120,7 @@ export const BestiarioDetalleScene = () => {
 
 	if (error || !monster) {
 		return (
-			<div className="container mx-auto p-6 space-y-6">
+			<div className="container mx-auto p-6 max-w-7xl space-y-6">
 				<Button
 					onClick={() => navigate("/bestiario")}
 					variant="outline"
@@ -140,7 +140,7 @@ export const BestiarioDetalleScene = () => {
 	}
 
 	return (
-		<div className="container mx-auto p-6 space-y-6">
+		<div className="container mx-auto p-6 max-w-7xl space-y-6">
 			{/* Back Button */}
 			<Button
 				onClick={() => navigate("/bestiario")}
