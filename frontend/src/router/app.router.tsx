@@ -22,8 +22,7 @@ import BestiarioDetalleScene from "@/scenes/bestiario-detalle.scene";
 import ObjetosScene from "@/scenes/objetos.scene";
 import { ProtectedRoute } from "@/core/auth/ProtectedRoute";
 import { AppLayout } from "@/layout/app.layout";
-import { ProfileLayout } from "@/layout/profile.layout";
-import { ToolLayout, FullscreenToolLayout } from "@/layout/tool.layout";
+import { FullscreenToolLayout } from "@/layout/tool.layout";
 import { switchRoutes } from "./routes";
 
 export const AppRouter = () => {
@@ -33,146 +32,29 @@ export const AppRouter = () => {
 				<Route path={switchRoutes.root} element={<HomeScene />} />
 				<Route path={switchRoutes.login} element={<LoginScene />} />
 				<Route path={switchRoutes.register} element={<RegisterScene />} />
-				<Route
-					path={switchRoutes.authCallback}
-					element={<AuthCallbackScene />}
-				/>
+				<Route path={switchRoutes.authCallback} element={<AuthCallbackScene />} />
 
-				{/* Protected routes - auth required */}
-				<Route
-					path={switchRoutes.profile}
-					element={
-						<ProtectedRoute>
-							<Navigate to={switchRoutes.profileSettings} replace />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path={switchRoutes.profileSettings}
-					element={
-						<ProtectedRoute>
-							<ProfileSettingsScene />
-						</ProtectedRoute>
-					}
-				/>
-
-				{/* Public routes - no auth required */}
-				<Route
-					path={switchRoutes.hechizos}
-					element={
-						<AppLayout>
-							<HechizosScene />
-						</AppLayout>
-					}
-				/>
-				<Route
-					path={switchRoutes.hechizosDetalle}
-					element={
-						<AppLayout>
-							<HechizosDetalleScene />
-						</AppLayout>
-					}
-				/>
-				<Route
-					path={switchRoutes.bestiario}
-					element={
-						<AppLayout>
-							<BestiarioScene />
-						</AppLayout>
-					}
-				/>
-				<Route
-					path={switchRoutes.bestiarioDetalle}
-					element={
-						<AppLayout>
-							<BestiarioDetalleScene />
-						</AppLayout>
-					}
-				/>
-				<Route
-					path={switchRoutes.dados}
-					element={
-						<ToolLayout>
-							<DadosScene />
-						</ToolLayout>
-					}
-				/>
+				{/* ── Public tools (AppLayout always) ── */}
+				<Route path={switchRoutes.hechizos} element={<AppLayout><HechizosScene /></AppLayout>} />
+				<Route path={switchRoutes.hechizosDetalle} element={<AppLayout><HechizosDetalleScene /></AppLayout>} />
+				<Route path={switchRoutes.bestiario} element={<AppLayout><BestiarioScene /></AppLayout>} />
+				<Route path={switchRoutes.bestiarioDetalle} element={<AppLayout><BestiarioDetalleScene /></AppLayout>} />
+				<Route path={switchRoutes.objetos} element={<AppLayout><ObjetosScene /></AppLayout>} />
+				<Route path={switchRoutes.dados} element={<AppLayout><DadosScene /></AppLayout>} />
+				<Route path={switchRoutes.inventario} element={<AppLayout><InventarioScene /></AppLayout>} />
+				<Route path={switchRoutes.fichas} element={<AppLayout><MisFichasScene /></AppLayout>} />
+				<Route path={switchRoutes.fichaNueva} element={<AppLayout><MiFichaScene /></AppLayout>} />
 				<Route path={switchRoutes.mapaBatalla} element={<FullscreenToolLayout><MapaBatallaScene /></FullscreenToolLayout>} />
 
-				{/* Protected routes - auth required */}
-				<Route
-					path={switchRoutes.miFicha}
-					element={
-						<ProtectedRoute>
-							<ProfileLayout>
-								<MiFichaScene />
-							</ProfileLayout>
-						</ProtectedRoute>
-					}
-				/>
-			<Route
-				path={switchRoutes.misFichas}
-				element={
-					<ProtectedRoute>
-						<ProfileLayout>
-							<MisFichasScene />
-						</ProfileLayout>
-					</ProtectedRoute>
-				}
-			/>
-				<Route
-					path={switchRoutes.misMapas}
-					element={
-						<ProtectedRoute>
-							<MisMapasScene />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path={switchRoutes.inventario}
-					element={
-						<ToolLayout>
-							<InventarioScene />
-						</ToolLayout>
-					}
-				/>
+				{/* ── Profile (auth required, AppLayout) ── */}
+				<Route path={switchRoutes.profile} element={<ProtectedRoute><Navigate to={switchRoutes.profileCampanas} replace /></ProtectedRoute>} />
+				<Route path={switchRoutes.profileSettings} element={<ProtectedRoute><AppLayout><ProfileSettingsScene /></AppLayout></ProtectedRoute>} />
+				<Route path={switchRoutes.profileCampanas} element={<ProtectedRoute><AppLayout><MisCampanasScene /></AppLayout></ProtectedRoute>} />
+				<Route path={switchRoutes.profileMapas} element={<ProtectedRoute><AppLayout><MisMapasScene /></AppLayout></ProtectedRoute>} />
+				<Route path={switchRoutes.editarCampana} element={<ProtectedRoute><AppLayout><EditarCampanaScene /></AppLayout></ProtectedRoute>} />
 
-
-
-
-				<Route
-					path={switchRoutes.objetos}
-					element={
-						<AppLayout>
-							<ObjetosScene />
-						</AppLayout>
-					}
-				/>
-				<Route
-					path={switchRoutes.misCampanas}
-					element={
-						<ProtectedRoute>
-							<MisCampanasScene />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path={switchRoutes.editarCampana}
-					element={
-						<ProtectedRoute>
-							<EditarCampanaScene />
-						</ProtectedRoute>
-					}
-				/>
-				{/* 🎮 Partida online VTT */}
-				<Route
-					path={switchRoutes.partida}
-					element={
-						<ProtectedRoute>
-							<PartidaScene />
-						</ProtectedRoute>
-					}
-				/>
+				{/* ── Partida VTT ── */}
+				<Route path={switchRoutes.partida} element={<ProtectedRoute><PartidaScene /></ProtectedRoute>} />
 			</Routes>
 		</Router>
 	);

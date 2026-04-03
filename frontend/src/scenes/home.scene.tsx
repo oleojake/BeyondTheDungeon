@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { AppLayout } from "@/layout";
 import { HomeContainer } from "@/pods/home";
 
 export const HomeScene = () => {
@@ -15,9 +14,5 @@ export const HomeScene = () => {
 		}
 	}, []);
 
-	return (
-		<AppLayout>
-			<HomeContainer />
-		</AppLayout>
-	);
+	return <HomeContainer />;
 };

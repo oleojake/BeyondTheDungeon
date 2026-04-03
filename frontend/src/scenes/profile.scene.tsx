@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ProfileLayout } from "@/layout/profile.layout";
+
 import { Users, Plus, ArrowRight } from "lucide-react";
 import {
 	Card,
@@ -16,11 +16,7 @@ import { listCampaigns, type Campaign } from "@/core/api/campaign.service";
 import { supabase } from "@/lib/supabase";
 
 export const ProfileScene: React.FC = () => {
-	return (
-		<ProfileLayout>
-			<ProfileContent />
-		</ProfileLayout>
-	);
+	return <ProfileContent />;
 };
 
 const ProfileContent: React.FC = () => {
@@ -73,7 +69,7 @@ const ProfileContent: React.FC = () => {
 			{/* Create Campaign Button */}
 			<div className="flex justify-end">
 				<Button 
-					onClick={() => navigate("/mis-campanas")}
+					onClick={() => navigate("/profile/campanas")}
 					className="inline-flex items-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 px-6 py-3 text-sm font-semibold text-white shadow-lg transition"
 				>
 					<Plus className="h-5 w-5" />
@@ -173,7 +169,7 @@ const ProfileContent: React.FC = () => {
 								</p>
 							</div>
 							<Button 
-								onClick={() => navigate("/mis-campanas")}
+								onClick={() => navigate("/profile/campanas")}
 								className="mt-4 bg-amber-600 hover:bg-amber-700 text-white"
 							>
 								<Plus className="mr-2 h-4 w-4" />

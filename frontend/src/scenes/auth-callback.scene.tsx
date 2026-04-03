@@ -32,7 +32,7 @@ export const AuthCallbackScene = () => {
 				if (data.session) {
 					setStatus("success");
 					setMessage("¡Email confirmado correctamente! Redirigiendo...");
-					setTimeout(() => navigate(routes.misCampanas), 2000);
+					setTimeout(() => navigate(routes.profileCampanas), 2000);
 				} else {
 					// Si no hay sesión pero tampoco error, verifica si hay un código en la URL
 					const hashParams = new URLSearchParams(

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
 	Card,
@@ -18,8 +18,10 @@ import {
 	BookOpen,
 	Skull,
 	Info,
+	X,
 } from "lucide-react";
 import { fetchBestiary, type Monster } from "@/core/api/backend.service";
+import { useCompendiumFilters } from "@/hooks/use-compendium-filters";
 const DND5E_API_URL = "https://www.dnd5eapi.co";
 
 export const BestiarioScene = () => {
@@ -32,17 +34,21 @@ export const BestiarioScene = () => {
 	const [monsters, setMonsters] = useState<Monster[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const [itemsPerPage, setItemsPerPage] = useState(25);
+
+	const {
+		searchTerm,
+		setSearchTerm,
+		currentPage,
+		setCurrentPage,
+		itemsPerPage,
+		setItemsPerPage,
+		hasActiveFilters,
+		clearFilters,
+	} = useCompendiumFilters();
 
 	useEffect(() => {
 		loadMonsters();
 	}, []);
-
-	useEffect(() => {
-		setCurrentPage(1);
-	}, [searchTerm, itemsPerPage]);
 
 	const loadMonsters = async () => {
 		try {
@@ -83,8 +89,12 @@ export const BestiarioScene = () => {
 		}
 	};
 
-	const filteredMonsters = monsters.filter((monster) =>
-		monster.name.toLowerCase().includes(searchTerm.toLowerCase()),
+	const filteredMonsters = useMemo(
+		() =>
+			monsters.filter((monster) =>
+				monster.name.toLowerCase().includes(searchTerm.toLowerCase()),
+			),
+		[monsters, searchTerm],
 	);
 
 	const totalPages = Math.ceil(filteredMonsters.length / itemsPerPage);
@@ -94,7 +104,7 @@ export const BestiarioScene = () => {
 	);
 
 	return (
-		<div className="container mx-auto p-6 space-y-6">
+		<div className="container mx-auto p-6 max-w-7xl space-y-6">
 			{/* Header */}
 			<section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
 				<div className="flex items-center gap-3 mb-2">
@@ -122,7 +132,7 @@ export const BestiarioScene = () => {
 
 			{/* Search Bar */}
 			<Card className="bg-dark-card border-dark-border">
-				<CardContent className="pt-6">
+				<CardContent className="pt-6 space-y-4">
 					<div className="relative">
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
 						<Input
@@ -133,6 +143,19 @@ export const BestiarioScene = () => {
 							className="pl-10 bg-dark-lighter border-dark-border text-white placeholder:text-gray-400"
 						/>
 					</div>
+					{hasActiveFilters && (
+						<div className="flex items-center">
+							<Button
+								size="sm"
+								variant="ghost"
+								onClick={clearFilters}
+								className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-1.5"
+							>
+								<X className="h-3.5 w-3.5" />
+								Limpiar filtros
+							</Button>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 

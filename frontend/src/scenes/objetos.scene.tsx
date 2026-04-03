@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,10 @@ import {
 	BookOpen,
 	Package,
 	Info,
+	X,
 } from "lucide-react";
 import { fetchItems, type Item } from "@/core/api/backend.service";
+import { useCompendiumFilters } from "@/hooks/use-compendium-filters";
 
 export const ObjetosScene = () => {
 	const location = useLocation();
@@ -25,18 +27,24 @@ export const ObjetosScene = () => {
 	const [items, setItems] = useState<Item[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [categoryFilter, setCategoryFilter] = useState<string>("all");
-	const [currentPage, setCurrentPage] = useState(1);
-	const [itemsPerPage, setItemsPerPage] = useState(25);
+
+	const {
+		searchTerm,
+		setSearchTerm,
+		filterValues: categoryFilters,
+		toggleFilter: toggleCategory,
+		isFilterActive: isCategoryActive,
+		currentPage,
+		setCurrentPage,
+		itemsPerPage,
+		setItemsPerPage,
+		hasActiveFilters,
+		clearFilters,
+	} = useCompendiumFilters({ filterKey: "category" });
 
 	useEffect(() => {
 		loadItems();
 	}, []);
-
-	useEffect(() => {
-		setCurrentPage(1);
-	}, [searchTerm, categoryFilter, itemsPerPage]);
 
 	const loadItems = async () => {
 		try {
@@ -76,18 +84,22 @@ export const ObjetosScene = () => {
 		}
 	};
 
-	const filteredItems = items.filter((item) => {
-		const matchesSearch = item.name
-			.toLowerCase()
-			.includes(searchTerm.toLowerCase());
-		const itemCategory =
-			typeof item.equipment_category === "object"
-				? item.equipment_category?.name
-				: item.equipment_category;
-		const matchesCategory =
-			categoryFilter === "all" || itemCategory === categoryFilter;
-		return matchesSearch && matchesCategory;
-	});
+	const filteredItems = useMemo(
+		() =>
+			items.filter((item) => {
+				const matchesSearch = item.name
+					.toLowerCase()
+					.includes(searchTerm.toLowerCase());
+				const itemCategory =
+					typeof item.equipment_category === "object"
+						? item.equipment_category?.name
+						: item.equipment_category;
+				const matchesCategory =
+					categoryFilters.length === 0 || categoryFilters.includes(itemCategory ?? "");
+				return matchesSearch && matchesCategory;
+			}),
+		[items, searchTerm, categoryFilters],
+	);
 
 	const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 	const paginatedItems = filteredItems.slice(
@@ -122,7 +134,7 @@ export const ObjetosScene = () => {
 	};
 
 	return (
-		<div className="container mx-auto p-6 space-y-6">
+		<div className="container mx-auto p-6 max-w-7xl space-y-6">
 			{/* Header */}
 			<section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
 				<div className="flex items-center gap-3 mb-2">
@@ -164,18 +176,6 @@ export const ObjetosScene = () => {
 
 					<div className="flex flex-wrap items-center gap-2">
 						<span className="text-sm text-gray-400">Categoría:</span>
-						<Button
-							size="sm"
-							variant={categoryFilter === "all" ? "default" : "outline"}
-							onClick={() => setCategoryFilter("all")}
-							className={
-								categoryFilter === "all"
-									? "bg-amber-600 hover:bg-amber-700"
-									: ""
-							}
-						>
-							Todas
-						</Button>
 						{[
 							"Weapon",
 							"Armor",
@@ -194,10 +194,10 @@ export const ObjetosScene = () => {
 							<Button
 								key={category}
 								size="sm"
-								variant={categoryFilter === category ? "default" : "outline"}
-								onClick={() => setCategoryFilter(category)}
+								variant={isCategoryActive(category) ? "default" : "outline"}
+								onClick={() => toggleCategory(category)}
 								className={
-									categoryFilter === category
+									isCategoryActive(category)
 										? "bg-amber-600 hover:bg-amber-700"
 										: ""
 								}
@@ -232,6 +232,19 @@ export const ObjetosScene = () => {
 							</Button>
 						))}
 					</div>
+					{hasActiveFilters && (
+						<div className="flex items-center">
+							<Button
+								size="sm"
+								variant="ghost"
+								onClick={clearFilters}
+								className="text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-1.5"
+							>
+								<X className="h-3.5 w-3.5" />
+								Limpiar filtros
+							</Button>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 

@@ -395,7 +395,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				current_scene_id: selectedSceneId,
 				current_map_id: session.current_map_id,
 			});
-			navigate("/mis-campanas");
+			navigate("/profile/campanas");
 		} catch (err) {
 			console.error("[Partida] endSession error", err);
 			alert("Error al terminar la sesión");

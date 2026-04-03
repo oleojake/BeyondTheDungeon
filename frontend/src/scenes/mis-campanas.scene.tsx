@@ -8,7 +8,8 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ProfileLayout } from "@/layout";
+import { ProfileTabs } from "@/components/profile-tabs";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -318,8 +319,9 @@ export function MisCampanasScene() {
 	};
 
 	return (
-		<ProfileLayout>
-			<div className="max-w-5xl mx-auto space-y-6">
+		<>
+			<div className="container mx-auto p-6 max-w-7xl space-y-6">
+				<ProfileTabs />
 				{/* Header */}
 				<section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
 					<div className="flex items-center justify-between">
@@ -682,8 +684,8 @@ export function MisCampanasScene() {
 							) : (
 								<div className="text-center">
 									<p className="text-sm text-muted-foreground mb-3">No tienes fichas creadas todavía.</p>
-									<Button variant="outline" onClick={() => navigate("/mis-fichas")}>
-										Ir a Mis Fichas
+									<Button variant="outline" onClick={() => navigate("/fichas")}>
+										Ir a Fichas
 									</Button>
 								</div>
 							)}
@@ -691,7 +693,7 @@ export function MisCampanasScene() {
 					)}
 				</DialogContent>
 			</Dialog>
-		</ProfileLayout>
+		</>
 	);
 }
 

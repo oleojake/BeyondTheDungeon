@@ -1244,7 +1244,7 @@ export const InventarioScene = () => {
 
 	return (
 		<>
-			<div className="max-w-5xl mx-auto space-y-6">
+			<div className="container mx-auto p-6 max-w-7xl space-y-6">
 				{/* ── Cabecera ─────────────────────────────────────────────── */}
 				<section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
 					<div className="flex items-center justify-between">
@@ -1332,7 +1332,7 @@ export const InventarioScene = () => {
 								<span className="text-amber-600">
 									No tienes personajes aún.{" "}
 									<Link
-										to={routes.misFichas}
+										to={routes.fichas}
 										className="underline hover:text-amber-400"
 									>
 										Crea uno primero

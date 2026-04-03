@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Loader2, Plus, Trash2, UserCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2, Plus, Trash2, UserCircle, Info, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,6 +16,8 @@ import {
 } from "@/core/api/character-sheet.service";
 import type { CharacterClass } from "@/interfaces/character";
 import { switchRoutes } from "@/router/routes";
+import { useAuth } from "@/core/auth/useAuth";
+import { ProfileTabs } from "@/components/profile-tabs";
 
 export const MisFichasScene = () => {
   return <MisFichasContent />;
@@ -23,15 +25,21 @@ export const MisFichasScene = () => {
 
 const MisFichasContent = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [characters, setCharacters] = useState<CharacterSheetListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  // Cargar lista de fichas al montar
+  // Cargar lista de fichas al montar (solo si logueado)
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     loadCharacters();
-  }, []);
+  }, [user, authLoading]);
 
   const loadCharacters = async () => {
     try {
@@ -88,7 +96,8 @@ const MisFichasContent = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="container mx-auto p-6 max-w-7xl space-y-6">
+      {user && <ProfileTabs />}
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
         <div className="flex items-center justify-between">
@@ -96,15 +105,15 @@ const MisFichasContent = () => {
             <div className="flex items-center gap-3 mb-2">
               <UserCircle className="h-8 w-8 text-amber-200" />
               <h1 className="text-3xl font-bold text-amber-50">
-                Mis Fichas de Personajes
+                Fichas de Personajes
               </h1>
             </div>
             <p className="text-sm text-amber-100/90">
-              Gestiona tus personajes de D&D 5e
+              Crea y gestiona tus personajes de D&D 5e
             </p>
           </div>
           <Button
-            onClick={() => navigate(switchRoutes.miFicha)}
+            onClick={() => navigate(switchRoutes.fichaNueva)}
             className="bg-amber-600 hover:bg-amber-700 text-white"
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -112,6 +121,19 @@ const MisFichasContent = () => {
           </Button>
         </div>
       </section>
+
+      {/* Banner invitados */}
+      {!user && !authLoading && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-700/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-300">
+          <Info className="w-4 h-4 mt-0.5 shrink-0" />
+          <span>
+            Puedes crear una ficha de personaje libremente. Para guardar y gestionar tus fichas,{" "}
+            <Link to={switchRoutes.login} className="underline hover:text-amber-100">inicia sesión</Link>{" "}
+            o{" "}
+            <Link to={switchRoutes.register} className="underline hover:text-amber-100">crea una cuenta</Link>.
+          </span>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-6">
@@ -142,7 +164,7 @@ const MisFichasContent = () => {
               Crea tu primera ficha de personaje para comenzar tu aventura
             </p>
             <Button
-              onClick={() => navigate(switchRoutes.miFicha)}
+              onClick={() => navigate(switchRoutes.fichaNueva)}
               className="bg-amber-600 hover:bg-amber-700 text-white"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -156,7 +178,7 @@ const MisFichasContent = () => {
             <Card
               key={character.id}
               className="bg-dark-card border-dark-border hover:border-amber-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-600/10 cursor-pointer group"
-              onClick={() => navigate(`${switchRoutes.miFicha}?id=${character.id}`)}
+              onClick={() => navigate(`${switchRoutes.fichaNueva}?id=${character.id}`)}
             >
               <CardHeader>
                 <CardTitle className="text-xl text-white">{character.name || "Sin nombre"}</CardTitle>

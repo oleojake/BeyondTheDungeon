@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Plus, Trash2, Map, Eye } from "lucide-react";
+import { ProfileTabs } from "@/components/profile-tabs";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,14 +16,10 @@ import {
   type BattleMapListItem,
 } from "@/core/api/battle-map.service";
 import { switchRoutes } from "@/router/routes";
-import { ProfileLayout } from "@/layout/profile.layout";
+
 
 export const MisMapasScene = () => {
-  return (
-    <ProfileLayout>
-      <MisMapasContent />
-    </ProfileLayout>
-  );
+  return <MisMapasContent />;
 };
 
 const MisMapasContent = () => {
@@ -79,7 +76,8 @@ const MisMapasContent = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="container mx-auto p-6 max-w-7xl space-y-6">
+      <ProfileTabs />
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
         <div className="flex items-center justify-between">

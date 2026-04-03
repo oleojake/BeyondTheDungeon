@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ProfileLayout } from "@/layout";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -253,7 +253,7 @@ export function EditarCampanaScene() {
 		} catch (error) {
 			console.error("Error al cargar campaña:", error);
 			alert("Error al cargar campaña");
-			navigate("/mis-campanas");
+			navigate("/profile/campanas");
 		} finally {
 			setLoading(false);
 		}
@@ -557,33 +557,28 @@ export function EditarCampanaScene() {
 
 	if (loading) {
 		return (
-			<ProfileLayout>
-				<div className="container mx-auto py-8 px-4 max-w-7xl">
-					<Skeleton className="h-10 w-64 mb-8" />
-					<Skeleton className="h-96 w-full" />
-				</div>
-			</ProfileLayout>
+			<div className="container mx-auto p-6 max-w-7xl">
+				<Skeleton className="h-10 w-64 mb-8" />
+				<Skeleton className="h-96 w-full" />
+			</div>
 		);
 	}
 
 	if (!campaign || !isDM) {
 		return (
-			<ProfileLayout>
-				<div className="container mx-auto py-8 px-4 text-center">
-					<h2 className="text-2xl font-bold mb-4">
-						No tienes acceso a esta campaña
-					</h2>
-					<Button onClick={() => navigate("/mis-campanas")}>
-						Volver a Mis Campañas
-					</Button>
-				</div>
-			</ProfileLayout>
+			<div className="container mx-auto p-6 max-w-7xl text-center">
+				<h2 className="text-2xl font-bold mb-4">
+					No tienes acceso a esta campaña
+				</h2>
+				<Button onClick={() => navigate("/profile/campanas")}>
+					Volver a Mis Campañas
+				</Button>
+			</div>
 		);
 	}
 
 	return (
-		<ProfileLayout>
-			<div className="container mx-auto py-8 px-4 max-w-7xl">
+		<div className="container mx-auto p-6 max-w-7xl">
 				{/* Header */}
 				<div className="flex items-center justify-between mb-8">
 					<div>
@@ -595,7 +590,7 @@ export function EditarCampanaScene() {
 						</p>
 					</div>
 					<div className="flex gap-2">
-						<Button variant="outline" onClick={() => navigate("/mis-campanas")}>
+						<Button variant="outline" onClick={() => navigate("/profile/campanas")}>
 							Volver
 						</Button>
 						{isDM && (
@@ -1344,6 +1339,5 @@ export function EditarCampanaScene() {
 					</DialogContent>
 				</Dialog>
 			</div>
-		</ProfileLayout>
 	);
 }
