@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,13 +26,15 @@ import type {
 import { defaultCharacterStats } from "@/interfaces/character";
 import { DND_RACES, DND_CLASSES, DND_BACKGROUNDS, DND_SKILLS, DND_ABILITIES, DND_PROFICIENCIES } from "@/constants/dnd5e";
 import { switchRoutes } from "@/router/routes";
-import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X } from "lucide-react";
+import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X, Info, UserCircle } from "lucide-react";
+import { useAuth } from "@/core/auth/useAuth";
+import { ProfileTabs } from "@/components/profile-tabs";
 
 export const MiFichaScene = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const characterId = searchParams.get("id");
-  
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
@@ -98,8 +100,14 @@ export const MiFichaScene = () => {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      // Guest mode: no character to load, just show empty form
+      setLoading(false);
+      return;
+    }
     loadCharacter();
-  }, [characterId]);
+  }, [characterId, user, authLoading]);
 
   const loadCharacter = async () => {
     try {
@@ -131,6 +139,10 @@ export const MiFichaScene = () => {
   };
 
   const handleSave = async () => {
+    if (!user) {
+      window.open(switchRoutes.login, "_blank");
+      return;
+    }
     try {
       setSaving(true);
       setError("");
@@ -159,7 +171,7 @@ export const MiFichaScene = () => {
 
       // Redirigir a Mis Fichas después de un breve delay
       setTimeout(() => {
-        navigate(switchRoutes.misFichas);
+        navigate(switchRoutes.fichas);
       }, 500);
     } catch (err: any) {
       setError(err.message);
@@ -232,32 +244,52 @@ export const MiFichaScene = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Mi Ficha de Personaje</h1>
-          <p className="text-muted-foreground">
-            Ficha de D&D 5ª Edición
-          </p>
+    <div className="container mx-auto p-6 max-w-7xl space-y-6">
+      {user && <ProfileTabs />}
+      {/* Header */}
+      <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <UserCircle className="h-8 w-8 text-amber-200" />
+              <h1 className="text-3xl font-bold text-amber-50">Ficha de Personaje</h1>
+            </div>
+            <p className="text-sm text-amber-100/90">
+              Ficha de D&D 5ª Edición
+            </p>
+          </div>
+          <Button
+            onClick={handleSave}
+            disabled={saving || !user}
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                {user ? "Guardar Ficha" : "Inicia sesión para guardar"}
+              </>
+            )}
+          </Button>
         </div>
-        <Button 
-          onClick={handleSave} 
-          disabled={saving}
-          className="bg-primary text-white hover:bg-primary/90"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Guardando...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              Guardar Ficha
-            </>
-          )}
-        </Button>
-      </div>
+      </section>
+
+      {/* Banner invitados */}
+      {!user && !authLoading && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-700/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-300 mb-4">
+          <Info className="w-4 h-4 mt-0.5 shrink-0" />
+          <span>
+            Puedes explorar el creador de fichas libremente. Para guardar tus personajes,{" "}
+            <Link to={switchRoutes.login} className="underline hover:text-amber-100">inicia sesión</Link>{" "}
+            o{" "}
+            <Link to={switchRoutes.register} className="underline hover:text-amber-100">crea una cuenta</Link>.
+          </span>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-4">
