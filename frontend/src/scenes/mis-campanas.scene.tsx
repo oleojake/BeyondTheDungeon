@@ -387,7 +387,7 @@ export function MisCampanasScene() {
 									Cancelar
 								</Button>
 								<Button onClick={handleCreateCampaign} disabled={createLoading}>
-									{createLoading ? {t("scenes.campaigns.createDialog.creating")} : {t("scenes.campaigns.createDialog.create")}}
+									{createLoading ? t("scenes.campaigns.createDialog.creating") : t("scenes.campaigns.createDialog.create")}
 								</Button>
 							</DialogFooter>
 						</DialogContent>
@@ -489,7 +489,7 @@ export function MisCampanasScene() {
 											</div>
 										</div>
 										<CardDescription className="line-clamp-2">
-											{campaign.description || {t("scenes.campaigns.noDescription")}}
+											{campaign.description || t("scenes.campaigns.noDescription")}
 										</CardDescription>
 									</CardHeader>
 									<CardContent>
@@ -542,15 +542,15 @@ export function MisCampanasScene() {
 															<>
 																<RotateCcw className="h-3 w-3 mr-1" />
 																{startingSession === campaign.id
-																	? {t("scenes.campaigns.resuming")}
-																	: {t("scenes.campaigns.resume")}}
+																	? t("scenes.campaigns.resuming")
+																	: t("scenes.campaigns.resume")}
 															</>
 														) : (
 															<>
 																<Play className="h-3 w-3 mr-1" />
 																{startingSession === campaign.id
-																	? {t("scenes.campaigns.starting")}
-																	: {t("scenes.campaigns.start")}}
+																	? t("scenes.campaigns.starting")
+																	: t("scenes.campaigns.start")}
 															</>
 														)}
 													</Button>
@@ -678,7 +678,7 @@ export function MisCampanasScene() {
 										disabled={!selectedCharacterId || assigningCharacter}
 										onClick={handleAssignCharacter}
 									>
-										{assigningCharacter ? {t("scenes.campaigns.characterModal.assigning")} : {t("scenes.campaigns.characterModal.assignButton")}}
+										{assigningCharacter ? t("scenes.campaigns.characterModal.assigning") : t("scenes.campaigns.characterModal.assignButton")}
 									</Button>
 								</div>
 							) : (
@@ -760,8 +760,8 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 				<TabsContent value="combate">
 					<div className="grid grid-cols-3 gap-2 text-sm">
 						{[
-							{ k: "current_hp", l: {t("scenes.campaigns.characterTabs.hpCurrent")} },
-							{ k: "max_hp", l: {t("scenes.campaigns.characterTabs.hpMax")} },
+							{ k: "current_hp", l: t("scenes.campaigns.characterTabs.hpCurrent") },
+							{ k: "max_hp", l: t("scenes.campaigns.characterTabs.hpMax") },
 							{ k: "armor_class", l: "CA" },
 							{ k: "initiative", l: "Iniciativa" },
 							{ k: "speed", l: "Velocidad" },
@@ -779,19 +779,19 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 						<div>
 							<p className="font-medium mb-1">Equipo</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.equipment as string) || {t("scenes.campaigns.characterTabs.noEquipment")}}
+								{(char.equipment as string) || t("scenes.campaigns.characterTabs.noEquipment")}
 							</p>
 						</div>
 						<div>
 							<p className="font-medium mb-1">Inventario</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.inventory as string) || {t("scenes.campaigns.characterTabs.emptyInventory")}}
+								{(char.inventory as string) || t("scenes.campaigns.characterTabs.emptyInventory")}
 							</p>
 						</div>
 						<div>
 							<p className="font-medium mb-1">Hechizos</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.spells_known as string) || {t("scenes.campaigns.characterTabs.noSpells")}}
+								{(char.spells_known as string) || t("scenes.campaigns.characterTabs.noSpells")}
 							</p>
 						</div>
 					</div>
@@ -799,7 +799,7 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 
 				<TabsContent value="notas">
 					<p className="text-sm text-muted-foreground whitespace-pre-wrap">
-						{(char.notes as string) || {t("scenes.campaigns.characterTabs.noNotes")}}
+						{(char.notes as string) || t("scenes.campaigns.characterTabs.noNotes")}
 					</p>
 				</TabsContent>
 			</Tabs>

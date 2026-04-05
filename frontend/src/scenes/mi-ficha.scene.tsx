@@ -153,10 +153,10 @@ export const MiFichaScene = () => {
 
       if (character?.id) {
         await updateCharacterSheet(character.id, formData);
-        alert({t("scenes.characterSheet.success.updated")});
+        alert(t("scenes.characterSheet.success.updated"));
       } else {
         await createCharacterSheet(formData);
-        alert({t("scenes.characterSheet.success.created")});
+        alert(t("scenes.characterSheet.success.created"));
       }
 
       // Redirigir a Mis Fichas después de un breve delay

@@ -32,15 +32,7 @@ import {
   Target,
   Package,
   Coins,
-  Save,
-  LogIn,
-  UserPlus,
-  Info,
   Scale,
-  User2,
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 import { routes } from "@/router";
 

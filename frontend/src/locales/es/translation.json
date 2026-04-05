@@ -8,1519 +8,34 @@
     "search": "Buscar",
     "filter": "Filtrar",
     "loading": "Cargando...",
-    "noResults": "No hay resultados",
+    "noResults": "Sin resultados",
     "close": "Cerrar",
     "confirm": "Confirmar",
-    "back": "Volver",
+    "back": "Atrás",
     "next": "Siguiente",
     "previous": "Anterior",
-    "yes": "Si",
+    "yes": "Sí",
     "no": "No",
     "viewDetails": "Ver detalles",
     "clearFilters": "Limpiar filtros",
-    "guest": "Invitado",
     "all": "Todos",
-    "notAvailable": "N/D",
+    "notAvailable": "N/A",
     "show": "Mostrar:",
-    "pageOf": "Pagina {{current}} de {{total}}",
+    "pageOf": "Página {{current}} de {{total}}",
     "toggleLanguage": "Cambiar idioma",
-    "switchToEnglish": "Cambiar a Ingles",
-    "switchToSpanish": "Cambiar a Espanol",
+    "switchToEnglish": "Cambiar a Inglés",
+    "switchToSpanish": "Cambiar a Español",
     "toggleTheme": "Cambiar tema",
     "unknown": "Desconocido",
     "times": "veces",
     "saving": "Guardando...",
     "on": "ON",
     "off": "OFF",
-    "reset": "Restablecer"
+    "reset": "Reiniciar"
   },
   "nav": {
     "home": "Inicio",
-    "homeSubtitle": "Vuelve al inicio",
-    "campaigns": "Mis Campanas",
-    "campaignsSubtitle": "Gestiona tus aventuras",
-    "inventory": "Inventario",
-    "inventorySubtitle": "Tu equipo y objetos",
-    "characterSheets": "Mis Fichas",
-    "characterSheetsSubtitle": "Tus personajes",
-    "maps": "Mis Mapas",
-    "mapsSubtitle": "Mapas de batalla",
-    "dice": "Tirada de Dados",
-    "diceSubtitle": "Lanza los dados",
-    "settings": "Configuracion",
-    "settingsSubtitle": "Preferencias",
-    "bestiary": "Bestiario",
-    "spells": "Hechizos",
-    "items": "Objetos",
-    "tools": "Herramientas"
-  },
-  "auth": {
-    "login": {
-      "title": "Iniciar Sesion",
-      "subtitle": "Accede a tu cuenta de Beyond the Dungeon",
-      "email": "Email",
-      "emailPlaceholder": "tu@email.com",
-      "password": "Contrasena",
-      "passwordPlaceholder": "Ingresa tu contrasena",
-      "forgotPassword": "Olvidaste tu contrasena?",
-      "submit": "Entrar",
-    "session": "Sesion",
-    "dashboard": "Dashboard"
-      "noAccount": "No tienes cuenta?",
-      "createAccount": "Crear cuenta",
-      "backToHome": "Volver al inicio",
-      "welcome": "Bienvenido de vuelta, aventurero",
-      "errors": {
-        "missingFields": "Email y contrasena son requeridos"
-      }
-    },
-    "register": {
-      "title": "Crear Cuenta",
-      "subtitle": "Unete a Beyond the Dungeon y comienza tu aventura",
-      "username": "Nombre de usuario",
-      "usernamePlaceholder": "Tu nombre de aventurero",
-      "displayName": "Nombre a mostrar",
-      "displayNamePlaceholder": "Como te veran los demas",
-      "email": "Email",
-      "emailPlaceholder": "tu@email.com",
-      "password": "Contrasena",
-      "passwordPlaceholder": "Crea una contrasena segura",
-      "confirmPassword": "Confirmar contrasena",
-      "confirmPasswordPlaceholder": "Repite tu contrasena",
-      "submit": "Crear Cuenta",
-      "submitting": "Creando cuenta...",
-      "hasAccount": "Ya tienes cuenta?",
-      "login": "Iniciar sesion",
-      "backToHome": "Volver al inicio",
-      "welcome": "Unete a la aventura, aventurero",
-      "termsAccept": "Acepto los terminos y condiciones",
-      "termsPrefix": "Acepto los",
-      "termsAnd": "y la",
-      "terms": "terminos y condiciones",
-      "privacy": "politica de privacidad",
-      "errors": {
-        "usernameRequired": "El nombre de usuario es requerido",
-        "usernameMin": "Minimo 3 caracteres",
-        "emailRequired": "El email es requerido",
-        "emailInvalid": "Email invalido",
-        "passwordRequired": "La contrasena es requerida",
-        "passwordMin": "Minimo 8 caracteres",
-        "passwordMismatch": "Las contrasenas no coinciden",
-        "termsRequired": "Debes aceptar los terminos y condiciones",
-        "registerFailed": "Error al registrar usuario.",
-        "emailResent": "Ese email ya estaba registrado. Te hemos reenviado el correo de confirmacion. Revisa Spam/Promociones.",
-        "unknown": "Error desconocido"
-      },
-      "success": "Cuenta creada. Revisa tu email (incluida Spam/Promociones) para confirmar y luego inicia sesion."
-    },
-    "errors": {
-      "invalidCredentials": "Email o contraseña incorrectos.",
-      "emailNotConfirmed": "Debes confirmar tu email antes de iniciar sesión.",
-      "emailAlreadyRegistered": "Ya existe un usuario con ese email.",
-      "passwordTooShort": "La contraseña no cumple la longitud mínima.",
-      "invalidEmail": "El email no es válido.",
-      "unexpected": "Ha ocurrido un error inesperado.",
-      "signInFailed": "No se ha podido iniciar sesión.",
-      "signupEmailExists": "Ese email ya está registrado. Si no recuerdas la contraseña, usa la recuperación de cuenta.",
-      "signUpFailed": "No se pudo crear la cuenta. Inténtalo de nuevo en unos segundos."
-    },
-    "logout": "Cerrar sesion",
-    "profile": "Mi Perfil",
-    "myProfile": "Mi Perfil",
-    "login": "Iniciar sesion",
-    "register": "Crear cuenta"
-  },
-  "home": {
-    "hero": {
-      "title": "Las herramientas digitales que tu mesa de D&D necesita",
-      "subtitle": "Gestiona tus campanas, personajes, mapas y mas desde un solo lugar",
-      "ctaCreate": "Crea cuenta gratis",
-      "ctaExplore": "Explora la mazmorra"
-    },
-    "features": {
-      "title": "Organiza y juega rol sin complicaciones",
-      "titleLine1": "Organiza y juega rol",
-      "titleLine2": "sin complicaciones",
-      "subtitle": "Campanas, fichas, dados, mapas simples y comunidad. Todo en un solo lugar",
-      "secondaryTitle": "Todas tus herramientas en un solo lugar",
-      "secondarySubtitle": "Gestiona tus partidas de forma profesional y sencilla",
-      "campaigns": {
-        "title": "Gestion de Campanas",
-        "description": "Crea y administra tus aventuras con facilidad"
-      },
-      "characterSheets": {
-        "title": "Fichas de Personaje",
-        "description": "Fichas digitales activas para tus heroes"
-      },
-      "dice": {
-        "title": "Dados Virtuales",
-        "description": "Lanza los dados con un solo clic"
-      },
-      "maps": {
-        "title": "Mapas de Batalla",
-        "description": "Visualiza y controla el campo de batalla"
-      },
-      "bestiary": {
-        "title": "Consulta de Bestiario",
-        "description": "Accede a todas las criaturas de D&D 5e"
-      },
-      "spells": {
-        "title": "Hechizos y Reglas",
-        "description": "Encuentra hechizos rapidamente"
-      },
-      "items": {
-        "title": "Objetos y Equipo",
-        "description": "Catalogo completo de equipamiento"
-      },
-      "inventory": {
-        "title": "Inventario",
-        "description": "Gestiona el equipo de tus personajes"
-      },
-      "viewAll": "Ver Todas las Herramientas →"
-    },
-    "cta": {
-      "title": "Listo para comenzar tu aventura?",
-      "subtitle": "Unete a mas de 1,000 masters que ya usan Beyond The Dungeon",
-      "createAccount": "Crear Cuenta Gratis",
-      "viewDemo": "Ver Demo",
-      "noCreditCard": "Sin tarjeta de credito · Configuracion en 2 minutos"
-    },
-    "footer": {
-      "tagline": "Las herramientas que tu mesa necesita",
-      "tools": "Herramientas",
-      "community": "Comunidad",
-      "legal": "Legal",
-      "terms": "Terminos",
-      "privacy": "Privacidad",
-      "contact": "Contacto",
-      "allRightsReserved": "Todos los derechos reservados"
-    }
-  },
-  "scenesLegacy": {
-    "campaigns": {
-      "title": "Mis Campañas",
-      "subtitle": "Gestiona tus aventuras de D&D como DM o jugador",
-      "newCampaign": "Nueva Campaña",
-      "createFirst": "Crear Primera Campaña",
-      "noCampaigns": "No tienes campañas aún",
-      "noCampaignsDesc": "Crea una nueva campaña o espera a ser invitado a una",
-      "edit": "Editar",
-      "start": "Comenzar campaña",
-      "starting": "Iniciando...",
-      "resume": "Reanudar campaña",
-      "resuming": "Reanudando...",
-      "joinGame": "Unirse a la partida",
-      "viewSheet": "Ver mi ficha",
-      "enterGame": "Entrar a partida",
-      "inGame": "En juego",
-      "paused": "Pausada · Sesión {{number}}",
-      "dm": "DM",
-      "noDescription": "Sin descripción",
-      "createdOn": "Creada el {{date}}",
-      "createDialog": {
-        "title": "Crear Nueva Campaña",
-        "description": "Crea una nueva campaña y conviértete en el Dungeon Master",
-        "titleLabel": "Título *",
-        "titlePlaceholder": "Ej: La Mina Perdida de Phandelver",
-        "descLabel": "Descripción",
-        "descPlaceholder": "Descripción de la campaña...",
-        "notesLabel": "Notas Privadas (DM)",
-        "notesPlaceholder": "Notas privadas del DM...",
-        "creating": "Creando...",
-        "create": "Crear Campaña"
-      },
-      "invitations": {
-        "title": "Invitaciones Pendientes ({{count}})",
-        "invited": "Has sido invitado a unirte a esta campaña",
-        "accept": "Aceptar",
-        "reject": "Rechazar"
-      },
-      "characterModal": {
-        "title": "{{title}} – Mi Personaje",
-        "description": "Consulta la descripción de la campaña y el estado de tu ficha.",
-        "campaignDesc": "Descripción de la campaña",
-        "noDescription": "Sin descripción.",
-        "joinActive": "Unirse a la partida en curso",
-        "noCharacter": "No tienes un personaje asignado a esta campaña todavía.",
-        "assignLabel": "Asignar una de mis fichas",
-        "selectPlaceholder": "Selecciona una ficha...",
-        "alreadyAssigned": "(ya asociada a otra campaña)",
-        "assigning": "Asignando...",
-        "assignButton": "Asignar ficha a esta campaña",
-        "noSheets": "No tienes fichas creadas todavía.",
-        "goToSheets": "Ir a Mis Fichas"
-      },
-      "characterTabs": {
-        "info": "Info",
-        "combat": "Combate",
-        "equipment": "Equipo",
-        "notes": "Notas",
-        "hpCurrent": "HP Act.",
-        "hpMax": "HP Máx",
-        "ac": "CA",
-        "initiative": "Iniciativa",
-        "speed": "Velocidad",
-        "equipment": "Equipo",
-        "noEquipment": "Sin equipo registrado.",
-        "inventory": "Inventario",
-        "emptyInventory": "Inventario vacío.",
-        "spells": "Hechizos",
-        "noSpells": "Sin hechizos registrados.",
-        "noNotes": "Sin notas."
-      },
-      "errors": {
-        "titleRequired": "El título es obligatorio",
-        "createFailed": "Error al crear campaña: {{msg}}",
-        "deleteFailed": "Error al eliminar campaña",
-        "deleteConfirm": "¿Estás seguro de eliminar esta campaña?",
-        "acceptFailed": "Error al aceptar invitación",
-        "rejectFailed": "Error al rechazar invitación",
-        "startFailed": "Error al iniciar sesión: {{msg}}",
-        "loadSheetsFailed": "No se pudieron cargar tus fichas",
-        "assignFailed": "No se pudo asignar la ficha"
-      }
-    },
-    "characterSheet": {
-      "title": "Mi Ficha de Personaje",
-      "subtitle": "Ficha de D&D 5ª Edición",
-      "save": "Guardar Ficha",
-      "saving": "Guardando...",
-      "tabs": {
-        "info": "Info",
-        "stats": "Atributos",
-        "combat": "Combate",
-        "skills": "Habilidades",
-        "inventory": "Inventario"
-      },
-      "basicInfo": {
-        "title": "Información Básica",
-        "description": "Datos generales del personaje",
-        "name": "Nombre del Personaje",
-        "namePlaceholder": "Ej: Thorin Escudo de Roble",
-        "race": "Raza",
-        "racePlaceholder": "Selecciona una raza",
-        "classAndLevel": "Clase y Nivel",
-        "class": "Clase {{number}}",
-        "classPlaceholder": "Selecciona una clase",
-        "level": "Nivel",
-        "multiclass": "Multiclase",
-        "addClass": "Agregar Clase",
-        "background": "Trasfondo",
-        "backgroundPlaceholder": "Selecciona un trasfondo",
-        "xp": "Puntos de Experiencia",
-        "makePublic": "Hacer ficha pública",
-        "personalityTraits": "Rasgos de Personalidad",
-        "personalityPlaceholder": "Describe los rasgos de personalidad...",
-        "ideals": "Ideales",
-        "idealsPlaceholder": "Ideales del personaje...",
-        "bonds": "Vínculos",
-        "bondsPlaceholder": "Vínculos...",
-        "flaws": "Defectos",
-        "flawsPlaceholder": "Defectos...",
-        "languages": "Idiomas",
-        "languagesPlaceholder": "Común, Enano, Élfico...",
-        "proficiencies": "Competencias",
-        "proficienciesPlaceholder": "Selecciona competencias..."
-      },
-      "stats": {
-        "title": "Atributos",
-        "description": "Puntuaciones de características (8-20)",
-        "modifier": "Modificador: {{value}}",
-        "profBonus": "Bonificador de Competencia",
-        "profBonusHint": "Rango: +2 a +6 (según nivel)",
-        "savingThrows": "Tiradas de Salvación",
-        "savingThrowsDesc": "Marca las competencias (máximo 2)"
-      },
-      "combat": {
-        "hitPoints": "Puntos de Vida",
-        "maxHp": "HP Máximos",
-        "currentHp": "HP Actuales",
-        "tempHp": "HP Temporales",
-        "hitDice": "Dados de Golpe",
-        "hitDicePlaceholder": "Ej: 5d8",
-        "defenseMovement": "Defensa y Movimiento",
-        "armorClass": "Clase de Armadura (CA)",
-        "initiative": "Iniciativa",
-        "initiativeHint": "Base: +{{value}} (Destreza)",
-        "speed": "Velocidad (pies)",
-        "deathSaves": "Tiradas de Salvación contra la Muerte",
-        "successes": "Éxitos",
-        "failures": "Fallos"
-      },
-      "skills": {
-        "title": "Habilidades (Skills)",
-        "description": "Marca las habilidades en las que eres competente",
-        "featuresTraits": "Rasgos y Características",
-        "featuresPlaceholder": "Describe los rasgos de raza, clase, trasfondo, dotes..."
-      },
-      "success": {
-        "updated": "¡Ficha actualizada correctamente!",
-        "created": "¡Ficha creada correctamente!"
-      },
-      "errors": {
-        "updateFailed": "Error al actualizar la ficha",
-        "createFailed": "Error al crear la ficha"
-      }
-    },
-    "characterSheets": {
-      "title": "Mis Fichas de Personajes",
-      "subtitle": "Gestiona tus personajes de D&D 5e",
-      "newSheet": "Crear Nueva Ficha",
-      "createFirst": "Crear Primera Ficha",
-      "loading": "Cargando fichas...",
-      "noSheets": "No tienes fichas creadas",
-      "noSheetsDesc": "Crea tu primera ficha de personaje para comenzar tu aventura",
-      "character": "personaje",
-      "characters": "personajes",
-      "level": "Nivel {{level}}",
-      "noName": "Sin nombre",
-      "noRace": "Sin raza",
-      "noClass": "Sin clase",
-      "errors": {
-        "loadFailed": "Error al cargar las fichas",
-        "deleteFailed": "Error al eliminar la ficha",
-        "deleteConfirm": "¿Eliminar la ficha de \"{{name}}\"?"
-      }
-    },
-    "maps": {
-      "title": "Mis Mapas de Batalla",
-      "subtitle": "Gestiona tus mapas de batalla guardados",
-      "newMap": "Nuevo Mapa",
-      "loading": "Cargando mapas...",
-      "map": "mapa",
-      "maps": "mapas",
-      "noMaps": "Aún no has guardado ningún mapa de batalla",
-      "createFirst": "Crear tu Primer Mapa",
-      "grid": "Cuadrícula: {{size}}px",
-      "created": "Creado: {{date}}",
-      "modified": "Modificado: {{date}}",
-      "open": "Abrir",
-      "errors": {
-        "loadFailed": "Error al cargar los mapas",
-        "deleteFailed": "Error al eliminar el mapa",
-        "deleteConfirm": "¿Eliminar el mapa \"{{name}}\"?"
-      }
-    },
-    "profileSettings": {
-      "title": "Configuración",
-      "subtitle": "Gestiona tu cuenta, preferencias y opciones de privacidad.",
-      "devNotice": "La sección de configuración está en desarrollo. Próximamente podrás personalizar tu experiencia.",
-      "comingSoon": "Próximamente disponible",
-      "sections": {
-        "userProfile": {
-          "title": "Perfil de Usuario",
-          "description": "Gestiona tu información personal y preferencias de cuenta"
-        },
-        "notifications": {
-          "title": "Notificaciones",
-          "description": "Configura cómo y cuándo recibir notificaciones"
-        },
-        "privacySecurity": {
-          "title": "Privacidad y Seguridad",
-          "description": "Controla tu privacidad y opciones de seguridad"
-        },
-        "appearance": {
-          "title": "Apariencia",
-          "description": "Personaliza el tema y la apariencia de la aplicación"
-        }
-      }
-    },
-    "profile": {
-      "title": "Mis Campañas",
-      "subtitle": "Gestiona tus aventuras, personajes y progreso en tus campañas activas.",
-      "createCampaign": "Crear Campaña",
-      "loading": "Cargando campañas...",
-      "active": "campaña activa",
-      "activePlural": "campañas activas",
-      "noCampaigns": "No tienes campañas activas",
-      "noCampaignsDesc": "Crea tu primera campaña para comenzar tu aventura.",
-      "dm": "DM",
-      "player": "Jugador",
-      "editCampaign": "Editar Campaña",
-      "viewCampaign": "Ver Campaña"
-    },
-    "inventory": {
-      "title": "Inventario",
-      "subtitle": "Gestiona tu equipo y objetos"
-    },
-    "inventoryScene": {
-      "common": {
-        "empty": "vacío",
-        "loadingCompendium": "Cargando compendio...",
-        "characterAlt": "Personaje"
-      },
-      "slots": {
-        "helmet": "Casco",
-        "amulet": "Colgante",
-        "armor": "Armadura",
-        "cloak": "Capa",
-        "mainhand": "Arma principal",
-        "offhand": "Arma sec. / Escudo",
-        "gloves": "Guantes",
-        "ring1": "Anillo izq.",
-        "belt": "Cinturón",
-        "ring2": "Anillo der.",
-        "boots": "Botas",
-        "mount": "Montura"
-      },
-      "slotPicker": {
-        "equip": "Equipar",
-        "searchPlaceholder": "Busca {{slot}}...",
-        "addCustom": "Añadir como objeto personalizado",
-        "searchAll": "Buscar en todo el compendio ({{count}})",
-        "searchAllWithObjects": "Buscar en todo el compendio ({{count}} objetos)",
-        "results": "{{count}} resultado",
-        "results_other": "{{count}} resultados",
-        "objects": "{{count}} objetos",
-        "noResults": "Sin resultados - pulsa + para añadir como objeto personalizado"
-      },
-      "autocomplete": {
-        "results": "{{count}} resultado",
-        "results_other": "{{count}} resultados",
-        "objectsFiltered": "{{count}} objetos - escribe para filtrar",
-        "noResults": "Sin resultados - pulsa + para añadir como objeto personalizado"
-      },
-      "header": {
-        "title": "Inventario",
-        "subtitle": "Gestiona el equipo, consumibles y monedas de tu personaje"
-      },
-      "save": {
-        "saving": "Guardando...",
-        "saved": "Guardado!",
-        "error": "Error al guardar",
-        "loginToSave": "Inicia sesión para guardar",
-        "chooseCharacter": "Elige un personaje"
-      },
-      "guestBanner": {
-        "textBefore": "Puedes explorar el inventario libremente. Para guardar los cambios en un personaje,",
-        "login": "inicia sesión",
-        "or": "o",
-        "register": "crea una cuenta"
-      },
-      "characterSelector": {
-        "loading": "Cargando personajes...",
-        "noCharacters": "No tienes personajes aún.",
-        "createFirst": "Crea uno primero",
-        "linkedTo": "Vinculado a:",
-        "change": "Cambiar",
-        "choose": "Elige un personaje:",
-        "selectPlaceholder": "- selecciona -",
-        "loadConfirm": "¿Cargar el inventario guardado de \"{{name}}\"?\n\nAceptar -> reemplaza el inventario actual con el del personaje.\nCancelar -> mantiene el inventario actual y lo vincula al personaje."
-      },
-      "weight": {
-        "current": "Peso actual",
-        "enterManual": "Introducir manualmente",
-        "backToAuto": "Volver al cálculo automático",
-        "manual": "manual",
-        "auto": "auto",
-        "max": "Capacidad máx.",
-        "mountBonus": "+{{value}} lb montura ->",
-        "totalWithMount": "{{value}} lb total",
-        "overloaded": "Sobrecargado!",
-        "loadedPercent": "{{value}}% cargado"
-      },
-      "equipment": {
-        "title": "Equipo equipado",
-        "hint": "Haz clic en un slot para buscar y equipar un objeto"
-      },
-      "sections": {
-        "potions": "Pociones",
-        "potionsDesc": "Pociones y brebajes mágicos",
-        "searchPotions": "Busca pociones...",
-        "scrolls": "Pergaminos",
-        "scrollsDesc": "Pergaminos de conjuros y recetas",
-        "searchScrolls": "Busca pergaminos...",
-        "bag": "Inventario",
-        "objectsCount": "{{count}} objetos",
-        "bagDesc": "Todos los objetos: equipables no equipados, herramientas, consumibles, etc.",
-        "ammo": "Munición",
-        "ammoDesc": "Flechas, virotes, dagas arrojadizas...",
-        "searchAmmo": "Busca munición...",
-        "wallet": "Monedero"
-      },
-      "currency": {
-        "pp": "Platino",
-        "po": "Oro",
-        "pe": "Electrum",
-        "pa": "Plata",
-        "pc": "Cobre"
-      },
-      "footer": {
-        "createAccount": "Crea una cuenta",
-        "createAccountSuffix": "para guardar tu inventario vinculado a un personaje.",
-        "linkCharacterHint": "Vincula un personaje arriba para poder guardar.",
-        "savedIn": "Guardado correctamente en",
-        "error": "Error al guardar. Inténtalo de nuevo.",
-        "unsavedHint": "Los cambios no se guardan automáticamente."
-      }
-    },
-    "editCampaign": {
-      "actions": {
-        "update": "Actualizar",
-        "change": "Cambiar"
-      },
-      "errors": {
-        "loadCampaign": "Error al cargar campaña",
-        "startSession": "Error al iniciar sesión: {{msg}}",
-        "saveCampaign": "Error al guardar campaña",
-        "addPlayer": "Error al añadir jugador",
-        "removeMember": "Error al eliminar miembro",
-        "saveChapter": "Error al guardar capítulo",
-        "deleteChapter": "Error al eliminar capítulo",
-        "saveScene": "Error al guardar escena",
-        "deleteScene": "Error al eliminar escena",
-        "npcNameRequired": "Por favor, ingresa el nombre del NPC",
-        "selectMap": "Por favor, selecciona un mapa",
-        "selectCompendiumEntity": "Por favor, selecciona una entidad del compendio",
-        "addEntity": "Error al añadir entidad",
-        "deleteEntity": "Error al eliminar entidad"
-      },
-      "messages": {
-        "campaignUpdated": "Campaña actualizada correctamente",
-        "playerAdded": "Jugador añadido a la campaña correctamente"
-      },
-      "confirm": {
-        "removePlayer": "¿Eliminar este jugador?",
-        "deleteChapter": "¿Eliminar este capítulo y todas sus escenas?",
-        "deleteScene": "¿Eliminar esta escena?",
-        "deleteEntity": "¿Eliminar esta entidad?"
-      },
-      "noAccess": {
-        "title": "No tienes acceso a esta campaña",
-        "back": "Volver a Mis Campañas"
-      },
-      "header": {
-        "dmSubtitle": "Editar campaña como Dungeon Master",
-        "playerSubtitle": "Información de la campaña",
-        "goActiveGame": "Ir a la partida activa",
-        "resuming": "Reanudando...",
-        "resume": "Reanudar campaña",
-        "starting": "Iniciando...",
-        "start": "Comenzar campaña",
-        "saveChanges": "Guardar Cambios"
-      },
-      "tabs": {
-        "general": "General",
-        "players": "Jugadores",
-        "content": "Capítulos y Escenas"
-      },
-      "general": {
-        "title": "Información General",
-        "dmDescription": "Datos básicos de la campaña",
-        "playerDescription": "Información de la campaña en la que participas",
-        "titleLabel": "Título",
-        "descriptionLabel": "Descripción",
-        "descriptionPlaceholder": "Descripción de la campaña...",
-        "privateNotesLabel": "Notas Privadas (DM)",
-        "privateNotesPlaceholder": "Notas privadas del DM..."
-      },
-      "players": {
-        "addTitle": "Añadir Jugadores",
-        "addDescription": "Añade jugadores a tu campaña por nombre de usuario",
-        "usernamePlaceholder": "nombre_usuario",
-        "addButton": "Añadir Jugador",
-        "membersTitle": "Miembros de la Campaña ({{count}})",
-        "userFallback": "Usuario",
-        "roles": {
-          "dm": "Dungeon Master",
-          "player": "Jugador"
-        }
-      },
-      "content": {
-        "title": "Capítulos y Escenas",
-        "newChapter": "Nuevo Capítulo",
-        "noChaptersTitle": "No hay capítulos aún",
-        "noChaptersDescription": "Crea el primer capítulo para organizar tu campaña",
-        "scenesCount": "{{count}} escenas",
-        "editChapter": "Editar Capítulo",
-        "newScene": "Nueva Escena",
-        "narration": "NARRACIÓN:",
-        "dmNotes": "NOTAS DM:",
-        "associatedMap": "Mapa de batalla asociado",
-        "entities": "ENTIDADES:",
-        "addEntity": "Añadir Entidad"
-      },
-      "chapterDialog": {
-        "editTitle": "Editar Capítulo",
-        "newTitle": "Nuevo Capítulo",
-        "titleLabel": "Título",
-        "titlePlaceholder": "Título del capítulo",
-        "contentLabel": "Contenido",
-        "contentPlaceholder": "Describe el capítulo, objetivos, etc.",
-        "entityName": "Capítulo"
-      },
-      "sceneDialog": {
-        "editTitle": "Editar Escena",
-        "newTitle": "Nueva Escena",
-        "description": "Las escenas contienen la narración, notas del DM y entidades",
-        "titleLabel": "Título",
-        "titlePlaceholder": "Título de la escena",
-        "narrationLabel": "Texto de Narración (para los jugadores)",
-        "narrationPlaceholder": "Texto que narrarás a los jugadores. Usa **negrita** para énfasis y > para diálogos",
-        "dmNotesLabel": "Notas del DM (privadas)",
-        "dmNotesPlaceholder": "Notas privadas, recordatorios, etc.",
-        "entityName": "Escena"
-      },
-      "entityTypes": {
-        "monster": "Monstruo",
-        "item": "Objeto",
-        "spell": "Hechizo",
-        "map": "Mapa de Batalla"
-      },
-      "entityDialog": {
-        "title": "Añadir Entidad a la Escena",
-        "description": "Asocia monstruos, objetos, hechizos, NPCs y mapas de batalla a esta escena",
-        "typeLabel": "Tipo de Entidad",
-        "selectFromCompendium": "Selecciona {{type}} del compendio",
-        "monsterOne": "un monstruo",
-        "itemOne": "un objeto",
-        "spellOne": "un hechizo",
-        "goCompendium": "Ir al Compendio",
-        "preview": {
-          "size": "Tamaño",
-          "cr": "CR",
-          "level": "Nivel",
-          "cantrip": "Truco",
-          "school": "Escuela"
-        },
-        "npcNameLabel": "Nombre del NPC",
-        "npcNamePlaceholder": "ej: Rey Arturo, Tabernero, Mago Oscuro",
-        "notesLabel": "Notas (opcional)",
-        "notesPlaceholder": "Descripción, motivaciones, estadísticas...",
-        "selectMapLabel": "Seleccionar Mapa",
-        "selectMapPlaceholder": "Elige un mapa...",
-        "loadingMaps": "Cargando mapas...",
-        "noMaps": "No tienes mapas creados",
-        "aliasLabel": "Alias/Nombre Personalizado (opcional)",
-        "aliasPlaceholder": "Por defecto: {{name}}",
-        "aliasHint": "Deja en blanco para usar el nombre original"
-      }
-    },
-    "dice": {
-      "title": "Lanzador de Dados",
-      "subtitle": "Selecciona el tipo de dado y obtén un resultado aleatorio"
-    }
-  },
-  "compendium": {
-    "resultsCount": "Mostrando {{from}}-{{to}} de {{total}}",
-    "bestiary": {
-      "title": "Bestiario",
-      "headerTitle": "Compendio del Bestiario",
-      "subtitleDefault": "Consulta las estadisticas de criaturas y monstruos para tus aventuras.",
-      "subtitleSelect": "Selecciona un monstruo para anadir a la escena.",
-      "selectModeHint": "Haz clic en un monstruo para anadirlo a tu escena.",
-      "searchPlaceholder": "Buscar criatura por nombre...",
-      "loading": "Cargando bestiario...",
-      "loadingSingle": "Cargando criatura...",
-      "error": "No se pudo cargar el bestiario. Verifica que el backend este corriendo.",
-      "emptyTitle": "No hay criaturas disponibles",
-      "emptyDescription": "El bestiario esta vacio. Asegurate de que la base de datos este poblada.",
-      "noResultsTitle": "No se encontraron resultados",
-      "noResultsDescription": "No hay criaturas que coincidan con \"{{query}}\"",
-      "resultsLabel_one": "criatura encontrada",
-      "resultsLabel_other": "criaturas encontradas",
-      "challengeRating": "CR {{value}}",
-      "challengeRatingShort": "CR",
-      "xpValue": "{{value}} XP",
-      "backToList": "Volver al Bestiario",
-      "notFound": "Monstruo no encontrado",
-      "basicStats": "Estadisticas basicas",
-      "armorClass": "CA:",
-      "armorClassFull": "Clase de Armadura",
-      "hitPoints": "PG:",
-      "hitPointsFull": "Puntos de Golpe",
-      "speed": "Velocidad",
-      "proficiencyBonus": "Bonificador de Competencia",
-      "experience": "Experiencia",
-      "abilityScores": "Puntuaciones de Habilidad",
-      "proficiencies": "Competencias",
-      "resistancesTitle": "Resistencias e Inmunidades",
-      "damageVulnerabilities": "Vulnerabilidades al Danio",
-      "damageResistances": "Resistencias al Danio",
-      "damageImmunities": "Inmunidades al Danio",
-      "conditionImmunities": "Inmunidades a Condiciones",
-      "sensesAndLanguages": "Sentidos e Idiomas",
-      "senses": "Sentidos",
-      "languages": "Idiomas",
-      "specialAbilities": "Habilidades Especiales",
-      "usage": "Uso",
-      "actions": "Acciones",
-      "toHit": "al ataque",
-      "damage": "Danio",
-      "recharge": "Recarga {{min}}-6 en {{dice}}",
-      "legendaryActions": "Acciones Legendarias",
-      "legendaryActionsHint": "Esta criatura puede realizar 3 acciones legendarias, eligiendo entre las opciones siguientes.",
-      "reactions": "Reacciones",
-      "noExtraData": "Sin datos adicionales"
-    },
-    "spells": {
-      "title": "Hechizos",
-      "headerTitle": "Compendio de Hechizos",
-      "subtitleDefault": "Explora el grimorio completo de hechizos y encantamientos.",
-      "subtitleSelect": "Selecciona un hechizo para anadir a la escena.",
-      "selectModeHint": "Haz clic en un hechizo para anadirlo a tu escena.",
-      "searchPlaceholder": "Buscar hechizo por nombre...",
-      "levelLabel": "Nivel:",
-      "cantrips": "Trucos",
-      "cantrip": "Truco",
-      "levelShort": "Nv {{level}}",
-      "levelFull": "Nivel {{level}}",
-      "loading": "Cargando hechizos...",
-      "loadingSingle": "Cargando hechizo...",
-      "error": "No se pudo cargar los hechizos. Verifica que el backend este corriendo.",
-      "emptyTitle": "No hay hechizos disponibles",
-      "emptyDescription": "El grimorio esta vacio. Asegurate de que la base de datos este poblada.",
-      "noResultsTitle": "No se encontraron resultados",
-      "noResultsDescription": "No hay hechizos que coincidan con tu busqueda",
-      "resultsLabel_one": "hechizo encontrado",
-      "resultsLabel_other": "hechizos encontrados",
-      "concentration": "Concentracion",
-      "ritual": "Ritual",
-      "backToList": "Volver a Hechizos",
-      "notFound": "Hechizo no encontrado",
-      "basicInfo": "Informacion Basica",
-      "castingTime": "Tiempo de Lanzamiento",
-      "range": "Alcance",
-      "components": "Componentes",
-      "duration": "Duracion",
-      "description": "Descripcion",
-      "higherLevels": "A Niveles Superiores",
-      "damage": "Danio",
-      "healing": "Curacion",
-      "damageType": "Tipo",
-      "areaOfEffect": "Area de Efecto",
-      "areaOfEffectValue": "{{type}} de {{size}} pies",
-      "classes": "Disponible para Clases"
-    },
-    "items": {
-      "title": "Objetos y Equipo",
-      "headerTitle": "Compendio de Objetos",
-      "subtitleDefault": "Consulta armas, armaduras y objetos magicos para tus aventuras.",
-      "subtitleSelect": "Selecciona un objeto para anadir a la escena.",
-      "selectModeHint": "Haz clic en un objeto para anadirlo a tu escena.",
-      "searchPlaceholder": "Buscar objeto por nombre...",
-      "categoryLabel": "Categoria:",
-      "loading": "Cargando objetos...",
-      "error": "No se pudo cargar los objetos. Verifica que el backend este corriendo.",
-      "emptyTitle": "No hay objetos disponibles",
-      "emptyDescription": "El catalogo esta vacio. Asegurate de que la base de datos este poblada.",
-      "noResultsTitle": "No se encontraron resultados",
-      "noResultsDescription": "No hay objetos que coincidan con \"{{query}}\"",
-      "resultsLabel_one": "objeto encontrado",
-      "resultsLabel_other": "objetos encontrados",
-      "cost": "Coste:",
-      "weight": "Peso:",
-      "weightValue": "{{value}} lb",
-      "damage": "Danio:",
-      "twoHandedDamage": "Danio (2 manos):",
-      "armorClass": "CA:",
-      "strMinimum": "FUE minima:",
-      "range": "Alcance:"
-    }
-  },
-  "session": {
-    "title": "Partida",
-    "player": "Jugador",
-    "toolbar": {
-      "dice": "Dados",
-      "bestiary": "Bestiario",
-      "spells": "Hechizos",
-      "items": "Objetos"
-    },
-    "end": "Terminar sesión",
-    "dm": {
-      "tabs": {
-        "maps": "Mapas",
-        "enemies": "Enemigos",
-        "npcs": "NPCs",
-        "items": "Objetos",
-        "spells": "Hechizos"
-      },
-      "mapLoader": {
-        "title": "Cargar mapa directamente",
-        "placeholder": "Elige mapa...",
-        "load": "Cargar"
-      },
-      "story": "Historia",
-      "noChapters": "Sin capítulos.",
-      "go": "Ir",
-      "notes": "Notas DM",
-      "noEntities": "Sin entidades de este tipo.",
-      "deployMap": "Desplegar mapa",
-      "deployEntity": "Introducir en mapa"
-    },
-    "sheet": {
-      "missing": "Este jugador no tiene ficha en esta campaña.",
-      "unsavedTitle": "Cambios sin guardar",
-      "unsavedMessage": "Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar sin guardar?",
-      "closeWithoutSaving": "Cerrar sin guardar",
-      "saved": "Cambios guardados exitosamente",
-      "tabs": {
-        "stats": "Atributos",
-        "combat": "Combate",
-        "inventory": "Inventario"
-      },
-      "experience": "Experiencia",
-      "experienceValue": "{{value}} XP",
-      "combat": {
-        "maxHp": "HP Máx",
-        "currentHp": "HP Act.",
-        "tempHp": "HP Temp",
-        "armorClass": "CA",
-        "initiative": "Iniciativa",
-        "speed": "Velocidad",
-        "proficiency": "Bon. Comp."
-      }
-    }
-  },
-  "combat": {
-    "header": "Combate – Ronda {{round}}",
-    "endTurn": "Terminar turno",
-    "removeFromCombat": "Quitar del combate",
-    "end": "Terminar enfrentamiento",
-    "start": {
-      "title": "Iniciar Enfrentamiento",
-      "button": "Comenzar enfrentamiento",
-      "confirm": "¡Comenzar!",
-      "groups": {
-        "heroes": "Héroes",
-        "enemies": "Enemigos",
-        "npcs": "NPCs"
-      },
-      "empty": "No hay participantes en la escena seleccionada.",
-      "emptyHint": "Selecciona una escena con héroes/enemigos/NPC para iniciar combate.",
-      "surprise": {
-        "label": "¿Sorpresa?",
-        "none": "Sin sorpresa",
-        "heroes": "Los héroes pillan por sorpresa a los enemigos",
-        "enemies": "Los enemigos pillan por sorpresa a los héroes"
-      },
-      "surpriseHint": {
-        "enemies": "Los héroes sorprendidos no pueden actuar en el primer turno (D&D 5e Reglas de Sorpresa).",
-        "heroes": "Los enemigos sorprendidos no pueden actuar en el primer turno (D&D 5e Reglas de Sorpresa)."
-      }
-    }
-  },
-  "inventory": {
-    "errors": {
-      "invalidStructured": "No es un inventario estructurado. Visualización no disponible.",
-      "notStructuredEdit": "No es un inventario estructurado. Edita como texto."
-    },
-    "empty": "Inventario vacío",
-    "summary": {
-      "equipped": "Equipado"
-    },
-    "sections": {
-      "equipped": "Equipo Equipado",
-      "equippedItems": "Items Equipados:",
-      "potions": "Pociones ({{count}})",
-      "scrolls": "Pergaminos ({{count}})",
-      "ammo": "Munición ({{count}})",
-      "bag": "Inventario ({{count}} objetos)",
-      "potionsTitle": "Pociones",
-      "potionsSubtitle": "Pociones y brebajes mágicos",
-      "scrollsTitle": "Pergaminos",
-      "scrollsSubtitle": "Pergaminos de conjuros y recetas",
-      "ammoTitle": "Munición",
-      "ammoSubtitle": "Proyectiles y armas de lanzamiento",
-      "bagTitle": "Inventario",
-      "bagSubtitle": "Todos los objetos",
-      "bagCount": "{{count}} objetos",
-      "currency": "Monedas"
-    },
-    "placeholders": {
-      "searchPotions": "Busca pociones…",
-      "searchScrolls": "Busca pergaminos…",
-      "searchAmmo": "Busca munición…",
-      "notes": "Notas sobre tu inventario, ítems especiales, misiones..."
-    },
-    "hints": {
-      "equipSlot": "Haz clic en un slot para buscar y equipar un objeto"
-    },
-    "availableItems": {
-      "title": "Items disponibles para equipar",
-      "empty": "No hay objetos en la bolsa"
-    },
-    "count": {
-      "objects": "objetos",
-      "potions": "pociones",
-      "scrolls": "pergaminos",
-      "ammo": "munición"
-    },
-    "currencyInline": "{{po}}po{{pa}}",
-    "currency": {
-      "pp": "Platino",
-      "po": "Oro",
-      "pe": "Electrum",
-      "pa": "Plata",
-      "pc": "Cobre"
-    },
-    "slots": {
-      "helmet": "Casco",
-      "amulet": "Colgante",
-      "armor": "Armadura",
-      "cloak": "Capa",
-      "gloves": "Guantes",
-      "mainhand": "Arma principal",
-      "offhand": "Arma sec.",
-      "ringLeft": "Anillo izq.",
-      "belt": "Cinturón",
-      "ringRight": "Anillo der.",
-      "boots": "Botas",
-      "mount": "Montura"
-    },
-    "weight": {
-      "title": "Peso",
-      "current": "Peso Actual",
-      "max": "Capacidad máx.",
-      "manualTitle": "Introducir manualmente",
-      "autoTitle": "Volver al cálculo automático",
-      "auto": "auto",
-      "manual": "manual",
-      "mountBonus": "+{{mount}} lb montura → {{total}} lb total",
-      "overEncumbered": "¡Sobrecargado!",
-      "hint": "Usa auto para aplicar fuerza × 15 o manual para personalizar la capacidad máxima."
-    },
-    "weightLb": "{{value}} lb"
-  },
-  "dice": {
-    "overlay": {
-      "title": "Tirada de Dados",
-      "quantity": "Cantidad",
-      "modifier": "Modificador",
-      "empty": "¡Pulsa un dado para tirar!"
-    },
-    "scene": {
-      "title": "Lanzador de Dados",
-      "subtitle": "Selecciona el tipo de dado y obtén un resultado aleatorio.",
-      "pickDie": "Selecciona tu dado",
-      "faces": "{{faces}} caras",
-      "modifiersTitle": "Modificadores",
-      "advantage": "Ventaja (tirar 2 dados, elegir el mayor)",
-      "disadvantage": "Desventaja (tirar 2 dados, elegir el menor)",
-      "modifier": "Modificador:",
-      "history": "Historial de Tiradas",
-      "clearHistory": "Limpiar",
-      "results": "Resultados: {{first}} y {{second}} ({{mode}})",
-      "result": "Resultado: {{value}}",
-      "advantageLabel": "Ventaja",
-      "disadvantageLabel": "Desventaja",
-      "rolling": "Tirando d{{die}}{{advantage}}{{disadvantage}}",
-      "advantageTag": " (con Ventaja)",
-      "disadvantageTag": " (con Desventaja)",
-      "rollingDesc": "Rodando el dado...",
-      "resultDesc": "¡Resultado obtenido!",
-      "die": "Dado {{index}}",
-      "critical": "¡Crítico! Máximo resultado",
-      "fumble": "¡Pifia! Resultado mínimo",
-      "selectedHigher": "Resultado seleccionado (mayor): {{value}}",
-      "selectedLower": "Resultado seleccionado (menor): {{value}}",
-      "rollAgain": "Tirar de nuevo"
-    }
-  },
-  "map": {
-    "empty": "No hay mapa cargado",
-    "token": {
-      "removeHp": "Quitar 1 HP",
-      "addHp": "Añadir 1 HP",
-      "removeFromMap": "Quitar del mapa"
-    },
-    "controls": {
-      "grid": "Cuadrícula",
-      "size": "Tamaño",
-      "color": "Color",
-      "opacity": "Opacidad",
-      "zoom": "Zoom"
-    }
-  },
-  "mapEditor": {
-    "title": "Mapa de Batalla",
-    "load": {
-      "title": "Cargar Mapa",
-      "placeholder": "Selecciona una imagen",
-      "button": "Seleccionar Imagen"
-    },
-    "grid": {
-      "title": "Cuadrícula",
-      "show": "Mostrar cuadrícula",
-      "size": "Tamaño: {{value}}px",
-      "color": "Color de cuadrícula",
-      "opacity": "Opacidad"
-    },
-    "view": {
-      "title": "Vista",
-      "zoom": "Zoom: {{value}}%",
-      "zoomOut": "Alejar",
-      "zoomIn": "Acercar",
-      "reset": "Restablecer Vista",
-      "drag": "Arrastra para desplazar"
-    },
-    "save": {
-      "button": "Guardar Mapa"
-    },
-    "authHint": "Inicia sesión para guardar tus mapas",
-    "empty": "Carga una imagen para comenzar",
-    "prompts": {
-      "name": "Nombre del mapa:",
-      "defaultName": "Mi Mapa"
-    },
-    "messages": {
-      "saved": "Mapa guardado correctamente",
-      "loadingImage": "Cargando imagen...",
-      "saving": "Guardando mapa..."
-    },
-    "errors": {
-      "loadFailed": "No se pudo cargar el mapa",
-      "invalidImage": "Por favor selecciona un archivo de imagen",
-      "authRequired": "Debes iniciar sesión para guardar mapas",
-      "noMap": "No hay ningún mapa cargado",
-      "saveFailed": "Error al guardar el mapa"
-    }
-  },
-  "campaigns": {
-    "errors": {
-      "notFound": "Campaña no encontrada.",
-      "loadFailed": "Error al cargar la campaña."
-    },
-    "actions": {
-      "backToList": "Volver a Mis Campañas"
-    }
-  },
-  "authCallback": {
-    "title": "Confirmación de Email",
-    "subtitle": "Procesando tu solicitud de confirmación",
-    "backToLogin": "Volver al login",
-    "messages": {
-      "loading": "Confirmando tu email...",
-      "confirmed": "¡Email confirmado correctamente! Redirigiendo...",
-      "confirmedLogin": "¡Email confirmado! Redirigiendo al login...",
-      "verifyFailed": "No se pudo verificar el email. Por favor, intenta de nuevo.",
-      "confirmError": "Error al confirmar el email. Por favor, contacta con soporte."
-    }
-  },
-  "dnd": {
-    "abilities": {
-      "strength": "Fuerza",
-      "dexterity": "Destreza",
-      "constitution": "Constitucion",
-      "intelligence": "Inteligencia",
-      "wisdom": "Sabiduria",
-      "charisma": "Carisma"
-    },
-    "abilitiesShort": {
-      "strength": "FUE",
-      "dexterity": "DES",
-      "constitution": "CON",
-      "intelligence": "INT",
-      "wisdom": "SAB",
-      "charisma": "CAR"
-    },
-    "sizes": {
-      "tiny": "Diminuto",
-      "small": "Pequeno",
-      "medium": "Mediano",
-      "large": "Grande",
-      "huge": "Enorme",
-      "gargantuan": "Gigantesco"
-    },
-    "alignments": {
-      "lawful_good": "Legal Bueno",
-      "neutral_good": "Neutral Bueno",
-      "chaotic_good": "Caotico Bueno",
-      "lawful_neutral": "Legal Neutral",
-      "neutral": "Neutral",
-      "chaotic_neutral": "Caotico Neutral",
-      "lawful_evil": "Legal Malvado",
-      "neutral_evil": "Neutral Malvado",
-      "chaotic_evil": "Caotico Malvado",
-      "unaligned": "Sin alineamiento"
-    },
-    "creatureTypes": {
-      "aberration": "Aberracion",
-      "beast": "Bestia",
-      "celestial": "Celestial",
-      "construct": "Constructo",
-      "dragon": "Dragon",
-      "elemental": "Elemental",
-      "fey": "Feerico",
-      "fiend": "Infernal",
-      "giant": "Gigante",
-      "humanoid": "Humanoide",
-      "monstrosity": "Monstruosidad",
-      "ooze": "Cieno",
-      "plant": "Planta",
-      "undead": "No muerto"
-    },
-    "damageTypes": {
-      "acid": "Acido",
-      "bludgeoning": "Contundente",
-      "cold": "Frio",
-      "fire": "Fuego",
-      "force": "Fuerza",
-      "lightning": "Relampago",
-      "necrotic": "Necrotico",
-      "piercing": "Perforante",
-      "poison": "Veneno",
-      "psychic": "Psiquico",
-      "radiant": "Radiante",
-      "slashing": "Cortante",
-      "thunder": "Trueno"
-    },
-    "conditions": {
-      "blinded": "Cegado",
-      "charmed": "Hechizado",
-      "deafened": "Sordo",
-      "frightened": "Asustado",
-      "grappled": "Agarrado",
-      "incapacitated": "Incapacitado",
-      "invisible": "Invisible",
-      "paralyzed": "Paralizado",
-      "petrified": "Petrificado",
-      "poisoned": "Envenenado",
-      "prone": "Derribado",
-      "restrained": "Restringido",
-      "stunned": "Aturdido",
-      "unconscious": "Inconsciente",
-      "exhaustion": "Agotamiento"
-    },
-    "senses": {
-      "blindsight": "Vision ciega",
-      "darkvision": "Vision en la oscuridad",
-      "tremorsense": "Sentido de temblores",
-      "truesight": "Vision verdadera",
-      "passive_perception": "Percepcion pasiva"
-    },
-    "speeds": {
-      "walk": "Caminar",
-      "fly": "Volar",
-      "swim": "Nadar",
-      "burrow": "Excavar",
-      "climb": "Escalar"
-    },
-    "languages": {
-      "common": "Comun",
-      "dwarvish": "Enano",
-      "elvish": "Elfico",
-      "giant": "Gigante",
-      "gnomish": "Gnomico",
-      "goblin": "Goblinoide",
-      "halfling": "Mediano",
-      "orc": "Orco",
-      "abyssal": "Abisal",
-      "celestial": "Celestial",
-      "draconic": "Draconico",
-      "deep_speech": "Habla profunda",
-      "infernal": "Infernal",
-      "primordial": "Primordial",
-      "sylvan": "Silvano",
-      "undercommon": "Infracomun"
-    },
-    "magicSchools": {
-      "abjuration": "Abjuracion",
-      "conjuration": "Conjuracion",
-      "divination": "Adivinacion",
-      "enchantment": "Encantamiento",
-      "evocation": "Evocacion",
-      "illusion": "Ilusion",
-      "necromancy": "Nigromancia",
-      "transmutation": "Transmutacion"
-    },
-    "equipmentCategories": {
-      "weapon": "Armas",
-      "armor": "Armaduras",
-      "adventuring_gear": "Equipo",
-      "tools": "Herramientas",
-      "potion": "Pociones",
-      "wondrous_items": "Objetos Maravillosos",
-      "ring": "Anillos",
-      "rod": "Varas",
-      "staff": "Bastones",
-      "wand": "Varitas",
-      "scroll": "Pergaminos",
-      "ammunition": "Municion",
-      "mounts_and_vehicles": "Monturas y Vehiculos"
-    },
-    "weaponProperties": {
-      "ammunition": "Municion",
-      "finesse": "Sutileza",
-      "heavy": "Pesada",
-      "light": "Ligera",
-      "loading": "Carga",
-      "ranged": "A distancia",
-      "reach": "Alcance",
-      "special": "Especial",
-      "thrown": "Arrojadiza",
-      "two_handed": "A dos manos",
-      "versatile": "Versatil"
-    },
-    "areaEffects": {
-      "cone": "Cono",
-      "cube": "Cubo",
-      "cylinder": "Cilindro",
-      "line": "Linea",
-      "sphere": "Esfera"
-    },
-    "classes": {
-      "barbarian": "Barbaro",
-      "bard": "Bardo",
-      "cleric": "Clerigo",
-      "druid": "Druida",
-      "fighter": "Guerrero",
-      "monk": "Monje",
-      "paladin": "Paladin",
-      "ranger": "Explorador",
-      "rogue": "Picaro",
-      "sorcerer": "Hechicero",
-      "warlock": "Brujo",
-      "wizard": "Mago",
-      "artificer": "Artificiero"
-    },
-    "proficiencies": {
-      "perception": "Percepcion",
-      "stealth": "Sigilo",
-      "athletics": "Atletismo",
-      "acrobatics": "Acrobacias",
-      "arcana": "Arcano",
-      "history": "Historia",
-      "insight": "Perspicacia",
-      "intimidation": "Intimidacion",
-      "investigation": "Investigacion",
-      "medicine": "Medicina",
-      "nature": "Naturaleza",
-      "religion": "Religion",
-      "survival": "Supervivencia"
-    }
-  },
-  "routes": {
-    "myCampaigns": "Mis Campanas",
-    "inventory": "Inventario",
-    "myCharacterSheets": "Mis Fichas",
-    "myCharacterSheet": "Mi Ficha",
-    "myMaps": "Mis Mapas",
-    "battleMap": "Mapa de Batalla",
-    "diceRoller": "Tirada de Dados",
-    "settings": "Configuracion",
-    "editCampaign": "Editar Campana",
-    "session": "Partida"
-  },
-  "meta": {
-    "homeTitle": "Beyond the Dungeon - Herramientas para tu mesa de rol",
-    "homeDescription": "Organiza y juega rol sin complicaciones. Campanas, fichas, dados, mapas y comunidad para D&D y mas. Crea tu cuenta gratis.",
-    "loginTitle": "Iniciar Sesion - Beyond the Dungeon",
-    "loginDescription": "Accede a tu cuenta para gestionar tus aventuras en Beyond the Dungeon.",
-    "registerTitle": "Crear Cuenta - Beyond the Dungeon",
-    "registerDescription": "Unete a Beyond the Dungeon. Crea tu cuenta gratis y empieza a gestionar tus partidas de rol con las mejores herramientas."
-  }
-}{
-  "common": {
-    "save": "Guardar",
-    "cancel": "Cancelar",
-    "delete": "Eliminar",
-    "edit": "Editar",
-    "create": "Crear",
-    "search": "Buscar",
-    "filter": "Filtrar",
-    "loading": "Cargando...",
-    "abilitiesShort": {
-      "strength": "FUE",
-      "dexterity": "DES",
-      "constitution": "CON",
-      "intelligence": "INT",
-      "wisdom": "SAB",
-      "charisma": "CAR"
-    },
-    "noResults": "No hay resultados",
-    "close": "Cerrar",
-    "confirm": "Confirmar",
-    "back": "Volver",
-    "next": "Siguiente",
-    "previous": "Anterior",
-    "yes": "Sí",
-    },
-    "alignments": {
-      "lawful_good": "Legal Bueno",
-      "neutral_good": "Neutral Bueno",
-      "chaotic_good": "Caotico Bueno",
-      "lawful_neutral": "Legal Neutral",
-      "neutral": "Neutral",
-      "chaotic_neutral": "Caotico Neutral",
-      "lawful_evil": "Legal Malvado",
-      "neutral_evil": "Neutral Malvado",
-      "chaotic_evil": "Caotico Malvado",
-      "unaligned": "Sin alineamiento"
-    },
-    "creatureTypes": {
-      "aberration": "Aberracion",
-      "beast": "Bestia",
-      "celestial": "Celestial",
-      "construct": "Constructo",
-      "dragon": "Dragon",
-      "elemental": "Elemental",
-      "fey": "Feerico",
-      "fiend": "Infernal",
-      "giant": "Gigante",
-      "humanoid": "Humanoide",
-      "monstrosity": "Monstruosidad",
-      "ooze": "Cieno",
-      "plant": "Planta",
-      "undead": "No muerto"
-    },
-    "damageTypes": {
-      "acid": "Acido",
-      "bludgeoning": "Contundente",
-      "cold": "Frio",
-      "fire": "Fuego",
-      "force": "Fuerza",
-      "lightning": "Relampago",
-      "necrotic": "Necrotico",
-      "piercing": "Perforante",
-      "poison": "Veneno",
-      "psychic": "Psiquico",
-      "radiant": "Radiante",
-      "slashing": "Cortante",
-      "thunder": "Trueno"
-    },
-    "conditions": {
-      "blinded": "Cegado",
-      "charmed": "Hechizado",
-      "deafened": "Sordo",
-      "frightened": "Asustado",
-      "grappled": "Agarrado",
-      "incapacitated": "Incapacitado",
-      "invisible": "Invisible",
-      "paralyzed": "Paralizado",
-      "petrified": "Petrificado",
-      "poisoned": "Envenenado",
-      "prone": "Derribado",
-      "restrained": "Restringido",
-      "stunned": "Aturdido",
-      "unconscious": "Inconsciente",
-      "exhaustion": "Agotamiento"
-    },
-    "senses": {
-      "blindsight": "Vision ciega",
-      "darkvision": "Vision en la oscuridad",
-      "tremorsense": "Sentido de temblores",
-      "truesight": "Vision verdadera",
-      "passive_perception": "Percepcion pasiva"
-    },
-    "speeds": {
-      "walk": "Caminar",
-      "fly": "Volar",
-      "swim": "Nadar",
-      "burrow": "Excavar",
-      "climb": "Escalar"
-    },
-    "languages": {
-      "common": "Comun",
-      "dwarvish": "Enano",
-      "elvish": "Elfico",
-      "giant": "Gigante",
-      "gnomish": "Gnomico",
-      "goblin": "Goblinoide",
-      "halfling": "Mediano",
-      "orc": "Orco",
-      "abyssal": "Abisal",
-      "celestial": "Celestial",
-      "draconic": "Draconico",
-      "deep_speech": "Habla profunda",
-      "infernal": "Infernal",
-      "primordial": "Primordial",
-      "sylvan": "Silvano",
-      "undercommon": "Infracomun"
-    },
-    "magicSchools": {
-      "abjuration": "Abjuracion",
-      "conjuration": "Conjuracion",
-      "divination": "Adivinacion",
-      "enchantment": "Encantamiento",
-      "evocation": "Evocacion",
-      "illusion": "Ilusion",
-      "necromancy": "Nigromancia",
-      "transmutation": "Transmutacion"
-    },
-    "equipmentCategories": {
-      "weapon": "Armas",
-      "armor": "Armaduras",
-      "adventuring_gear": "Equipo",
-      "tools": "Herramientas",
-      "potion": "Pociones",
-      "wondrous_items": "Objetos Maravillosos",
-      "ring": "Anillos",
-      "rod": "Varas",
-      "staff": "Bastones",
-      "wand": "Varitas",
-      "scroll": "Pergaminos",
-      "ammunition": "Municion",
-      "mounts_and_vehicles": "Monturas y Vehiculos"
-    },
-    "weaponProperties": {
-      "ammunition": "Municion",
-      "finesse": "Sutileza",
-      "heavy": "Pesada",
-      "light": "Ligera",
-      "loading": "Carga",
-      "ranged": "A distancia",
-      "reach": "Alcance",
-      "special": "Especial",
-      "thrown": "Arrojadiza",
-      "two_handed": "A dos manos",
-      "versatile": "Versatil"
-    },
-    "areaEffects": {
-      "cone": "Cono",
-      "cube": "Cubo",
-      "cylinder": "Cilindro",
-      "line": "Linea",
-      "sphere": "Esfera"
-    },
-    "classes": {
-      "barbarian": "Barbaro",
-      "bard": "Bardo",
-      "cleric": "Clerigo",
-      "druid": "Druida",
-      "fighter": "Guerrero",
-      "monk": "Monje",
-      "paladin": "Paladin",
-      "ranger": "Explorador",
-      "rogue": "Picaro",
-      "sorcerer": "Hechicero",
-      "warlock": "Brujo",
-      "wizard": "Mago",
-      "artificer": "Artificiero"
-    },
-    "proficiencies": {
-      "perception": "Percepcion",
-      "stealth": "Sigilo",
-      "athletics": "Atletismo",
-      "acrobatics": "Acrobacias",
-      "arcana": "Arcano",
-      "history": "Historia",
-      "insight": "Perspicacia",
-      "intimidation": "Intimidacion",
-      "investigation": "Investigacion",
-      "medicine": "Medicina",
-      "nature": "Naturaleza",
-      "religion": "Religion",
-      "survival": "Supervivencia"
-    "no": "No",
-    "viewDetails": "Ver detalles",
-    "clearFilters": "Limpiar filtros",
-    "guest": "Invitado",
-    "all": "Todos",
-    "notAvailable": "N/D",
-    "show": "Mostrar:",
-    "pageOf": "Pagina {{current}} de {{total}}",
-    "toggleLanguage": "Cambiar idioma",
-    "switchToEnglish": "Cambiar a Ingles",
-    "switchToSpanish": "Cambiar a Espanol",
-    "toggleTheme": "Cambiar tema",
-    "unknown": "Desconocido",
-    "times": "veces"
-  },
-  "nav": {
-    "home": "Inicio",
-    "homeSubtitle": "Vuelve al inicio",
+    "homeSubtitle": "Volver al inicio",
     "campaigns": "Mis Campañas",
     "campaignsSubtitle": "Gestiona tus aventuras",
     "inventory": "Inventario",
@@ -1545,14 +60,17 @@
       "email": "Email",
       "emailPlaceholder": "tu@email.com",
       "password": "Contraseña",
-      "passwordPlaceholder": "Ingresa tu contraseña",
+      "passwordPlaceholder": "Introduce tu contraseña",
       "forgotPassword": "¿Olvidaste tu contraseña?",
       "submit": "Entrar",
-      "submitting": "Ingresando...",
+      "submitting": "Iniciando sesión...",
       "noAccount": "¿No tienes cuenta?",
       "createAccount": "Crear cuenta",
       "backToHome": "Volver al inicio",
-      "welcome": "Bienvenido de vuelta, aventurero"
+      "welcome": "Bienvenido de vuelta, aventurero",
+      "errors": {
+        "missingFields": "Email y contraseña son requeridos"
+      }
     },
     "register": {
       "title": "Crear Cuenta",
@@ -1573,40 +91,42 @@
       "login": "Iniciar sesión",
       "backToHome": "Volver al inicio",
       "welcome": "Únete a la aventura, aventurero",
-      "termsAccept": "Acepto los terminos y condiciones",
+      "termsAccept": "Acepto los términos y condiciones",
       "termsPrefix": "Acepto los",
       "termsAnd": "y la",
-      "terms": "terminos y condiciones",
-      "privacy": "politica de privacidad",
+      "terms": "términos y condiciones",
+      "privacy": "política de privacidad",
       "errors": {
         "usernameRequired": "El nombre de usuario es requerido",
-        "usernameMin": "Minimo 3 caracteres",
+        "usernameMin": "Mínimo 3 caracteres",
         "emailRequired": "El email es requerido",
-        "emailInvalid": "Email invalido",
-        "passwordRequired": "La contrasena es requerida",
-        "passwordMin": "Minimo 8 caracteres",
-        "passwordMismatch": "Las contrasenas no coinciden",
-        "termsRequired": "Debes aceptar los terminos y condiciones",
-        "registerFailed": "Error al registrar usuario.",
-        "emailResent": "Ese email ya estaba registrado. Te hemos reenviado el correo de confirmacion. Revisa Spam/Promociones.",
+        "emailInvalid": "Email inválido",
+        "passwordRequired": "La contraseña es requerida",
+        "passwordMin": "Mínimo 8 caracteres",
+        "passwordMismatch": "Las contraseñas no coinciden",
+        "termsRequired": "Debes aceptar los términos y condiciones",
+        "registerFailed": "Error al registrar el usuario.",
+        "emailResent": "Ese email ya está registrado. Reenviamos el correo de confirmación. Revisa Spam/Promociones.",
         "unknown": "Error desconocido"
       },
-      "success": "Cuenta creada. Revisa tu email (incluida Spam/Promociones) para confirmar y luego inicia sesion."
+      "success": "Cuenta creada. Revisa tu email (incluyendo Spam/Promociones) para confirmar, luego inicia sesión."
+    },
+    "errors": {
+      "invalidCredentials": "Email o contraseña inválidos.",
+      "emailNotConfirmed": "Debes confirmar tu email antes de iniciar sesión.",
+      "emailAlreadyRegistered": "Ya existe una cuenta con ese email.",
+      "passwordTooShort": "La contraseña no cumple con la longitud mínima.",
+      "invalidEmail": "El email no es válido.",
+      "unexpected": "Ocurrió un error inesperado.",
+      "signInFailed": "No se pudo iniciar sesión.",
+      "signupEmailExists": "Ese email ya está registrado. Si olvidaste tu contraseña, usa la recuperación de cuenta.",
+      "signUpFailed": "No se pudo crear la cuenta. Intenta de nuevo en unos segundos."
     },
     "logout": "Cerrar sesión",
     "profile": "Mi Perfil",
     "myProfile": "Mi Perfil",
     "login": "Iniciar sesión",
-    "register": "Crear cuenta",
-    "loginTitle": "Iniciar Sesion - Beyond the Dungeon",
-    "loginDescription": "Accede a tu cuenta para gestionar tus aventuras en Beyond the Dungeon.",
-    "registerTitle": "Crear Cuenta - Beyond the Dungeon",
-    "registerDescription": "Unete a Beyond the Dungeon. Crea tu cuenta gratis y empieza a gestionar tus partidas de rol con las mejores herramientas.",
-    "login": {
-      "errors": {
-        "missingFields": "Email y contrasena son requeridos"
-      }
-    }
+    "register": "Crear cuenta"
   },
   "home": {
     "hero": {
@@ -1619,7 +139,7 @@
       "title": "Organiza y juega rol sin complicaciones",
       "titleLine1": "Organiza y juega rol",
       "titleLine2": "sin complicaciones",
-      "subtitle": "Campanas, fichas, dados, mapas simples y comunidad. Todo en un solo lugar",
+      "subtitle": "Campañas, fichas, dados, mapas y comunidad. Todo en un solo lugar",
       "secondaryTitle": "Todas tus herramientas en un solo lugar",
       "secondarySubtitle": "Gestiona tus partidas de forma profesional y sencilla",
       "campaigns": {
@@ -1674,28 +194,529 @@
       "allRightsReserved": "Todos los derechos reservados"
     }
   },
+  "routes": {
+    "myCampaigns": "Mis Campañas",
+    "inventory": "Inventario",
+    "myCharacterSheets": "Mis Fichas de Personaje",
+    "myCharacterSheet": "Mi Ficha de Personaje",
+    "myMaps": "Mis Mapas",
+    "battleMap": "Mapa de Batalla",
+    "diceRoller": "Tirada de Dados",
+    "settings": "Configuración",
+    "editCampaign": "Editar Campaña",
+    "session": "Sesión",
+    "dashboard": "Panel"
+  },
+  "meta": {
+    "homeTitle": "Beyond the Dungeon - Herramientas digitales para tu mesa de rol",
+    "homeDescription": "Organiza y juega rol sin complicaciones. Campañas, fichas, dados, mapas y comunidad para D&D y más. Crea tu cuenta gratis.",
+    "loginTitle": "Iniciar Sesión - Beyond the Dungeon",
+    "loginDescription": "Accede a tu cuenta para gestionar tus aventuras en Beyond the Dungeon.",
+    "registerTitle": "Crear Cuenta - Beyond the Dungeon",
+    "registerDescription": "Únete a Beyond the Dungeon. Crea tu cuenta gratis y comienza a gestionar tus partidas de rol con las mejores herramientas."
+  },
   "scenes": {
     "campaigns": {
       "title": "Mis Campañas",
       "subtitle": "Gestiona tus aventuras de D&D como DM o jugador",
       "newCampaign": "Nueva Campaña",
       "createFirst": "Crear Primera Campaña",
+      "noCampaigns": "Aún no tienes campañas",
+      "noCampaignsDesc": "Crea una nueva campaña o espera a ser invitado a una",
       "edit": "Editar",
       "start": "Comenzar campaña",
+      "starting": "Iniciando...",
       "resume": "Reanudar campaña",
+      "resuming": "Reanudando...",
       "joinGame": "Unirse a la partida",
       "viewSheet": "Ver mi ficha",
       "enterGame": "Entrar a partida",
       "inGame": "En juego",
       "paused": "Pausada · Sesión {{number}}",
-      "dm": "DM"
+      "dm": "DM",
+      "noDescription": "Sin descripción",
+      "createdOn": "Creada el {{date}}",
+      "createDialog": {
+        "title": "Crear Nueva Campaña",
+        "description": "Crea una nueva campaña y conviértete en el Dungeon Master",
+        "titleLabel": "Título *",
+        "titlePlaceholder": "Ej: La Mina Perdida de Phandelver",
+        "descLabel": "Descripción",
+        "descPlaceholder": "Descripción de la campaña...",
+        "notesLabel": "Notas Privadas (DM)",
+        "notesPlaceholder": "Notas privadas del DM...",
+        "creating": "Creando...",
+        "create": "Crear Campaña"
+      },
+      "invitations": {
+        "title": "Invitaciones Pendientes ({{count}})",
+        "invited": "Has sido invitado a unirte a esta campaña",
+        "accept": "Aceptar",
+        "reject": "Rechazar"
+      },
+      "characterModal": {
+        "title": "{{title}} – Mi Personaje",
+        "description": "Revisa la descripción de la campaña y el estado de tu ficha de personaje.",
+        "campaignDesc": "Descripción de la campaña",
+        "noDescription": "Sin descripción.",
+        "joinActive": "Unirse a juego activo",
+        "noCharacter": "Aún no tienes un personaje asignado a esta campaña.",
+        "assignLabel": "Asignar una de mis fichas",
+        "selectPlaceholder": "Selecciona una ficha...",
+        "alreadyAssigned": "(ya asignada a otra campaña)",
+        "assigning": "Asignando...",
+        "assignButton": "Asignar ficha a esta campaña",
+        "noSheets": "Aún no tienes fichas de personaje.",
+        "goToSheets": "Ir a Mis Fichas"
+      },
+      "characterTabs": {
+        "info": "Información",
+        "combat": "Combate",
+        "equipment": "Equipo",
+        "notes": "Notas",
+        "hpCurrent": "PG Actuales",
+        "hpMax": "PG Máximos",
+        "ac": "CA",
+        "initiative": "Iniciativa",
+        "speed": "Velocidad",
+        "equipment": "Equipo",
+        "noEquipment": "Sin equipo registrado.",
+        "inventory": "Inventario",
+        "emptyInventory": "Inventario vacío.",
+        "spells": "Hechizos",
+        "noSpells": "Sin hechizos registrados.",
+        "noNotes": "Sin notas."
+      },
+      "errors": {
+        "titleRequired": "El título es requerido",
+        "createFailed": "Error al crear campaña: {{msg}}",
+        "deleteFailed": "Error al eliminar campaña",
+        "deleteConfirm": "¿Estás seguro de que quieres eliminar esta campaña?",
+        "acceptFailed": "Error al aceptar invitación",
+        "rejectFailed": "Error al rechazar invitación",
+        "startFailed": "Error al iniciar sesión: {{msg}}",
+        "loadSheetsFailed": "No se pudieron cargar tus fichas",
+        "assignFailed": "No se pudo asignar la ficha"
+      }
+    },
+    "characterSheet": {
+      "title": "Mi Ficha de Personaje",
+      "subtitle": "Ficha de D&D 5ª Edición",
+      "save": "Guardar Ficha",
+      "saving": "Guardando...",
+      "tabs": {
+        "info": "Información",
+        "stats": "Atributos",
+        "combat": "Combate",
+        "skills": "Habilidades",
+        "inventory": "Inventario"
+      },
+      "basicInfo": {
+        "title": "Información Básica",
+        "description": "Datos generales del personaje",
+        "name": "Nombre del Personaje",
+        "namePlaceholder": "Ej: Thorin Escudo de Roble",
+        "race": "Raza",
+        "racePlaceholder": "Selecciona una raza",
+        "classAndLevel": "Clase y Nivel",
+        "class": "Clase {{number}}",
+        "classPlaceholder": "Selecciona una clase",
+        "level": "Nivel",
+        "multiclass": "Multiclase",
+        "addClass": "Añadir Clase",
+        "background": "Trasfondo",
+        "backgroundPlaceholder": "Selecciona un trasfondo",
+        "xp": "Puntos de Experiencia",
+        "makePublic": "Hacer ficha pública",
+        "personalityTraits": "Rasgos de Personalidad",
+        "personalityPlaceholder": "Describe los rasgos de personalidad...",
+        "ideals": "Ideales",
+        "idealsPlaceholder": "Ideales del personaje...",
+        "bonds": "Vínculos",
+        "bondsPlaceholder": "Vínculos...",
+        "flaws": "Defectos",
+        "flawsPlaceholder": "Defectos...",
+        "languages": "Idiomas",
+        "languagesPlaceholder": "Común, Enano, Élfico...",
+        "proficiencies": "Competencias",
+        "proficienciesPlaceholder": "Selecciona competencias..."
+      },
+      "stats": {
+        "title": "Atributos",
+        "description": "Puntuaciones de habilidad (8-20)",
+        "modifier": "Modificador: {{value}}",
+        "profBonus": "Bonificador de Competencia",
+        "profBonusHint": "Rango: +2 a +6 (por nivel)",
+        "savingThrows": "Tiros de Salvación",
+        "savingThrowsDesc": "Marca competencias (máx 2)"
+      },
+      "combat": {
+        "hitPoints": "Puntos de Golpe",
+        "maxHp": "PG Máximos",
+        "currentHp": "PG Actuales",
+        "tempHp": "PG Temporales",
+        "hitDice": "Dados de Golpe",
+        "hitDicePlaceholder": "Ej: 5d8",
+        "defenseMovement": "Defensa y Movimiento",
+        "armorClass": "Clase de Armadura (CA)",
+        "initiative": "Iniciativa",
+        "initiativeHint": "Base: +{{value}} (Destreza)",
+        "speed": "Velocidad (pies)",
+        "deathSaves": "Tiros de Salvación contra Muerte",
+        "successes": "Éxitos",
+        "failures": "Fallos"
+      },
+      "skills": {
+        "title": "Habilidades",
+        "description": "Marca habilidades en las que eres competente",
+        "featuresTraits": "Características y Rasgos",
+        "featuresPlaceholder": "Describe rasgos raciales, de clase, trasfondo, dones..."
+      },
+      "success": {
+        "updated": "¡Ficha actualizada correctamente!",
+        "created": "¡Ficha creada correctamente!"
+      },
+      "errors": {
+        "updateFailed": "Error al actualizar ficha",
+        "createFailed": "Error al crear ficha"
+      }
+    },
+    "characterSheets": {
+      "title": "Mis Fichas de Personaje",
+      "subtitle": "Gestiona tus personajes de D&D 5e",
+      "newSheet": "Crear Nueva Ficha",
+      "createFirst": "Crear Primera Ficha",
+      "loading": "Cargando fichas...",
+      "noSheets": "Aún no tienes fichas creadas",
+      "noSheetsDesc": "Crea tu primera ficha de personaje para comenzar tu aventura",
+      "character": "personaje",
+      "characters": "personajes",
+      "level": "Nivel {{level}}",
+      "noName": "Sin nombre",
+      "noRace": "Sin raza",
+      "noClass": "Sin clase",
+      "errors": {
+        "loadFailed": "Error al cargar fichas",
+        "deleteFailed": "Error al eliminar ficha",
+        "deleteConfirm": "¿Eliminar ficha \"{{name}}\"?"
+      }
+    },
+    "maps": {
+      "title": "Mis Mapas de Batalla",
+      "subtitle": "Gestiona tus mapas de batalla guardados",
+      "newMap": "Nuevo Mapa",
+      "loading": "Cargando mapas...",
+      "map": "mapa",
+      "maps": "mapas",
+      "noMaps": "Aún no has guardado mapas de batalla",
+      "createFirst": "Crea Tu Primer Mapa",
+      "grid": "Cuadrícula: {{size}}px",
+      "created": "Creado: {{date}}",
+      "modified": "Modificado: {{date}}",
+      "open": "Abrir",
+      "errors": {
+        "loadFailed": "Error al cargar mapas",
+        "deleteFailed": "Error al eliminar mapa",
+        "deleteConfirm": "¿Eliminar mapa \"{{name}}\"?"
+      }
+    },
+    "profileSettings": {
+      "title": "Configuración",
+      "subtitle": "Gestiona tu cuenta, preferencias y opciones de privacidad.",
+      "devNotice": "La sección de configuración está en desarrollo. Pronto podrás personalizar tu experiencia.",
+      "comingSoon": "Próximamente",
+      "sections": {
+        "userProfile": {
+          "title": "Perfil de Usuario",
+          "description": "Gestiona tu información personal y preferencias de cuenta"
+        },
+        "notifications": {
+          "title": "Notificaciones",
+          "description": "Configura cómo y cuándo recibir notificaciones"
+        },
+        "privacySecurity": {
+          "title": "Privacidad y Seguridad",
+          "description": "Controla tus opciones de privacidad y seguridad"
+        },
+        "appearance": {
+          "title": "Apariencia",
+          "description": "Personaliza el tema y apariencia de la aplicación"
+        }
+      }
+    },
+    "profile": {
+      "title": "Mis Campañas",
+      "subtitle": "Gestiona tus aventuras, personajes y progreso en tus campañas activas.",
+      "createCampaign": "Crear Campaña",
+      "loading": "Cargando campañas...",
+      "active": "campaña activa",
+      "activePlural": "campañas activas",
+      "noCampaigns": "No tienes campañas activas",
+      "noCampaignsDesc": "Crea tu primera campaña para comenzar tu aventura.",
+      "dm": "DM",
+      "player": "Jugador",
+      "editCampaign": "Editar Campaña",
+      "viewCampaign": "Ver Campaña"
     },
     "inventory": {
       "title": "Inventario",
       "subtitle": "Gestiona tu equipo y objetos"
     },
+    "inventoryScene": {
+      "common": {
+        "empty": "vacío",
+        "loadingCompendium": "Cargando compendio...",
+        "characterAlt": "Personaje"
+      },
+      "slots": {
+        "helmet": "Casco",
+        "amulet": "Amuleto",
+        "armor": "Armadura",
+        "cloak": "Capa",
+        "mainhand": "Mano principal",
+        "offhand": "Mano secundaria / Escudo",
+        "gloves": "Guantes",
+        "ring1": "Anillo izquierdo",
+        "belt": "Cinturón",
+        "ring2": "Anillo derecho",
+        "boots": "Botas",
+        "mount": "Montura"
+      },
+      "slotPicker": {
+        "equip": "Equipar",
+        "searchPlaceholder": "Buscar {{slot}}...",
+        "addCustom": "Añadir como objeto personalizado",
+        "searchAll": "Buscar en todo el compendio ({{count}})",
+        "searchAllWithObjects": "Buscar en todo el compendio ({{count}} objetos)",
+        "results": "{{count}} resultado",
+        "results_other": "{{count}} resultados",
+        "objects": "{{count}} objetos",
+        "noResults": "Sin resultados - presiona + para añadir como objeto personalizado"
+      },
+      "autocomplete": {
+        "results": "{{count}} resultado",
+        "results_other": "{{count}} resultados",
+        "objectsFiltered": "{{count}} objetos - escribe para filtrar",
+        "noResults": "Sin resultados - presiona + para añadir como objeto personalizado"
+      },
+      "header": {
+        "title": "Inventario",
+        "subtitle": "Gestiona el equipo, consumibles y monedas de tu personaje"
+      },
+      "save": {
+        "saving": "Guardando...",
+        "saved": "¡Guardado!",
+        "error": "Error al guardar",
+        "loginToSave": "Inicia sesión para guardar",
+        "chooseCharacter": "Elige un personaje"
+      },
+      "guestBanner": {
+        "textBefore": "Puedes explorar el inventario libremente. Para guardar cambios en un personaje,",
+        "login": "inicia sesión",
+        "or": "o",
+        "register": "crea una cuenta"
+      },
+      "characterSelector": {
+        "loading": "Cargando personajes...",
+        "noCharacters": "Aún no tienes personajes.",
+        "createFirst": "Crea uno primero",
+        "linkedTo": "Vinculado a:",
+        "change": "Cambiar",
+        "choose": "Elige un personaje:",
+        "selectPlaceholder": "- selecciona -",
+        "loadConfirm": "¿Cargar inventario guardado de \"{{name}}\"?\n\nAceptar -> reemplaza el inventario actual con el del personaje.\nCancelar -> mantiene el inventario actual y lo vincula al personaje."
+      },
+      "weight": {
+        "current": "Peso actual",
+        "enterManual": "Ingresa manualmente",
+        "backToAuto": "Volver al cálculo automático",
+        "manual": "manual",
+        "auto": "automático",
+        "max": "Capacidad máxima",
+        "mountBonus": "+{{value}} lb montura ->",
+        "totalWithMount": "{{value}} lb total",
+        "overloaded": "¡Sobrecargado!",
+        "loadedPercent": "{{value}}% cargado"
+      },
+      "equipment": {
+        "title": "Equipo equipado",
+        "hint": "Haz clic en un slot para buscar y equipar un objeto"
+      },
+      "sections": {
+        "potions": "Pociones",
+        "potionsDesc": "Pociones y brebajes mágicos",
+        "searchPotions": "Buscar pociones...",
+        "scrolls": "Pergaminos",
+        "scrollsDesc": "Pergaminos de hechizo y recetas",
+        "searchScrolls": "Buscar pergaminos...",
+        "bag": "Inventario",
+        "objectsCount": "{{count}} objetos",
+        "bagDesc": "Todos los objetos: equipo no equipado, herramientas, consumibles, etc.",
+        "ammo": "Munición",
+        "ammoDesc": "Flechas, pernos, dagas lanzables...",
+        "searchAmmo": "Buscar munición...",
+        "wallet": "Bolsa"
+      },
+      "currency": {
+        "pp": "Platino",
+        "po": "Oro",
+        "pe": "Electrón",
+        "pa": "Plata",
+        "pc": "Cobre"
+      },
+      "footer": {
+        "createAccount": "Crea una cuenta",
+        "createAccountSuffix": "para guardar tu inventario vinculado a un personaje.",
+        "linkCharacterHint": "Vincula un personaje arriba para poder guardar.",
+        "savedIn": "Guardado correctamente en",
+        "error": "Error al guardar. Intenta de nuevo.",
+        "unsavedHint": "Los cambios no se guardan automáticamente."
+      }
+    },
+    "editCampaign": {
+      "actions": {
+        "update": "Actualizar",
+        "change": "Cambiar"
+      },
+      "errors": {
+        "loadCampaign": "Error al cargar campaña",
+        "startSession": "Error al iniciar sesión: {{msg}}",
+        "saveCampaign": "Error al guardar campaña",
+        "addPlayer": "Error al añadir jugador",
+        "removeMember": "Error al eliminar miembro",
+        "saveChapter": "Error al guardar capítulo",
+        "deleteChapter": "Error al eliminar capítulo",
+        "saveScene": "Error al guardar escena",
+        "deleteScene": "Error al eliminar escena",
+        "npcNameRequired": "Por favor introduce el nombre del PNJ",
+        "selectMap": "Por favor selecciona un mapa",
+        "selectCompendiumEntity": "Por favor selecciona una entidad del compendio",
+        "addEntity": "Error al añadir entidad",
+        "deleteEntity": "Error al eliminar entidad"
+      },
+      "messages": {
+        "campaignUpdated": "Campaña actualizada correctamente",
+        "playerAdded": "Jugador añadido a la campaña correctamente"
+      },
+      "confirm": {
+        "removePlayer": "¿Eliminar este jugador?",
+        "deleteChapter": "¿Eliminar este capítulo y todas sus escenas?",
+        "deleteScene": "¿Eliminar esta escena?",
+        "deleteEntity": "¿Eliminar esta entidad?"
+      },
+      "noAccess": {
+        "title": "No tienes acceso a esta campaña",
+        "back": "Volver a Mis Campañas"
+      },
+      "header": {
+        "dmSubtitle": "Editar campaña como Dungeon Master",
+        "playerSubtitle": "Información de la campaña",
+        "goActiveGame": "Ir a juego activo",
+        "resuming": "Reanudando...",
+        "resume": "Reanudar campaña",
+        "starting": "Iniciando...",
+        "start": "Comenzar campaña",
+        "saveChanges": "Guardar cambios"
+      },
+      "tabs": {
+        "general": "General",
+        "players": "Jugadores",
+        "content": "Capítulos y Escenas"
+      },
+      "general": {
+        "title": "Información General",
+        "dmDescription": "Datos básicos de la campaña",
+        "playerDescription": "Información de la campaña en la que participas",
+        "titleLabel": "Título",
+        "descriptionLabel": "Descripción",
+        "descriptionPlaceholder": "Descripción de la campaña...",
+        "privateNotesLabel": "Notas Privadas (DM)",
+        "privateNotesPlaceholder": "Notas privadas del DM..."
+      },
+      "players": {
+        "addTitle": "Añadir Jugadores",
+        "addDescription": "Añade jugadores a tu campaña por nombre de usuario",
+        "usernamePlaceholder": "nombre de usuario",
+        "addButton": "Añadir Jugador",
+        "membersTitle": "Miembros de la Campaña ({{count}})",
+        "userFallback": "Usuario",
+        "roles": {
+          "dm": "Dungeon Master",
+          "player": "Jugador"
+        }
+      },
+      "content": {
+        "title": "Capítulos y Escenas",
+        "newChapter": "Nuevo Capítulo",
+        "noChaptersTitle": "Sin capítulos aún",
+        "noChaptersDescription": "Crea el primer capítulo para organizar tu campaña",
+        "scenesCount": "{{count}} escenas",
+        "editChapter": "Editar Capítulo",
+        "newScene": "Nueva Escena",
+        "narration": "NARRACIÓN:",
+        "dmNotes": "NOTAS DEL DM:",
+        "associatedMap": "Mapa de batalla asociado",
+        "entities": "ENTIDADES:",
+        "addEntity": "Añadir Entidad"
+      },
+      "chapterDialog": {
+        "editTitle": "Editar Capítulo",
+        "newTitle": "Nuevo Capítulo",
+        "titleLabel": "Título",
+        "titlePlaceholder": "Título del capítulo",
+        "contentLabel": "Contenido",
+        "contentPlaceholder": "Describe el capítulo, objetivos, etc.",
+        "entityName": "Capítulo"
+      },
+      "sceneDialog": {
+        "editTitle": "Editar Escena",
+        "newTitle": "Nueva Escena",
+        "description": "Las escenas contienen narración, notas del DM y entidades",
+        "titleLabel": "Título",
+        "titlePlaceholder": "Título de la escena",
+        "narrationLabel": "Texto de narración (para jugadores)",
+        "narrationPlaceholder": "Texto que narrarás a los jugadores. Usa **negrita** para énfasis y > para diálogos",
+        "dmNotesLabel": "Notas del DM (privadas)",
+        "dmNotesPlaceholder": "Notas privadas, recordatorios, etc.",
+        "entityName": "Escena"
+      },
+      "entityTypes": {
+        "monster": "Monstruo",
+        "item": "Objeto",
+        "spell": "Hechizo",
+        "map": "Mapa de Batalla"
+      },
+      "entityDialog": {
+        "title": "Añadir Entidad a la Escena",
+        "description": "Vincula monstruos, objetos, hechizos, PNJs y mapas de batalla a esta escena",
+        "typeLabel": "Tipo de Entidad",
+        "selectFromCompendium": "Selecciona {{type}} del compendio",
+        "monsterOne": "un monstruo",
+        "itemOne": "un objeto",
+        "spellOne": "un hechizo",
+        "goCompendium": "Ir a Compendio",
+        "preview": {
+          "size": "Tamaño",
+          "cr": "CR",
+          "level": "Nivel",
+          "cantrip": "Truco",
+          "school": "Escuela"
+        },
+        "npcNameLabel": "Nombre del PNJ",
+        "npcNamePlaceholder": "ej: Rey Arturo, Posadero, Mago Oscuro",
+        "notesLabel": "Notas (opcional)",
+        "notesPlaceholder": "Descripción, motivaciones, estadísticas...",
+        "selectMapLabel": "Selecciona mapa",
+        "selectMapPlaceholder": "Elige un mapa...",
+        "loadingMaps": "Cargando mapas...",
+        "noMaps": "No tienes mapas creados",
+        "aliasLabel": "Alias/Nombre Personalizado (opcional)",
+        "aliasPlaceholder": "Predeterminado: {{name}}",
+        "aliasHint": "Déjalo en blanco para usar el nombre original"
+      }
+    },
     "dice": {
-      "title": "Lanzador de Dados",
+      "title": "Tirada de Dados",
       "subtitle": "Selecciona el tipo de dado y obtén un resultado aleatorio"
     }
   },
@@ -1704,16 +725,16 @@
     "bestiary": {
       "title": "Bestiario",
       "headerTitle": "Compendio del Bestiario",
-      "subtitleDefault": "Consulta las estadisticas de criaturas y monstruos para tus aventuras.",
-      "subtitleSelect": "Selecciona un monstruo para anadir a la escena.",
-      "selectModeHint": "Haz clic en un monstruo para anadirlo a tu escena.",
+      "subtitleDefault": "Explora las estadísticas de criaturas y monstruos para tus aventuras.",
+      "subtitleSelect": "Selecciona un monstruo para añadirlo a la escena.",
+      "selectModeHint": "Haz clic en un monstruo para añadirlo a tu escena.",
       "searchPlaceholder": "Buscar criatura por nombre...",
       "loading": "Cargando bestiario...",
       "loadingSingle": "Cargando criatura...",
-      "error": "No se pudo cargar el bestiario. Verifica que el backend este corriendo.",
+      "error": "No se pudo cargar el bestiario. Verifica que el backend esté funcionando.",
       "emptyTitle": "No hay criaturas disponibles",
-      "emptyDescription": "El bestiario esta vacio. Asegurate de que la base de datos este poblada.",
-      "noResultsTitle": "No se encontraron resultados",
+      "emptyDescription": "El bestiario está vacío. Asegúrate de que la base de datos esté poblada.",
+      "noResultsTitle": "Sin resultados",
       "noResultsDescription": "No hay criaturas que coincidan con \"{{query}}\"",
       "resultsLabel_one": "criatura encontrada",
       "resultsLabel_other": "criaturas encontradas",
@@ -1722,7 +743,7 @@
       "xpValue": "{{value}} XP",
       "backToList": "Volver al Bestiario",
       "notFound": "Monstruo no encontrado",
-      "basicStats": "Estadisticas basicas",
+      "basicStats": "Estadísticas Básicas",
       "armorClass": "CA:",
       "armorClassFull": "Clase de Armadura",
       "hitPoints": "PG:",
@@ -1733,9 +754,9 @@
       "abilityScores": "Puntuaciones de Habilidad",
       "proficiencies": "Competencias",
       "resistancesTitle": "Resistencias e Inmunidades",
-      "damageVulnerabilities": "Vulnerabilidades al Danio",
-      "damageResistances": "Resistencias al Danio",
-      "damageImmunities": "Inmunidades al Danio",
+      "damageVulnerabilities": "Vulnerabilidades al Daño",
+      "damageResistances": "Resistencias al Daño",
+      "damageImmunities": "Inmunidades al Daño",
       "conditionImmunities": "Inmunidades a Condiciones",
       "sensesAndLanguages": "Sentidos e Idiomas",
       "senses": "Sentidos",
@@ -1744,7 +765,7 @@
       "usage": "Uso",
       "actions": "Acciones",
       "toHit": "al ataque",
-      "damage": "Danio",
+      "damage": "Daño",
       "recharge": "Recarga {{min}}-6 en {{dice}}",
       "legendaryActions": "Acciones Legendarias",
       "legendaryActionsHint": "Esta criatura puede realizar 3 acciones legendarias, eligiendo entre las opciones siguientes.",
@@ -1755,8 +776,8 @@
       "title": "Hechizos",
       "headerTitle": "Compendio de Hechizos",
       "subtitleDefault": "Explora el grimorio completo de hechizos y encantamientos.",
-      "subtitleSelect": "Selecciona un hechizo para anadir a la escena.",
-      "selectModeHint": "Haz clic en un hechizo para anadirlo a tu escena.",
+      "subtitleSelect": "Selecciona un hechizo para añadirlo a la escena.",
+      "selectModeHint": "Haz clic en un hechizo para añadirlo a tu escena.",
       "searchPlaceholder": "Buscar hechizo por nombre...",
       "levelLabel": "Nivel:",
       "cantrips": "Trucos",
@@ -1765,55 +786,335 @@
       "levelFull": "Nivel {{level}}",
       "loading": "Cargando hechizos...",
       "loadingSingle": "Cargando hechizo...",
-      "error": "No se pudo cargar los hechizos. Verifica que el backend este corriendo.",
+      "error": "No se pudieron cargar los hechizos. Verifica que el backend esté funcionando.",
       "emptyTitle": "No hay hechizos disponibles",
-      "emptyDescription": "El grimorio esta vacio. Asegurate de que la base de datos este poblada.",
-      "noResultsTitle": "No se encontraron resultados",
-      "noResultsDescription": "No hay hechizos que coincidan con tu busqueda",
+      "emptyDescription": "El grimorio está vacío. Asegúrate de que la base de datos esté poblada.",
+      "noResultsTitle": "Sin resultados",
+      "noResultsDescription": "No hay hechizos que coincidan con tu búsqueda",
       "resultsLabel_one": "hechizo encontrado",
       "resultsLabel_other": "hechizos encontrados",
-      "concentration": "Concentracion",
+      "concentration": "Concentración",
       "ritual": "Ritual",
       "backToList": "Volver a Hechizos",
       "notFound": "Hechizo no encontrado",
-      "basicInfo": "Informacion Basica",
+      "basicInfo": "Información Básica",
       "castingTime": "Tiempo de Lanzamiento",
       "range": "Alcance",
       "components": "Componentes",
-      "duration": "Duracion",
-      "description": "Descripcion",
+      "duration": "Duración",
+      "description": "Descripción",
       "higherLevels": "A Niveles Superiores",
-      "damage": "Danio",
-      "healing": "Curacion",
+      "damage": "Daño",
+      "healing": "Curación",
       "damageType": "Tipo",
-      "areaOfEffect": "Area de Efecto",
+      "areaOfEffect": "Área de Efecto",
       "areaOfEffectValue": "{{type}} de {{size}} pies",
-      "classes": "Disponible para Clases"
+      "classes": "Clases Disponibles"
     },
     "items": {
       "title": "Objetos y Equipo",
       "headerTitle": "Compendio de Objetos",
-      "subtitleDefault": "Consulta armas, armaduras y objetos magicos para tus aventuras.",
-      "subtitleSelect": "Selecciona un objeto para anadir a la escena.",
-      "selectModeHint": "Haz clic en un objeto para anadirlo a tu escena.",
+      "subtitleDefault": "Explora armas, armaduras y objetos mágicos para tus aventuras.",
+      "subtitleSelect": "Selecciona un objeto para añadirlo a la escena.",
+      "selectModeHint": "Haz clic en un objeto para añadirlo a tu escena.",
       "searchPlaceholder": "Buscar objeto por nombre...",
-      "categoryLabel": "Categoria:",
+      "categoryLabel": "Categoría:",
       "loading": "Cargando objetos...",
-      "error": "No se pudo cargar los objetos. Verifica que el backend este corriendo.",
+      "error": "No se pudieron cargar los objetos. Verifica que el backend esté funcionando.",
       "emptyTitle": "No hay objetos disponibles",
-      "emptyDescription": "El catalogo esta vacio. Asegurate de que la base de datos este poblada.",
-      "noResultsTitle": "No se encontraron resultados",
+      "emptyDescription": "El catálogo está vacío. Asegúrate de que la base de datos esté poblada.",
+      "noResultsTitle": "Sin resultados",
       "noResultsDescription": "No hay objetos que coincidan con \"{{query}}\"",
       "resultsLabel_one": "objeto encontrado",
       "resultsLabel_other": "objetos encontrados",
       "cost": "Coste:",
       "weight": "Peso:",
       "weightValue": "{{value}} lb",
-      "damage": "Danio:",
-      "twoHandedDamage": "Danio (2 manos):",
+      "damage": "Daño:",
+      "twoHandedDamage": "Daño (2 manos):",
       "armorClass": "CA:",
-      "strMinimum": "FUE minima:",
+      "strMinimum": "FUE mínima:",
       "range": "Alcance:"
+    }
+  },
+  "session": {
+    "title": "Sesión",
+    "player": "Jugador",
+    "toolbar": {
+      "dice": "Dados",
+      "bestiary": "Bestiario",
+      "spells": "Hechizos",
+      "items": "Objetos"
+    },
+    "end": "Terminar sesión",
+    "dm": {
+      "tabs": {
+        "maps": "Mapas",
+        "enemies": "Enemigos",
+        "npcs": "PNJs",
+        "items": "Objetos",
+        "spells": "Hechizos"
+      },
+      "mapLoader": {
+        "title": "Cargar mapa directamente",
+        "placeholder": "Elige mapa...",
+        "load": "Cargar"
+      },
+      "story": "Historia",
+      "noChapters": "Sin capítulos.",
+      "go": "Ir",
+      "notes": "Notas del DM",
+      "noEntities": "Sin entidades de este tipo.",
+      "deployMap": "Desplegar mapa",
+      "deployEntity": "Añadir al mapa"
+    },
+    "sheet": {
+      "missing": "Este jugador no tiene ficha de personaje en esta campaña.",
+      "unsavedTitle": "Cambios sin guardar",
+      "unsavedMessage": "Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar sin guardar?",
+      "closeWithoutSaving": "Cerrar sin guardar",
+      "saved": "Cambios guardados correctamente",
+      "tabs": {
+        "stats": "Estadísticas",
+        "combat": "Combate",
+        "inventory": "Inventario"
+      },
+      "experience": "Experiencia",
+      "experienceValue": "{{value}} XP",
+      "combat": {
+        "maxHp": "PG Máximos",
+        "currentHp": "PG Actuales",
+        "tempHp": "PG Temporales",
+        "armorClass": "CA",
+        "initiative": "Iniciativa",
+        "speed": "Velocidad",
+        "proficiency": "Bonif. Competencia"
+      }
+    }
+  },
+  "combat": {
+    "header": "Combate – Ronda {{round}}",
+    "endTurn": "Terminar turno",
+    "removeFromCombat": "Eliminar del combate",
+    "end": "Terminar combate",
+    "start": {
+      "title": "Iniciar Combate",
+      "button": "Iniciar combate",
+      "confirm": "¡Comenzar!",
+      "groups": {
+        "heroes": "Héroes",
+        "enemies": "Enemigos",
+        "npcs": "PNJs"
+      },
+      "empty": "Sin participantes en la escena seleccionada.",
+      "emptyHint": "Selecciona una escena con héroes/enemigos/PNJs para iniciar combate.",
+      "surprise": {
+        "label": "¿Sorpresa?",
+        "none": "Sin sorpresa",
+        "heroes": "Los héroes sorprenden a los enemigos",
+        "enemies": "Los enemigos sorprenden a los héroes"
+      },
+      "surpriseHint": {
+        "enemies": "Los héroes sorprendidos no pueden actuar en el primer turno (reglas de Sorpresa D&D 5e).",
+        "heroes": "Los enemigos sorprendidos no pueden actuar en el primer turno (reglas de Sorpresa D&D 5e)."
+      }
+    }
+  },
+  "inventory": {
+    "errors": {
+      "invalidStructured": "Inventario no estructurado. Visualización no disponible.",
+      "notStructuredEdit": "Inventario no estructurado. Edita como texto."
+    },
+    "empty": "Inventario vacío",
+    "summary": {
+      "equipped": "Equipado"
+    },
+    "sections": {
+      "equipped": "Equipo Equipado",
+      "equippedItems": "Objetos Equipados:",
+      "potions": "Pociones ({{count}})",
+      "scrolls": "Pergaminos ({{count}})",
+      "ammo": "Munición ({{count}})",
+      "bag": "Inventario ({{count}} objetos)",
+      "potionsTitle": "Pociones",
+      "potionsSubtitle": "Pociones y brebajes mágicos",
+      "scrollsTitle": "Pergaminos",
+      "scrollsSubtitle": "Pergaminos de hechizo y recetas",
+      "ammoTitle": "Munición",
+      "ammoSubtitle": "Proyectiles y armas lanzables",
+      "bagTitle": "Inventario",
+      "bagSubtitle": "Todos los objetos",
+      "bagCount": "{{count}} objetos",
+      "currency": "Monedas"
+    },
+    "placeholders": {
+      "searchPotions": "Buscar pociones…",
+      "searchScrolls": "Buscar pergaminos…",
+      "searchAmmo": "Buscar munición…",
+      "notes": "Notas sobre tu inventario, objetos especiales, misiones..."
+    },
+    "hints": {
+      "equipSlot": "Haz clic en un slot para buscar y equipar un objeto"
+    },
+    "availableItems": {
+      "title": "Objetos disponibles para equipar",
+      "empty": "Sin objetos en la bolsa"
+    },
+    "count": {
+      "objects": "objetos",
+      "potions": "pociones",
+      "scrolls": "pergaminos",
+      "ammo": "munición"
+    },
+    "currencyInline": "{{po}}po{{pa}}",
+    "currency": {
+      "pp": "Platino",
+      "po": "Oro",
+      "pe": "Electrón",
+      "pa": "Plata",
+      "pc": "Cobre"
+    },
+    "slots": {
+      "helmet": "Casco",
+      "amulet": "Amuleto",
+      "armor": "Armadura",
+      "cloak": "Capa",
+      "gloves": "Guantes",
+      "mainhand": "Mano principal",
+      "offhand": "Mano secundaria",
+      "ringLeft": "Anillo izquierdo",
+      "belt": "Cinturón",
+      "ringRight": "Anillo derecho",
+      "boots": "Botas",
+      "mount": "Montura"
+    },
+    "weight": {
+      "title": "Peso",
+      "current": "Peso Actual",
+      "max": "Capacidad máxima",
+      "manualTitle": "Ingresa manualmente",
+      "autoTitle": "Volver al cálculo automático",
+      "auto": "automático",
+      "manual": "manual",
+      "mountBonus": "+{{mount}} lb montura → {{total}} lb total",
+      "overEncumbered": "¡Sobrecargado!",
+      "hint": "Usa automático para Fuerza × 15 o manual para establecer capacidad máxima."
+    },
+    "weightLb": "{{value}} lb"
+  },
+  "dice": {
+    "overlay": {
+      "title": "Tirada de Dados",
+      "quantity": "Cantidad",
+      "modifier": "Modificador",
+      "empty": "¡Haz clic en un dado para tirar!"
+    },
+    "scene": {
+      "title": "Tirada de Dados",
+      "subtitle": "Selecciona el tipo de dado y obtén un resultado aleatorio.",
+      "pickDie": "Elige tu dado",
+      "faces": "{{faces}} caras",
+      "modifiersTitle": "Modificadores",
+      "advantage": "Ventaja (tira 2 dados, toma el mayor)",
+      "disadvantage": "Desventaja (tira 2 dados, toma el menor)",
+      "modifier": "Modificador:",
+      "history": "Historial de Tiradas",
+      "clearHistory": "Limpiar",
+      "results": "Resultados: {{first}} y {{second}} ({{mode}})",
+      "result": "Resultado: {{value}}",
+      "advantageLabel": "Ventaja",
+      "disadvantageLabel": "Desventaja",
+      "rolling": "Tirando d{{die}}{{advantage}}{{disadvantage}}",
+      "advantageTag": " (con Ventaja)",
+      "disadvantageTag": " (con Desventaja)",
+      "rollingDesc": "Tirando el dado...",
+      "resultDesc": "¡Resultado obtenido!",
+      "die": "Dado {{index}}",
+      "critical": "¡Crítico! Resultado máximo",
+      "fumble": "¡Pifie! Resultado mínimo",
+      "selectedHigher": "Resultado seleccionado (mayor): {{value}}",
+      "selectedLower": "Resultado seleccionado (menor): {{value}}",
+      "rollAgain": "Tirar de nuevo"
+    }
+  },
+  "map": {
+    "empty": "Sin mapa cargado",
+    "token": {
+      "removeHp": "Quitar 1 PG",
+      "addHp": "Añadir 1 PG",
+      "removeFromMap": "Eliminar del mapa"
+    },
+    "controls": {
+      "grid": "Cuadrícula",
+      "size": "Tamaño",
+      "color": "Color",
+      "opacity": "Opacidad",
+      "zoom": "Zoom"
+    }
+  },
+  "mapEditor": {
+    "title": "Mapa de Batalla",
+    "load": {
+      "title": "Cargar Mapa",
+      "placeholder": "Selecciona una imagen",
+      "button": "Seleccionar Imagen"
+    },
+    "grid": {
+      "title": "Cuadrícula",
+      "show": "Mostrar cuadrícula",
+      "size": "Tamaño: {{value}}px",
+      "color": "Color de cuadrícula",
+      "opacity": "Opacidad"
+    },
+    "view": {
+      "title": "Vista",
+      "zoom": "Zoom: {{value}}%",
+      "zoomOut": "Alejar",
+      "zoomIn": "Acercar",
+      "reset": "Reiniciar vista",
+      "drag": "Arrastra para desplazarte"
+    },
+    "save": {
+      "button": "Guardar Mapa"
+    },
+    "authHint": "Inicia sesión para guardar tus mapas",
+    "empty": "Carga una imagen para comenzar",
+    "prompts": {
+      "name": "Nombre del mapa:",
+      "defaultName": "Mi Mapa"
+    },
+    "messages": {
+      "saved": "Mapa guardado correctamente",
+      "loadingImage": "Cargando imagen...",
+      "saving": "Guardando mapa..."
+    },
+    "errors": {
+      "loadFailed": "No se pudo cargar el mapa",
+      "invalidImage": "Por favor selecciona un archivo de imagen",
+      "authRequired": "Debes iniciar sesión para guardar mapas",
+      "noMap": "Sin mapa cargado",
+      "saveFailed": "Error al guardar el mapa"
+    }
+  },
+  "campaigns": {
+    "errors": {
+      "notFound": "Campaña no encontrada.",
+      "loadFailed": "Error al cargar la campaña."
+    },
+    "actions": {
+      "backToList": "Volver a Mis Campañas"
+    }
+  },
+  "authCallback": {
+    "title": "Confirmación de Email",
+    "subtitle": "Procesando tu solicitud de confirmación",
+    "backToLogin": "Volver a iniciar sesión",
+    "messages": {
+      "loading": "Confirmando tu email...",
+      "confirmed": "¡Email confirmado correctamente! Redirigiendo...",
+      "confirmedLogin": "¡Email confirmado! Redirigiendo a iniciar sesión...",
+      "verifyFailed": "No se pudo verificar el email. Por favor intenta de nuevo.",
+      "confirmError": "Error al confirmar el email. Por favor contacta con soporte."
     }
   },
   "dnd": {
@@ -1825,6 +1126,14 @@
       "wisdom": "Sabiduría",
       "charisma": "Carisma"
     },
+    "abilitiesShort": {
+      "strength": "FUE",
+      "dexterity": "DES",
+      "constitution": "CON",
+      "intelligence": "INT",
+      "wisdom": "SAB",
+      "charisma": "CAR"
+    },
     "sizes": {
       "tiny": "Diminuto",
       "small": "Pequeño",
@@ -1832,6 +1141,173 @@
       "large": "Grande",
       "huge": "Enorme",
       "gargantuan": "Gigantesco"
+    },
+    "alignments": {
+      "lawful_good": "Legal Bueno",
+      "neutral_good": "Neutral Bueno",
+      "chaotic_good": "Caótico Bueno",
+      "lawful_neutral": "Legal Neutral",
+      "neutral": "Neutral",
+      "chaotic_neutral": "Caótico Neutral",
+      "lawful_evil": "Legal Malvado",
+      "neutral_evil": "Neutral Malvado",
+      "chaotic_evil": "Caótico Malvado",
+      "unaligned": "Sin alineación"
+    },
+    "creatureTypes": {
+      "aberration": "Aberración",
+      "beast": "Bestia",
+      "celestial": "Celestial",
+      "construct": "Construcción",
+      "dragon": "Dragón",
+      "elemental": "Elemental",
+      "fey": "Feérico",
+      "fiend": "Demonio",
+      "giant": "Gigante",
+      "humanoid": "Humanoide",
+      "monstrosity": "Monstruosidad",
+      "ooze": "Lodo",
+      "plant": "Planta",
+      "undead": "No-Muerto"
+    },
+    "damageTypes": {
+      "acid": "Ácido",
+      "bludgeoning": "Contundente",
+      "cold": "Frío",
+      "fire": "Fuego",
+      "force": "Fuerza",
+      "lightning": "Rayo",
+      "necrotic": "Necrótico",
+      "piercing": "Perforante",
+      "poison": "Veneno",
+      "psychic": "Psíquico",
+      "radiant": "Radiante",
+      "slashing": "Cortante",
+      "thunder": "Trueno"
+    },
+    "conditions": {
+      "blinded": "Cegado",
+      "charmed": "Encantado",
+      "deafened": "Ensordecido",
+      "frightened": "Asustado",
+      "grappled": "Agarrado",
+      "incapacitated": "Incapacitado",
+      "invisible": "Invisible",
+      "paralyzed": "Paralizado",
+      "petrified": "Petrificado",
+      "poisoned": "Envenenado",
+      "prone": "Postrado",
+      "restrained": "Restringido",
+      "stunned": "Aturdido",
+      "unconscious": "Inconsciente",
+      "exhaustion": "Agotamiento"
+    },
+    "senses": {
+      "blindsight": "Visión Ciega",
+      "darkvision": "Visión en la Oscuridad",
+      "tremorsense": "Sentido de Vibración",
+      "truesight": "Visión Verdadera",
+      "passive_perception": "Percepción Pasiva"
+    },
+    "speeds": {
+      "walk": "Caminar",
+      "fly": "Volar",
+      "swim": "Nadar",
+      "burrow": "Excavar",
+      "climb": "Escalar"
+    },
+    "languages": {
+      "common": "Común",
+      "dwarvish": "Enano",
+      "elvish": "Élfico",
+      "giant": "Gigante",
+      "gnomish": "Gnómico",
+      "goblin": "Goblin",
+      "halfling": "Mediano",
+      "orc": "Orco",
+      "abyssal": "Abismal",
+      "celestial": "Celestial",
+      "draconic": "Dracónico",
+      "deep_speech": "Lenguaje Profundo",
+      "infernal": "Infernal",
+      "primordial": "Primordial",
+      "sylvan": "Silvestre",
+      "undercommon": "Subcomún"
+    },
+    "magicSchools": {
+      "abjuration": "Abjuración",
+      "conjuration": "Conjuración",
+      "divination": "Adivinación",
+      "enchantment": "Encantamiento",
+      "evocation": "Evocación",
+      "illusion": "Ilusión",
+      "necromancy": "Nigromancia",
+      "transmutation": "Transmutación"
+    },
+    "equipmentCategories": {
+      "weapon": "Arma",
+      "armor": "Armadura",
+      "adventuring_gear": "Equipo de Aventurero",
+      "tools": "Herramientas",
+      "potion": "Poción",
+      "wondrous_items": "Objetos Maravillosos",
+      "ring": "Anillo",
+      "rod": "Vara",
+      "staff": "Bastón",
+      "wand": "Varita",
+      "scroll": "Pergamino",
+      "ammunition": "Munición",
+      "mounts_and_vehicles": "Monturas y Vehículos"
+    },
+    "weaponProperties": {
+      "ammunition": "Munición",
+      "finesse": "Elegancia",
+      "heavy": "Pesada",
+      "light": "Ligera",
+      "loading": "Carga",
+      "ranged": "A Distancia",
+      "reach": "Alcance",
+      "special": "Especial",
+      "thrown": "Lanzable",
+      "two_handed": "A Dos Manos",
+      "versatile": "Versátil"
+    },
+    "areaEffects": {
+      "cone": "Cono",
+      "cube": "Cubo",
+      "cylinder": "Cilindro",
+      "line": "Línea",
+      "sphere": "Esfera"
+    },
+    "classes": {
+      "barbarian": "Bárbaro",
+      "bard": "Bardo",
+      "cleric": "Clérigo",
+      "druid": "Druida",
+      "fighter": "Guerrero",
+      "monk": "Monje",
+      "paladin": "Paladín",
+      "ranger": "Explorador",
+      "rogue": "Pícaro",
+      "sorcerer": "Hechicero",
+      "warlock": "Brujo",
+      "wizard": "Mago",
+      "artificer": "Artificiero"
+    },
+    "proficiencies": {
+      "perception": "Percepción",
+      "stealth": "Sigilo",
+      "athletics": "Atletismo",
+      "acrobatics": "Acrobacias",
+      "arcana": "Arcanos",
+      "history": "Historia",
+      "insight": "Perspicacia",
+      "intimidation": "Intimidación",
+      "investigation": "Investigación",
+      "medicine": "Medicina",
+      "nature": "Naturaleza",
+      "religion": "Religión",
+      "survival": "Supervivencia"
     }
   }
 }
