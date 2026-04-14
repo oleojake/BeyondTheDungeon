@@ -7,4 +7,5 @@ export interface RegisterComponentProps {
   successMessage?: string | null;
   onChange: (field: keyof FormData, value: string | boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
+  onGoogleSignIn: () => void;
 }

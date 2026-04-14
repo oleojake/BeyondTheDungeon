@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { RegisterComponent } from "./register.component";
 import { routes } from "@/router";
 import type { FormData, FormErrors } from "@/interfaces/forms";
-import { resendSignUpConfirmation, signUp } from "@/core/auth/supabaseAuth";
+import { resendSignUpConfirmation, signUp, signInWithGoogle } from "@/core/auth/supabaseAuth";
 
 export const RegisterContainer = () => {
   const navigate = useNavigate();
@@ -100,6 +100,17 @@ export const RegisterContainer = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setErrors({});
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      setErrors({
+        general: error instanceof Error ? error.message : "Error desconocido",
+      });
+    }
+  };
+
   return (
     <RegisterComponent
       formData={formData}
@@ -108,6 +119,7 @@ export const RegisterContainer = () => {
       successMessage={success}
       onChange={handleChange}
       onSubmit={handleSubmit}
+      onGoogleSignIn={handleGoogleSignIn}
     />
   );
 };

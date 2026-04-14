@@ -17,61 +17,61 @@ export const AuthCallbackScene = () => {
 	const [status, setStatus] = useState<"loading" | "success" | "error">(
 		"loading",
 	);
-	const [message, setMessage] = useState("Confirmando tu email...");
+	const [message, setMessage] = useState("Procesando autenticación...");
 
 	useEffect(() => {
-		const handleEmailConfirmation = async () => {
+		const handleCallback = async () => {
 			try {
-				// Supabase automáticamente procesa el hash de confirmación en la URL
+				// For PKCE flow (OAuth), Supabase SDK auto-exchanges the code on getSession()
 				const { data, error } = await supabase.auth.getSession();
 
-				if (error) {
-					throw error;
-				}
+				if (error) throw error;
 
 				if (data.session) {
 					setStatus("success");
-					setMessage("¡Email confirmado correctamente! Redirigiendo...");
-					setTimeout(() => navigate(routes.profileCampanas), 2000);
-				} else {
-					// Si no hay sesión pero tampoco error, verifica si hay un código en la URL
-					const hashParams = new URLSearchParams(
-						window.location.hash.substring(1),
-					);
-					const accessToken = hashParams.get("access_token");
+					setMessage("¡Autenticación exitosa! Redirigiendo...");
+					setTimeout(() => navigate(routes.profileCampanas), 1500);
+					return;
+				}
 
-					if (accessToken) {
-						// Supabase ya debe haber procesado el token
-						setStatus("success");
-						setMessage("¡Email confirmado! Redirigiendo al login...");
-						setTimeout(() => navigate(routes.login), 2000);
-					} else {
-						throw new Error(
-							"No se pudo verificar el email. Por favor, intenta de nuevo.",
-						);
-					}
+				// No session yet — check URL for tokens (implicit flow fallback)
+				const hashParams = new URLSearchParams(window.location.hash.substring(1));
+				const accessToken = hashParams.get("access_token");
+				const errorParam = hashParams.get("error") || new URLSearchParams(window.location.search).get("error");
+
+				if (errorParam) {
+					throw new Error(decodeURIComponent(errorParam));
+				}
+
+				if (accessToken) {
+					// SDK will pick it up on next auth state change
+					setStatus("success");
+					setMessage("¡Autenticación exitosa! Redirigiendo...");
+					setTimeout(() => navigate(routes.profileCampanas), 1500);
+				} else {
+					throw new Error("No se pudo completar la autenticación. Inténtalo de nuevo.");
 				}
 			} catch (err) {
-				console.error("Error en confirmación de email:", err);
+				console.error("Auth callback error:", err);
 				setStatus("error");
 				setMessage(
 					err instanceof Error
 						? err.message
-						: "Error al confirmar el email. Por favor, contacta con soporte.",
+						: "Error de autenticación. Contacta con soporte.",
 				);
 			}
 		};
 
-		handleEmailConfirmation();
+		handleCallback();
 	}, [navigate]);
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
-					<CardTitle>Confirmación de Email</CardTitle>
+					<CardTitle>Autenticación</CardTitle>
 					<CardDescription>
-						Procesando tu solicitud de confirmación
+						Procesando tu solicitud
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
