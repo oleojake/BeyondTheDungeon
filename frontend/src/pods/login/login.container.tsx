@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { LoginComponent } from "./login.component";
 import { routes } from "@/router";
-import { signIn } from "@/core/auth/supabaseAuth";
+import { signIn, signInWithGoogle } from "@/core/auth/supabaseAuth";
 
 interface FormData {
 	email: string;
@@ -45,6 +45,15 @@ export const LoginContainer = () => {
 		}
 	};
 
+	const handleGoogleSignIn = async () => {
+		setError(null);
+		try {
+			await signInWithGoogle();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Error desconocido");
+		}
+	};
+
 	return (
 		<LoginComponent
 			formData={formData}
@@ -52,6 +61,7 @@ export const LoginContainer = () => {
 			error={error}
 			onChange={handleChange}
 			onSubmit={handleSubmit}
+			onGoogleSignIn={handleGoogleSignIn}
 		/>
 	);
 };
