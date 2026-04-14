@@ -12,20 +12,28 @@ interface LoginProps {
   formData: FormData;
   loading: boolean;
   error: string | null;
+  emailNotConfirmed: boolean;
+  resendLoading: boolean;
+  resendSuccess: boolean;
   captchaRef: RefObject<HCaptcha | null>;
   onChange: (field: keyof FormData, value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onGoogleSignIn: () => void;
+  onResendConfirmation: () => void;
 }
 
 export const LoginComponent = ({
   formData,
   loading,
   error,
+  emailNotConfirmed,
+  resendLoading,
+  resendSuccess,
   captchaRef,
   onChange,
   onSubmit,
   onGoogleSignIn,
+  onResendConfirmation,
 }: LoginProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-dark dark:via-dark-lighter dark:to-dark flex items-center justify-center p-6 transition-colors duration-300">
@@ -76,6 +84,26 @@ export const LoginComponent = ({
               {error && (
                 <div className="p-3 bg-error/10 border border-error/30 rounded-lg text-error text-sm">
                   {error}
+                </div>
+              )}
+
+              {emailNotConfirmed && !resendSuccess && (
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-sm text-yellow-700 dark:text-yellow-400 flex items-center justify-between gap-3">
+                  <span>¿No recibiste el email de confirmación?</span>
+                  <button
+                    type="button"
+                    onClick={onResendConfirmation}
+                    disabled={resendLoading}
+                    className="shrink-0 text-primary font-semibold hover:underline disabled:opacity-50"
+                  >
+                    {resendLoading ? "Enviando..." : "Reenviar"}
+                  </button>
+                </div>
+              )}
+
+              {resendSuccess && (
+                <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-700 dark:text-green-400">
+                  Email de confirmación reenviado. Revisa tu bandeja (incluida Spam).
                 </div>
               )}
               {/* Email Input */}
