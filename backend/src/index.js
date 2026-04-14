@@ -56,6 +56,38 @@ const sendSessionEmail = async (
 	}
 };
 
+const sendInvitationEmail = async (to, campaignTitle, dmName, appUrl) => {
+	if (!transporter) {
+		console.log(`[EMAIL skipped – SMTP not configured] → ${to}`);
+		return;
+	}
+	try {
+		await transporter.sendMail({
+			from:
+				process.env.SMTP_FROM ||
+				"Beyond The Dungeon <noreply@beyondthedungeon.org>",
+			to,
+			subject: `Has sido invitado a unirte a "${campaignTitle}" en Beyond The Dungeon`,
+			html: `
+				<div style="font-family:sans-serif;max-width:600px;margin:auto">
+					<h2 style="color:#7c3aed">🎲 Beyond The Dungeon</h2>
+					<h3>Invitación a campaña: ${campaignTitle}</h3>
+					<p>El Dungeon Master <strong>${dmName}</strong> te ha invitado a unirte a su campaña.</p>
+					<p>Entra a <em>Mis Campañas</em> para aceptar o rechazar la invitación:</p>
+					<a href="${appUrl}/mis-campanas"
+					   style="display:inline-block;padding:12px 24px;background:#7c3aed;color:#fff;border-radius:6px;text-decoration:none">
+						Ver invitación
+					</a>
+					<p style="color:#666;font-size:12px;margin-top:24px">
+						Esta invitación expira en 7 días. Si no reconoces esta solicitud, ignora este correo.
+					</p>
+				</div>`,
+		});
+	} catch (err) {
+		console.error("[EMAIL ERROR]", err.message);
+	}
+};
+
 const app = express();
 
 app.use(cors());
@@ -1500,7 +1532,7 @@ app.get("/api/campaign-invitations", async (req, res) => {
 
 		const { data, error } = await authenticatedSupabase
 			.from("campaign_invitations")
-			.select("*")
+			.select("*, campaigns(title)")
 			.eq("invited_user_id", user.id)
 			.eq("status", "pending")
 			.order("created_at", { ascending: false });
@@ -1593,25 +1625,52 @@ app.post("/api/campaigns/:id/invitations", async (req, res) => {
 			});
 		}
 
-		// Add user directly as campaign member (player role)
+		// Fetch campaign title and DM display name for the email
+		const { data: campaign } = await authenticatedSupabase
+			.from("campaigns")
+			.select("title")
+			.eq("id", id)
+			.single();
+
+		const { data: dmProfile } = await authenticatedSupabase
+			.from("profiles")
+			.select("display_name, username")
+			.eq("id", user.id)
+			.single();
+
+		const dmName = dmProfile?.display_name || dmProfile?.username || "El DM";
+
+		// Insert into campaign_invitations
 		const { data, error } = await authenticatedSupabase
-			.from("campaign_members")
+			.from("campaign_invitations")
 			.insert({
 				campaign_id: id,
-				user_id: invitedUser.id,
-				role: "player",
+				invited_by: user.id,
+				invited_user_id: invitedUser.id,
+				email: invitedUser.email || "",
 			})
 			.select()
 			.single();
 
 		if (error) {
 			return res.status(500).json({
-				error: "Error al añadir jugador",
+				error: "Error al crear invitación",
 				details: error.message,
 			});
 		}
 
-		res.json({ member: data });
+		// Send email (fire-and-forget – failure doesn't block the response)
+		if (invitedUser.email) {
+			const appUrl = process.env.APP_URL || "https://beyondthedungeon.org";
+			sendInvitationEmail(
+				invitedUser.email,
+				campaign?.title || "una campaña",
+				dmName,
+				appUrl,
+			);
+		}
+
+		res.json({ invitation: data });
 	} catch (err) {
 		res.status(500).json({
 			error: "Error interno",
@@ -1651,7 +1710,7 @@ app.put("/api/campaign-invitations/:token/accept", async (req, res) => {
 			.from("campaign_invitations")
 			.select("*")
 			.eq("token", token)
-			.eq("email", user.email)
+			.eq("invited_user_id", user.id)
 			.eq("status", "pending")
 			.single();
 
@@ -1727,7 +1786,7 @@ app.put("/api/campaign-invitations/:token/reject", async (req, res) => {
 			.from("campaign_invitations")
 			.update({ status: "rejected" })
 			.eq("token", token)
-			.eq("email", user.email);
+			.eq("invited_user_id", user.id);
 
 		if (error) {
 			return res.status(500).json({
