@@ -21,10 +21,11 @@ export function mapSupabaseError(msg?: string) {
   return msg || "Ha ocurrido un error inesperado.";
 }
 
-export async function signIn(email: string, password: string) {
+export async function signIn(email: string, password: string, captchaToken?: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
+    options: captchaToken ? { captchaToken } : undefined,
   });
 
   if (error) throw new Error(mapSupabaseError(error.message));
@@ -41,6 +42,7 @@ export async function signUp(params: {
   password: string;
   username: string;
   displayName: string;
+  captchaToken?: string;
 }) {
   const { data, error } = await supabase.auth.signUp({
     email: params.email,
@@ -50,8 +52,8 @@ export async function signUp(params: {
         username: params.username,
         displayName: params.displayName,
       },
-      // URL para redirigir después de confirmar el email
       emailRedirectTo: `${window.location.origin}/auth/callback`,
+      ...(params.captchaToken ? { captchaToken: params.captchaToken } : {}),
     },
   });
 
