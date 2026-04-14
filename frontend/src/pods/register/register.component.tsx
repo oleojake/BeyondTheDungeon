@@ -199,9 +199,13 @@ export const RegisterComponent = ({
               </div>
 
               {/* hCaptcha */}
-              <HCaptcha ref={captchaRef} sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY} size="invisible" />
+              <HCaptcha
+                ref={captchaRef}
+                sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
+                size="invisible"
+              />
 
-              {/* Submit */}
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}

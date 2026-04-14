@@ -1,4 +1,6 @@
+import { type RefObject } from "react";
 import { Link } from "react-router";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { routes } from "@/router";
 import { useTranslation } from "@/i18n";
 
@@ -11,6 +13,7 @@ interface LoginProps {
   formData: FormData;
   loading: boolean;
   error: string | null;
+  captchaRef: RefObject<HCaptcha | null>;
   emailNotConfirmed: boolean;
   resendLoading: boolean;
   resendSuccess: boolean;
@@ -24,6 +27,7 @@ export const LoginComponent = ({
   formData,
   loading,
   error,
+  captchaRef,
   emailNotConfirmed,
   resendLoading,
   resendSuccess,
@@ -167,6 +171,13 @@ export const LoginComponent = ({
                   {tl.forgotPassword}
                 </a>
               </div>
+
+              {/* hCaptcha */}
+              <HCaptcha
+                ref={captchaRef}
+                sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
+                size="invisible"
+              />
 
               {/* Submit Button */}
               <button

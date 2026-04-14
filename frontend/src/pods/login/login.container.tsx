@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
+import type HCaptcha from "@hcaptcha/react-hcaptcha";
 import { LoginComponent } from "./login.component";
 import { routes } from "@/router";
 import { signIn, signInWithGoogle, resendSignUpConfirmation } from "@/core/auth/supabaseAuth";
@@ -12,6 +13,8 @@ interface FormData {
 export const LoginContainer = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const captchaRef = useRef<HCaptcha>(null);
+
 	const [formData, setFormData] = useState<FormData>({
 		email: (location.state as { email?: string })?.email || "",
 		password: "",
@@ -40,9 +43,11 @@ export const LoginContainer = () => {
 
 		setLoading(true);
 		try {
-			await signIn(formData.email, formData.password);
+			const captchaToken = await captchaRef.current?.execute({ async: true });
+			await signIn(formData.email, formData.password, captchaToken?.response);
 			navigate(routes.profileCampanas);
 		} catch (err) {
+			captchaRef.current?.resetCaptcha();
 			const msg = err instanceof Error ? err.message : "Error desconocido";
 			if (msg.toLowerCase().includes("confirmar tu email")) {
 				setEmailNotConfirmed(true);
@@ -81,6 +86,7 @@ export const LoginContainer = () => {
 			formData={formData}
 			loading={loading}
 			error={error}
+			captchaRef={captchaRef}
 			emailNotConfirmed={emailNotConfirmed}
 			resendLoading={resendLoading}
 			resendSuccess={resendSuccess}
