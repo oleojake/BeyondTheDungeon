@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { routes } from "@/router";
 import type { RegisterComponentProps } from "@/interfaces/registerProps";
 
@@ -7,6 +8,7 @@ export const RegisterComponent = ({
   errors,
   loading,
   successMessage,
+  captchaRef,
   onChange,
   onSubmit,
   onGoogleSignIn,
@@ -318,6 +320,13 @@ export const RegisterComponent = ({
                   <p className="mt-1 text-sm text-error">{errors.terms}</p>
                 )}
               </div>
+
+              {/* hCaptcha */}
+              <HCaptcha
+                ref={captchaRef}
+                sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
+                size="invisible"
+              />
 
               {/* Submit Button */}
               <button
