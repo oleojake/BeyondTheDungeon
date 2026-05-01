@@ -1,6 +1,4 @@
-import { type RefObject } from "react";
 import { Link } from "react-router";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { routes } from "@/router";
 
 interface FormData {
@@ -15,7 +13,6 @@ interface LoginProps {
   emailNotConfirmed: boolean;
   resendLoading: boolean;
   resendSuccess: boolean;
-  captchaRef: RefObject<HCaptcha | null>;
   onChange: (field: keyof FormData, value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onGoogleSignIn: () => void;
@@ -29,7 +26,6 @@ export const LoginComponent = ({
   emailNotConfirmed,
   resendLoading,
   resendSuccess,
-  captchaRef,
   onChange,
   onSubmit,
   onGoogleSignIn,
@@ -209,13 +205,6 @@ export const LoginComponent = ({
                   ¿Olvidaste tu contraseña?
                 </a>
               </div>
-
-              {/* hCaptcha */}
-              <HCaptcha
-                ref={captchaRef}
-                sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
-                size="invisible"
-              />
 
               {/* Submit Button */}
               <button
