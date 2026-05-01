@@ -5,7 +5,7 @@ export const Footer = () => {
 	return (
 		<footer className="bg-stone-100 dark:bg-dark-lighter border-t border-stone-300 dark:border-dark-border py-12 px-6 transition-colors duration-300">
 			<div className="container mx-auto max-w-6xl">
-				<div className="grid md:grid-cols-4 gap-8 mb-8">
+				<div className="grid md:grid-cols-5 gap-8 mb-8">
 					{/* Brand */}
 					<div className="space-y-4">
 						<Link to={routes.root} className="flex items-center gap-2">
@@ -91,6 +91,20 @@ export const Footer = () => {
 							<li>
 								<Link to={routes.profileSettings} className="hover:text-primary transition-colors">
 									Ajustes
+								</Link>
+							</li>
+						</ul>
+					</div>
+
+					{/* Recursos / Guías */}
+					<div>
+						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
+							Recursos
+						</h4>
+						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
+							<li>
+								<Link to="/guias" className="hover:text-primary transition-colors">
+									Guías del Aventurero
 								</Link>
 							</li>
 						</ul>
