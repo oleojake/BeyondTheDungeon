@@ -224,6 +224,38 @@ app.get("/api/compendium-items", async (req, res) => {
 	}
 });
 
+// 🆕 Endpoint: obtener un item específico por ID (UUID o slug SRD)
+app.get("/api/compendium-items/:id", async (req, res) => {
+	try {
+		const { id } = req.params;
+		const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+		let query = supabase.from("compendium_items").select("*");
+		if (isUUID) {
+			query = query.eq("id", id);
+		} else {
+			// Buscar por el campo index dentro del JSONB stats
+			query = query.filter("stats->>index", "eq", id);
+		}
+
+		const { data, error } = await query.single();
+
+		if (error || !data) {
+			return res.status(404).json({
+				error: "Item no encontrado",
+				details: error?.message,
+			});
+		}
+
+		res.json(data);
+	} catch (err) {
+		res.status(500).json({
+			error: "Error interno",
+			details: err.message,
+		});
+	}
+});
+
 // 🆕 Endpoint: obtener todos los hechizos
 app.get("/api/compendium-spells", async (req, res) => {
 	try {

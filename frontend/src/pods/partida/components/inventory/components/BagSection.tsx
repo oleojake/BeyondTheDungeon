@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { BagItem, CompendiumItem } from "../types";
 import { AutocompleteInput } from "./AutocompleteInput";
 
@@ -39,14 +40,14 @@ export function BagSection({
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   {item.srdIndex ? (
-                    <a
-                      href={`/objetos?q=${encodeURIComponent(item.name)}`}
+                    <Link
+                      to={`/objetos/${item.srdIndex}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-amber-100 truncate block hover:text-amber-300 hover:underline"
                     >
                       {item.name}
-                    </a>
+                    </Link>
                   ) : (
                     <span
                       className={`truncate block ${item.tags?.includes("CUSTOM") ? "text-amber-100/80 italic" : "text-amber-100"}`}

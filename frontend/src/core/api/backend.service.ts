@@ -119,6 +119,19 @@ export async function fetchItems(): Promise<ItemsResponse> {
   return response.json();
 }
 
+/**
+ * Obtiene un item específico por ID
+ */
+export async function fetchItemById(id: string): Promise<Item> {
+  const response = await fetch(`${BACKEND_URL}/api/compendium-items/${id}`);
+  
+  if (!response.ok) {
+    throw new Error(`Error ${response.status}: ${response.statusText}`);
+  }
+  
+  return response.json();
+}
+
 // ============================================
 // SPELLS
 // ============================================
