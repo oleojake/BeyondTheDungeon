@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
-import { supabase } from "./supabase.js";
+import { supabase, supabaseAdmin } from "./supabase.js";
 import nodemailer from "nodemailer";
 
 // ─── Mailer setup (optional – only sends if SMTP_HOST is configured) ─────────
@@ -228,7 +228,10 @@ app.get("/api/compendium-items", async (req, res) => {
 app.get("/api/compendium-items/:id", async (req, res) => {
 	try {
 		const { id } = req.params;
-		const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+		const isUUID =
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+				id,
+			);
 
 		let query = supabase.from("compendium_items").select("*");
 		if (isUUID) {
@@ -2810,7 +2813,6 @@ app.get(
 	},
 );
 
-
 // ==============================================================================
 // ADMIN ENDPOINTS
 // ==============================================================================
@@ -2821,7 +2823,7 @@ app.get(
  */
 const requireAdmin = async (req, res, next) => {
 	try {
-		const { data: profile, error } = await supabase
+		const { data: profile, error } = await supabaseAdmin
 			.from("profiles")
 			.select("is_admin")
 			.eq("id", req.user.id)
@@ -2836,7 +2838,9 @@ const requireAdmin = async (req, res, next) => {
 
 		next();
 	} catch (err) {
-		res.status(500).json({ error: "Error al verificar permisos", details: err.message });
+		res
+			.status(500)
+			.json({ error: "Error al verificar permisos", details: err.message });
 	}
 };
 
@@ -2848,62 +2852,65 @@ const requireAdmin = async (req, res, next) => {
 app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
 	try {
 		// Usuarios registrados (desde auth.users via admin API)
-		const { data: authData, error: authError } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+		const { data: authData, error: authError } =
+			await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
 		const totalUsers = authError ? 0 : (authData?.users?.length ?? 0);
 
 		// Usuarios activos en los últimos 7 días
-		const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+		const sevenDaysAgo = new Date(
+			Date.now() - 7 * 24 * 60 * 60 * 1000,
+		).toISOString();
 		const activeUsers = authError
 			? 0
 			: (authData?.users ?? []).filter(
 					(u) => u.last_sign_in_at && u.last_sign_in_at >= sevenDaysAgo,
-			  ).length;
+				).length;
 
 		// Perfiles recientes (últimos 10)
-		const { data: recentProfilesData } = await supabase
+		const { data: recentProfilesData } = await supabaseAdmin
 			.from("profiles")
 			.select("id, email, username, display_name, created_at, is_admin")
 			.order("created_at", { ascending: false })
 			.limit(10);
 
 		// Campañas
-		const { count: totalCampaigns } = await supabase
+		const { count: totalCampaigns } = await supabaseAdmin
 			.from("campaigns")
 			.select("id", { count: "exact", head: true });
 
-		const { count: activeCampaigns } = await supabase
+		const { count: activeCampaigns } = await supabaseAdmin
 			.from("campaigns")
 			.select("id", { count: "exact", head: true })
 			.eq("is_active", true);
 
 		// Últimas 10 campañas
-		const { data: recentCampaignsData } = await supabase
+		const { data: recentCampaignsData } = await supabaseAdmin
 			.from("campaigns")
 			.select("id, title, created_at, is_active")
 			.order("created_at", { ascending: false })
 			.limit(10);
 
 		// Fichas de personaje (no NPCs)
-		const { count: totalCharacters } = await supabase
+		const { count: totalCharacters } = await supabaseAdmin
 			.from("characters")
 			.select("id", { count: "exact", head: true })
 			.eq("is_npc", false);
 
 		// Mapas de batalla
-		const { count: totalBattleMaps } = await supabase
+		const { count: totalBattleMaps } = await supabaseAdmin
 			.from("battle_maps")
 			.select("id", { count: "exact", head: true });
 
 		// Compendio
-		const { count: totalSpells } = await supabase
+		const { count: totalSpells } = await supabaseAdmin
 			.from("compendium_spells")
 			.select("id", { count: "exact", head: true });
 
-		const { count: totalMonsters } = await supabase
+		const { count: totalMonsters } = await supabaseAdmin
 			.from("compendium_bestiary")
 			.select("id", { count: "exact", head: true });
 
-		const { count: totalItems } = await supabase
+		const { count: totalItems } = await supabaseAdmin
 			.from("compendium_items")
 			.select("id", { count: "exact", head: true });
 
@@ -2933,9 +2940,103 @@ app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
 			})),
 		});
 	} catch (err) {
-		res.status(500).json({ error: "Error al obtener estadísticas", details: err.message });
+		res
+			.status(500)
+			.json({ error: "Error al obtener estadísticas", details: err.message });
 	}
 });
+
+/**
+ * PATCH /api/admin/users/:id/promote
+ * Promueve a un usuario a administrador (is_admin = true).
+ * Solo accesible para admins. No se puede actuar sobre uno mismo.
+ */
+app.patch(
+	"/api/admin/users/:id/promote",
+	requireAuth,
+	requireAdmin,
+	async (req, res) => {
+		const targetId = req.params.id;
+
+		if (targetId === req.user.id) {
+			return res
+				.status(400)
+				.json({ error: "No puedes modificar tu propio rol" });
+		}
+
+		const { data: target, error: fetchError } = await supabaseAdmin
+			.from("profiles")
+			.select("id, is_admin")
+			.eq("id", targetId)
+			.single();
+
+		if (fetchError || !target) {
+			return res.status(404).json({ error: "Usuario no encontrado" });
+		}
+
+		const { error } = await supabaseAdmin
+			.from("profiles")
+			.update({ is_admin: true })
+			.eq("id", targetId);
+
+		if (error) {
+			return res
+				.status(500)
+				.json({ error: "Error al actualizar el rol", details: error.message });
+		}
+
+		res.json({ success: true, message: "Usuario promovido a administrador" });
+	},
+);
+
+/**
+ * DELETE /api/admin/users/:id
+ * Elimina un usuario (solo si no es admin).
+ * Solo accesible para admins. No se puede eliminar a uno mismo.
+ */
+app.delete(
+	"/api/admin/users/:id",
+	requireAuth,
+	requireAdmin,
+	async (req, res) => {
+		const targetId = req.params.id;
+
+		if (targetId === req.user.id) {
+			return res.status(400).json({ error: "No puedes eliminarte a ti mismo" });
+		}
+
+		const { data: target, error: fetchError } = await supabaseAdmin
+			.from("profiles")
+			.select("id, is_admin")
+			.eq("id", targetId)
+			.single();
+
+		if (fetchError || !target) {
+			return res.status(404).json({ error: "Usuario no encontrado" });
+		}
+
+		if (target.is_admin) {
+			return res
+				.status(403)
+				.json({ error: "No se puede eliminar a un administrador" });
+		}
+
+		// Eliminar del sistema de autenticación (elimina también el perfil por cascade)
+		const { error: deleteError } =
+			await supabaseAdmin.auth.admin.deleteUser(targetId);
+
+		if (deleteError) {
+			return res
+				.status(500)
+				.json({
+					error: "Error al eliminar el usuario",
+					details: deleteError.message,
+				});
+		}
+
+		res.json({ success: true, message: "Usuario eliminado correctamente" });
+	},
+);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
