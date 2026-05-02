@@ -1,6 +1,5 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
-import type HCaptcha from "@hcaptcha/react-hcaptcha";
 import { LoginComponent } from "./login.component";
 import { routes } from "@/router";
 import { signIn, signInWithGoogle, resendSignUpConfirmation } from "@/core/auth/supabaseAuth";
@@ -13,8 +12,6 @@ interface FormData {
 export const LoginContainer = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const captchaRef = useRef<HCaptcha>(null);
-
 	const [formData, setFormData] = useState<FormData>({
 		email: (location.state as { email?: string })?.email || "",
 		password: "",
@@ -43,28 +40,9 @@ export const LoginContainer = () => {
 
 		setLoading(true);
 		try {
-			// El captcha solo se ejecuta si hay una site key configurada
-			let captchaToken: string | undefined;
-			const siteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
-			if (siteKey) {
-				if (!captchaRef.current) {
-					throw new Error("El captcha no ha cargado aún. Espera un momento y vuelve a intentarlo.");
-				}
-				try {
-					const result = await captchaRef.current.execute({ async: true });
-					captchaToken = result?.response;
-					if (!captchaToken) {
-						throw new Error("El captcha no devolvió un token. Recarga la página.");
-					}
-				} catch (captchaErr) {
-					if (captchaErr instanceof Error) throw captchaErr;
-					throw new Error("El captcha no pudo completarse. Recarga la página e inténtalo de nuevo.");
-				}
-			}
-			await signIn(formData.email, formData.password, captchaToken);
+			await signIn(formData.email, formData.password);
 			navigate(routes.profileCampanas);
 		} catch (err) {
-			captchaRef.current?.resetCaptcha();
 			const msg = err instanceof Error ? err.message : "Error desconocido";
 			if (msg.toLowerCase().includes("confirmar tu email")) {
 				setEmailNotConfirmed(true);
@@ -106,7 +84,6 @@ export const LoginContainer = () => {
 			emailNotConfirmed={emailNotConfirmed}
 			resendLoading={resendLoading}
 			resendSuccess={resendSuccess}
-			captchaRef={captchaRef}
 			onChange={handleChange}
 			onSubmit={handleSubmit}
 			onGoogleSignIn={handleGoogleSignIn}

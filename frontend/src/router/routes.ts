@@ -15,6 +15,7 @@ interface SwitchRoutes {
 	dados: string;
 	inventario: string;
 	objetos: string;
+	objetosDetalle: string;
 	mapaBatalla: string;
 	editarCampana: string;
 	partida: string;
@@ -39,11 +40,14 @@ export const switchRoutes: SwitchRoutes = {
 	dados: "/dados",
 	inventario: "/inventario",
 	objetos: "/objetos",
+	objetosDetalle: "/objetos/:id",
 	mapaBatalla: "/mapa-batalla",
 	editarCampana: "/editar-campana/:id",
 	partida: "/partida/:id",
 	authCallback: "/auth/callback",
 	admin: "/admin",
+	guias: "/guias",
+	guiaDetalle: "/guias/:slug",
 };
 
 type Routes = SwitchRoutes;

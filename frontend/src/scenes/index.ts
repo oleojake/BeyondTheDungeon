@@ -1,5 +1,7 @@
 export * from "./home.scene"
 export * from "./auth-callback.scene"
+export * from "./guias.scene"
+export * from "./guia-detalle.scene"
 export * from "./profile.scene"
 export * from "./profile-settings.scene"
 export * from "./hechizos.scene"

@@ -7,6 +7,8 @@ import {
 	MisCampanasScene,
 	EditarCampanaScene,
 	PartidaScene,
+	GuiasScene,
+	GuiaDetalleScene,
 } from "@/scenes";
 import { LoginScene } from "@/scenes/login.scene";
 import { RegisterScene } from "@/scenes/register.scene";
@@ -21,6 +23,7 @@ import BestiarioScene from "@/scenes/bestiario.scene";
 import BestiarioDetalleScene from "@/scenes/bestiario-detalle.scene";
 import ObjetosScene from "@/scenes/objetos.scene";
 import { AdminDashboardScene } from "@/scenes/admin-dashboard.scene";
+import ObjetosDetalleScene from "@/scenes/objetos-detalle.scene";
 import { ProtectedRoute } from "@/core/auth/ProtectedRoute";
 import { AdminRoute } from "@/core/auth/AdminRoute";
 import { AppLayout } from "@/layout/app.layout";
@@ -42,6 +45,9 @@ export const AppRouter = () => {
 				<Route path={switchRoutes.bestiario} element={<AppLayout><BestiarioScene /></AppLayout>} />
 				<Route path={switchRoutes.bestiarioDetalle} element={<AppLayout><BestiarioDetalleScene /></AppLayout>} />
 				<Route path={switchRoutes.objetos} element={<AppLayout><ObjetosScene /></AppLayout>} />
+				<Route path={switchRoutes.objetosDetalle} element={<AppLayout><ObjetosDetalleScene /></AppLayout>} />
+				<Route path={switchRoutes.guias} element={<AppLayout><GuiasScene /></AppLayout>} />
+				<Route path={switchRoutes.guiaDetalle} element={<AppLayout><GuiaDetalleScene /></AppLayout>} />
 				<Route path={switchRoutes.dados} element={<AppLayout><DadosScene /></AppLayout>} />
 				<Route path={switchRoutes.inventario} element={<AppLayout><InventarioScene /></AppLayout>} />
 				<Route path={switchRoutes.fichas} element={<AppLayout><MisFichasScene /></AppLayout>} />

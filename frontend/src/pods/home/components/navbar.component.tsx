@@ -18,6 +18,8 @@ const HERRAMIENTAS_LINKS = [
 	{ label: "Inventario", to: routes.inventario, desc: "Gestiona tu equipo" },
 ];
 
+const GUIAS_LINK = { label: "Guías", to: "/guias" };
+
 function NavDropdown({
 	label,
 	links,
@@ -84,6 +86,12 @@ export const Navbar = () => {
 					<div className="hidden md:flex items-center gap-7">
 						<NavDropdown label="Compendio" links={COMPENDIO_LINKS} />
 						<NavDropdown label="Herramientas" links={HERRAMIENTAS_LINKS} />
+						<Link
+							to={GUIAS_LINK.to}
+							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium text-sm py-1"
+						>
+							{GUIAS_LINK.label}
+						</Link>
 					</div>
 
 					{/* Right side */}
@@ -163,6 +171,17 @@ export const Navbar = () => {
 							{label}
 						</Link>
 					))}
+
+					<p className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 mt-3 mb-1">
+						Otros
+					</p>
+					<Link
+						to={GUIAS_LINK.to}
+						onClick={() => setMobileOpen(false)}
+						className="pl-2 py-2 text-stone-700 dark:text-stone-300 hover:text-primary transition-colors font-medium text-sm"
+					>
+						{GUIAS_LINK.label}
+					</Link>
 
 					<div className="border-t border-stone-200 dark:border-dark-border mt-3 pt-3 flex flex-col gap-2">
 						{user ? (

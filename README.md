@@ -13,6 +13,181 @@ Herramientas de apoyo para partidas de rol con compendio completo de D&D 5e (bes
 - **Backend**: Node.js + Express (API REST)
 - **Deploy**: Docker + VPS con GitHub Actions (automático en `main`)
 
+## 🛠️ Manual de Despliegue Local (Reproducible desde Cero)
+
+Este manual permite levantar el entorno local completo partiendo de cero, de forma reproducible. **No es la réplica del VPS de producción**, sino el entorno de desarrollo local.
+
+### 📋 Requisitos Previos
+
+| Herramienta             | Versión mínima | Verificar                |
+| ----------------------- | -------------- | ------------------------ |
+| Git                     | 2.x            | `git --version`          |
+| Node.js                 | 20+            | `node --version`         |
+| Docker + Docker Compose | 24+ / 2.x      | `docker compose version` |
+
+> Docker Compose es el método recomendado para un entorno aislado y reproducible. La opción sin Docker es más ágil para desarrollo activo.
+
+---
+
+### Paso 1 — Clonar el Repositorio
+
+```bash
+git clone https://github.com/oleojake/BeyondTheDungeon.git
+cd BeyondTheDungeon
+git checkout dev
+```
+
+---
+
+### Paso 2 — Configurar Variables de Entorno
+
+Los archivos `.env` no se versionan. Deben crearse manualmente antes de arrancar el proyecto.
+
+#### `.env` (raíz — usado por Docker Compose)
+
+```env
+VITE_SUPABASE_URL=https://frvrzprfdxokhghytbyb.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_rYZf-AkP22rKlLUeyxznfA_QY7gzjPC
+VITE_API_URL=http://localhost:3000
+VITE_BACKEND_URL=http://localhost:3000
+VITE_HCAPTCHA_SITE_KEY=
+```
+
+#### `frontend/.env` (modo sin Docker)
+
+```env
+VITE_SUPABASE_URL=https://frvrzprfdxokhghytbyb.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_rYZf-AkP22rKlLUeyxznfA_QY7gzjPC
+VITE_API_URL=http://localhost:3000
+VITE_BACKEND_URL=http://localhost:3000
+```
+
+#### `backend/.env` (ver `backend/.env.example` para opciones completas)
+
+```env
+PORT=3000
+SUPABASE_URL=https://frvrzprfdxokhghytbyb.supabase.co
+SUPABASE_ANON_KEY=sb_publishable_rYZf-AkP22rKlLUeyxznfA_QY7gzjPC
+```
+
+> Las variables SMTP son opcionales en local: si no se configuran, los emails se omiten silenciosamente.
+
+---
+
+### Paso 3 — Levantar el Entorno
+
+#### Opción A: Docker Compose (recomendado)
+
+```bash
+# Desde la raíz del proyecto
+docker compose up --build
+```
+
+| Servicio | URL                   |
+| -------- | --------------------- |
+| Frontend | http://localhost:8080 |
+| Backend  | http://localhost:3000 |
+
+Para detener:
+
+```bash
+docker compose down
+```
+
+Para reconstruir desde cero (tras cambios en código o dependencias):
+
+```bash
+docker compose down
+docker compose up --build
+```
+
+#### Opción B: Sin Docker (desarrollo rápido)
+
+Abre dos terminales:
+
+**Terminal 1 — Backend**
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+**Terminal 2 — Frontend**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+| Servicio | URL                   |
+| -------- | --------------------- |
+| Frontend | http://localhost:5173 |
+| Backend  | http://localhost:3000 |
+
+---
+
+### Paso 4 — Poblar el Compendio (Opcional)
+
+Para cargar el bestiario, objetos y hechizos de D&D 5e en Supabase:
+
+```bash
+cd scripts
+npm install
+node seed-hybrid.js
+```
+
+> Requiere que `backend/.env` o el `.env` de raíz tenga las credenciales de Supabase correctas.
+
+---
+
+### Paso 5 — Verificar el Despliegue
+
+**Backend:**
+
+```bash
+curl http://localhost:3000/health
+# → { "status": "ok" }
+
+curl http://localhost:3000/api/ping
+# → { "pong": true, "ts": "..." }
+
+curl http://localhost:3000/api/supabase-status
+# → { "connected": true }
+```
+
+**Frontend** — abre http://localhost:8080 (Docker) o http://localhost:5173 (sin Docker) y comprueba:
+
+- ✅ La página home carga
+- ✅ Puedes ir a `/login` y `/registro`
+- ✅ El registro de usuario funciona (se envía email de confirmación)
+- ✅ Tras confirmar el email, puedes iniciar sesión
+- ✅ El bestiario muestra datos (si ejecutaste el seed)
+
+---
+
+### 🐛 Solución de Problemas Frecuentes
+
+| Problema                         | Causa probable                       | Solución                                          |
+| -------------------------------- | ------------------------------------ | ------------------------------------------------- |
+| `Cannot find module`             | Dependencias no instaladas           | Ejecuta `npm install` en `frontend/` y `backend/` |
+| Puerto 3000 o 5173 ocupado       | Otro proceso activo                  | Ver comandos abajo                                |
+| Login devuelve error 400         | Email sin confirmar en Supabase      | Verifica en Supabase Dashboard → Authentication   |
+| Variables de entorno no cargadas | Archivo `.env` ausente o mal ubicado | Comprueba ruta y contenido del `.env`             |
+| Docker: `permission denied`      | Sin permisos de Docker               | Ejecuta como administrador                        |
+
+```bash
+# Liberar puerto en Windows
+netstat -ano | findstr :3000
+taskkill /PID <PID> /F
+
+# Liberar puerto en Linux/Mac
+lsof -ti:3000 | xargs kill -9
+```
+
+---
+
 ## ✨ Características Destacadas
 
 - **📚 Compendio Completo de D&D 5e**: Bestiario, objetos y hechizos con búsqueda y filtros
@@ -97,11 +272,11 @@ import { AppLayout } from "@/layout";
 import { HomeContainer } from "@/pods/home";
 
 export const HomeScene = () => {
-  return (
-    <AppLayout>
-      <HomeContainer />
-    </AppLayout>
-  );
+	return (
+		<AppLayout>
+			<HomeContainer />
+		</AppLayout>
+	);
 };
 ```
 
@@ -485,19 +660,19 @@ Obtiene todos los mapas de batalla del usuario autenticado.
 
 ```json
 {
-  "maps": [
-    {
-      "id": "uuid",
-      "user_id": "uuid",
-      "name": "Cueva del Dragón",
-      "image_data": "data:image/png;base64,...",
-      "grid_size": 50,
-      "grid_color": "rgba(255, 255, 255, 0.3)",
-      "created_at": "2026-03-15T10:30:00Z",
-      "updated_at": "2026-03-15T14:20:00Z"
-    }
-  ],
-  "count": 1
+	"maps": [
+		{
+			"id": "uuid",
+			"user_id": "uuid",
+			"name": "Cueva del Dragón",
+			"image_data": "data:image/png;base64,...",
+			"grid_size": 50,
+			"grid_color": "rgba(255, 255, 255, 0.3)",
+			"created_at": "2026-03-15T10:30:00Z",
+			"updated_at": "2026-03-15T14:20:00Z"
+		}
+	],
+	"count": 1
 }
 ```
 
@@ -527,10 +702,10 @@ Crea un nuevo mapa de batalla.
 
 ```json
 {
-  "name": "Cueva del Dragón",
-  "image_data": "data:image/png;base64,iVBORw0KGgo...",
-  "grid_size": 50,
-  "grid_color": "rgba(255, 255, 255, 0.3)"
+	"name": "Cueva del Dragón",
+	"image_data": "data:image/png;base64,iVBORw0KGgo...",
+	"grid_size": 50,
+	"grid_color": "rgba(255, 255, 255, 0.3)"
 }
 ```
 
@@ -585,18 +760,18 @@ Obtiene todas las campañas donde el usuario es DM o jugador.
 
 ```json
 {
-  "campaigns": [
-    {
-      "id": "uuid",
-      "dm_id": "uuid",
-      "title": "La Mina Perdida de Phandelver",
-      "description": "Aventura para niveles 1-5",
-      "notes": "Notas privadas del DM...",
-      "created_at": "2026-03-10T10:00:00Z",
-      "updated_at": "2026-03-10T14:00:00Z"
-    }
-  ],
-  "count": 1
+	"campaigns": [
+		{
+			"id": "uuid",
+			"dm_id": "uuid",
+			"title": "La Mina Perdida de Phandelver",
+			"description": "Aventura para niveles 1-5",
+			"notes": "Notas privadas del DM...",
+			"created_at": "2026-03-10T10:00:00Z",
+			"updated_at": "2026-03-10T14:00:00Z"
+		}
+	],
+	"count": 1
 }
 ```
 
@@ -612,9 +787,9 @@ Crea una nueva campaña. El usuario creador se convierte automáticamente en DM.
 
 ```json
 {
-  "title": "Mi Campaña",
-  "description": "Descripción...",
-  "notes": "Notas del DM..."
+	"title": "Mi Campaña",
+	"description": "Descripción...",
+	"notes": "Notas del DM..."
 }
 ```
 
@@ -665,7 +840,7 @@ DELETE /api/campaign-invitations/:id               # Eliminar invitación (DM)
 
 ```json
 {
-  "email": "jugador@ejemplo.com"
+	"email": "jugador@ejemplo.com"
 }
 ```
 
@@ -682,9 +857,9 @@ DELETE /api/chapters/:id                         # Eliminar capítulo
 
 ```json
 {
-  "title": "Capítulo 1: El Inicio",
-  "content": "Texto del capítulo con **negrita** y > diálogos",
-  "order_index": 0
+	"title": "Capítulo 1: El Inicio",
+	"content": "Texto del capítulo con **negrita** y > diálogos",
+	"order_index": 0
 }
 ```
 
@@ -701,12 +876,12 @@ DELETE /api/scenes/:id                           # Eliminar escena
 
 ```json
 {
-  "title": "La Emboscada",
-  "content": "Descripción general",
-  "narration_text": "**Os encontráis** en un claro del bosque cuando...\n> ¡Alto ahí, viajeros!",
-  "dm_notes": "3 goblins escondidos, DC 12 Percepción",
-  "battle_map_id": "uuid-del-mapa",
-  "order_index": 0
+	"title": "La Emboscada",
+	"content": "Descripción general",
+	"narration_text": "**Os encontráis** en un claro del bosque cuando...\n> ¡Alto ahí, viajeros!",
+	"dm_notes": "3 goblins escondidos, DC 12 Percepción",
+	"battle_map_id": "uuid-del-mapa",
+	"order_index": 0
 }
 ```
 
@@ -722,9 +897,9 @@ DELETE /api/scene-entities/:id                   # Eliminar entidad
 
 ```json
 {
-  "entity_type": "monster",
-  "entity_id": "goblin",
-  "entity_name": "Goblin Líder"
+	"entity_type": "monster",
+	"entity_id": "goblin",
+	"entity_name": "Goblin Líder"
 }
 ```
 
@@ -811,8 +986,8 @@ Los usuarios registrados pueden crear y gestionar su ficha de personaje de D&D 5
 
 ```json
 [
-  { "name": "Guerrero", "level": 5 },
-  { "name": "Pícaro", "level": 3 }
+	{ "name": "Guerrero", "level": 5 },
+	{ "name": "Pícaro", "level": 3 }
 ]
 ```
 
@@ -889,14 +1064,14 @@ Los usuarios registrados pueden cargar y gestionar mapas de batalla interactivos
 
 ```json
 {
-  "id": "uuid",
-  "user_id": "uuid",
-  "name": "Cueva del Dragón",
-  "image_data": "data:image/png;base64,...",
-  "grid_size": 50,
-  "grid_color": "rgba(255, 255, 255, 0.3)",
-  "created_at": "timestamp",
-  "updated_at": "timestamp"
+	"id": "uuid",
+	"user_id": "uuid",
+	"name": "Cueva del Dragón",
+	"image_data": "data:image/png;base64,...",
+	"grid_size": 50,
+	"grid_color": "rgba(255, 255, 255, 0.3)",
+	"created_at": "timestamp",
+	"updated_at": "timestamp"
 }
 ```
 
@@ -1072,11 +1247,11 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
 ```json
 {
-  "id": "uuid",
-  "dm_id": "uuid",
-  "title": "La Mina Perdida de Phandelver",
-  "description": "Aventura inicial para nuevos jugadores",
-  "notes": "Recordar: Gundren está capturado en Cragmaw Castle"
+	"id": "uuid",
+	"dm_id": "uuid",
+	"title": "La Mina Perdida de Phandelver",
+	"description": "Aventura inicial para nuevos jugadores",
+	"notes": "Recordar: Gundren está capturado en Cragmaw Castle"
 }
 ```
 
@@ -1084,11 +1259,11 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
 ```json
 {
-  "id": "uuid",
-  "campaign_id": "uuid",
-  "title": "Capítulo 1: El Camino a Phandalin",
-  "content": "Los personajes son contratados para escoltar un carro...",
-  "order_index": 0
+	"id": "uuid",
+	"campaign_id": "uuid",
+	"title": "Capítulo 1: El Camino a Phandalin",
+	"content": "Los personajes son contratados para escoltar un carro...",
+	"order_index": 0
 }
 ```
 
@@ -1096,13 +1271,13 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
 ```json
 {
-  "id": "uuid",
-  "chapter_id": "uuid",
-  "title": "Emboscada Goblin",
-  "narration_text": "**Veis dos caballos** muertos en el camino...\n> ¡Atacad!",
-  "dm_notes": "4 goblins (HP:7 cada uno). DC 15 Percepción para detectar la trampa.",
-  "battle_map_id": "uuid",
-  "order_index": 0
+	"id": "uuid",
+	"chapter_id": "uuid",
+	"title": "Emboscada Goblin",
+	"narration_text": "**Veis dos caballos** muertos en el camino...\n> ¡Atacad!",
+	"dm_notes": "4 goblins (HP:7 cada uno). DC 15 Percepción para detectar la trampa.",
+	"battle_map_id": "uuid",
+	"order_index": 0
 }
 ```
 
@@ -1110,16 +1285,16 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
 ```json
 {
-  "id": "uuid",
-  "scene_id": "uuid",
-  "entity_type": "monster",
-  "entity_id": "goblin",
-  "entity_name": "Goblin Arquero",
-  "entity_data": {
-    "quantity": 4,
-    "hp_current": 7,
-    "notes": "Escondidos detrás de las rocas"
-  }
+	"id": "uuid",
+	"scene_id": "uuid",
+	"entity_type": "monster",
+	"entity_id": "goblin",
+	"entity_name": "Goblin Arquero",
+	"entity_data": {
+		"quantity": 4,
+		"hp_current": 7,
+		"notes": "Escondidos detrás de las rocas"
+	}
 }
 ```
 
@@ -1131,9 +1306,9 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
    ```json
    {
-     "entity_type": "monster",
-     "entity_id": "ancient-red-dragon",
-     "entity_name": "Smaug el Terrible"
+   	"entity_type": "monster",
+   	"entity_id": "ancient-red-dragon",
+   	"entity_name": "Smaug el Terrible"
    }
    ```
 
@@ -1141,9 +1316,9 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
    ```json
    {
-     "entity_type": "npc",
-     "entity_id": "tabernero-willem",
-     "entity_name": "Tabernero Willem"
+   	"entity_type": "npc",
+   	"entity_id": "tabernero-willem",
+   	"entity_name": "Tabernero Willem"
    }
    ```
 
@@ -1151,18 +1326,18 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
    ```json
    {
-     "entity_type": "item",
-     "entity_id": "longsword",
-     "entity_name": "Espada Larga"
+   	"entity_type": "item",
+   	"entity_id": "longsword",
+   	"entity_name": "Espada Larga"
    }
    ```
 
 4. **Mapa de batalla**:
    ```json
    {
-     "entity_type": "map",
-     "entity_id": "uuid-del-mapa",
-     "entity_name": "Cueva del Dragón"
+   	"entity_type": "map",
+   	"entity_id": "uuid-del-mapa",
+   	"entity_name": "Cueva del Dragón"
    }
    ```
 
@@ -1361,23 +1536,23 @@ También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta c
 
 ```json
 {
-  "id": "uuid",
-  "campaign_id": "uuid",
-  "dm_id": "uuid",
-  "status": "active | paused | ended",
-  "session_number": 3,
-  "current_scene_id": "uuid | null",
-  "current_map_id": "uuid | null",
-  "session_state": {
-    "mapPanX": 0,
-    "mapPanY": 0,
-    "mapZoom": 1,
-    "mapGridSize": 50,
-    "mapGridColor": "rgba(255,255,255,0.3)",
-    "mapShowGrid": true
-  },
-  "started_at": "timestamp",
-  "ended_at": "timestamp | null"
+	"id": "uuid",
+	"campaign_id": "uuid",
+	"dm_id": "uuid",
+	"status": "active | paused | ended",
+	"session_number": 3,
+	"current_scene_id": "uuid | null",
+	"current_map_id": "uuid | null",
+	"session_state": {
+		"mapPanX": 0,
+		"mapPanY": 0,
+		"mapZoom": 1,
+		"mapGridSize": 50,
+		"mapGridColor": "rgba(255,255,255,0.3)",
+		"mapShowGrid": true
+	},
+	"started_at": "timestamp",
+	"ended_at": "timestamp | null"
 }
 ```
 
@@ -1385,17 +1560,17 @@ También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta c
 
 ```json
 {
-  "id": "uuid",
-  "session_id": "uuid",
-  "token_type": "player | enemy | npc",
-  "entity_name": "Thorin Escudo de Roble",
-  "entity_image": "url | null",
-  "x": 320.5,
-  "y": 180.0,
-  "current_hp": 28,
-  "max_hp": 45,
-  "initiative_value": 14,
-  "is_on_map": true
+	"id": "uuid",
+	"session_id": "uuid",
+	"token_type": "player | enemy | npc",
+	"entity_name": "Thorin Escudo de Roble",
+	"entity_image": "url | null",
+	"x": 320.5,
+	"y": 180.0,
+	"current_hp": 28,
+	"max_hp": 45,
+	"initiative_value": 14,
+	"is_on_map": true
 }
 ```
 
@@ -1403,13 +1578,13 @@ También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta c
 
 ```json
 {
-  "id": "uuid",
-  "session_id": "uuid",
-  "is_active": true,
-  "current_turn_index": 2,
-  "round_number": 1,
-  "initiative_order": ["token-uuid-1", "token-uuid-2", "token-uuid-3"],
-  "surprise": "none | heroes | enemies"
+	"id": "uuid",
+	"session_id": "uuid",
+	"is_active": true,
+	"current_turn_index": 2,
+	"round_number": 1,
+	"initiative_order": ["token-uuid-1", "token-uuid-2", "token-uuid-3"],
+	"surprise": "none | heroes | enemies"
 }
 ```
 
