@@ -2778,6 +2778,133 @@ app.get(
 	},
 );
 
+
+// ==============================================================================
+// ADMIN ENDPOINTS
+// ==============================================================================
+
+/**
+ * Middleware: requiere que el usuario autenticado tenga is_admin = true en la tabla profiles.
+ * Debe ir después de requireAuth (es decir, ambos middlewares en cadena).
+ */
+const requireAdmin = async (req, res, next) => {
+	try {
+		const { data: profile, error } = await supabase
+			.from("profiles")
+			.select("is_admin")
+			.eq("id", req.user.id)
+			.single();
+
+		if (error || !profile?.is_admin) {
+			return res.status(403).json({
+				error: "Acceso denegado",
+				details: "Se requieren permisos de administrador",
+			});
+		}
+
+		next();
+	} catch (err) {
+		res.status(500).json({ error: "Error al verificar permisos", details: err.message });
+	}
+};
+
+/**
+ * GET /api/admin/stats
+ * Devuelve estadísticas globales de uso de la plataforma.
+ * Solo accesible para usuarios con is_admin = true.
+ */
+app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
+	try {
+		// Usuarios registrados (desde auth.users via admin API)
+		const { data: authData, error: authError } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+		const totalUsers = authError ? 0 : (authData?.users?.length ?? 0);
+
+		// Usuarios activos en los últimos 7 días
+		const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+		const activeUsers = authError
+			? 0
+			: (authData?.users ?? []).filter(
+					(u) => u.last_sign_in_at && u.last_sign_in_at >= sevenDaysAgo,
+			  ).length;
+
+		// Perfiles recientes (últimos 10)
+		const { data: recentProfilesData } = await supabase
+			.from("profiles")
+			.select("id, email, username, display_name, created_at, is_admin")
+			.order("created_at", { ascending: false })
+			.limit(10);
+
+		// Campañas
+		const { count: totalCampaigns } = await supabase
+			.from("campaigns")
+			.select("id", { count: "exact", head: true });
+
+		const { count: activeCampaigns } = await supabase
+			.from("campaigns")
+			.select("id", { count: "exact", head: true })
+			.eq("is_active", true);
+
+		// Últimas 10 campañas
+		const { data: recentCampaignsData } = await supabase
+			.from("campaigns")
+			.select("id, title, created_at, is_active")
+			.order("created_at", { ascending: false })
+			.limit(10);
+
+		// Fichas de personaje (no NPCs)
+		const { count: totalCharacters } = await supabase
+			.from("characters")
+			.select("id", { count: "exact", head: true })
+			.eq("is_npc", false);
+
+		// Mapas de batalla
+		const { count: totalBattleMaps } = await supabase
+			.from("battle_maps")
+			.select("id", { count: "exact", head: true });
+
+		// Compendio
+		const { count: totalSpells } = await supabase
+			.from("compendium_spells")
+			.select("id", { count: "exact", head: true });
+
+		const { count: totalMonsters } = await supabase
+			.from("compendium_bestiary")
+			.select("id", { count: "exact", head: true });
+
+		const { count: totalItems } = await supabase
+			.from("compendium_items")
+			.select("id", { count: "exact", head: true });
+
+		res.json({
+			totalUsers,
+			activeUsers,
+			totalCampaigns: totalCampaigns ?? 0,
+			activeCampaigns: activeCampaigns ?? 0,
+			totalCharacters: totalCharacters ?? 0,
+			totalBattleMaps: totalBattleMaps ?? 0,
+			totalSpells: totalSpells ?? 0,
+			totalMonsters: totalMonsters ?? 0,
+			totalItems: totalItems ?? 0,
+			recentUsers: (recentProfilesData ?? []).map((p) => ({
+				id: p.id,
+				email: p.email,
+				username: p.username,
+				display_name: p.display_name,
+				created_at: p.created_at,
+				is_admin: p.is_admin ?? false,
+			})),
+			recentCampaigns: (recentCampaignsData ?? []).map((c) => ({
+				id: c.id,
+				title: c.title,
+				created_at: c.created_at,
+				is_active: c.is_active ?? false,
+			})),
+		});
+	} catch (err) {
+		res.status(500).json({ error: "Error al obtener estadísticas", details: err.message });
+	}
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
 	console.log(`btd-backend listening on port ${PORT}`);

@@ -17,6 +17,8 @@ export function mapSupabaseError(msg?: string) {
   if (m.includes("password") && m.includes("length"))
     return "La contraseña no cumple la longitud mínima.";
   if (m.includes("invalid email")) return "El email no es válido.";
+  if (m.includes("captcha"))
+    return "Error de captcha: la site key y el secret deben pertenecer a la misma cuenta de hCaptcha. Revisa la configuración en Supabase.";
 
   return msg || "Ha ocurrido un error inesperado.";
 }

@@ -43,8 +43,25 @@ export const LoginContainer = () => {
 
 		setLoading(true);
 		try {
-			const captchaToken = await captchaRef.current?.execute({ async: true });
-			await signIn(formData.email, formData.password, captchaToken?.response);
+			// El captcha solo se ejecuta si hay una site key configurada
+			let captchaToken: string | undefined;
+			const siteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
+			if (siteKey) {
+				if (!captchaRef.current) {
+					throw new Error("El captcha no ha cargado aún. Espera un momento y vuelve a intentarlo.");
+				}
+				try {
+					const result = await captchaRef.current.execute({ async: true });
+					captchaToken = result?.response;
+					if (!captchaToken) {
+						throw new Error("El captcha no devolvió un token. Recarga la página.");
+					}
+				} catch (captchaErr) {
+					if (captchaErr instanceof Error) throw captchaErr;
+					throw new Error("El captcha no pudo completarse. Recarga la página e inténtalo de nuevo.");
+				}
+			}
+			await signIn(formData.email, formData.password, captchaToken);
 			navigate(routes.profileCampanas);
 		} catch (err) {
 			captchaRef.current?.resetCaptcha();
