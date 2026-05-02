@@ -22,8 +22,10 @@ import InventarioScene from "@/scenes/inventario.scene";
 import BestiarioScene from "@/scenes/bestiario.scene";
 import BestiarioDetalleScene from "@/scenes/bestiario-detalle.scene";
 import ObjetosScene from "@/scenes/objetos.scene";
+import { AdminDashboardScene } from "@/scenes/admin-dashboard.scene";
 import ObjetosDetalleScene from "@/scenes/objetos-detalle.scene";
 import { ProtectedRoute } from "@/core/auth/ProtectedRoute";
+import { AdminRoute } from "@/core/auth/AdminRoute";
 import { AppLayout } from "@/layout/app.layout";
 import { FullscreenToolLayout } from "@/layout/tool.layout";
 import { switchRoutes } from "./routes";
@@ -61,6 +63,9 @@ export const AppRouter = () => {
 
 				{/* ── Partida VTT ── */}
 				<Route path={switchRoutes.partida} element={<ProtectedRoute><PartidaScene /></ProtectedRoute>} />
+
+				{/* ── Admin ── */}
+				<Route path={switchRoutes.admin} element={<AdminRoute><AppLayout><AdminDashboardScene /></AppLayout></AdminRoute>} />
 			</Routes>
 		</Router>
 	);

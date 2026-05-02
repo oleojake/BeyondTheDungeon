@@ -20,6 +20,7 @@ interface SwitchRoutes {
 	editarCampana: string;
 	partida: string;
 	authCallback: string;
+	admin: string;
 }
 
 export const switchRoutes: SwitchRoutes = {
@@ -44,6 +45,7 @@ export const switchRoutes: SwitchRoutes = {
 	editarCampana: "/editar-campana/:id",
 	partida: "/partida/:id",
 	authCallback: "/auth/callback",
+	admin: "/admin",
 	guias: "/guias",
 	guiaDetalle: "/guias/:slug",
 };
