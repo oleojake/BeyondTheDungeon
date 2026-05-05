@@ -4,21 +4,8 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { routes } from "@/router";
 import { useAuth } from "@/core/auth/useAuth";
 import { ThemeToggle } from "@/components/theme-toggle";
-
-const COMPENDIO_LINKS = [
-	{ label: "Bestiario", to: routes.bestiario, desc: "Criaturas y monstruos" },
-	{ label: "Hechizos", to: routes.hechizos, desc: "Conjuros y magia" },
-	{ label: "Objetos", to: routes.objetos, desc: "Equipo y artefactos" },
-];
-
-const HERRAMIENTAS_LINKS = [
-	{ label: "Fichas de Personaje", to: routes.fichas, desc: "Crea y gestiona personajes" },
-	{ label: "Tirada de Dados", to: routes.dados, desc: "Lanza dados virtuales" },
-	{ label: "Mapa de Batalla", to: routes.mapaBatalla, desc: "Editor de escenarios" },
-	{ label: "Inventario", to: routes.inventario, desc: "Gestiona tu equipo" },
-];
-
-const GUIAS_LINK = { label: "Guías", to: "/guias" };
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslation } from "@/i18n";
 
 function NavDropdown({
 	label,
@@ -59,6 +46,20 @@ export const Navbar = () => {
 	const { user, loading, logout } = useAuth();
 	const navigate = useNavigate();
 	const [mobileOpen, setMobileOpen] = useState(false);
+	const { t } = useTranslation();
+
+	const COMPENDIO_LINKS = [
+		{ label: t.nav.compendiumLinks.bestiary.label, to: routes.bestiario, desc: t.nav.compendiumLinks.bestiary.desc },
+		{ label: t.nav.compendiumLinks.spells.label, to: routes.hechizos, desc: t.nav.compendiumLinks.spells.desc },
+		{ label: t.nav.compendiumLinks.items.label, to: routes.objetos, desc: t.nav.compendiumLinks.items.desc },
+	];
+
+	const HERRAMIENTAS_LINKS = [
+		{ label: t.nav.toolLinks.characters.label, to: routes.fichas, desc: t.nav.toolLinks.characters.desc },
+		{ label: t.nav.toolLinks.dice.label, to: routes.dados, desc: t.nav.toolLinks.dice.desc },
+		{ label: t.nav.toolLinks.battleMap.label, to: routes.mapaBatalla, desc: t.nav.toolLinks.battleMap.desc },
+		{ label: t.nav.toolLinks.inventory.label, to: routes.inventario, desc: t.nav.toolLinks.inventory.desc },
+	];
 
 	const handleLogout = () => {
 		logout();
@@ -84,18 +85,19 @@ export const Navbar = () => {
 
 					{/* Desktop nav — grouped dropdowns */}
 					<div className="hidden md:flex items-center gap-7">
-						<NavDropdown label="Compendio" links={COMPENDIO_LINKS} />
-						<NavDropdown label="Herramientas" links={HERRAMIENTAS_LINKS} />
+						<NavDropdown label={t.nav.compendium} links={COMPENDIO_LINKS} />
+						<NavDropdown label={t.nav.tools} links={HERRAMIENTAS_LINKS} />
 						<Link
-							to={GUIAS_LINK.to}
+							to="/guias"
 							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium text-sm py-1"
 						>
-							{GUIAS_LINK.label}
+							{t.nav.guides}
 						</Link>
 					</div>
 
 					{/* Right side */}
 					<div className="flex items-center gap-2">
+						<LanguageSwitcher />
 						<ThemeToggle />
 						{loading ? null : user ? (
 							<>
@@ -103,13 +105,13 @@ export const Navbar = () => {
 									to={routes.profileCampanas}
 									className="hidden md:block px-4 py-2 text-stone-800 dark:text-amber-50 hover:text-primary dark:hover:text-amber-300 transition-colors font-medium text-sm"
 								>
-									Mi Panel
+									{t.nav.myPanel}
 								</Link>
 								<button
 									onClick={handleLogout}
 									className="hidden md:block px-4 py-2 bg-amber-100 dark:bg-dark-card border border-stone-300 dark:border-dark-border text-stone-800 dark:text-amber-50 font-semibold rounded-lg hover:border-primary transition-all text-sm"
 								>
-									Salir
+									{t.nav.logout}
 								</button>
 							</>
 						) : (
@@ -118,13 +120,13 @@ export const Navbar = () => {
 									to={routes.login}
 									className="hidden md:block px-4 py-2 text-stone-800 dark:text-amber-50 hover:text-primary transition-colors font-medium text-sm"
 								>
-									Iniciar Sesión
+									{t.nav.login}
 								</Link>
 								<Link
 									to={routes.register}
 									className="hidden md:block px-5 py-2 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-semibold rounded-lg transition-all hover:scale-105 shadow-md hover:shadow-lg text-sm"
 								>
-									Crear Cuenta
+									{t.nav.createAccount}
 								</Link>
 							</>
 						)}
@@ -133,7 +135,7 @@ export const Navbar = () => {
 						<button
 							className="md:hidden p-2 rounded-lg hover:bg-stone-200 dark:hover:bg-dark-card transition-colors"
 							onClick={() => setMobileOpen((o) => !o)}
-							aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+							aria-label={mobileOpen ? t.nav.closeMenu : t.nav.openMenu}
 						>
 							{mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
 						</button>
@@ -145,7 +147,7 @@ export const Navbar = () => {
 			{mobileOpen && (
 				<div className="md:hidden border-t border-stone-200 dark:border-dark-border bg-amber-50/98 dark:bg-dark/98 px-6 py-4 flex flex-col gap-1">
 					<p className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 mb-1">
-						Compendio
+						{t.nav.compendium}
 					</p>
 					{COMPENDIO_LINKS.map(({ label, to }) => (
 						<Link
@@ -159,7 +161,7 @@ export const Navbar = () => {
 					))}
 
 					<p className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 mt-3 mb-1">
-						Herramientas
+						{t.nav.tools}
 					</p>
 					{HERRAMIENTAS_LINKS.map(({ label, to }) => (
 						<Link
@@ -173,14 +175,14 @@ export const Navbar = () => {
 					))}
 
 					<p className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 mt-3 mb-1">
-						Otros
+						{t.nav.others}
 					</p>
 					<Link
-						to={GUIAS_LINK.to}
+						to="/guias"
 						onClick={() => setMobileOpen(false)}
 						className="pl-2 py-2 text-stone-700 dark:text-stone-300 hover:text-primary transition-colors font-medium text-sm"
 					>
-						{GUIAS_LINK.label}
+						{t.nav.guides}
 					</Link>
 
 					<div className="border-t border-stone-200 dark:border-dark-border mt-3 pt-3 flex flex-col gap-2">
@@ -191,13 +193,13 @@ export const Navbar = () => {
 									onClick={() => setMobileOpen(false)}
 									className="pl-2 py-2 text-stone-700 dark:text-stone-300 hover:text-primary transition-colors font-medium text-sm"
 								>
-									Mi Panel
+									{t.nav.myPanel}
 								</Link>
 								<button
 									onClick={handleLogout}
 									className="text-left pl-2 py-2 text-stone-700 dark:text-stone-300 hover:text-primary transition-colors font-medium text-sm"
 								>
-									Salir
+									{t.nav.logout}
 								</button>
 							</>
 						) : (
@@ -207,17 +209,21 @@ export const Navbar = () => {
 									onClick={() => setMobileOpen(false)}
 									className="pl-2 py-2 text-stone-700 dark:text-stone-300 font-medium text-sm"
 								>
-									Iniciar Sesión
+									{t.nav.login}
 								</Link>
 								<Link
 									to={routes.register}
 									onClick={() => setMobileOpen(false)}
 									className="py-2 px-4 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-lg text-center text-sm"
 								>
-									Crear Cuenta
+									{t.nav.createAccount}
 								</Link>
 							</>
 						)}
+						{/* Language switcher in mobile menu */}
+						<div className="pl-2 pt-2">
+							<LanguageSwitcher />
+						</div>
 					</div>
 				</div>
 			)}

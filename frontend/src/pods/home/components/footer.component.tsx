@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 import { routes } from "@/router";
+import { useTranslation } from "@/i18n";
 
 export const Footer = () => {
+	const { t } = useTranslation();
+	const fl = t.footer.links;
+
 	return (
 		<footer className="bg-stone-100 dark:bg-dark-lighter border-t border-stone-300 dark:border-dark-border py-12 px-6 transition-colors duration-300">
 			<div className="container mx-auto max-w-6xl">
@@ -15,29 +19,29 @@ export const Footer = () => {
 							</span>
 						</Link>
 						<p className="text-stone-600 dark:text-stone-400 text-sm">
-							Las herramientas que tu mesa necesita.
+							{t.footer.tagline}
 						</p>
 					</div>
 
 					{/* Compendio */}
 					<div>
 						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
-							Compendio
+							{t.footer.compendium}
 						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<Link to={routes.bestiario} className="hover:text-primary transition-colors">
-									Bestiario
+									{fl.bestiary}
 								</Link>
 							</li>
 							<li>
 								<Link to={routes.hechizos} className="hover:text-primary transition-colors">
-									Hechizos
+									{fl.spells}
 								</Link>
 							</li>
 							<li>
 								<Link to={routes.objetos} className="hover:text-primary transition-colors">
-									Objetos
+									{fl.items}
 								</Link>
 							</li>
 						</ul>
@@ -46,27 +50,27 @@ export const Footer = () => {
 					{/* Herramientas */}
 					<div>
 						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
-							Herramientas
+							{t.footer.tools}
 						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<Link to={routes.fichas} className="hover:text-primary transition-colors">
-									Fichas de Personaje
+									{fl.characters}
 								</Link>
 							</li>
 							<li>
 								<Link to={routes.dados} className="hover:text-primary transition-colors">
-									Tirada de Dados
+									{fl.dice}
 								</Link>
 							</li>
 							<li>
 								<Link to={routes.mapaBatalla} className="hover:text-primary transition-colors">
-									Mapa de Batalla
+									{fl.battleMap}
 								</Link>
 							</li>
 							<li>
 								<Link to={routes.inventario} className="hover:text-primary transition-colors">
-									Inventario
+									{fl.inventory}
 								</Link>
 							</li>
 						</ul>
@@ -75,22 +79,22 @@ export const Footer = () => {
 					{/* Mi Cuenta */}
 					<div>
 						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
-							Mi Cuenta
+							{t.footer.myAccount}
 						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<Link to={routes.profileCampanas} className="hover:text-primary transition-colors">
-									Mis Campañas
+									{fl.campaigns}
 								</Link>
 							</li>
 							<li>
 								<Link to={routes.profileMapas} className="hover:text-primary transition-colors">
-									Mis Mapas
+									{fl.maps}
 								</Link>
 							</li>
 							<li>
 								<Link to={routes.profileSettings} className="hover:text-primary transition-colors">
-									Ajustes
+									{fl.settings}
 								</Link>
 							</li>
 						</ul>
@@ -99,12 +103,12 @@ export const Footer = () => {
 					{/* Recursos / Guías */}
 					<div>
 						<h4 className="text-stone-800 dark:text-amber-50 font-semibold mb-4">
-							Recursos
+							{t.footer.resources}
 						</h4>
 						<ul className="space-y-2 text-stone-600 dark:text-stone-400 text-sm">
 							<li>
 								<Link to="/guias" className="hover:text-primary transition-colors">
-									Guías del Aventurero
+									{fl.adventurerGuides}
 								</Link>
 							</li>
 						</ul>
@@ -114,7 +118,7 @@ export const Footer = () => {
 				{/* Bottom */}
 				<div className="border-t border-stone-300 dark:border-dark-border pt-8 flex items-center justify-center">
 					<p className="text-stone-600 dark:text-stone-400 text-sm">
-						© {new Date().getFullYear()} Beyond the Dungeon. Todos los derechos reservados.
+						© {new Date().getFullYear()} Beyond the Dungeon. {t.footer.rights}
 					</p>
 				</div>
 			</div>

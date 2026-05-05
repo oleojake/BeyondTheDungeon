@@ -28,12 +28,13 @@ import {
 	DialogFooter,
 	DialogClose,
 } from "@/components/ui/dialog";
+import { useTranslation } from "@/i18n";
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface AdminStats {
 	totalUsers: number;
-	activeUsers: number; // Usuarios con sesión en los últimos 7 días
+	activeUsers: number;
 	totalCampaigns: number;
 	activeCampaigns: number;
 	totalCharacters: number;
@@ -110,7 +111,7 @@ function StatCard({
 	);
 }
 
-// ─── Tipos de confirmación ────────────────────────────────────────────────────
+// ─── Confirm Action type ──────────────────────────────────────────────────────
 
 type ConfirmAction =
 	| { type: "promote"; user: RecentUser }
@@ -128,6 +129,8 @@ export function AdminDashboardScene() {
 	const [actionLoading, setActionLoading] = useState(false);
 	const [actionError, setActionError] = useState<string | null>(null);
 	const navigate = useNavigate();
+	const { t } = useTranslation();
+	const at = t.admin;
 
 	const load = async () => {
 		setLoading(true);
@@ -136,7 +139,7 @@ export function AdminDashboardScene() {
 			const data = await fetchAdminStats();
 			setStats(data);
 		} catch (e) {
-			setError(e instanceof Error ? e.message : "Error desconocido");
+			setError(e instanceof Error ? e.message : at.unknownError);
 		} finally {
 			setLoading(false);
 		}
@@ -148,7 +151,7 @@ export function AdminDashboardScene() {
 			const data = await fetchAdminStats();
 			setStats(data);
 		} catch (e) {
-			setError(e instanceof Error ? e.message : "Error desconocido");
+			setError(e instanceof Error ? e.message : at.unknownError);
 		} finally {
 			setRefreshing(false);
 		}
@@ -170,11 +173,10 @@ export function AdminDashboardScene() {
 				throw new Error(err.error || `Error ${res.status}`);
 			}
 			setConfirmAction(null);
-			// Refrescar stats para reflejar cambio de rol
 			const data = await fetchAdminStats();
 			setStats(data);
 		} catch (e) {
-			setActionError(e instanceof Error ? e.message : "Error desconocido");
+			setActionError(e instanceof Error ? e.message : at.unknownError);
 		} finally {
 			setActionLoading(false);
 		}
@@ -199,7 +201,7 @@ export function AdminDashboardScene() {
 			const data = await fetchAdminStats();
 			setStats(data);
 		} catch (e) {
-			setActionError(e instanceof Error ? e.message : "Error desconocido");
+			setActionError(e instanceof Error ? e.message : at.unknownError);
 		} finally {
 			setActionLoading(false);
 		}
@@ -220,11 +222,11 @@ export function AdminDashboardScene() {
 						<div className="flex items-center gap-3 mb-2">
 							<Shield className="h-8 w-8 text-purple-300" />
 							<h1 className="text-3xl font-bold text-purple-50">
-								Panel de Administración
+								{at.title}
 							</h1>
 						</div>
 						<p className="text-sm text-purple-100/90">
-							Estadísticas de uso y gestión del sistema
+							{at.subtitle}
 						</p>
 					</div>
 					<Button
@@ -237,7 +239,7 @@ export function AdminDashboardScene() {
 						<RefreshCw
 							className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
 						/>
-						{refreshing ? "Actualizando..." : "Actualizar"}
+						{refreshing ? at.refreshing : at.refresh}
 					</Button>
 				</div>
 			</section>
@@ -253,7 +255,7 @@ export function AdminDashboardScene() {
 						onClick={load}
 						className="ml-auto text-destructive hover:text-destructive"
 					>
-						Reintentar
+						{at.retry}
 					</Button>
 				</div>
 			)}
@@ -276,113 +278,113 @@ export function AdminDashboardScene() {
 				</div>
 			) : stats ? (
 				<>
-					{/* ── Usuarios ── */}
+					{/* ── Users ── */}
 					<section>
 						<h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
 							<Users className="h-5 w-5 text-blue-400" />
-							Usuarios
+							{at.sections.users}
 						</h2>
 						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							<StatCard
 								icon={Users}
-								label="Usuarios registrados"
+								label={at.stats.totalUsers}
 								value={stats.totalUsers}
 								color="bg-blue-600"
 							/>
 							<StatCard
 								icon={Activity}
-								label="Activos (últimos 7 días)"
+								label={at.stats.activeUsers}
 								value={stats.activeUsers}
-								sub="sesión iniciada recientemente"
+								sub={at.stats.activeUsersSub}
 								color="bg-emerald-600"
 							/>
 						</div>
 					</section>
 
-					{/* ── Campañas & Contenido ── */}
+					{/* ── Campaigns & Content ── */}
 					<section>
 						<h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
 							<Scroll className="h-5 w-5 text-amber-400" />
-							Campañas y Contenido
+							{at.sections.campaignsContent}
 						</h2>
 						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 							<StatCard
 								icon={Scroll}
-								label="Total campañas"
+								label={at.stats.totalCampaigns}
 								value={stats.totalCampaigns}
 								color="bg-amber-600"
 							/>
 							<StatCard
 								icon={TrendingUp}
-								label="Campañas activas"
+								label={at.stats.activeCampaigns}
 								value={stats.activeCampaigns}
 								color="bg-orange-600"
 							/>
 							<StatCard
 								icon={Shield}
-								label="Fichas de personaje"
+								label={at.stats.characters}
 								value={stats.totalCharacters}
 								color="bg-rose-600"
 							/>
 							<StatCard
 								icon={Map}
-								label="Mapas de batalla"
+								label={at.stats.battleMaps}
 								value={stats.totalBattleMaps}
 								color="bg-teal-600"
 							/>
 						</div>
 					</section>
 
-					{/* ── Compendio ── */}
+					{/* ── Compendium ── */}
 					<section>
 						<h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
 							<BookOpen className="h-5 w-5 text-violet-400" />
-							Compendio D&D 5e
+							{at.sections.compendium}
 						</h2>
 						<div className="grid gap-4 sm:grid-cols-3">
 							<StatCard
 								icon={Sword}
-								label="Monstruos en el bestiario"
+								label={at.stats.monsters}
 								value={stats.totalMonsters}
 								color="bg-red-700"
 							/>
 							<StatCard
 								icon={Wand2}
-								label="Hechizos"
+								label={at.stats.spells}
 								value={stats.totalSpells}
 								color="bg-indigo-600"
 							/>
 							<StatCard
 								icon={BookOpen}
-								label="Objetos"
+								label={at.stats.items}
 								value={stats.totalItems}
 								color="bg-purple-700"
 							/>
 						</div>
 					</section>
 
-					{/* ── Usuarios recientes ── */}
+					{/* ── Recent Users ── */}
 					{stats.recentUsers.length > 0 && (
 						<section>
 							<h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
 								<Users className="h-5 w-5 text-sky-400" />
-								Últimos usuarios registrados
+								{at.sections.recentUsers}
 							</h2>
 							<div className="rounded-xl border border-border bg-card overflow-hidden">
 								<table className="w-full text-sm">
 									<thead className="bg-muted/50 border-b border-border">
 										<tr>
 											<th className="text-left px-4 py-3 font-medium text-muted-foreground">
-												Usuario
+												{at.table.user}
 											</th>
 											<th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">
-												Email
+												{at.table.email}
 											</th>
 											<th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">
-												Registrado
+												{at.table.registered}
 											</th>
 											<th className="text-left px-4 py-3 font-medium text-muted-foreground">
-												Rol
+												{at.table.role}
 											</th>
 											<th className="px-4 py-3" />
 										</tr>
@@ -400,19 +402,19 @@ export function AdminDashboardScene() {
 													{u.email || "—"}
 												</td>
 												<td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
-													{new Date(u.created_at).toLocaleDateString("es-ES")}
+													{new Date(u.created_at).toLocaleDateString()}
 												</td>
 												<td className="px-4 py-3">
 													{u.is_admin ? (
 														<Badge className="bg-purple-700 text-white text-xs">
-															Admin
+															{at.table.roleAdmin}
 														</Badge>
 													) : (
 														<Badge
 															variant="outline"
 															className="text-xs text-muted-foreground border-muted-foreground/40"
 														>
-															Usuario
+															{at.table.roleUser}
 														</Badge>
 													)}
 												</td>
@@ -423,7 +425,7 @@ export function AdminDashboardScene() {
 																variant="ghost"
 																size="sm"
 																className="h-7 px-2 text-purple-400 hover:text-purple-300 hover:bg-purple-900/30"
-																title="Promover a admin"
+																title={at.table.promoteTitle}
 																onClick={() => {
 																	setActionError(null);
 																	setConfirmAction({
@@ -440,7 +442,7 @@ export function AdminDashboardScene() {
 																variant="ghost"
 																size="sm"
 																className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-																title="Eliminar usuario"
+																title={at.table.deleteTitle}
 																onClick={() => {
 																	setActionError(null);
 																	setConfirmAction({ type: "delete", user: u });
@@ -459,7 +461,7 @@ export function AdminDashboardScene() {
 						</section>
 					)}
 
-					{/* ── Diálogo de confirmación ── */}
+					{/* ── Confirm Dialog ── */}
 					<Dialog
 						open={confirmAction !== null}
 						onOpenChange={(open) => {
@@ -475,16 +477,16 @@ export function AdminDashboardScene() {
 									<DialogHeader>
 										<DialogTitle className="flex items-center gap-2">
 											<ShieldCheck className="h-5 w-5 text-purple-400" />
-											Promover a administrador
+											{at.dialogs.promoteTitle}
 										</DialogTitle>
 										<DialogDescription>
-											¿Seguro que quieres dar permisos de administrador a{" "}
+											{at.dialogs.promoteQuestion}{" "}
 											<strong>
 												{confirmAction.user.display_name ||
 													confirmAction.user.username ||
 													confirmAction.user.email}
 											</strong>
-											? Esta acción no se puede deshacer desde aquí.
+											{at.dialogs.promoteWarning}
 										</DialogDescription>
 									</DialogHeader>
 									{actionError && (
@@ -497,7 +499,7 @@ export function AdminDashboardScene() {
 												size="sm"
 												disabled={actionLoading}
 											>
-												Cancelar
+												{at.dialogs.cancel}
 											</Button>
 										</DialogClose>
 										<Button
@@ -506,7 +508,7 @@ export function AdminDashboardScene() {
 											disabled={actionLoading}
 											onClick={() => handlePromote(confirmAction.user.id)}
 										>
-											{actionLoading ? "Guardando..." : "Sí, promover"}
+											{actionLoading ? at.dialogs.saving : at.dialogs.confirmPromote}
 										</Button>
 									</DialogFooter>
 								</>
@@ -516,16 +518,16 @@ export function AdminDashboardScene() {
 									<DialogHeader>
 										<DialogTitle className="flex items-center gap-2">
 											<Trash2 className="h-5 w-5 text-destructive" />
-											Eliminar usuario
+											{at.dialogs.deleteTitle}
 										</DialogTitle>
 										<DialogDescription>
-											¿Seguro que quieres eliminar a{" "}
+											{at.dialogs.deleteQuestion}{" "}
 											<strong>
 												{confirmAction.user.display_name ||
 													confirmAction.user.username ||
 													confirmAction.user.email}
 											</strong>
-											? Se borrarán todos sus datos permanentemente.
+											{at.dialogs.deleteWarning}
 										</DialogDescription>
 									</DialogHeader>
 									{actionError && (
@@ -538,7 +540,7 @@ export function AdminDashboardScene() {
 												size="sm"
 												disabled={actionLoading}
 											>
-												Cancelar
+												{at.dialogs.cancel}
 											</Button>
 										</DialogClose>
 										<Button
@@ -547,7 +549,7 @@ export function AdminDashboardScene() {
 											disabled={actionLoading}
 											onClick={() => handleDelete(confirmAction.user.id)}
 										>
-											{actionLoading ? "Eliminando..." : "Sí, eliminar"}
+											{actionLoading ? at.dialogs.deleting : at.dialogs.confirmDelete}
 										</Button>
 									</DialogFooter>
 								</>
@@ -555,25 +557,25 @@ export function AdminDashboardScene() {
 						</DialogContent>
 					</Dialog>
 
-					{/* ── Campañas recientes ── */}
+					{/* ── Recent Campaigns ── */}
 					{stats.recentCampaigns.length > 0 && (
 						<section>
 							<h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
 								<Scroll className="h-5 w-5 text-amber-400" />
-								Últimas campañas creadas
+								{at.sections.recentCampaigns}
 							</h2>
 							<div className="rounded-xl border border-border bg-card overflow-hidden">
 								<table className="w-full text-sm">
 									<thead className="bg-muted/50 border-b border-border">
 										<tr>
 											<th className="text-left px-4 py-3 font-medium text-muted-foreground">
-												Título
+												{at.table.title}
 											</th>
 											<th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">
-												Creada
+												{at.table.created}
 											</th>
 											<th className="text-left px-4 py-3 font-medium text-muted-foreground">
-												Estado
+												{at.table.status}
 											</th>
 											<th className="px-4 py-3" />
 										</tr>
@@ -587,26 +589,24 @@ export function AdminDashboardScene() {
 											>
 												<td className="px-4 py-3 font-medium">{c.title}</td>
 												<td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
-													{new Date(c.created_at).toLocaleDateString("es-ES")}
+													{new Date(c.created_at).toLocaleDateString()}
 												</td>
 												<td className="px-4 py-3">
 													{c.is_active ? (
 														<Badge className="bg-green-700 text-white text-xs">
-															Activa
+															{at.table.active}
 														</Badge>
 													) : (
 														<Badge
 															variant="outline"
 															className="text-xs text-muted-foreground"
 														>
-															Inactiva
+															{at.table.inactive}
 														</Badge>
 													)}
 												</td>
 												<td className="px-4 py-3 text-right">
-													<span className="text-xs text-muted-foreground">
-														→
-													</span>
+													<span className="text-xs text-muted-foreground">→</span>
 												</td>
 											</tr>
 										))}

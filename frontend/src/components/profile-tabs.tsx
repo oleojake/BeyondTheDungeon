@@ -3,20 +3,22 @@ import { Swords, Map, Settings, UserCircle, Shield } from "lucide-react";
 import { switchRoutes } from "@/router/routes";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/core/auth/useAuth";
-
-const PROFILE_TABS = [
-	{ label: "Campañas", to: switchRoutes.profileCampanas, icon: Swords, adminOnly: false },
-	{ label: "Fichas", to: switchRoutes.fichas, icon: UserCircle, adminOnly: false },
-	{ label: "Mapas", to: switchRoutes.profileMapas, icon: Map, adminOnly: false },
-	{ label: "Ajustes", to: switchRoutes.profileSettings, icon: Settings, adminOnly: false },
-	{ label: "Admin", to: switchRoutes.admin, icon: Shield, adminOnly: true },
-];
+import { useTranslation } from "@/i18n";
 
 export const ProfileTabs = () => {
 	const { pathname } = useLocation();
 	const { isAdmin } = useAuth();
+	const { t } = useTranslation();
 
-	const visibleTabs = PROFILE_TABS.filter((t) => !t.adminOnly || isAdmin);
+	const PROFILE_TABS = [
+		{ label: t.profileTabs.campaigns, to: switchRoutes.profileCampanas, icon: Swords, adminOnly: false },
+		{ label: t.profileTabs.characters, to: switchRoutes.fichas, icon: UserCircle, adminOnly: false },
+		{ label: t.profileTabs.maps, to: switchRoutes.profileMapas, icon: Map, adminOnly: false },
+		{ label: t.profileTabs.settings, to: switchRoutes.profileSettings, icon: Settings, adminOnly: false },
+		{ label: t.profileTabs.admin, to: switchRoutes.admin, icon: Shield, adminOnly: true },
+	];
+
+	const visibleTabs = PROFILE_TABS.filter((tab) => !tab.adminOnly || isAdmin);
 
 	return (
 		<nav className="flex gap-1 border-b border-stone-200 dark:border-dark-border mb-6">
@@ -43,4 +45,3 @@ export const ProfileTabs = () => {
 		</nav>
 	);
 };
-

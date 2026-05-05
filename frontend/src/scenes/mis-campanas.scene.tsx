@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProfileTabs } from "@/components/profile-tabs";
+import { useTranslation } from "@/i18n";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,6 +124,8 @@ async function assignCharacterToCampaign(characterId: string, campaignId: string
 
 export function MisCampanasScene() {
 	const navigate = useNavigate();
+	const { t } = useTranslation();
+	const tc = t.campaigns;
 	const [campaigns, setCampaigns] = useState<Campaign[]>([]);
 	const [invitations, setInvitations] = useState<CampaignInvitation[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -306,13 +309,13 @@ export function MisCampanasScene() {
 			return (
 				<Badge className="bg-green-600 text-white text-xs">
 					<Swords className="w-3 h-3 mr-1" />
-					En juego
+					{tc.inGame}
 				</Badge>
 			);
 		if (sess.status === "paused")
 			return (
 				<Badge variant="outline" className="text-amber-400 border-amber-600 text-xs">
-					Pausada · Sesión {sess.session_number}
+					{tc.paused} {sess.session_number}
 				</Badge>
 			);
 		return null;
@@ -328,66 +331,66 @@ export function MisCampanasScene() {
 						<div>
 							<div className="flex items-center gap-3 mb-2">
 								<Scroll className="h-8 w-8 text-amber-200" />
-								<h1 className="text-3xl font-bold text-amber-50">Mis Campañas</h1>
+								<h1 className="text-3xl font-bold text-amber-50">{tc.title}</h1>
 							</div>
 							<p className="text-sm text-amber-100/90">
-								Gestiona tus aventuras de D&D como DM o jugador
+								{tc.subtitle}
 							</p>
 						</div>
 						<Dialog open={createOpen} onOpenChange={setCreateOpen}>
 							<DialogTrigger asChild>
 								<Button className="bg-amber-600 hover:bg-amber-700 text-white">
 									<Plus className="mr-2 h-4 w-4" />
-									Nueva Campaña
+									{tc.newCampaign}
 								</Button>
 							</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>
-								<DialogTitle>Crear Nueva Campaña</DialogTitle>
+								<DialogTitle>{tc.createTitle}</DialogTitle>
 								<DialogDescription>
-									Crea una nueva campaña y conviértete en el Dungeon Master
+									{tc.createSubtitle}
 								</DialogDescription>
 							</DialogHeader>
 							<div className="space-y-4 py-4">
 								<div>
-									<label className="text-sm font-medium">Título *</label>
+									<label className="text-sm font-medium">{tc.fieldTitle}</label>
 									<Input
 										value={newCampaign.title}
 										onChange={(e) =>
 											setNewCampaign({ ...newCampaign, title: e.target.value })
 										}
-										placeholder="Ej: La Mina Perdida de Phandelver"
+										placeholder={tc.fieldTitlePlaceholder}
 									/>
 								</div>
 								<div>
-									<label className="text-sm font-medium">Descripción</label>
+									<label className="text-sm font-medium">{tc.fieldDescription}</label>
 									<Textarea
 										value={newCampaign.description}
 										onChange={(e) =>
 											setNewCampaign({ ...newCampaign, description: e.target.value })
 										}
-										placeholder="Descripción de la campaña..."
+										placeholder={tc.fieldDescriptionPlaceholder}
 										rows={3}
 									/>
 								</div>
 								<div>
-									<label className="text-sm font-medium">Notas Privadas (DM)</label>
+									<label className="text-sm font-medium">{tc.fieldNotes}</label>
 									<Textarea
 										value={newCampaign.notes}
 										onChange={(e) =>
 											setNewCampaign({ ...newCampaign, notes: e.target.value })
 										}
-										placeholder="Notas privadas del DM..."
+										placeholder={tc.fieldNotesPlaceholder}
 										rows={3}
 									/>
 								</div>
 							</div>
 							<DialogFooter>
 								<Button variant="outline" onClick={() => setCreateOpen(false)}>
-									Cancelar
+									{tc.cancel}
 								</Button>
 								<Button onClick={handleCreateCampaign} disabled={createLoading}>
-									{createLoading ? "Creando..." : "Crear Campaña"}
+									{createLoading ? tc.creating : tc.create}
 								</Button>
 							</DialogFooter>
 						</DialogContent>
@@ -400,7 +403,7 @@ export function MisCampanasScene() {
 					<div>
 						<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
 							<Bell className="h-5 w-5" />
-							Invitaciones Pendientes ({invitations.length})
+							{tc.pendingInvitations} ({invitations.length})
 						</h2>
 						<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 							{invitations.map((invitation) => (
@@ -410,7 +413,7 @@ export function MisCampanasScene() {
 											{invitation.campaigns?.title || "Campaña"}
 										</CardTitle>
 										<CardDescription>
-											Has sido invitado a unirte a esta campaña
+											{tc.invitedTo}
 										</CardDescription>
 									</CardHeader>
 									<CardFooter className="gap-2">
@@ -418,14 +421,14 @@ export function MisCampanasScene() {
 											size="sm"
 											onClick={() => handleAcceptInvitation(invitation.token)}
 										>
-											Aceptar
+											{tc.accept}
 										</Button>
 										<Button
 											size="sm"
 											variant="outline"
 											onClick={() => handleRejectInvitation(invitation.token)}
 										>
-											Rechazar
+											{tc.reject}
 										</Button>
 									</CardFooter>
 								</Card>
@@ -452,13 +455,13 @@ export function MisCampanasScene() {
 				) : campaigns.length === 0 ? (
 					<div className="text-center py-12">
 						<Scroll className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-						<h3 className="text-lg font-semibold mb-2">No tienes campañas aún</h3>
+						<h3 className="text-lg font-semibold mb-2">{tc.noCampaigns}</h3>
 						<p className="text-muted-foreground mb-4">
-							Crea una nueva campaña o espera a ser invitado a una
+							{tc.noCampaignsHint}
 						</p>
 						<Button onClick={() => setCreateOpen(true)}>
 							<Plus className="mr-2 h-4 w-4" />
-							Crear Primera Campaña
+							{tc.createFirst}
 						</Button>
 					</div>
 				) : (
@@ -489,14 +492,14 @@ export function MisCampanasScene() {
 											</div>
 										</div>
 										<CardDescription className="line-clamp-2">
-											{campaign.description || "Sin descripción"}
+											{campaign.description || tc.noDescription}
 										</CardDescription>
 									</CardHeader>
 									<CardContent>
 										<div className="flex items-center gap-2 text-sm text-muted-foreground">
 											<Users className="h-4 w-4" />
 											<span>
-												Creada el{" "}
+												{tc.createdOn}{" "}
 												{new Date(campaign.created_at).toLocaleDateString()}
 											</span>
 										</div>
@@ -514,7 +517,7 @@ export function MisCampanasScene() {
 														navigate(`/editar-campana/${campaign.id}`);
 													}}
 												>
-													Editar
+													{tc.edit}
 												</Button>
 
 												{sessionActive ? (
@@ -527,7 +530,7 @@ export function MisCampanasScene() {
 														}}
 													>
 														<Play className="h-3 w-3 mr-1" />
-														Entrar a partida
+														{tc.enterSession}
 													</Button>
 												) : (
 													<Button
@@ -542,15 +545,15 @@ export function MisCampanasScene() {
 															<>
 																<RotateCcw className="h-3 w-3 mr-1" />
 																{startingSession === campaign.id
-																	? "Reanudando..."
-																	: "Reanudar campaña"}
+																	? tc.resuming
+																	: tc.resumeCampaign}
 															</>
 														) : (
 															<>
 																<Play className="h-3 w-3 mr-1" />
 																{startingSession === campaign.id
-																	? "Iniciando..."
-																	: "Comenzar campaña"}
+																	? tc.starting
+																	: tc.startCampaign}
 															</>
 														)}
 													</Button>
@@ -582,7 +585,7 @@ export function MisCampanasScene() {
 														}}
 													>
 														<Swords className="h-3 w-3 mr-1" />
-														Unirse a la partida
+														{tc.joinSession}
 													</Button>
 												) : (
 													<Button
@@ -595,7 +598,7 @@ export function MisCampanasScene() {
 														}}
 													>
 														<User className="h-3 w-3 mr-1" />
-														Ver mi ficha
+														{tc.viewSheet}
 													</Button>
 												)}
 											</>
@@ -621,17 +624,17 @@ export function MisCampanasScene() {
 				<DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
 					<DialogHeader>
 						<DialogTitle>
-							{fichaModalData?.campaign.title} – Mi Personaje
+							{fichaModalData?.campaign.title} – {tc.myCharacter}
 						</DialogTitle>
 						<DialogDescription>
-							Consulta la descripcion de la campaña y el estado de tu ficha.
+							{tc.myCharacter}
 						</DialogDescription>
 					</DialogHeader>
 
 					<div className="rounded-md border border-border bg-muted/20 p-3 text-sm mb-3">
-						<p className="font-medium mb-1">Descripcion de la campaña</p>
+						<p className="font-medium mb-1">{tc.campaignDescription}</p>
 						<p className="text-muted-foreground">
-							{fichaModalData?.campaign.description || "Sin descripcion."}
+							{fichaModalData?.campaign.description || tc.noDescription2}
 						</p>
 					</div>
 
@@ -644,7 +647,7 @@ export function MisCampanasScene() {
 							}}
 						>
 							<Swords className="h-4 w-4 mr-2" />
-							Unirse a la partida en curso
+							{tc.joinOngoing}
 						</Button>
 					)}
 
@@ -654,22 +657,22 @@ export function MisCampanasScene() {
 						<div className="py-4 space-y-4">
 							<div className="text-center text-muted-foreground">
 								<User className="h-12 w-12 mx-auto mb-3 opacity-40" />
-								<p>No tienes un personaje asignado a esta campaña todavía.</p>
+								<p>{tc.noCharacterAssigned}</p>
 							</div>
 
 							{myCharacters.length > 0 ? (
 								<div className="space-y-2">
-									<label className="text-sm font-medium">Asignar una de mis fichas</label>
+									<label className="text-sm font-medium">{tc.assignSheet}</label>
 									<select
 										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 										value={selectedCharacterId}
 										onChange={(e) => setSelectedCharacterId(e.target.value)}
 									>
-										<option value="">Selecciona una ficha...</option>
+										<option value="">{tc.selectSheet}</option>
 										{myCharacters.map((c) => (
 											<option key={c.id} value={c.id}>
 												{c.name}
-												{c.campaign_id ? " (ya asociada a otra campaña)" : ""}
+												{c.campaign_id ? ` ${tc.alreadyAssigned}` : ""}
 											</option>
 										))}
 									</select>
@@ -678,14 +681,14 @@ export function MisCampanasScene() {
 										disabled={!selectedCharacterId || assigningCharacter}
 										onClick={handleAssignCharacter}
 									>
-										{assigningCharacter ? "Asignando..." : "Asignar ficha a esta campaña"}
+										{assigningCharacter ? tc.assigning : tc.assignBtn}
 									</Button>
 								</div>
 							) : (
 								<div className="text-center">
-									<p className="text-sm text-muted-foreground mb-3">No tienes fichas creadas todavía.</p>
+									<p className="text-sm text-muted-foreground mb-3">{tc.noSheets}</p>
 									<Button variant="outline" onClick={() => navigate("/fichas")}>
-										Ir a Fichas
+										{tc.goToSheets}
 									</Button>
 								</div>
 							)}
@@ -700,6 +703,8 @@ export function MisCampanasScene() {
 // ─── Character summary sub-component ─────────────────────────────────────────
 
 function CharacterSummary({ char }: { char: Record<string, unknown> }) {
+	const { t } = useTranslation();
+	const tc = t.campaigns;
 	const stats = (char.stats ?? {}) as Record<string, unknown>;
 	const classes = ((char.classes ?? []) as { name: string; level: number }[])
 		.map((c) => `${c.name} ${c.level}`)
@@ -728,10 +733,10 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 
 			<Tabs defaultValue="info">
 				<TabsList>
-					<TabsTrigger value="info">Info</TabsTrigger>
-					<TabsTrigger value="combate">Combate</TabsTrigger>
-					<TabsTrigger value="equipo">Equipo</TabsTrigger>
-					<TabsTrigger value="notas">Notas</TabsTrigger>
+					<TabsTrigger value="info">{tc.tabInfo}</TabsTrigger>
+					<TabsTrigger value="combate">{tc.tabCombat}</TabsTrigger>
+					<TabsTrigger value="equipo">{tc.tabEquipment}</TabsTrigger>
+					<TabsTrigger value="notas">{tc.tabNotes}</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="info">
@@ -743,12 +748,12 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 									className="bg-muted rounded p-2 text-center"
 								>
 									<div className="text-xs text-muted-foreground capitalize">
-										{key === "strength" ? "Fuerza"
-											: key === "dexterity" ? "Destreza"
-											: key === "constitution" ? "Constitución"
-											: key === "intelligence" ? "Inteligencia"
-											: key === "wisdom" ? "Sabiduría"
-											: "Carisma"}
+										{key === "strength" ? tc.statStr
+											: key === "dexterity" ? tc.statDex
+											: key === "constitution" ? tc.statCon
+											: key === "intelligence" ? tc.statInt
+											: key === "wisdom" ? tc.statWis
+											: tc.statCha}
 									</div>
 									<div className="font-bold">{Number(stats[key] ?? 10)}</div>
 								</div>
@@ -760,11 +765,11 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 				<TabsContent value="combate">
 					<div className="grid grid-cols-3 gap-2 text-sm">
 						{[
-							{ k: "current_hp", l: "HP Act." },
-							{ k: "max_hp", l: "HP Máx" },
-							{ k: "armor_class", l: "CA" },
-							{ k: "initiative", l: "Iniciativa" },
-							{ k: "speed", l: "Velocidad" },
+							{ k: "current_hp", l: tc.hpCurrent },
+							{ k: "max_hp", l: tc.hpMax },
+							{ k: "armor_class", l: tc.ac },
+							{ k: "initiative", l: tc.initiative },
+							{ k: "speed", l: tc.speed },
 						].map(({ k, l }) => (
 							<div key={k} className="bg-muted rounded p-2 text-center">
 								<div className="text-xs text-muted-foreground">{l}</div>
@@ -777,21 +782,21 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 				<TabsContent value="equipo">
 					<div className="space-y-2 text-sm">
 						<div>
-							<p className="font-medium mb-1">Equipo</p>
+							<p className="font-medium mb-1">{tc.equipment}</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.equipment as string) || "Sin equipo registrado."}
+								{(char.equipment as string) || tc.noEquipment}
 							</p>
 						</div>
 						<div>
-							<p className="font-medium mb-1">Inventario</p>
+							<p className="font-medium mb-1">{tc.inventory}</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.inventory as string) || "Inventario vacío."}
+								{(char.inventory as string) || tc.emptyInventory}
 							</p>
 						</div>
 						<div>
-							<p className="font-medium mb-1">Hechizos</p>
+							<p className="font-medium mb-1">{tc.spells}</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.spells_known as string) || "Sin hechizos registrados."}
+								{(char.spells_known as string) || tc.noSpells}
 							</p>
 						</div>
 					</div>
@@ -799,7 +804,7 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 
 				<TabsContent value="notas">
 					<p className="text-sm text-muted-foreground whitespace-pre-wrap">
-						{(char.notes as string) || "Sin notas."}
+						{(char.notes as string) || tc.noNotes}
 					</p>
 				</TabsContent>
 			</Tabs>
