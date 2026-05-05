@@ -16,23 +16,13 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/core/auth/useAuth";
-
-const ROUTE_LABELS: { prefix: string; label: string }[] = [
-  { prefix: "/mis-campanas",     label: "Mis Campañas" },
-  { prefix: "/inventario",       label: "Inventario" },
-  { prefix: "/mis-fichas",       label: "Mis Fichas" },
-  { prefix: "/mi-ficha",         label: "Mi Ficha" },
-  { prefix: "/mis-mapas",        label: "Mis Mapas" },
-  { prefix: "/mapa-batalla",     label: "Mapa de Batalla" },
-  { prefix: "/dados",            label: "Tirada de Dados" },
-  { prefix: "/profile/settings", label: "Configuración" },
-  { prefix: "/editar-campana",   label: "Editar Campaña" },
-  { prefix: "/partida",          label: "Partida" },
-];
+import { useTranslation } from "@/i18n";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export const ProfileLayout = ({ children }: PropsWithChildren) => {
   const { user } = useAuth();
   const { pathname } = useLocation();
+  const { t } = useTranslation();
 
   // Dashboard siempre en dark mode (colores fijos de dungeon)
   useEffect(() => {
@@ -44,12 +34,14 @@ export const ProfileLayout = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
-  const displayName = user?.email ? user.email.split("@")[0] : "Invitado";
+  const displayName = user?.email ? user.email.split("@")[0] : t.navUser.guest;
 
+  // Build route label from translations
+  const routeLabels = t.layout.routes as Record<string, string>;
   const currentLabel =
-    ROUTE_LABELS.find(
-      (r) => pathname === r.prefix || pathname.startsWith(r.prefix + "/")
-    )?.label ?? "Dashboard";
+    Object.entries(routeLabels).find(
+      ([prefix]) => pathname === prefix || pathname.startsWith(prefix + "/")
+    )?.[1] ?? t.layout.dashboard;
 
   return (
     <div
@@ -69,7 +61,7 @@ export const ProfileLayout = ({ children }: PropsWithChildren) => {
                       asChild
                       className="hover:text-amber-200 transition-colors"
                     >
-                      <Link to="/">Inicio</Link>
+                      <Link to="/">{t.layout.home}</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="text-amber-700" />
@@ -81,13 +73,16 @@ export const ProfileLayout = ({ children }: PropsWithChildren) => {
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <NavUser
-              fallbackUser={{
-                name: displayName,
-                email: user?.email || "",
-                avatar: "",
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher compact />
+              <NavUser
+                fallbackUser={{
+                  name: displayName,
+                  email: user?.email || "",
+                  avatar: "",
+                }}
+              />
+            </div>
           </header>
 
           <main className="px-6 py-8">{children}</main>

@@ -11,53 +11,7 @@ import {
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-
-// Opciones de gestión de cuenta/perfil con subtítulos y badges opcionales
-export const navMain = [
-  {
-    title: "Inicio",
-    url: "/",
-    icon: Home,
-    subtitle: "Volver a la página principal",
-  },
-  {
-    title: "Mis Campañas",
-    url: "/mis-campanas",
-    icon: Scroll,
-    subtitle: "Gestiona tus aventuras y jugadores",
-    isActive: true,
-  },
-  {
-    title: "Inventario",
-    url: "/inventario",
-    icon: Package,
-    subtitle: "Gestiona tu equipo y objetos",
-  },
-  {
-    title: "Mis Fichas",
-    url: "/mis-fichas",
-    icon: ScrollText,
-    subtitle: "Lista de personajes creados",
-  },
-  {
-    title: "Mis Mapas",
-    url: "/mis-mapas",
-    icon: Map,
-    subtitle: "Mapas y escenarios de batalla",
-  },
-  {
-    title: "Tirada de Dados",
-    url: "/dados",
-    icon: Dices,
-    subtitle: "Lanza dados y genera tiradas",
-  },
-  {
-    title: "Configuración",
-    url: "/profile/settings",
-    icon: Settings,
-    subtitle: "Ajustes de cuenta y preferencias",
-  },
-];
+import { useTranslation } from "@/i18n";
 
 function SidebarBrand() {
 	const { state } = useSidebar();
@@ -91,6 +45,55 @@ function SidebarBrand() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { t } = useTranslation();
+
+	// Opciones de gestión de cuenta/perfil con subtítulos
+	const navMain = [
+		{
+			title: t.sidebar.home.title,
+			url: "/",
+			icon: Home,
+			subtitle: t.sidebar.home.subtitle,
+		},
+		{
+			title: t.sidebar.campaigns.title,
+			url: "/mis-campanas",
+			icon: Scroll,
+			subtitle: t.sidebar.campaigns.subtitle,
+			isActive: true,
+		},
+		{
+			title: t.sidebar.inventory.title,
+			url: "/inventario",
+			icon: Package,
+			subtitle: t.sidebar.inventory.subtitle,
+		},
+		{
+			title: t.sidebar.characters.title,
+			url: "/mis-fichas",
+			icon: ScrollText,
+			subtitle: t.sidebar.characters.subtitle,
+		},
+		{
+			title: t.sidebar.maps.title,
+			url: "/mis-mapas",
+			icon: Map,
+			subtitle: t.sidebar.maps.subtitle,
+		},
+		{
+			title: t.sidebar.dice.title,
+			url: "/dados",
+			icon: Dices,
+			subtitle: t.sidebar.dice.subtitle,
+		},
+		{
+			title: t.sidebar.settings.title,
+			url: "/profile/settings",
+			icon: Settings,
+			subtitle: t.sidebar.settings.subtitle,
+		},
+	];
+
 	return (
 		<Sidebar
 			collapsible="icon"

@@ -9,13 +9,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-// import {
-//   SidebarMenu,
-//   SidebarMenuButton,
-//   SidebarMenuItem,
-// } from "@/components/ui/sidebar";
 import { useAuth } from "@/core/auth/useAuth";
 import { useNavigate } from "react-router";
+import { useTranslation } from "@/i18n";
 
 type NavUserProps = {
   fallbackUser?: {
@@ -28,13 +24,14 @@ type NavUserProps = {
 export function NavUser({ fallbackUser }: NavUserProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const nameFromEmail = (email?: string | null) =>
-    email ? email.split("@")[0] : "Invitado";
+    email ? email.split("@")[0] : t.navUser.guest;
 
   const displayName = user?.email
     ? nameFromEmail(user.email)
-    : fallbackUser?.name || "Invitado";
+    : fallbackUser?.name || t.navUser.guest;
 
   const displayEmail = user?.email || fallbackUser?.email || "";
   const displayAvatar = fallbackUser?.avatar || "";
@@ -66,29 +63,12 @@ export function NavUser({ fallbackUser }: NavUserProps) {
         align="end"
         sideOffset={12}
       >
-        {/* <DropdownMenuLabel className="p-0 font-normal">
-          <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-amber-200/10 border border-amber-200/20">
-            <Avatar className="h-10 w-10 rounded-lg">
-              <AvatarImage src={displayAvatar} alt={displayName} />
-              <AvatarFallback className="rounded-lg bg-amber-500/90 text-white font-semibold">
-                {(displayName || "?").slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col text-left">
-              <span className="text-lg font-semibold text-amber-950 italic">
-                {displayName}
-              </span>
-              <span className="text-amber-800">{displayEmail}</span>
-            </div>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-amber-300/20" /> */}
         <DropdownMenuItem
           onSelect={handleLogout}
           className="cursor-pointer text-white hover:text-white hover:bg-amber-300/10 focus:bg-amber-300/10"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Cerrar sesión
+          {t.navUser.logout}
         </DropdownMenuItem>
         {!user && (
           <DropdownMenuItem
@@ -96,7 +76,7 @@ export function NavUser({ fallbackUser }: NavUserProps) {
             className="cursor-pointer text-amber-800 hover:text-white hover:bg-amber-300/10 focus:bg-amber-300/10"
           >
             <UserRound className="mr-2 h-4 w-4 text-amber-500" />
-            Iniciar sesión
+            {t.navUser.login}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

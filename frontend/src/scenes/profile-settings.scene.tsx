@@ -9,38 +9,42 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useTranslation } from "@/i18n";
 
 export const ProfileSettingsScene: React.FC = () => {
 	return <SettingsContent />;
 };
 
 const SettingsContent: React.FC = () => {
+	const { t } = useTranslation();
+	const ps = t.profileSettings;
+
 	const settingsSections = [
 		{
 			id: 1,
-			title: "Perfil de Usuario",
-			description: "Gestiona tu información personal y preferencias de cuenta",
+			title: ps.sections.profile.title,
+			description: ps.sections.profile.description,
 			icon: User,
 			available: false,
 		},
 		{
 			id: 2,
-			title: "Notificaciones",
-			description: "Configura cómo y cuándo recibir notificaciones",
+			title: ps.sections.notifications.title,
+			description: ps.sections.notifications.description,
 			icon: Bell,
 			available: false,
 		},
 		{
 			id: 3,
-			title: "Privacidad y Seguridad",
-			description: "Controla tu privacidad y opciones de seguridad",
+			title: ps.sections.privacy.title,
+			description: ps.sections.privacy.description,
 			icon: Shield,
 			available: false,
 		},
 		{
 			id: 4,
-			title: "Apariencia",
-			description: "Personaliza el tema y la apariencia de la aplicación",
+			title: ps.sections.appearance.title,
+			description: ps.sections.appearance.description,
 			icon: Palette,
 			available: false,
 		},
@@ -54,19 +58,18 @@ const SettingsContent: React.FC = () => {
 				<div className="flex items-center gap-3 mb-2">
 					<Settings className="h-8 w-8 text-amber-200" />
 					<h1 className="text-3xl font-bold text-amber-50">
-						Configuración
+						{ps.title}
 					</h1>
 				</div>
 				<p className="text-sm text-amber-100/90">
-					Gestiona tu cuenta, preferencias y opciones de privacidad.
+					{ps.subtitle}
 				</p>
 			</section>
 
 			{/* Development Notice */}
 			<Alert className="bg-amber-950/50 border-amber-600/50">
 				<AlertDescription className="text-amber-200">
-					La sección de configuración está en desarrollo. Próximamente podrás
-					personalizar tu experiencia.
+					{ps.wip}
 				</AlertDescription>
 			</Alert>
 
@@ -96,7 +99,7 @@ const SettingsContent: React.FC = () => {
 							</CardHeader>
 							<CardContent>
 								<p className="text-xs text-gray-500 italic">
-									Próximamente disponible
+									{ps.comingSoon}
 								</p>
 							</CardContent>
 						</Card>

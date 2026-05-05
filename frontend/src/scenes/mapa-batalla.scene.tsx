@@ -25,6 +25,7 @@ import {
   createBattleMap,
   getBattleMap,
 } from "@/core/api/battle-map.service";
+import { useTranslation } from "@/i18n";
 
 interface MapState {
   image: string | null;
@@ -62,6 +63,8 @@ const getAlphaFromRgba = (rgba: string): number => {
 export const MapaBatallaScene = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
+  const tm = t.mapEditor;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -115,7 +118,7 @@ export const MapaBatallaScene = () => {
       });
     } catch (error) {
       console.error("Error al cargar mapa:", error);
-      alert("No se pudo cargar el mapa");
+      alert(tm.errorLoad);
     }
   };
 
@@ -210,7 +213,7 @@ export const MapaBatallaScene = () => {
 
     // Verificar que es una imagen
     if (!file.type.startsWith("image/")) {
-      alert("Por favor selecciona un archivo de imagen");
+      alert(tm.errorNotImage);
       return;
     }
 
@@ -271,16 +274,16 @@ export const MapaBatallaScene = () => {
 
   const handleSaveMap = async () => {
     if (!isAuthenticated) {
-      alert("Debes iniciar sesión para guardar mapas");
+      alert(tm.errorNoAuth);
       return;
     }
 
     if (!mapState.image) {
-      alert("No hay ningún mapa cargado");
+      alert(tm.errorNoMap);
       return;
     }
 
-    const mapName = prompt("Nombre del mapa:", mapState.imageName || "Mi Mapa");
+    const mapName = prompt(tm.mapNamePrompt, mapState.imageName || tm.defaultMapName);
     if (!mapName) return;
 
     setIsSaving(true);
@@ -291,11 +294,11 @@ export const MapaBatallaScene = () => {
         grid_size: mapState.gridSize,
         grid_color: mapState.gridColor,
       });
-      alert("Mapa guardado correctamente");
+      alert(tm.savedOk);
       setMapState((prev) => ({ ...prev, imageName: mapName }));
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert(error instanceof Error ? error.message : "Error al guardar el mapa");
+      alert(error instanceof Error ? error.message : tm.errorSave);
     } finally {
       setIsSaving(false);
     }
@@ -308,7 +311,7 @@ export const MapaBatallaScene = () => {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-            <p className="text-sm font-medium text-amber-400">Cargando imagen...</p>
+            <p className="text-sm font-medium text-amber-400">{tm.loadingImage}</p>
           </div>
         </div>
       )}
@@ -318,7 +321,7 @@ export const MapaBatallaScene = () => {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-            <p className="text-sm font-medium text-amber-400">Guardando mapa...</p>
+            <p className="text-sm font-medium text-amber-400">{tm.savingMap}</p>
           </div>
         </div>
       )}
@@ -328,14 +331,14 @@ export const MapaBatallaScene = () => {
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-amber-100">Mapa de Batalla</h1>
+            <h1 className="text-2xl font-bold text-amber-100">{tm.title}</h1>
             <Button
               variant="ghost"
               onClick={() => navigate(-1)}
               className="flex items-center gap-1.5 text-amber-400 hover:text-amber-200 hover:bg-amber-900/30 text-xs"
             >
               <House className="h-4 w-4" />
-              Volver
+              {tm.back}
             </Button>
           </div>
 
@@ -344,10 +347,10 @@ export const MapaBatallaScene = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <Upload className="h-5 w-5" />
-                Cargar Mapa
+                {tm.loadMap}
               </CardTitle>
               <CardDescription className="text-amber-600">
-                {mapState.imageName || "Selecciona una imagen"}
+                {mapState.imageName || tm.selectImage}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -363,7 +366,7 @@ export const MapaBatallaScene = () => {
                 className="w-full bg-amber-700 hover:bg-amber-600 text-amber-100"
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Seleccionar Imagen
+                {tm.selectImageBtn}
               </Button>
             </CardContent>
           </Card>
@@ -373,7 +376,7 @@ export const MapaBatallaScene = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <Grid3x3 className="h-5 w-5" />
-                Cuadrícula
+                {tm.gridSection}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -387,12 +390,12 @@ export const MapaBatallaScene = () => {
                   }
                   className="h-4 w-4 accent-amber-500"
                 />
-                <Label htmlFor="showGrid" className="text-amber-300">Mostrar cuadrícula</Label>
+                <Label htmlFor="showGrid" className="text-amber-300">{tm.showGrid}</Label>
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="gridSize" className="text-amber-300">Tamaño: {mapState.gridSize}px</Label>
+                  <Label htmlFor="gridSize" className="text-amber-300">{tm.gridSize}: {mapState.gridSize}px</Label>
                 </div>
                 <Slider
                   id="gridSize"
@@ -408,7 +411,7 @@ export const MapaBatallaScene = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gridColor" className="text-amber-300">Color de cuadrícula</Label>
+                <Label htmlFor="gridColor" className="text-amber-300">{tm.gridColor}</Label>
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
@@ -440,7 +443,7 @@ export const MapaBatallaScene = () => {
                       disabled={!mapState.showGrid}
                     />
                     <div className="flex justify-between text-xs text-amber-600">
-                      <span>Opacidad</span>
+                      <span>{tm.opacity}</span>
                       <span>{Math.round(getAlphaFromRgba(mapState.gridColor) * 100)}%</span>
                     </div>
                   </div>
@@ -454,12 +457,12 @@ export const MapaBatallaScene = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <ZoomIn className="h-5 w-5" />
-                Vista
+                {tm.viewSection}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-amber-300">Zoom: {Math.round(mapState.zoom * 100)}%</Label>
+                <Label className="text-amber-300">{tm.zoom}: {Math.round(mapState.zoom * 100)}%</Label>
               </div>
 
               <div className="flex gap-2">
@@ -471,7 +474,7 @@ export const MapaBatallaScene = () => {
                   disabled={!mapState.image}
                 >
                   <ZoomOut className="mr-2 h-4 w-4" />
-                  Alejar
+                  {tm.zoomOut}
                 </Button>
                 <Button
                   onClick={handleZoomIn}
@@ -481,7 +484,7 @@ export const MapaBatallaScene = () => {
                   disabled={!mapState.image}
                 >
                   <ZoomIn className="mr-2 h-4 w-4" />
-                  Acercar
+                  {tm.zoomIn}
                 </Button>
               </div>
 
@@ -493,12 +496,12 @@ export const MapaBatallaScene = () => {
                 disabled={!mapState.image}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Restablecer Vista
+                {tm.resetView}
               </Button>
 
               <div className="text-sm text-amber-600">
                 <Move className="inline h-4 w-4 mr-1" />
-                Arrastra para desplazar
+                {tm.dragHint}
               </div>
             </CardContent>
           </Card>
@@ -509,7 +512,7 @@ export const MapaBatallaScene = () => {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                   <Save className="h-5 w-5" />
-                  Guardar
+                  {tm.saveSection}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -519,7 +522,7 @@ export const MapaBatallaScene = () => {
                   disabled={!mapState.image || isSaving}
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? "Guardando..." : "Guardar Mapa"}
+                  {isSaving ? tm.saving : tm.saveMap}
                 </Button>
               </CardContent>
             </Card>
@@ -529,7 +532,7 @@ export const MapaBatallaScene = () => {
             <Card className="border-amber-800/30 bg-amber-950/40">
               <CardContent className="pt-6">
                 <p className="text-sm text-amber-500 text-center">
-                  Inicia sesión para guardar tus mapas
+                  {tm.loginToSave}
                 </p>
               </CardContent>
             </Card>
@@ -544,7 +547,7 @@ export const MapaBatallaScene = () => {
             <div className="text-center space-y-4">
               <Upload className="h-16 w-16 mx-auto text-amber-800/50" />
               <p className="text-xl text-amber-700/60">
-                Carga una imagen para comenzar
+                {tm.uploadHint}
               </p>
             </div>
           </div>
