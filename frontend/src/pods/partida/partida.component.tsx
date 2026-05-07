@@ -25,18 +25,12 @@ import { OrdenCombate } from "./components/OrdenCombate";
 import { BarraInferior } from "./components/BarraInferior";
 import { DadosOverlay } from "./components/DadosOverlay";
 import { FichaOverlay } from "./components/FichaOverlay";
+import type { CharacterUpdates } from "./components/FichaOverlay";
 import { DialogoIniciarCombate } from "./components/DialogoIniciarCombate";
 import { Loader2 } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-// Types matching PanelDM expectations
-interface BattleMap {
-	id: string;
-	name: string;
-	image_data: string;
-	grid_size: number;
-	grid_color: string;
-}
+import type { BattleMapListItem } from "@/core/api/battle-map.service";
+type BattleMap = BattleMapListItem;
 
 interface Props {
 	campaignId: string;
@@ -67,7 +61,10 @@ interface Props {
 	onChangeTokenIcon: (tokenId: string, iconKey: string) => void;
 	onUpdateToken: (
 		tokenId: string,
-		updates: { token_color?: string; token_size?: string },
+		updates: {
+			token_color?: string;
+			token_size?: "S" | "M" | "L" | "XL" | null;
+		},
 	) => void;
 	selectedToken: SessionToken | null;
 	onTokenSelect: (token: SessionToken | null) => void;
@@ -90,7 +87,7 @@ interface Props {
 	onSaveFicha: (
 		memberId: string,
 		characterId: string,
-		updates: Record<string, unknown>,
+		updates: CharacterUpdates,
 	) => Promise<void>;
 	onCancelCombatDialog: () => void;
 }

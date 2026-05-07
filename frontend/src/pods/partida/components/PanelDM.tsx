@@ -43,14 +43,8 @@ import type {
 	SessionToken,
 	CombatState,
 } from "../partida.vm";
-
-interface BattleMap {
-	id: string;
-	name: string;
-	image_data: string;
-	grid_size: number;
-	grid_color: string;
-}
+import type { BattleMapListItem } from "@/core/api/battle-map.service";
+type BattleMap = BattleMapListItem;
 
 interface Props {
 	chapters: ChapterWithScenes[];
@@ -67,7 +61,10 @@ interface Props {
 	onChangeTokenIcon: (tokenId: string, iconKey: string) => void;
 	onUpdateToken: (
 		tokenId: string,
-		updates: { token_color?: string; token_size?: string },
+		updates: {
+			token_color?: string;
+			token_size?: "S" | "M" | "L" | "XL" | null;
+		},
 	) => void;
 	selectedToken: SessionToken | null;
 	onStartCombat: () => void;

@@ -21,6 +21,8 @@ interface SwitchRoutes {
 	partida: string;
 	authCallback: string;
 	admin: string;
+	guias: string;
+	guiaDetalle: string;
 }
 
 export const switchRoutes: SwitchRoutes = {
