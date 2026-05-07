@@ -1,4 +1,5 @@
 import { type PropsWithChildren, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { AppSidebar } from "@/components/app-sidebar";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -6,6 +7,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import {
@@ -14,9 +16,13 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/core/auth/useAuth";
+import { useTranslation } from "@/i18n";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export const ProfileLayout = ({ children }: PropsWithChildren) => {
   const { user } = useAuth();
+  const { pathname } = useLocation();
+  const { t } = useTranslation();
 
   // Dashboard siempre en dark mode (colores fijos de dungeon)
   useEffect(() => {
@@ -28,7 +34,14 @@ export const ProfileLayout = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
-  const displayName = user?.email ? user.email.split("@")[0] : "Invitado";
+  const displayName = user?.email ? user.email.split("@")[0] : t.navUser.guest;
+
+  // Build route label from translations
+  const routeLabels = t.layout.routes as Record<string, string>;
+  const currentLabel =
+    Object.entries(routeLabels).find(
+      ([prefix]) => pathname === prefix || pathname.startsWith(prefix + "/")
+    )?.[1] ?? t.layout.dashboard;
 
   return (
     <div
@@ -45,26 +58,31 @@ export const ProfileLayout = ({ children }: PropsWithChildren) => {
                 <BreadcrumbList className="text-sm text-amber-400">
                   <BreadcrumbItem>
                     <BreadcrumbLink
-                      href="/"
+                      asChild
                       className="hover:text-amber-200 transition-colors"
                     >
-                      Inicio
+                      <Link to="/">{t.layout.home}</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="text-amber-700" />
-                  <BreadcrumbItem className="text-amber-200 font-semibold">
-                    Dashboard
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="text-amber-200 font-semibold">
+                      {currentLabel}
+                    </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <NavUser
-              fallbackUser={{
-                name: displayName,
-                email: user?.email || "",
-                avatar: "",
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher compact />
+              <NavUser
+                fallbackUser={{
+                  name: displayName,
+                  email: user?.email || "",
+                  avatar: "",
+                }}
+              />
+            </div>
           </header>
 
           <main className="px-6 py-8">{children}</main>

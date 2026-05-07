@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Plus, Trash2, Map, Eye } from "lucide-react";
+import { ProfileTabs } from "@/components/profile-tabs";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,18 +16,16 @@ import {
   type BattleMapListItem,
 } from "@/core/api/battle-map.service";
 import { switchRoutes } from "@/router/routes";
-import { ProfileLayout } from "@/layout/profile.layout";
+import { useTranslation } from "@/i18n";
 
 export const MisMapasScene = () => {
-  return (
-    <ProfileLayout>
-      <MisMapasContent />
-    </ProfileLayout>
-  );
+  return <MisMapasContent />;
 };
 
 const MisMapasContent = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const tm = t.maps;
   const [maps, setMaps] = useState<BattleMapListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -79,33 +78,36 @@ const MisMapasContent = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 max-w-7xl space-y-6">
+      <ProfileTabs />
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
-        <div className="flex items-center gap-3 mb-2">
-          <Map className="h-8 w-8 text-amber-200" />
-          <h1 className="text-3xl font-bold text-amber-50">Mis Mapas de Batalla</h1>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <Map className="h-8 w-8 text-amber-200" />
+              <h1 className="text-3xl font-bold text-amber-50">{tm.title}</h1>
+            </div>
+            <p className="text-sm text-amber-100/90">
+              {tm.subtitle}
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate(switchRoutes.mapaBatalla)}
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            {tm.newMap}
+          </Button>
         </div>
-        <p className="text-amber-100">
-          Gestiona tus mapas de batalla guardados
-        </p>
       </section>
 
-      {/* Actions */}
-      <div className="flex justify-between items-center">
-        <p className="text-muted-foreground">
-          {maps.length === 0
-            ? "No tienes mapas guardados"
-            : `${maps.length} ${maps.length === 1 ? "mapa" : "mapas"}`}
+      {/* Results count */}
+      {!loading && maps.length > 0 && (
+        <p className="text-sm text-muted-foreground">
+          {maps.length} {maps.length === 1 ? tm.map : tm.maps}
         </p>
-        <Button
-          onClick={() => navigate(switchRoutes.mapaBatalla)}
-          className="bg-amber-600 hover:bg-amber-700"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Mapa
-        </Button>
-      </div>
+      )}
 
       {/* Error Message */}
       {error && (
@@ -129,13 +131,13 @@ const MisMapasContent = () => {
           <CardContent className="pt-6 text-center">
             <Map className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <p className="text-muted-foreground mb-4">
-              Aún no has guardado ningún mapa de batalla
+              {tm.noMaps}
             </p>
             <Button
               onClick={() => navigate(switchRoutes.mapaBatalla)}
               variant="outline"
             >
-              Crear tu Primer Mapa
+              {tm.createFirst}
             </Button>
           </CardContent>
         </Card>
@@ -150,16 +152,16 @@ const MisMapasContent = () => {
                   <div className="space-y-1 flex-1">
                     <CardTitle className="text-lg">{map.name}</CardTitle>
                     <CardDescription>
-                      Cuadrícula: {map.grid_size}px
+                      {tm.grid}: {map.grid_size}px
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="text-sm text-muted-foreground">
-                  <p>Creado: {formatDate(map.created_at)}</p>
+                  <p>{tm.created}: {formatDate(map.created_at)}</p>
                   {map.updated_at !== map.created_at && (
-                    <p>Modificado: {formatDate(map.updated_at)}</p>
+                    <p>{tm.modified}: {formatDate(map.updated_at)}</p>
                   )}
                 </div>
                 
@@ -170,7 +172,7 @@ const MisMapasContent = () => {
                     size="sm"
                   >
                     <Eye className="mr-2 h-4 w-4" />
-                    Abrir
+                    {tm.open}
                   </Button>
                   <Button
                     onClick={() => handleDelete(map.id, map.name)}

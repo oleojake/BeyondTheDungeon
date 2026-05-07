@@ -4,6 +4,10 @@ interface SwitchRoutes {
 	register: string;
 	profile: string;
 	profileSettings: string;
+	profileCampanas: string;
+	profileMapas: string;
+	fichas: string;
+	fichaNueva: string;
 	hechizos: string;
 	hechizosDetalle: string;
 	bestiario: string;
@@ -11,13 +15,12 @@ interface SwitchRoutes {
 	dados: string;
 	inventario: string;
 	objetos: string;
-	miFicha: string;
-	misFichas: string;
+	objetosDetalle: string;
 	mapaBatalla: string;
-	misMapas: string;
-	misCampanas: string;
 	editarCampana: string;
+	partida: string;
 	authCallback: string;
+	admin: string;
 }
 
 export const switchRoutes: SwitchRoutes = {
@@ -26,6 +29,10 @@ export const switchRoutes: SwitchRoutes = {
 	register: "/registro",
 	profile: "/profile",
 	profileSettings: "/profile/settings",
+	profileCampanas: "/profile/campanas",
+	profileMapas: "/profile/mapas",
+	fichas: "/fichas",
+	fichaNueva: "/fichas/nueva",
 	hechizos: "/hechizos",
 	hechizosDetalle: "/hechizos/:id",
 	bestiario: "/bestiario",
@@ -33,13 +40,14 @@ export const switchRoutes: SwitchRoutes = {
 	dados: "/dados",
 	inventario: "/inventario",
 	objetos: "/objetos",
-	miFicha: "/mi-ficha",
-	misFichas: "/mis-fichas",
+	objetosDetalle: "/objetos/:id",
 	mapaBatalla: "/mapa-batalla",
-	misMapas: "/mis-mapas",
-	misCampanas: "/mis-campanas",
 	editarCampana: "/editar-campana/:id",
+	partida: "/partida/:id",
 	authCallback: "/auth/callback",
+	admin: "/admin",
+	guias: "/guias",
+	guiaDetalle: "/guias/:slug",
 };
 
 type Routes = SwitchRoutes;

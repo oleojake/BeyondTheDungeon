@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  X,
+  House,
   Upload,
   Grid3x3,
   ZoomIn,
@@ -25,6 +25,7 @@ import {
   createBattleMap,
   getBattleMap,
 } from "@/core/api/battle-map.service";
+import { useTranslation } from "@/i18n";
 
 interface MapState {
   image: string | null;
@@ -62,6 +63,8 @@ const getAlphaFromRgba = (rgba: string): number => {
 export const MapaBatallaScene = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
+  const tm = t.mapEditor;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -115,7 +118,7 @@ export const MapaBatallaScene = () => {
       });
     } catch (error) {
       console.error("Error al cargar mapa:", error);
-      alert("No se pudo cargar el mapa");
+      alert(tm.errorLoad);
     }
   };
 
@@ -210,7 +213,7 @@ export const MapaBatallaScene = () => {
 
     // Verificar que es una imagen
     if (!file.type.startsWith("image/")) {
-      alert("Por favor selecciona un archivo de imagen");
+      alert(tm.errorNotImage);
       return;
     }
 
@@ -271,16 +274,16 @@ export const MapaBatallaScene = () => {
 
   const handleSaveMap = async () => {
     if (!isAuthenticated) {
-      alert("Debes iniciar sesión para guardar mapas");
+      alert(tm.errorNoAuth);
       return;
     }
 
     if (!mapState.image) {
-      alert("No hay ningún mapa cargado");
+      alert(tm.errorNoMap);
       return;
     }
 
-    const mapName = prompt("Nombre del mapa:", mapState.imageName || "Mi Mapa");
+    const mapName = prompt(tm.mapNamePrompt, mapState.imageName || tm.defaultMapName);
     if (!mapName) return;
 
     setIsSaving(true);
@@ -291,63 +294,63 @@ export const MapaBatallaScene = () => {
         grid_size: mapState.gridSize,
         grid_color: mapState.gridColor,
       });
-      alert("Mapa guardado correctamente");
+      alert(tm.savedOk);
       setMapState((prev) => ({ ...prev, imageName: mapName }));
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert(error instanceof Error ? error.message : "Error al guardar el mapa");
+      alert(error instanceof Error ? error.message : tm.errorSave);
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-background flex">
+    <div className="fixed inset-0 bg-[#1A1410] flex">
       {/* Loading image overlay */}
       {isLoadingImage && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm font-medium text-muted-foreground">Cargando imagen...</p>
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+            <p className="text-sm font-medium text-amber-400">{tm.loadingImage}</p>
           </div>
         </div>
       )}
 
       {/* Saving overlay */}
       {isSaving && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm font-medium text-muted-foreground">Guardando mapa...</p>
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+            <p className="text-sm font-medium text-amber-400">{tm.savingMap}</p>
           </div>
         </div>
       )}
 
       {/* Sidebar */}
-      <aside className="w-80 bg-card border-r border-border p-6 overflow-y-auto">
+      <aside className="w-80 bg-[#231C15] border-r border-amber-900/30 p-6 overflow-y-auto">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-foreground">Mapa de Batalla</h1>
+            <h1 className="text-2xl font-bold text-amber-100">{tm.title}</h1>
             <Button
               variant="ghost"
-              size="icon"
               onClick={() => navigate(-1)}
-              title="Salir"
+              className="flex items-center gap-1.5 text-amber-400 hover:text-amber-200 hover:bg-amber-900/30 text-xs"
             >
-              <X className="h-5 w-5" />
+              <House className="h-4 w-4" />
+              {tm.back}
             </Button>
           </div>
 
           {/* Cargar imagen */}
-          <Card>
+          <Card className="bg-[#2C2419] border-amber-900/30">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <Upload className="h-5 w-5" />
-                Cargar Mapa
+                {tm.loadMap}
               </CardTitle>
-              <CardDescription>
-                {mapState.imageName || "Selecciona una imagen"}
+              <CardDescription className="text-amber-600">
+                {mapState.imageName || tm.selectImage}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -360,20 +363,20 @@ export const MapaBatallaScene = () => {
               />
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full"
+                className="w-full bg-amber-700 hover:bg-amber-600 text-amber-100"
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Seleccionar Imagen
+                {tm.selectImageBtn}
               </Button>
             </CardContent>
           </Card>
 
           {/* Controles de cuadrícula */}
-          <Card>
+          <Card className="bg-[#2C2419] border-amber-900/30">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <Grid3x3 className="h-5 w-5" />
-                Cuadrícula
+                {tm.gridSection}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -385,14 +388,14 @@ export const MapaBatallaScene = () => {
                   onChange={(e) =>
                     setMapState((prev) => ({ ...prev, showGrid: e.target.checked }))
                   }
-                  className="h-4 w-4"
+                  className="h-4 w-4 accent-amber-500"
                 />
-                <Label htmlFor="showGrid">Mostrar cuadrícula</Label>
+                <Label htmlFor="showGrid" className="text-amber-300">{tm.showGrid}</Label>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="gridSize">Tamaño: {mapState.gridSize}px</Label>
+                  <Label htmlFor="gridSize" className="text-amber-300">{tm.gridSize}: {mapState.gridSize}px</Label>
                 </div>
                 <Slider
                   id="gridSize"
@@ -408,7 +411,7 @@ export const MapaBatallaScene = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gridColor">Color de cuadrícula</Label>
+                <Label htmlFor="gridColor" className="text-amber-300">{tm.gridColor}</Label>
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
@@ -419,7 +422,7 @@ export const MapaBatallaScene = () => {
                       const rgba = hexToRgba(hex, getAlphaFromRgba(mapState.gridColor));
                       setMapState((prev) => ({ ...prev, gridColor: rgba }));
                     }}
-                    className="h-14 w-14 rounded cursor-pointer border-2 border-border flex-shrink-0"
+                    className="h-14 w-14 rounded cursor-pointer border-2 border-amber-900/50 flex-shrink-0"
                     style={{ minWidth: '3.5rem', minHeight: '3.5rem' }}
                     disabled={!mapState.showGrid}
                   />
@@ -436,11 +439,11 @@ export const MapaBatallaScene = () => {
                         const rgba = hexToRgba(hex, alpha);
                         setMapState((prev) => ({ ...prev, gridColor: rgba }));
                       }}
-                      className="w-full"
+                      className="w-full accent-amber-500"
                       disabled={!mapState.showGrid}
                     />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Opacidad</span>
+                    <div className="flex justify-between text-xs text-amber-600">
+                      <span>{tm.opacity}</span>
                       <span>{Math.round(getAlphaFromRgba(mapState.gridColor) * 100)}%</span>
                     </div>
                   </div>
@@ -450,38 +453,38 @@ export const MapaBatallaScene = () => {
           </Card>
 
           {/* Controles de zoom */}
-          <Card>
+          <Card className="bg-[#2C2419] border-amber-900/30">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                 <ZoomIn className="h-5 w-5" />
-                Vista
+                {tm.viewSection}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label>Zoom: {Math.round(mapState.zoom * 100)}%</Label>
+                <Label className="text-amber-300">{tm.zoom}: {Math.round(mapState.zoom * 100)}%</Label>
               </div>
-              
+
               <div className="flex gap-2">
                 <Button
                   onClick={handleZoomOut}
                   variant="outline"
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 border-amber-800/50 bg-transparent text-amber-300 hover:bg-amber-900/30 hover:text-amber-100"
                   disabled={!mapState.image}
                 >
                   <ZoomOut className="mr-2 h-4 w-4" />
-                  Alejar
+                  {tm.zoomOut}
                 </Button>
                 <Button
                   onClick={handleZoomIn}
                   variant="outline"
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 border-amber-800/50 bg-transparent text-amber-300 hover:bg-amber-900/30 hover:text-amber-100"
                   disabled={!mapState.image}
                 >
                   <ZoomIn className="mr-2 h-4 w-4" />
-                  Acercar
+                  {tm.zoomIn}
                 </Button>
               </div>
 
@@ -489,47 +492,47 @@ export const MapaBatallaScene = () => {
                 onClick={handleResetView}
                 variant="outline"
                 size="sm"
-                className="w-full"
+                className="w-full border-amber-800/50 bg-transparent text-amber-300 hover:bg-amber-900/30 hover:text-amber-100"
                 disabled={!mapState.image}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Restablecer Vista
+                {tm.resetView}
               </Button>
 
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-amber-600">
                 <Move className="inline h-4 w-4 mr-1" />
-                Arrastra para desplazar
+                {tm.dragHint}
               </div>
             </CardContent>
           </Card>
 
           {/* Guardar mapa */}
           {isAuthenticated && (
-            <Card>
+            <Card className="bg-[#2C2419] border-amber-900/30">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
+                <CardTitle className="text-lg flex items-center gap-2 text-amber-200">
                   <Save className="h-5 w-5" />
-                  Guardar
+                  {tm.saveSection}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Button
                   onClick={handleSaveMap}
-                  className="w-full"
+                  className="w-full bg-amber-700 hover:bg-amber-600 text-amber-100"
                   disabled={!mapState.image || isSaving}
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? "Guardando..." : "Guardar Mapa"}
+                  {isSaving ? tm.saving : tm.saveMap}
                 </Button>
               </CardContent>
             </Card>
           )}
 
           {!isAuthenticated && (
-            <Card className="border-amber-600/20 bg-amber-600/10">
+            <Card className="border-amber-800/30 bg-amber-950/40">
               <CardContent className="pt-6">
-                <p className="text-sm text-muted-foreground text-center">
-                  Inicia sesión para guardar tus mapas
+                <p className="text-sm text-amber-500 text-center">
+                  {tm.loginToSave}
                 </p>
               </CardContent>
             </Card>
@@ -538,13 +541,13 @@ export const MapaBatallaScene = () => {
       </aside>
 
       {/* Canvas */}
-      <div ref={containerRef} className="flex-1 relative bg-background">
+      <div ref={containerRef} className="flex-1 relative bg-[#1a1a1a]">
         {!mapState.image ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center space-y-4">
-              <Upload className="h-16 w-16 mx-auto text-muted-foreground" />
-              <p className="text-xl text-muted-foreground">
-                Carga una imagen para comenzar
+              <Upload className="h-16 w-16 mx-auto text-amber-800/50" />
+              <p className="text-xl text-amber-700/60">
+                {tm.uploadHint}
               </p>
             </div>
           </div>

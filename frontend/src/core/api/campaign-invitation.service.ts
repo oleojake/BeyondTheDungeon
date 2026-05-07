@@ -6,7 +6,7 @@
 
 import { supabase } from "@/lib/supabase";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 // ================================================
 // INTERFACES
@@ -92,7 +92,10 @@ export async function createInvitation(
 
 	if (!response.ok) {
 		const error = await response.json();
-		throw new Error(error.error || "Error al crear invitación");
+		const msg = error.details
+			? `${error.error}: ${error.details}`
+			: error.error || "Error al crear invitación";
+		throw new Error(msg);
 	}
 
 	const data = await response.json();

@@ -1,6 +1,6 @@
 import React from "react";
-import { ProfileLayout } from "@/layout/profile.layout";
 import { Settings, User, Bell, Shield, Palette } from "lucide-react";
+import { ProfileTabs } from "@/components/profile-tabs";
 import {
 	Card,
 	CardContent,
@@ -9,67 +9,67 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useTranslation } from "@/i18n";
 
 export const ProfileSettingsScene: React.FC = () => {
-	return (
-		<ProfileLayout>
-			<SettingsContent />
-		</ProfileLayout>
-	);
+	return <SettingsContent />;
 };
 
 const SettingsContent: React.FC = () => {
+	const { t } = useTranslation();
+	const ps = t.profileSettings;
+
 	const settingsSections = [
 		{
 			id: 1,
-			title: "Perfil de Usuario",
-			description: "Gestiona tu información personal y preferencias de cuenta",
+			title: ps.sections.profile.title,
+			description: ps.sections.profile.description,
 			icon: User,
 			available: false,
 		},
 		{
 			id: 2,
-			title: "Notificaciones",
-			description: "Configura cómo y cuándo recibir notificaciones",
+			title: ps.sections.notifications.title,
+			description: ps.sections.notifications.description,
 			icon: Bell,
 			available: false,
 		},
 		{
 			id: 3,
-			title: "Privacidad y Seguridad",
-			description: "Controla tu privacidad y opciones de seguridad",
+			title: ps.sections.privacy.title,
+			description: ps.sections.privacy.description,
 			icon: Shield,
 			available: false,
 		},
 		{
 			id: 4,
-			title: "Apariencia",
-			description: "Personaliza el tema y la apariencia de la aplicación",
+			title: ps.sections.appearance.title,
+			description: ps.sections.appearance.description,
 			icon: Palette,
 			available: false,
 		},
 	];
 
 	return (
-		<div className="container mx-auto p-6 space-y-6">
+		<div className="container mx-auto p-6 max-w-7xl space-y-6">
+			<ProfileTabs />
 			{/* Header */}
 			<section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
 				<div className="flex items-center gap-3 mb-2">
 					<Settings className="h-8 w-8 text-amber-200" />
-					<h1 className="text-3xl font-extrabold text-amber-50">
-						Configuración
+					<h1 className="text-3xl font-bold text-amber-50">
+						{ps.title}
 					</h1>
 				</div>
-				<p className="mt-2 text-sm text-amber-100/90">
-					Gestiona tu cuenta, preferencias y opciones de privacidad.
+				<p className="text-sm text-amber-100/90">
+					{ps.subtitle}
 				</p>
 			</section>
 
 			{/* Development Notice */}
 			<Alert className="bg-amber-950/50 border-amber-600/50">
 				<AlertDescription className="text-amber-200">
-					La sección de configuración está en desarrollo. Próximamente podrás
-					personalizar tu experiencia.
+					{ps.wip}
 				</AlertDescription>
 			</Alert>
 
@@ -99,7 +99,7 @@ const SettingsContent: React.FC = () => {
 							</CardHeader>
 							<CardContent>
 								<p className="text-xs text-gray-500 italic">
-									Próximamente disponible
+									{ps.comingSoon}
 								</p>
 							</CardContent>
 						</Card>

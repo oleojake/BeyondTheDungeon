@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { LoginComponent } from "./login.component";
 import { routes } from "@/router";
-import { signIn } from "@/core/auth/supabaseAuth";
+import { signIn, signInWithGoogle, resendSignUpConfirmation } from "@/core/auth/supabaseAuth";
 
 interface FormData {
 	email: string;
@@ -12,17 +12,21 @@ interface FormData {
 export const LoginContainer = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-
 	const [formData, setFormData] = useState<FormData>({
 		email: (location.state as { email?: string })?.email || "",
 		password: "",
 	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
+	const [resendLoading, setResendLoading] = useState(false);
+	const [resendSuccess, setResendSuccess] = useState(false);
 
 	const handleChange = (field: keyof FormData, value: string) => {
 		setFormData((p) => ({ ...p, [field]: value }));
 		if (error) setError(null);
+		if (emailNotConfirmed) setEmailNotConfirmed(false);
+		setResendSuccess(false);
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -37,11 +41,38 @@ export const LoginContainer = () => {
 		setLoading(true);
 		try {
 			await signIn(formData.email, formData.password);
-			navigate(routes.misCampanas);
+			navigate(routes.profileCampanas);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Error desconocido");
+			const msg = err instanceof Error ? err.message : "Error desconocido";
+			if (msg.toLowerCase().includes("confirmar tu email")) {
+				setEmailNotConfirmed(true);
+			}
+			setError(msg);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const handleResendConfirmation = async () => {
+		if (!formData.email) return;
+		setResendLoading(true);
+		try {
+			await resendSignUpConfirmation(formData.email);
+			setResendSuccess(true);
+			setError(null);
+		} catch {
+			setError("No se pudo reenviar el email. Inténtalo de nuevo.");
+		} finally {
+			setResendLoading(false);
+		}
+	};
+
+	const handleGoogleSignIn = async () => {
+		setError(null);
+		try {
+			await signInWithGoogle();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Error desconocido");
 		}
 	};
 
@@ -50,8 +81,13 @@ export const LoginContainer = () => {
 			formData={formData}
 			loading={loading}
 			error={error}
+			emailNotConfirmed={emailNotConfirmed}
+			resendLoading={resendLoading}
+			resendSuccess={resendSuccess}
 			onChange={handleChange}
 			onSubmit={handleSubmit}
+			onGoogleSignIn={handleGoogleSignIn}
+			onResendConfirmation={handleResendConfirmation}
 		/>
 	);
 };

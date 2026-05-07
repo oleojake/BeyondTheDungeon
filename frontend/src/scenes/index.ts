@@ -1,5 +1,7 @@
 export * from "./home.scene"
 export * from "./auth-callback.scene"
+export * from "./guias.scene"
+export * from "./guia-detalle.scene"
 export * from "./profile.scene"
 export * from "./profile-settings.scene"
 export * from "./hechizos.scene"
@@ -15,4 +17,5 @@ export * from "./mapa-batalla.scene"
 export * from "./mis-mapas.scene"
 export * from "./mis-campanas.scene"
 export * from "./editar-campana.scene"
+export * from "./partida.scene"
 

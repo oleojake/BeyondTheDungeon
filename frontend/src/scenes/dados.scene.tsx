@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2 } from "lucide-react";
+import { Trash2, Dices } from "lucide-react";
 
 interface DiceRoll {
   type: number;
@@ -128,13 +128,17 @@ export const DadosScene = () => {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Lanzador de Dados</h1>
-        <p className="text-muted-foreground">
+    <div className="container mx-auto p-6 max-w-7xl space-y-6">
+      {/* Header */}
+      <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
+        <div className="flex items-center gap-3 mb-2">
+          <Dices className="h-8 w-8 text-amber-200" />
+          <h1 className="text-3xl font-bold text-amber-50">Lanzador de Dados</h1>
+        </div>
+        <p className="text-sm text-amber-100/90">
           Selecciona el tipo de dado y obtén un resultado aleatorio.
         </p>
-      </div>
+      </section>
 
       {/* Botones de dados */}
       <Card className="mb-8">

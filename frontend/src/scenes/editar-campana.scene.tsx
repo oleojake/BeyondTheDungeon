@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ProfileLayout } from "@/layout";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,6 +76,11 @@ import {
 } from "@/core/api/scene-entity.service";
 import { supabase } from "@/lib/supabase";
 import {
+	getCampaignSession,
+	startSession,
+	type GameSession,
+} from "@/core/api/game-session.service";
+import {
 	Save,
 	Users,
 	Mail,
@@ -87,6 +92,9 @@ import {
 	Skull,
 	Wand2,
 	Package,
+	Play,
+	RotateCcw,
+	UserPlus,
 } from "lucide-react";
 
 export function EditarCampanaScene() {
@@ -100,6 +108,8 @@ export function EditarCampanaScene() {
 	const [loading, setLoading] = useState(true);
 	const [userId, setUserId] = useState<string>("");
 	const [isDM, setIsDM] = useState(false);
+	const [sessionStatus, setSessionStatus] = useState<GameSession | null>(null);
+	const [startingSession, setStartingSession] = useState(false);
 
 	// Edit states
 	const [editedCampaign, setEditedCampaign] = useState({
@@ -215,6 +225,14 @@ export function EditarCampanaScene() {
 			setChapters(chaptersData);
 			setIsDM(campaignData.dm_id === user?.id);
 
+			// Load active/paused session for this campaign
+			try {
+				const sess = await getCampaignSession(id);
+				setSessionStatus(sess);
+			} catch {
+				// non-critical
+			}
+
 			// Load scenes for each chapter
 			const scenesData: Record<string, Scene[]> = {};
 			const entitiesData: Record<string, SceneEntity[]> = {};
@@ -235,9 +253,22 @@ export function EditarCampanaScene() {
 		} catch (error) {
 			console.error("Error al cargar campaña:", error);
 			alert("Error al cargar campaña");
-			navigate("/mis-campanas");
+			navigate("/profile/campanas");
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const handleStartSession = async () => {
+		if (!id || !isDM) return;
+		setStartingSession(true);
+		try {
+			await startSession(id);
+			navigate(`/partida/${id}`);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : "Error";
+			alert(`Error al iniciar sesión: ${msg}`);
+			setStartingSession(false);
 		}
 	};
 
@@ -260,11 +291,13 @@ export function EditarCampanaScene() {
 		setInviteLoading(true);
 		try {
 			await createInvitation(id, { username: inviteUsername });
-			alert("Invitación enviada correctamente");
 			setInviteUsername("");
+			const updatedMembers = await listCampaignMembers(id);
+			setMembers(updatedMembers);
+			alert("Jugador añadido a la campaña correctamente");
 		} catch (error) {
-			console.error("Error al enviar invitación:", error);
-			const errorMsg = error instanceof Error ? error.message : "Error al enviar invitación";
+			console.error("Error al añadir jugador:", error);
+			const errorMsg = error instanceof Error ? error.message : "Error al añadir jugador";
 			alert(errorMsg);
 		} finally {
 			setInviteLoading(false);
@@ -442,6 +475,7 @@ export function EditarCampanaScene() {
 				entity_type: entityForm.entity_type,
 				entity_id: finalEntityId,
 				entity_name: finalEntityName,
+				entity_data: selectedEntity?.data,
 			});
 
 			setSceneEntities({
@@ -466,7 +500,8 @@ export function EditarCampanaScene() {
 			setAvailableMaps([]);
 		} catch (error) {
 			console.error("Error al añadir entidad:", error);
-			alert("Error al añadir entidad");
+			const msg = error instanceof Error ? error.message : "Error al añadir entidad";
+			alert(msg);
 		}
 	};
 
@@ -483,7 +518,7 @@ export function EditarCampanaScene() {
 				return;
 			}
 
-			const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+			const API_URL = import.meta.env.VITE_API_URL || "";
 			const response = await fetch(`${API_URL}/api/battle-maps`, {
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
@@ -522,33 +557,28 @@ export function EditarCampanaScene() {
 
 	if (loading) {
 		return (
-			<ProfileLayout>
-				<div className="container mx-auto py-8 px-4 max-w-7xl">
-					<Skeleton className="h-10 w-64 mb-8" />
-					<Skeleton className="h-96 w-full" />
-				</div>
-			</ProfileLayout>
+			<div className="container mx-auto p-6 max-w-7xl">
+				<Skeleton className="h-10 w-64 mb-8" />
+				<Skeleton className="h-96 w-full" />
+			</div>
 		);
 	}
 
 	if (!campaign || !isDM) {
 		return (
-			<ProfileLayout>
-				<div className="container mx-auto py-8 px-4 text-center">
-					<h2 className="text-2xl font-bold mb-4">
-						No tienes acceso a esta campaña
-					</h2>
-					<Button onClick={() => navigate("/mis-campanas")}>
-						Volver a Mis Campañas
-					</Button>
-				</div>
-			</ProfileLayout>
+			<div className="container mx-auto p-6 max-w-7xl text-center">
+				<h2 className="text-2xl font-bold mb-4">
+					No tienes acceso a esta campaña
+				</h2>
+				<Button onClick={() => navigate("/profile/campanas")}>
+					Volver a Mis Campañas
+				</Button>
+			</div>
 		);
 	}
 
 	return (
-		<ProfileLayout>
-			<div className="container mx-auto py-8 px-4 max-w-7xl">
+		<div className="container mx-auto p-6 max-w-7xl">
 				{/* Header */}
 				<div className="flex items-center justify-between mb-8">
 					<div>
@@ -560,14 +590,45 @@ export function EditarCampanaScene() {
 						</p>
 					</div>
 					<div className="flex gap-2">
-						<Button variant="outline" onClick={() => navigate("/mis-campanas")}>
+						<Button variant="outline" onClick={() => navigate("/profile/campanas")}>
 							Volver
 						</Button>
 						{isDM && (
-							<Button onClick={handleSaveCampaign}>
-								<Save className="mr-2 h-4 w-4" />
-								Guardar Cambios
-							</Button>
+							<>
+								{sessionStatus?.status === "active" ? (
+									<Button
+										variant="default"
+										className="bg-green-600 hover:bg-green-700 text-white"
+										onClick={() => navigate(`/partida/${id}`)}
+									>
+										<Play className="mr-2 h-4 w-4" />
+										Ir a la partida activa
+									</Button>
+								) : (
+									<Button
+										variant="default"
+										className="bg-blue-600 hover:bg-blue-700 text-white"
+										disabled={startingSession}
+										onClick={handleStartSession}
+									>
+										{sessionStatus?.status === "paused" ? (
+											<>
+												<RotateCcw className="mr-2 h-4 w-4" />
+												{startingSession ? "Reanudando..." : "Reanudar campaña"}
+											</>
+										) : (
+											<>
+												<Play className="mr-2 h-4 w-4" />
+												{startingSession ? "Iniciando..." : "Comenzar campaña"}
+											</>
+										)}
+									</Button>
+								)}
+								<Button onClick={handleSaveCampaign}>
+									<Save className="mr-2 h-4 w-4" />
+									Guardar Cambios
+								</Button>
+							</>
 						)}
 					</div>
 				</div>
@@ -661,10 +722,10 @@ export function EditarCampanaScene() {
 							<CardHeader>
 								<CardTitle className="flex items-center gap-2">
 									<Users className="h-5 w-5" />
-									Invitar Jugadores
+									Añadir Jugadores
 								</CardTitle>
 								<CardDescription>
-								Invita jugadores a tu campaña por nombre de usuario
+								Añade jugadores a tu campaña por nombre de usuario
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
@@ -674,13 +735,14 @@ export function EditarCampanaScene() {
 									placeholder="nombre_usuario"
 									value={inviteUsername}
 									onChange={(e) => setInviteUsername(e.target.value)}
+									style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif", textTransform: "none" }}
 								/>
 								<Button
 									onClick={handleInvitePlayer}
 									disabled={inviteLoading || !inviteUsername.trim()}
 									>
-										<Mail className="mr-2 h-4 w-4" />
-										Enviar Invitación
+										<UserPlus className="mr-2 h-4 w-4" />
+										Añadir Jugador
 									</Button>
 								</div>
 							</CardContent>
@@ -699,7 +761,7 @@ export function EditarCampanaScene() {
 										>
 											<div>
 												<div className="font-medium">
-													{member.email || "Usuario"}
+													{member.username || member.email || "Usuario"}
 												</div>
 												<div className="text-sm text-muted-foreground">
 													{member.role === "dm" ? "Dungeon Master" : "Jugador"}
@@ -1277,6 +1339,5 @@ export function EditarCampanaScene() {
 					</DialogContent>
 				</Dialog>
 			</div>
-		</ProfileLayout>
 	);
 }

@@ -32,6 +32,7 @@ coverage/
 backend/.env
 frontend/.env
 *.local
+*.claude
 
 # =====================
 # Editor / OS files
@@ -46,6 +47,7 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+*.claude
 
 # Supabase
 supabase

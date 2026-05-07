@@ -18,6 +18,12 @@ h3 {
     --text-primary: 28 25 23; /* stone-900 */
     --text-secondary: 120 113 108; /* stone-500 */
     --border-color: 214 211 209; /* stone-300 */
+
+    /* Scrollbar colors (dungeon theme) */
+    --scrollbar-track-color: #1A1410;
+    --scrollbar-thumb-color: #8B4513;
+    --scrollbar-thumb-border-color: #3D3128;
+    --scrollbar-thumb-hover-color: #D4AF37;
   }
 
   /* No dark mode override: colors are fixed for the dashboard design */
@@ -37,6 +43,12 @@ h3 {
   }
   .bg-background {
     background-color: rgb(var(--bg-primary));
+  }
+
+  /* Outline buttons use bg-background (amber-50/white). In the dark dungeon
+     layout the inherited text color is very light, so we force a dark color. */
+  button.bg-background {
+    color: rgb(var(--text-primary));
   }
 
   /* Nav item titles inside the sidebar */
@@ -94,5 +106,34 @@ h3 {
   .nav-item-icon:active,
   .nav-item:active {
     transform: translateY(1px) scale(0.995);
+  }
+
+  /* ── Scrollbars (dungeon theme) ── */
+
+  /* Firefox */
+  :root {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
+  }
+
+  /* Webkit (Chrome, Edge, Safari) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-color);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-color);
+    border-radius: 3px;
+    border: 1px solid var(--scrollbar-thumb-border-color);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-color);
   }
 }

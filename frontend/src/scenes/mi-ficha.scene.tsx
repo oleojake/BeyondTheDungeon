@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,28 +9,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
+import { InventoryManager } from "@/pods/partida/components/inventory/InventoryManager";
+import type { CompendiumItem } from "@/pods/partida/components/inventory/types";
+import {
   fetchCharacterSheet,
   fetchCharacterSheetById,
-  createCharacterSheet, 
-  updateCharacterSheet 
+  createCharacterSheet,
+  updateCharacterSheet
 } from "@/core/api/character-sheet.service";
-import type { 
-  Character, 
-  CharacterFormData, 
+import type {
+  Character,
+  CharacterFormData,
   CharacterStats,
   CharacterClass
 } from "@/interfaces/character";
 import { defaultCharacterStats } from "@/interfaces/character";
 import { DND_RACES, DND_CLASSES, DND_BACKGROUNDS, DND_SKILLS, DND_ABILITIES, DND_PROFICIENCIES } from "@/constants/dnd5e";
 import { switchRoutes } from "@/router/routes";
-import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X } from "lucide-react";
+import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X, Info, UserCircle } from "lucide-react";
+import { useAuth } from "@/core/auth/useAuth";
+import { ProfileTabs } from "@/components/profile-tabs";
+import { useTranslation } from "@/i18n";
 
 export const MiFichaScene = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const characterId = searchParams.get("id");
-  
+  const { user, loading: authLoading } = useAuth();
+  const { t } = useTranslation();
+  const ts = t.characterSheet;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
@@ -53,11 +60,57 @@ export const MiFichaScene = () => {
   const [equipment, setEquipment] = useState("");
   const [notes, setNotes] = useState("");
 
+  // Compendium items for autocomplete
+  const [compendiumItems, setCompendiumItems] = useState<CompendiumItem[]>([]);
+
   const isMulticlass = classes.length > 1;
 
+  // Determina si una raza es pequeña
+  const isSmallRace = (raceStr: string): boolean => {
+    const smallRaces = ["Enano", "Gnomo", "Mediano"];
+    return smallRaces.some(r => raceStr.includes(r));
+  };
+
+  // Calcula la capacidad máxima de peso basada en fuerza y tamaño
+  const calculateMaxCarryWeight = (strength: number, raceStr: string): number => {
+    const multiplier = isSmallRace(raceStr) ? 15 : 15; // 15 para todos (30 para gigantes, no soportados base)
+    return strength * multiplier;
+  };
+
+  // Recalcular peso máximo cuando cambian fuerza o raza (pero no si fue editado manualmente)
   useEffect(() => {
+    // Si el usuario no ha editado manualmente, recalculamos
+    const calculatedWeight = calculateMaxCarryWeight(stats.strength || 10, race);
+    if (stats.max_carry_weight === calculatedWeight || !stats.max_carry_weight) {
+      setStats({
+        ...stats,
+        max_carry_weight: calculatedWeight,
+      });
+    }
+  }, [stats.strength, race]);
+
+  // Fetch compendium items for autocomplete
+  useEffect(() => {
+    const API_URL = import.meta.env.VITE_API_URL || "";
+    fetch(`${API_URL}/api/compendium-items`)
+      .then((r) => r.json())
+      .then(({ items }) => {
+        if (Array.isArray(items)) setCompendiumItems(items as CompendiumItem[]);
+      })
+      .catch(() => {
+        /* silently ignore – dropdown will show empty */
+      });
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      // Guest mode: no character to load, just show empty form
+      setLoading(false);
+      return;
+    }
     loadCharacter();
-  }, [characterId]);
+  }, [characterId, user, authLoading]);
 
   const loadCharacter = async () => {
     try {
@@ -89,6 +142,10 @@ export const MiFichaScene = () => {
   };
 
   const handleSave = async () => {
+    if (!user) {
+      window.open(switchRoutes.login, "_blank");
+      return;
+    }
     try {
       setSaving(true);
       setError("");
@@ -109,15 +166,15 @@ export const MiFichaScene = () => {
 
       if (character?.id) {
         await updateCharacterSheet(character.id, formData);
-        alert("¡Ficha actualizada correctamente!");
+        alert(ts.savedOk);
       } else {
         await createCharacterSheet(formData);
-        alert("¡Ficha creada correctamente!");
+        alert(ts.createdOk);
       }
 
       // Redirigir a Mis Fichas después de un breve delay
       setTimeout(() => {
-        navigate(switchRoutes.misFichas);
+        navigate(switchRoutes.fichas);
       }, 500);
     } catch (err: any) {
       setError(err.message);
@@ -190,32 +247,52 @@ export const MiFichaScene = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Mi Ficha de Personaje</h1>
-          <p className="text-muted-foreground">
-            Ficha de D&D 5ª Edición
-          </p>
+    <div className="container mx-auto p-6 max-w-7xl space-y-6">
+      {user && <ProfileTabs />}
+      {/* Header */}
+      <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <UserCircle className="h-8 w-8 text-amber-200" />
+              <h1 className="text-3xl font-bold text-amber-50">{ts.pageTitle}</h1>
+            </div>
+            <p className="text-sm text-amber-100/90">
+              {ts.pageSubtitle}
+            </p>
+          </div>
+          <Button
+            onClick={handleSave}
+            disabled={saving || !user}
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {ts.saving}
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                {user ? ts.saveSheet : ts.loginToSave}
+              </>
+            )}
+          </Button>
         </div>
-        <Button 
-          onClick={handleSave} 
-          disabled={saving}
-          className="bg-primary text-white hover:bg-primary/90"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Guardando...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              Guardar Ficha
-            </>
-          )}
-        </Button>
-      </div>
+      </section>
+
+      {/* Banner invitados */}
+      {!user && !authLoading && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-700/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-300 mb-4">
+          <Info className="w-4 h-4 mt-0.5 shrink-0" />
+          <span>
+            {ts.guestBanner}{" "}
+            <Link to={switchRoutes.login} className="underline hover:text-amber-100">{ts.guestLogin}</Link>{" "}
+            {ts.guestOr}{" "}
+            <Link to={switchRoutes.register} className="underline hover:text-amber-100">{ts.guestRegister}</Link>.
+          </span>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-4">
@@ -224,30 +301,26 @@ export const MiFichaScene = () => {
       )}
 
       <Tabs defaultValue="info" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="info">
             <User className="mr-2 h-4 w-4" />
-            Info
+            {ts.tabInfo}
           </TabsTrigger>
           <TabsTrigger value="stats">
             <Sword className="mr-2 h-4 w-4" />
-            Atributos
+            {ts.tabStats}
           </TabsTrigger>
           <TabsTrigger value="combat">
             <Shield className="mr-2 h-4 w-4" />
-            Combate
+            {ts.tabCombat}
           </TabsTrigger>
           <TabsTrigger value="skills">
             <Heart className="mr-2 h-4 w-4" />
-            Habilidades
+            {ts.tabSkills}
           </TabsTrigger>
-          <TabsTrigger value="equipment">
+          <TabsTrigger value="inventario">
             <Package className="mr-2 h-4 w-4" />
-            Equipo
-          </TabsTrigger>
-          <TabsTrigger value="spells">
-            <Scroll className="mr-2 h-4 w-4" />
-            Hechizos
+            {ts.tabInventory}
           </TabsTrigger>
         </TabsList>
 
@@ -255,25 +328,25 @@ export const MiFichaScene = () => {
         <TabsContent value="info" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Información Básica</CardTitle>
-              <CardDescription>Datos generales del personaje</CardDescription>
+              <CardTitle>{ts.infoTitle}</CardTitle>
+              <CardDescription>{ts.infoDesc}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Nombre del Personaje</Label>
+                  <Label htmlFor="name">{ts.fieldName}</Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Ej: Thorin Escudo de Roble"
+                    placeholder={ts.fieldNamePlaceholder}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="race">Raza</Label>
+                  <Label htmlFor="race">{ts.fieldRace}</Label>
                   <Select value={race} onValueChange={setRace}>
                     <SelectTrigger id="race">
-                      <SelectValue placeholder="Selecciona una raza" />
+                      <SelectValue placeholder={ts.fieldRacePlaceholder} />
                     </SelectTrigger>
                     <SelectContent>
                       {DND_RACES.map((r) => (
@@ -287,27 +360,27 @@ export const MiFichaScene = () => {
               {/* Sistema de Clases */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Clase y Nivel</Label>
+                  <Label>{ts.fieldClassLevel}</Label>
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="multiclass"
                       checked={isMulticlass}
                       onCheckedChange={toggleMulticlass}
                     />
-                    <Label htmlFor="multiclass" className="text-sm font-normal">Multiclase</Label>
+                    <Label htmlFor="multiclass" className="text-sm font-normal">{ts.fieldMulticlass}</Label>
                   </div>
                 </div>
 
                 {classes.map((cls, index) => (
                   <div key={index} className="flex gap-2 items-end">
                     <div className="flex-1">
-                      <Label htmlFor={`class-${index}`}>Clase {index + 1}</Label>
+                      <Label htmlFor={`class-${index}`}>{ts.fieldClass} {index + 1}</Label>
                       <Select 
                         value={cls.name} 
                         onValueChange={(value) => updateClass(index, "name", value)}
                       >
                         <SelectTrigger id={`class-${index}`}>
-                          <SelectValue placeholder="Selecciona una clase" />
+                          <SelectValue placeholder={ts.fieldClassPlaceholder} />
                         </SelectTrigger>
                         <SelectContent>
                           {DND_CLASSES.map((c) => (
@@ -317,7 +390,7 @@ export const MiFichaScene = () => {
                       </Select>
                     </div>
                     <div className="w-24">
-                      <Label htmlFor={`level-${index}`}>Nivel</Label>
+                      <Label htmlFor={`level-${index}`}>{ts.fieldLevel}</Label>
                       <Input
                         id={`level-${index}`}
                         type="number"
@@ -350,17 +423,17 @@ export const MiFichaScene = () => {
                     className="w-full"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Agregar Clase
+                    {ts.addClassBtn}
                   </Button>
                 )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="background">Trasfondo</Label>
+                  <Label htmlFor="background">{ts.fieldBackground}</Label>
                   <Select value={background} onValueChange={setBackground}>
                     <SelectTrigger id="background">
-                      <SelectValue placeholder="Selecciona un trasfondo" />
+                      <SelectValue placeholder={ts.fieldBackgroundPlaceholder} />
                     </SelectTrigger>
                     <SelectContent>
                       {DND_BACKGROUNDS.map((b) => (
@@ -370,7 +443,7 @@ export const MiFichaScene = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="xp">Puntos de Experiencia</Label>
+                  <Label htmlFor="xp">{ts.fieldXP}</Label>
                   <Input
                     id="xp"
                     type="number"
@@ -387,44 +460,44 @@ export const MiFichaScene = () => {
                   checked={isPublic}
                   onCheckedChange={(checked) => setIsPublic(checked as boolean)}
                 />
-                <Label htmlFor="public">Hacer ficha pública</Label>
+                <Label htmlFor="public">{ts.fieldPublic}</Label>
               </div>
 
               <div className="space-y-2">
-                <Label>Rasgos de Personalidad</Label>
+                <Label>{ts.fieldPersonality}</Label>
                 <Textarea
                   value={stats.personality_traits}
                   onChange={(e) => updateStat("personality_traits", e.target.value)}
-                  placeholder="Describe los rasgos de personalidad..."
+                  placeholder={ts.fieldPersonalityPlaceholder}
                   rows={3}
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Label>Ideales</Label>
+                  <Label>{ts.fieldIdeals}</Label>
                   <Textarea
                     value={stats.ideals}
                     onChange={(e) => updateStat("ideals", e.target.value)}
-                    placeholder="Ideales del personaje..."
+                    placeholder={ts.fieldIdealsPlaceholder}
                     rows={3}
                   />
                 </div>
                 <div>
-                  <Label>Vínculos</Label>
+                  <Label>{ts.fieldBonds}</Label>
                   <Textarea
                     value={stats.bonds}
                     onChange={(e) => updateStat("bonds", e.target.value)}
-                    placeholder="Vínculos..."
+                    placeholder={ts.fieldBondsPlaceholder}
                     rows={3}
                   />
                 </div>
                 <div>
-                  <Label>Defectos</Label>
+                  <Label>{ts.fieldFlaws}</Label>
                   <Textarea
                     value={stats.flaws}
                     onChange={(e) => updateStat("flaws", e.target.value)}
-                    placeholder="Defectos..."
+                    placeholder={ts.fieldFlawsPlaceholder}
                     rows={3}
                   />
                 </div>
@@ -432,15 +505,15 @@ export const MiFichaScene = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Idiomas</Label>
+                  <Label>{ts.fieldLanguages}</Label>
                   <Input
                     value={stats.languages}
                     onChange={(e) => updateStat("languages", e.target.value)}
-                    placeholder="Común, Enano, Élfico..."
+                    placeholder={ts.fieldLanguagesPlaceholder}
                   />
                 </div>
                 <div>
-                  <Label>Competencias</Label>
+                  <Label>{ts.fieldProficiencies}</Label>
                   <div className="space-y-2">
                     <Select
                       value=""
@@ -451,7 +524,7 @@ export const MiFichaScene = () => {
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona competencias..." />
+                        <SelectValue placeholder={ts.fieldProficienciesPlaceholder} />
                       </SelectTrigger>
                       <SelectContent>
                         {DND_PROFICIENCIES.map((prof) => (
@@ -488,8 +561,8 @@ export const MiFichaScene = () => {
         <TabsContent value="stats" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Atributos</CardTitle>
-              <CardDescription>Puntuaciones de características (8-20)</CardDescription>
+              <CardTitle>{ts.statsTitle}</CardTitle>
+              <CardDescription>{ts.statsDesc}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
@@ -519,7 +592,7 @@ export const MiFichaScene = () => {
                           className="text-center text-2xl font-bold"
                         />
                         <div className="text-center text-muted-foreground">
-                          Modificador: {modifier >= 0 ? "+" : ""}{modifier}
+                          {ts.modifier}: {modifier >= 0 ? "+" : ""}{modifier}
                         </div>
                       </CardContent>
                     </Card>
@@ -528,7 +601,7 @@ export const MiFichaScene = () => {
               </div>
 
               <div className="mt-6">
-                <Label>Bonificador de Competencia</Label>
+                <Label>{ts.proficiencyBonus}</Label>
                 <Input
                   type="number"
                   min="2"
@@ -540,15 +613,15 @@ export const MiFichaScene = () => {
                   }}
                   className="w-32"
                 />
-                <p className="text-xs text-muted-foreground mt-1">Rango: +2 a +6 (según nivel)</p>
+                <p className="text-xs text-muted-foreground mt-1">{ts.proficiencyBonusRange}</p>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Tiradas de Salvación</CardTitle>
-              <CardDescription>Marca las competencias (máximo 2)</CardDescription>
+              <CardTitle>{ts.savingThrowsTitle}</CardTitle>
+              <CardDescription>{ts.savingThrowsDesc}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
@@ -572,11 +645,11 @@ export const MiFichaScene = () => {
           <div className="grid grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Puntos de Vida</CardTitle>
+                <CardTitle>{ts.hpTitle}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label>HP Máximos</Label>
+                  <Label>{ts.hpMax}</Label>
                   <Input
                     type="number"
                     value={stats.max_hp}
@@ -584,7 +657,7 @@ export const MiFichaScene = () => {
                   />
                 </div>
                 <div>
-                  <Label>HP Actuales</Label>
+                  <Label>{ts.hpCurrent}</Label>
                   <Input
                     type="number"
                     value={stats.current_hp}
@@ -592,7 +665,7 @@ export const MiFichaScene = () => {
                   />
                 </div>
                 <div>
-                  <Label>HP Temporales</Label>
+                  <Label>{ts.hpTemp}</Label>
                   <Input
                     type="number"
                     value={stats.temp_hp}
@@ -600,11 +673,11 @@ export const MiFichaScene = () => {
                   />
                 </div>
                 <div>
-                  <Label>Dados de Golpe</Label>
+                  <Label>{ts.hitDice}</Label>
                   <Input
                     value={stats.hit_dice}
                     onChange={(e) => updateStat("hit_dice", e.target.value)}
-                    placeholder="Ej: 5d8"
+                    placeholder={ts.hitDicePlaceholder}
                   />
                 </div>
               </CardContent>
@@ -612,11 +685,11 @@ export const MiFichaScene = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Defensa y Movimiento</CardTitle>
+                <CardTitle>{ts.defenseTitle}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label>Clase de Armadura (CA)</Label>
+                  <Label>{ts.armorClass}</Label>
                   <Input
                     type="number"
                     value={stats.armor_class}
@@ -624,9 +697,9 @@ export const MiFichaScene = () => {
                   />
                 </div>
                 <div>
-                  <Label>Iniciativa</Label>
+                  <Label>{ts.initiative}</Label>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Base: +{calculateModifier(stats.dexterity)} (Destreza)
+                    {ts.initiativeBase} +{calculateModifier(stats.dexterity)} {ts.initiativeDex}
                   </p>
                   <Input
                     type="number"
@@ -635,7 +708,7 @@ export const MiFichaScene = () => {
                   />
                 </div>
                 <div>
-                  <Label>Velocidad (pies)</Label>
+                  <Label>{ts.speed}</Label>
                   <Input
                     type="number"
                     value={stats.speed}
@@ -648,12 +721,12 @@ export const MiFichaScene = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Tiradas de Salvación contra la Muerte</CardTitle>
+              <CardTitle>{ts.deathSavesTitle}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Éxitos</Label>
+                  <Label>{ts.deathSuccesses}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -666,7 +739,7 @@ export const MiFichaScene = () => {
                   />
                 </div>
                 <div>
-                  <Label>Fallos</Label>
+                  <Label>{ts.deathFailures}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -687,8 +760,8 @@ export const MiFichaScene = () => {
         <TabsContent value="skills" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Habilidades (Skills)</CardTitle>
-              <CardDescription>Marca las habilidades en las que eres competente</CardDescription>
+              <CardTitle>{ts.skillsTitle}</CardTitle>
+              <CardDescription>{ts.skillsDesc}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
@@ -710,82 +783,32 @@ export const MiFichaScene = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Rasgos y Características</CardTitle>
+              <CardTitle>{ts.featuresTitle}</CardTitle>
             </CardHeader>
             <CardContent>
               <Textarea
                 value={stats.features_traits}
                 onChange={(e) => updateStat("features_traits", e.target.value)}
-                placeholder="Describe los rasgos de raza, clase, trasfondo, dotes..."
+                placeholder={ts.featuresPlaceholder}
                 rows={8}
               />
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* TAB: EQUIPO */}
-        <TabsContent value="equipment" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Equipo</CardTitle>
-              <CardDescription>Armas, armaduras y herramientas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={equipment}
-                onChange={(e) => setEquipment(e.target.value)}
-                placeholder="Lista tu equipo, armas, armaduras..."
-                rows={10}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Inventario</CardTitle>
-              <CardDescription>Objetos y posesiones</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={inventory}
-                onChange={(e) => setInventory(e.target.value)}
-                placeholder="Lista tus objetos, monedas, tesoros..."
-                rows={10}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* TAB: HECHIZOS */}
-        <TabsContent value="spells" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Hechizos Conocidos</CardTitle>
-              <CardDescription>Lista de hechizos preparados y conocidos</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={spellsKnown}
-                onChange={(e) => setSpellsKnown(e.target.value)}
-                placeholder="Lista tus hechizos por nivel..."
-                rows={15}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Notas Adicionales</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Notas generales, historia del personaje, objetivos..."
-                rows={10}
-              />
-            </CardContent>
-          </Card>
+        {/* TAB: INVENTARIO */}
+        <TabsContent value="inventario" className="space-y-4">
+          <InventoryManager
+            inventory={inventory}
+            onInventoryChange={setInventory}
+            compendiumItems={compendiumItems}
+            showNotes={true}
+            notes={notes}
+            onNotesChange={setNotes}
+            maxCarryWeight={stats.max_carry_weight}
+            autoMaxCarryWeight={calculateMaxCarryWeight(stats.strength || 10, race)}
+            onMaxCarryWeightChange={(val) => setStats({...stats, max_carry_weight: val})}
+          />
         </TabsContent>
       </Tabs>
     </div>
