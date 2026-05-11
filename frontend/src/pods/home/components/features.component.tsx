@@ -48,14 +48,14 @@ export const Features = () => {
 			url: "/hechizos",
 		},
 		{
-			icon: "",
+			icon: "/items.svg",
 			title: t.features.cards.items.title,
 			description: t.features.cards.items.description,
 			color: "from-yellow-700 to-amber-900",
 			url: "/objetos",
 		},
 		{
-			icon: "",
+			icon: "/inventory.svg",
 			title: t.features.cards.inventory.title,
 			description: t.features.cards.inventory.description,
 			color: "from-amber-800 to-orange-900",

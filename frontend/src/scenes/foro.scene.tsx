@@ -153,11 +153,19 @@ const ForoScene = () => {
                   <p className="text-sm text-stone-400 line-clamp-2 mt-2 mb-3">
                     {thread.content}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-stone-500">
-                    <User className="size-3" />
-                    <span>{thread.profiles?.username ?? tf.unknownUser}</span>
-                    <span>·</span>
-                    <span>{formatDate(thread.updated_at)}</span>
+                  <div className="flex items-center gap-2.5 mt-3">
+                    <div className="shrink-0">
+                      {thread.profiles?.avatar_url ? (
+                        <img src={thread.profiles.avatar_url} alt="" className="size-7 rounded-full bg-stone-800 border border-dark-border" />
+                      ) : (
+                        <div className="size-7 rounded-full bg-stone-800 border border-dark-border flex items-center justify-center">
+                          <User className="size-3.5 text-stone-500" />
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-stone-300">{thread.profiles?.username ?? tf.unknownUser}</span>
+                    <span className="text-stone-600">&middot;</span>
+                    <span className="text-xs text-stone-500">{formatDate(thread.updated_at)}</span>
                   </div>
                 </div>
               </Link>

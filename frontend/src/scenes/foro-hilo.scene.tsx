@@ -160,11 +160,20 @@ const ForoHiloScene = () => {
             )}
           </div>
           <p className="text-stone-300 whitespace-pre-wrap mb-4">{thread.content}</p>
-          <div className="flex items-center gap-2 text-xs text-stone-500">
-            <User className="size-3" />
-            <span>{thread.profiles?.username ?? tf.unknownUser}</span>
-            <span>·</span>
-            <span>{formatDate(thread.created_at)}</span>
+          <div className="flex items-center gap-3 mt-4 pt-4 border-t border-amber-800/20">
+            <div className="shrink-0">
+              {thread.profiles?.avatar_url ? (
+                <img src={thread.profiles.avatar_url} alt="" className="size-10 rounded-full bg-stone-800 border border-amber-700/30" />
+              ) : (
+                <div className="size-10 rounded-full bg-stone-800 border border-dark-border flex items-center justify-center">
+                  <User className="size-5 text-stone-500" />
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-amber-200">{thread.profiles?.username ?? tf.unknownUser}</p>
+              <p className="text-xs text-stone-500">{formatDate(thread.created_at)}</p>
+            </div>
           </div>
         </div>
 
@@ -176,27 +185,36 @@ const ForoHiloScene = () => {
             </h2>
             {posts.map((post) => (
               <div key={post.id} className="rounded-xl border border-dark-border bg-dark-card p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm text-stone-300 whitespace-pre-wrap flex-1">
-                    {post.content}
-                  </p>
-                  {user?.id === post.author_id && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-stone-500 hover:text-red-400 shrink-0 -mt-1"
-                      onClick={() => handleDeletePost(post.id)}
-                      title={tf.deletePost}
-                    >
-                      <Trash2 className="size-3" />
-                    </Button>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-stone-500 mt-2">
-                  <User className="size-3" />
-                  <span>{post.profiles?.username ?? tf.unknownUser}</span>
-                  <span>·</span>
-                  <span>{formatDate(post.created_at)}</span>
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 mt-0.5">
+                    {post.profiles?.avatar_url ? (
+                      <img src={post.profiles.avatar_url} alt="" className="size-9 rounded-full bg-stone-800 border border-dark-border" />
+                    ) : (
+                      <div className="size-9 rounded-full bg-stone-800 border border-dark-border flex items-center justify-center">
+                        <User className="size-4 text-stone-500" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-stone-200">{post.profiles?.username ?? tf.unknownUser}</span>
+                        <span className="text-xs text-stone-500">{formatDate(post.created_at)}</span>
+                      </div>
+                      {user?.id === post.author_id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-stone-600 hover:text-red-400 shrink-0 size-7"
+                          onClick={() => handleDeletePost(post.id)}
+                          title={tf.deletePost}
+                        >
+                          <Trash2 className="size-3" />
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-sm text-stone-300 whitespace-pre-wrap">{post.content}</p>
+                  </div>
                 </div>
               </div>
             ))}
