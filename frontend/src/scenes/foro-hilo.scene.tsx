@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Loader2,
@@ -9,10 +9,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/core/auth/useAuth";
 import {
   getThread,
@@ -24,7 +22,6 @@ import {
 } from "@/core/api/forum.service";
 import { switchRoutes } from "@/router/routes";
 import { useTranslation } from "@/i18n";
-import { useNavigate } from "react-router-dom";
 
 const ForoHiloScene = () => {
   const { id } = useParams<{ id: string }>();
@@ -109,46 +106,52 @@ const ForoHiloScene = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-24">
-        <Loader2 className="size-8 animate-spin text-orange-500" />
+      <div className="min-h-screen bg-dark flex justify-center items-center">
+        <Loader2 className="size-8 animate-spin text-amber-400" />
       </div>
     );
   }
 
   if (error || !thread) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <Alert variant="destructive">
-          <AlertCircle className="size-4" />
-          <AlertDescription>{error ?? tf.notFound}</AlertDescription>
-        </Alert>
+      <div className="min-h-screen bg-dark">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <Alert variant="destructive">
+            <AlertCircle className="size-4" />
+            <AlertDescription>{error ?? tf.notFound}</AlertDescription>
+          </Alert>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-dark pb-16">
       {/* Back */}
-      <Link
-        to={switchRoutes.foro}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
-      >
-        <ArrowLeft className="size-4" />
-        {tf.backToForum}
-      </Link>
+      <div className="border-b border-dark-border bg-gradient-to-b from-stone-900 to-dark px-6 py-4">
+        <div className="container mx-auto max-w-4xl">
+          <Link
+            to={switchRoutes.foro}
+            className="inline-flex items-center gap-1 text-sm text-stone-400 hover:text-amber-300 transition-colors"
+          >
+            <ArrowLeft className="size-4" />
+            {tf.backToForum}
+          </Link>
+        </div>
+      </div>
 
-      {/* Hilo principal */}
-      <Card className="mb-6 border-orange-200 dark:border-orange-900">
-        <CardContent className="pt-6">
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        {/* Hilo principal */}
+        <div className="rounded-xl border border-amber-800/40 bg-amber-900/10 p-6 mb-6">
           <div className="flex items-start justify-between gap-2 mb-3">
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
+            <h1 className="text-2xl font-bold text-amber-100 leading-tight">
               {thread.title}
             </h1>
             {user?.id === thread.author_id && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-destructive shrink-0"
+                className="text-stone-500 hover:text-red-400 shrink-0"
                 onClick={handleDeleteThread}
                 title={tf.deleteThread}
               >
@@ -156,34 +159,32 @@ const ForoHiloScene = () => {
               </Button>
             )}
           </div>
-          <p className="text-foreground whitespace-pre-wrap mb-4">{thread.content}</p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <p className="text-stone-300 whitespace-pre-wrap mb-4">{thread.content}</p>
+          <div className="flex items-center gap-2 text-xs text-stone-500">
             <User className="size-3" />
             <span>{thread.profiles?.username ?? tf.unknownUser}</span>
             <span>·</span>
             <span>{formatDate(thread.created_at)}</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Posts */}
-      {posts.length > 0 && (
-        <div className="space-y-3 mb-6">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            {tf.replies} ({posts.length})
-          </h2>
-          {posts.map((post) => (
-            <Card key={post.id} className="border border-border">
-              <CardContent className="pt-4 pb-3">
+        {/* Posts */}
+        {posts.length > 0 && (
+          <div className="space-y-3 mb-6">
+            <h2 className="text-xs font-semibold text-stone-500 uppercase tracking-widest">
+              {tf.replies} ({posts.length})
+            </h2>
+            {posts.map((post) => (
+              <div key={post.id} className="rounded-xl border border-dark-border bg-dark-card p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm text-foreground whitespace-pre-wrap flex-1">
+                  <p className="text-sm text-stone-300 whitespace-pre-wrap flex-1">
                     {post.content}
                   </p>
                   {user?.id === post.author_id && (
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-muted-foreground hover:text-destructive shrink-0 -mt-1"
+                      className="text-stone-500 hover:text-red-400 shrink-0 -mt-1"
                       onClick={() => handleDeletePost(post.id)}
                       title={tf.deletePost}
                     >
@@ -191,58 +192,59 @@ const ForoHiloScene = () => {
                     </Button>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
+                <div className="flex items-center gap-2 text-xs text-stone-500 mt-2">
                   <User className="size-3" />
                   <span>{post.profiles?.username ?? tf.unknownUser}</span>
                   <span>·</span>
                   <span>{formatDate(post.created_at)}</span>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      <Separator className="mb-6" />
-
-      {/* Reply box */}
-      {user ? (
-        <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            {tf.addReply}
-          </h2>
-          <Textarea
-            value={reply}
-            onChange={(e) => setReply(e.target.value)}
-            placeholder={tf.replyPlaceholder}
-            rows={4}
-          />
-          {replyError && (
-            <p className="text-sm text-destructive">{replyError}</p>
-          )}
-          <div className="flex justify-end">
-            <Button
-              onClick={handleReply}
-              disabled={submitting}
-              className="gap-2 bg-orange-600 hover:bg-orange-700 text-white"
-            >
-              {submitting ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Send className="size-4" />
-              )}
-              {tf.send}
-            </Button>
+              </div>
+            ))}
           </div>
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          {tf.loginToReply}{" "}
-          <Link to={switchRoutes.login} className="text-orange-500 underline">
-            {tf.loginLink}
-          </Link>
-        </p>
-      )}
+        )}
+
+        <div className="border-t border-dark-border mb-6" />
+
+        {/* Reply box */}
+        {user ? (
+          <div className="space-y-3">
+            <h2 className="text-xs font-semibold text-stone-500 uppercase tracking-widest">
+              {tf.addReply}
+            </h2>
+            <Textarea
+              value={reply}
+              onChange={(e) => setReply(e.target.value)}
+              placeholder={tf.replyPlaceholder}
+              rows={4}
+              className="bg-dark-card border-dark-border text-stone-200"
+            />
+            {replyError && (
+              <p className="text-sm text-destructive">{replyError}</p>
+            )}
+            <div className="flex justify-end">
+              <Button
+                onClick={handleReply}
+                disabled={submitting}
+                className="gap-2 bg-amber-600 hover:bg-amber-500 text-white"
+              >
+                {submitting ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Send className="size-4" />
+                )}
+                {tf.send}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-stone-500 text-center py-4">
+            {tf.loginToReply}{" "}
+            <Link to={switchRoutes.login} className="text-amber-400 hover:underline">
+              {tf.loginLink}
+            </Link>
+          </p>
+        )}
+      </div>
     </div>
   );
 };

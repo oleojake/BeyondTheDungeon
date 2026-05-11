@@ -93,15 +93,19 @@ export const Navbar = () => {
 						>
 							{t.nav.guides}
 						</Link>
+						<Link
+							to={routes.foro}
+							className="text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-accent transition-colors font-medium text-sm py-1"
+						>
+							{t.nav.forum}
+						</Link>
 					</div>
 
-					{/* Right side */}
-					<div className="flex items-center gap-2">
-						<LanguageSwitcher />
-						<ThemeToggle />
-						{loading ? null : user ? (
-							<>
-								<Link
+				{/* Right side */}
+				<div className="flex items-center gap-2">
+					<LanguageSwitcher />
+					<ThemeToggle />
+					{loading ? null : user ? (						<>								<Link
 									to={routes.profileCampanas}
 									className="hidden md:block px-4 py-2 text-stone-800 dark:text-amber-50 hover:text-primary dark:hover:text-amber-300 transition-colors font-medium text-sm"
 								>
@@ -183,6 +187,13 @@ export const Navbar = () => {
 						className="pl-2 py-2 text-stone-700 dark:text-stone-300 hover:text-primary transition-colors font-medium text-sm"
 					>
 						{t.nav.guides}
+					</Link>
+					<Link
+						to={routes.foro}
+						onClick={() => setMobileOpen(false)}
+						className="pl-2 py-2 text-stone-700 dark:text-stone-300 hover:text-primary transition-colors font-medium text-sm"
+					>
+						{t.nav.forum}
 					</Link>
 
 					<div className="border-t border-stone-200 dark:border-dark-border mt-3 pt-3 flex flex-col gap-2">
