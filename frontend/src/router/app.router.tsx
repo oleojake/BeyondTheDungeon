@@ -24,6 +24,8 @@ import BestiarioDetalleScene from "@/scenes/bestiario-detalle.scene";
 import ObjetosScene from "@/scenes/objetos.scene";
 import { AdminDashboardScene } from "@/scenes/admin-dashboard.scene";
 import ObjetosDetalleScene from "@/scenes/objetos-detalle.scene";
+import ForoScene from "@/scenes/foro.scene";
+import ForoHiloScene from "@/scenes/foro-hilo.scene";
 import { ProtectedRoute } from "@/core/auth/ProtectedRoute";
 import { AdminRoute } from "@/core/auth/AdminRoute";
 import { AppLayout } from "@/layout/app.layout";
@@ -52,6 +54,8 @@ export const AppRouter = () => {
 				<Route path={switchRoutes.inventario} element={<AppLayout><InventarioScene /></AppLayout>} />
 				<Route path={switchRoutes.fichas} element={<AppLayout><MisFichasScene /></AppLayout>} />
 				<Route path={switchRoutes.fichaNueva} element={<AppLayout><MiFichaScene /></AppLayout>} />
+				<Route path={switchRoutes.foro} element={<AppLayout><ForoScene /></AppLayout>} />
+				<Route path={switchRoutes.foroHilo} element={<AppLayout><ForoHiloScene /></AppLayout>} />
 				<Route path={switchRoutes.mapaBatalla} element={<FullscreenToolLayout><MapaBatallaScene /></FullscreenToolLayout>} />
 
 				{/* ── Profile (auth required, AppLayout) ── */}

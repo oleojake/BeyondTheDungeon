@@ -93,6 +93,7 @@ export const translations = {
       characters: { title: "Mis Fichas", subtitle: "Lista de personajes creados" },
       maps: { title: "Mis Mapas", subtitle: "Mapas y escenarios de batalla" },
       dice: { title: "Tirada de Dados", subtitle: "Lanza dados y genera tiradas" },
+      forum: { title: "Foro", subtitle: "Comunidad y discusiones" },
       settings: { title: "Configuración", subtitle: "Ajustes de cuenta y preferencias" },
     },
 
@@ -474,6 +475,36 @@ export const translations = {
       switchTo: "English",
       current: "ES",
     },
+
+    // ── Foro ─────────────────────────────────────────────────────────────────
+    foro: {
+      title: "Foro de la Comunidad",
+      subtitle: "Comparte ideas, preguntas y aventuras con otros jugadores",
+      newThread: "Nuevo hilo",
+      empty: "Aún no hay hilos. ¡Sé el primero en crear uno!",
+      backToForum: "Volver al foro",
+      replies: "Respuestas",
+      addReply: "Añadir respuesta",
+      replyPlaceholder: "Escribe tu mensaje...",
+      send: "Enviar",
+      deleteThread: "Eliminar hilo",
+      deletePost: "Eliminar mensaje",
+      unknownUser: "Usuario desconocido",
+      notFound: "Hilo no encontrado",
+      loginToReply: "Inicia sesión para participar.",
+      loginLink: "Iniciar sesión",
+      form: {
+        titleLabel: "Título",
+        titlePlaceholder: "¿De qué trata tu hilo?",
+        contentLabel: "Contenido",
+        contentPlaceholder: "Escribe el contenido del hilo...",
+        cancel: "Cancelar",
+        submit: "Crear hilo",
+      },
+      validation: {
+        required: "El título y el contenido son obligatorios",
+      },
+    },
   },
 
   // ── ENGLISH ─────────────────────────────────────────────────────────────────
@@ -564,6 +595,7 @@ export const translations = {
       characters: { title: "My Sheets", subtitle: "List of created characters" },
       maps: { title: "My Maps", subtitle: "Maps and battle scenes" },
       dice: { title: "Dice Roller", subtitle: "Roll dice and generate throws" },
+      forum: { title: "Forum", subtitle: "Community and discussions" },
       settings: { title: "Settings", subtitle: "Account settings and preferences" },
     },
 
@@ -926,6 +958,36 @@ export const translations = {
     language: {
       switchTo: "Español",
       current: "EN",
+    },
+
+    // ── Forum ─────────────────────────────────────────────────────────────────
+    foro: {
+      title: "Community Forum",
+      subtitle: "Share ideas, questions and adventures with other players",
+      newThread: "New thread",
+      empty: "No threads yet. Be the first to create one!",
+      backToForum: "Back to forum",
+      replies: "Replies",
+      addReply: "Add a reply",
+      replyPlaceholder: "Write your message...",
+      send: "Send",
+      deleteThread: "Delete thread",
+      deletePost: "Delete message",
+      unknownUser: "Unknown user",
+      notFound: "Thread not found",
+      loginToReply: "Log in to participate.",
+      loginLink: "Log in",
+      form: {
+        titleLabel: "Title",
+        titlePlaceholder: "What is your thread about?",
+        contentLabel: "Content",
+        contentPlaceholder: "Write the thread content...",
+        cancel: "Cancel",
+        submit: "Create thread",
+      },
+      validation: {
+        required: "Title and content are required",
+      },
     },
   },
 } as const;
