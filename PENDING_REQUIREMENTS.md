@@ -170,6 +170,10 @@
 
 ---
 
+### 4. 🤖 Crear y añadir fotos para las cards de la Home que tienen el mock (OBJETOS Y EQUIPO) (INVENTARIO)
+
+---
+
 ## 📌 Resumen de prioridades
 
 | Prioridad | Tarea                                                             | Esfuerzo estimado |
