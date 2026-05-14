@@ -75,7 +75,7 @@
 | Requisito                                          | Estado            | Notas                                                                                                                                                                                                    |
 | -------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Internacionalización (mínimo 2 idiomas)            | ✅ Completo       | Sistema i18n propio con Context. ES (principal) + EN. Selector de idioma en UI. Translations en `frontend/src/i18n/translations.ts`                                                                      |
-| Buenas prácticas de sostenibilidad (ODS 9, 12, 13) | ❌ No documentado | **A implementar/documentar**: análisis de huella de carbono del despliegue, lazy loading de imágenes, optimización de assets, documentar decisiones sostenibles (VPS europeo, sin CDN innecesario, etc.) |
+| Buenas prácticas de sostenibilidad (ODS 9, 12, 13) | ✅ Completo       | Documentado en **MEMORIA.md § 4.6**: ODS 9 (Docker, CI/CD, arquitectura modular), ODS 12 (lazy loading, Vite tree-shaking, TailwindCSS purge, sin CDN externo, modo oscuro), ODS 13 (VPS europeo, servidor compartido, Nginx gzip, sin cron jobs innecesarios) |
 
 ---
 
@@ -83,7 +83,7 @@
 
 | Requisito                          | Estado             | Notas                                                                                                                                                                               |
 | ---------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Documentación de análisis y diseño | ⚠️ Parcial         | Existe BBDD.md, SETUP.md, README.md, PRODUCCION.md. **Falta**: documento formal de análisis (diagrama ER, casos de uso, arquitectura)                                               |
+| Documentación de análisis y diseño | ✅ Completo        | Existe BBDD.md, SETUP.md, README.md, PRODUCCION.md. **Creado MEMORIA.md** con introducción, antecedentes, análisis de requisitos (RF+RNF), diseño (metodología, módulos, casos de uso, ER, interfaz), conclusiones y bibliografía |
 | Realización de pruebas             | ❌ No implementado | **Cero archivos de test** en frontend ni backend. No hay Jest/Vitest configurado. **A implementar**: tests unitarios mínimos (validaciones de formularios, lógica de autenticación) |
 | Manual de usuario                  | ✅ Completo        | Sección `/guias` dentro de la app con guías interactivas por tema (campañas, fichas, VTT, dados, etc.). El `README.md` cubre el manual técnico de despliegue                        |
 | Investigación de IAs aplicables    | ✅ Completo        | Documentado (según backlog)                                                                                                                                                         |
@@ -170,7 +170,9 @@
 
 ---
 
-### 4. 🤖 Crear y añadir fotos para las cards de la Home que tienen el mock (OBJETOS Y EQUIPO) (INVENTARIO)
+### 4. ✅ Crear y añadir fotos para las cards de la Home que tienen el mock (OBJETOS Y EQUIPO) (INVENTARIO)
+
+**Completado:** Se generaron imágenes con estilo *dark fantasy* y se añadieron a `frontend/public/` como `items.png` e `inventory.png`. Se actualizaron los paths en `features.component.tsx` (líneas `icon: "/items.png"` e `icon: "/inventory.png"`). Las cards ahora muestran imagen correctamente.
 
 ---
 
@@ -182,10 +184,10 @@
 | 🔴 Alta   | Tests unitarios mínimos (Vitest + React Testing Library)          | 2-3 días          |
 | 🟡 Media  | Foto de personaje (upload en mi-ficha)                            | 1 día             |
 | 🟡 Media  | Imágenes en foro                                                  | 1-2 días          |
-| 🟡 Media  | Documento análisis/diseño formal (ER, arquitectura)               | 1 día             |
+| ✅ Hecho  | Documento análisis/diseño formal → **MEMORIA.md creado**          | —                 |
 | 🟠 Baja   | Pasarela de pago (Stripe)                                         | 3-4 días          |
 | 🟠 Baja   | Análisis nube vs local (documento)                                | 2-3 horas         |
-| 🟠 Baja   | Documentar sostenibilidad (ODS)                                   | 2-3 horas         |
+| ✅ Hecho  | Documentar sostenibilidad (ODS) → **MEMORIA.md § 4.6**          | —                 |
 | 🟠 Baja   | Consumir API externa D&D real                                     | 1-2 días          |
 
 ---
