@@ -41,13 +41,12 @@ import type {
 	SceneWithEntities,
 	CombatParticipantCandidate,
 } from "./partida.vm";
+import type { CharacterUpdates } from "./components/FichaOverlay";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
-interface BattleMap {
-	id: string;
-	name: string;
-}
+import type { BattleMapListItem } from "@/core/api/battle-map.service";
+type BattleMap = BattleMapListItem;
 
 interface Props {
 	campaignId: string;
@@ -265,10 +264,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					const mapsRes = await listBattleMaps();
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					setAvailableMaps(
-						(mapsRes.maps ?? []).map((m: any) => ({
-							id: m.id as string,
-							name: m.name as string,
-						})),
+						(mapsRes.maps ?? []).map((m: any) => m as BattleMap),
 					);
 				}
 			} catch (err) {
@@ -293,50 +289,36 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		try {
 			const chaptersData = await listChapters(campaignId);
 			const chaptersWithScenes: ChapterWithScenes[] = await Promise.all(
-				chaptersData.map(
-					async (chapter: {
-						id: string;
-						title: string;
-						content: string;
-						order_index: number;
-					}) => {
-						const scenesData = await listScenes(chapter.id);
-						const scenesWithEntities: SceneWithEntities[] = await Promise.all(
-							scenesData.map(
-								async (scene: {
-									id: string;
-									title: string;
-									content: string;
-									narration_text: string;
-									dm_notes: string;
-									battle_map_id: string | null;
-									order_index: number;
-								}) => {
-									const entities = await listSceneEntities(scene.id);
-									return {
-										...scene,
-										entities: entities.map(
-											(e: {
-												id: string;
-												entity_type: string;
-												entity_id: string;
-												entity_name: string;
-												entity_data: Record<string, unknown> | null;
-											}) => ({
-												id: e.id,
-												entity_type: e.entity_type,
-												entity_id: e.entity_id,
-												entity_name: e.entity_name,
-												entity_data: e.entity_data,
-											}),
-										) as SceneEntityBasic[],
-									};
-								},
-							),
-						);
-						return { ...chapter, scenes: scenesWithEntities };
-					},
-				),
+				chaptersData.map(async (chapter) => {
+					const scenesData = await listScenes(chapter.id);
+					const scenesWithEntities: SceneWithEntities[] = await Promise.all(
+						scenesData.map(async (scene) => {
+							const entities = await listSceneEntities(scene.id);
+							return {
+								...scene,
+								content: scene.content ?? "",
+								narration_text: scene.narration_text ?? "",
+								dm_notes: scene.dm_notes ?? "",
+								battle_map_id: scene.battle_map_id ?? null,
+								entities: entities.map(
+									(e) =>
+										({
+											id: e.id,
+											entity_type: e.entity_type,
+											entity_id: e.entity_id,
+											entity_name: e.entity_name,
+											entity_data: e.entity_data ?? null,
+										}) satisfies SceneEntityBasic,
+								),
+							} satisfies SceneWithEntities;
+						}),
+					);
+					return {
+						...chapter,
+						content: chapter.content ?? "",
+						scenes: scenesWithEntities,
+					} satisfies ChapterWithScenes;
+				}),
 			);
 			setChapters(chaptersWithScenes);
 		} catch (err) {
@@ -548,6 +530,8 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					) ?? 10,
 				initiative_value: 0,
 				is_on_map: true,
+				token_color: null,
+				token_size: null,
 			});
 			setTokens((prev) => [...prev, token]);
 			handleTokenSelect(token);
@@ -584,7 +568,10 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 	const handleUpdateToken = useCallback(
 		async (
 			tokenId: string,
-			updates: { token_color?: string; token_size?: string },
+			updates: {
+				token_color?: string;
+				token_size?: "S" | "M" | "L" | "XL" | null;
+			},
 		) => {
 			if (!session) return;
 			const updated = await updateToken(session.id, tokenId, updates);
@@ -762,6 +749,8 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 						max_hp: candidate.maxHp,
 						initiative_value: candidate.initiative,
 						is_on_map: true,
+						token_color: null,
+						token_size: null,
 					});
 					participantTokens.push(createdPlayer);
 					continue;
@@ -812,6 +801,8 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					max_hp: candidate.maxHp,
 					initiative_value: candidate.initiative,
 					is_on_map: true,
+					token_color: null,
+					token_size: null,
 				});
 				participantTokens.push(spawned);
 			}
@@ -927,7 +918,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		async (
 			memberId: string,
 			characterId: string,
-			updates: Record<string, unknown>,
+			updates: CharacterUpdates,
 		) => {
 			const API_URL = import.meta.env.VITE_API_URL || "";
 			const {
@@ -1027,6 +1018,8 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					max_hp: maxHp,
 					initiative_value: initVal,
 					is_on_map: false,
+					token_color: null,
+					token_size: null,
 				});
 				setTokens((prev) => [...prev, tok]);
 			}
