@@ -374,7 +374,7 @@ app.get("/api/character-sheets", requireAuth, async (req, res) => {
 			.select(
 				campaignId
 					? "*"
-					: "id, user_id, campaign_id, name, classes, race, inventory, created_at, updated_at",
+					: "id, user_id, campaign_id, name, classes, race, inventory, avatar_url, created_at, updated_at",
 			)
 			.eq("user_id", req.user.id)
 			.eq("is_npc", false)

@@ -105,26 +105,7 @@
 
 ## 🆕 Nuevas funcionalidades a implementar
 
-### 1. 📷 Foto de personaje en la creación/edición de ficha
-
-**Contexto:** El campo `avatar_url` ya existe en la tabla `characters` (BBDD). La infraestructura de Supabase Storage ya funciona para avatares de perfil (`avatars` bucket en `migration_avatar_storage.sql`).
-
-**Qué falta:**
-
-- Crear un bucket `character-avatars` en Supabase Storage (o reusar `avatars` con subcarpeta)
-- Añadir RLS policies para ese bucket (similar a `migration_avatar_storage.sql`)
-- En `mi-ficha.scene.tsx`: añadir componente de upload de imagen (input file + preview)
-- Llamar a `supabase.storage.from('character-avatars').upload(...)` y guardar la URL pública en `avatar_url`
-- En `mis-fichas.scene.tsx`: mostrar el avatar en la tarjeta de cada personaje
-
-**Referencia de código existente:**
-
-- Upload de avatar de perfil: `frontend/src/core/api/profile.service.ts` (función `uploadAvatar`)
-- El patrón es exactamente el mismo, solo cambia el bucket y la ruta
-
----
-
-### 2. 🖼️ Adjuntar fotos en el foro y visualización en mensajes
+### 1. 🖼️ Adjuntar fotos en el foro y visualización en mensajes
 
 **Contexto:** El foro existe (`foro.scene.tsx`, `foro-hilo.scene.tsx`, tablas `forum_threads` y `forum_posts`). Actualmente solo admite texto plano.
 
@@ -182,7 +163,7 @@
 | --------- | ----------------------------------------------------------------- | ----------------- |
 | 🔴 Alta   | Merge `dev` → `main` (desbloquea captcha + otras features de dev) | 30 min            |
 | 🔴 Alta   | Tests unitarios mínimos (Vitest + React Testing Library)          | 2-3 días          |
-| 🟡 Media  | Foto de personaje (upload en mi-ficha)                            | 1 día             |
+| ✅ Hecho  | Foto de personaje (upload en mi-ficha)                            | ~~1 día~~         |
 | 🟡 Media  | Imágenes en foro                                                  | 1-2 días          |
 | ✅ Hecho  | Documento análisis/diseño formal → **MEMORIA.md creado**          | —                 |
 | 🟠 Baja   | Pasarela de pago (Stripe)                                         | 3-4 días          |

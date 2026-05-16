@@ -178,10 +178,21 @@ const MisFichasContent = () => {
               onClick={() => navigate(`${switchRoutes.fichaNueva}?id=${character.id}`)}
             >
               <CardHeader>
-                <CardTitle className="text-xl text-white">{character.name || tf.noName}</CardTitle>
-                <CardDescription className="text-gray-400">
-                  {character.race || tf.noRace} • {getClassDisplay(character.classes)}
-                </CardDescription>
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-dark-border bg-dark-border flex items-center justify-center shrink-0">
+                    {character.avatar_url ? (
+                      <img src={character.avatar_url} alt={character.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <UserCircle className="w-7 h-7 text-gray-500" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <CardTitle className="text-xl text-white truncate">{character.name || tf.noName}</CardTitle>
+                    <CardDescription className="text-gray-400 truncate">
+                      {character.race || tf.noRace} • {getClassDisplay(character.classes)}
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
