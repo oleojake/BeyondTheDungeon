@@ -43,7 +43,8 @@ export const LoginContainer = () => {
 
 		setLoading(true);
 		try {
-			const captchaToken = await captchaRef.current?.execute({ async: true });
+			const isDev = import.meta.env.DEV;
+			const captchaToken = isDev ? undefined : await captchaRef.current?.execute({ async: true });
 			await signIn(formData.email, formData.password, captchaToken?.response);
 			navigate(routes.profileCampanas);
 		} catch (err) {

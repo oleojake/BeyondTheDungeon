@@ -172,12 +172,14 @@ export const LoginComponent = ({
                 </a>
               </div>
 
-              {/* hCaptcha */}
-              <HCaptcha
-                ref={captchaRef}
-                sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
-                size="invisible"
-              />
+              {/* hCaptcha (only in production) */}
+              {!import.meta.env.DEV && (
+                <HCaptcha
+                  ref={captchaRef}
+                  sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
+                  size="invisible"
+                />
+              )}
 
               {/* Submit Button */}
               <button
