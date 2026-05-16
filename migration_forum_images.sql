@@ -1,5 +1,9 @@
--- Migration: forum-images Storage bucket + RLS policies
+-- Migration: forum-images Storage bucket + RLS policies + columns
 -- Run this in Supabase SQL Editor
+
+-- 0. Add image_url column to forum tables
+ALTER TABLE forum_threads ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE forum_posts   ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 -- 1. Create the bucket (public so URLs work without signed tokens)
 INSERT INTO storage.buckets (id, name, public)
