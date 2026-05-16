@@ -15,7 +15,8 @@ import {
   fetchCharacterSheet,
   fetchCharacterSheetById,
   createCharacterSheet,
-  updateCharacterSheet
+  updateCharacterSheet,
+  uploadCharacterAvatar
 } from "@/core/api/character-sheet.service";
 import type {
   Character,
@@ -26,7 +27,7 @@ import type {
 import { defaultCharacterStats } from "@/interfaces/character";
 import { DND_RACES, DND_CLASSES, DND_BACKGROUNDS, DND_SKILLS, DND_ABILITIES, DND_PROFICIENCIES } from "@/constants/dnd5e";
 import { switchRoutes } from "@/router/routes";
-import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X, Info, UserCircle } from "lucide-react";
+import { Loader2, Save, User, Sword, Heart, Shield, Scroll, Package, Plus, X, Info, UserCircle, Camera } from "lucide-react";
 import { useAuth } from "@/core/auth/useAuth";
 import { ProfileTabs } from "@/components/profile-tabs";
 import { useTranslation } from "@/i18n";
@@ -54,6 +55,12 @@ export const MiFichaScene = () => {
   // Stats
   const [stats, setStats] = useState<CharacterStats>(defaultCharacterStats);
   
+  // Avatar
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
   // Textos largos
   const [inventory, setInventory] = useState("");
   const [spellsKnown, setSpellsKnown] = useState("");
@@ -133,6 +140,8 @@ export const MiFichaScene = () => {
         setSpellsKnown(char.spells_known || "");
         setEquipment(char.equipment || "");
         setNotes(char.notes || "");
+        setAvatarUrl(char.avatar_url || undefined);
+        setAvatarPreview(char.avatar_url || undefined);
       }
     } catch (err: any) {
       setError(err.message);
@@ -162,13 +171,30 @@ export const MiFichaScene = () => {
         equipment,
         notes,
         is_public: isPublic,
+        avatar_url: avatarUrl,
       };
 
       if (character?.id) {
+        // Upload avatar if a new file was selected
+        if (avatarFile) {
+          setUploadingAvatar(true);
+          const url = await uploadCharacterAvatar(user.id, character.id, avatarFile);
+          setAvatarUrl(url);
+          formData.avatar_url = url;
+          setUploadingAvatar(false);
+        }
         await updateCharacterSheet(character.id, formData);
         alert(ts.savedOk);
       } else {
-        await createCharacterSheet(formData);
+        const created = await createCharacterSheet(formData);
+        // Upload avatar for newly created character
+        if (avatarFile && created.character?.id) {
+          setUploadingAvatar(true);
+          const url = await uploadCharacterAvatar(user.id, created.character.id, avatarFile);
+          setAvatarUrl(url);
+          await updateCharacterSheet(created.character.id, { ...formData, avatar_url: url });
+          setUploadingAvatar(false);
+        }
         alert(ts.createdOk);
       }
 
@@ -263,10 +289,15 @@ export const MiFichaScene = () => {
           </div>
           <Button
             onClick={handleSave}
-            disabled={saving || !user}
+            disabled={saving || uploadingAvatar || !user}
             className="bg-amber-600 hover:bg-amber-700 text-white"
           >
-            {saving ? (
+            {uploadingAvatar ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Subiendo imagen...
+              </>
+            ) : saving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {ts.saving}
@@ -332,6 +363,58 @@ export const MiFichaScene = () => {
               <CardDescription>{ts.infoDesc}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+
+              {/* Avatar upload */}
+              {user && (
+                <div className="flex items-center gap-4">
+                  <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-dark-border bg-dark-card flex items-center justify-center shrink-0">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <UserCircle className="w-12 h-12 text-gray-500" />
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="avatar-upload" className="text-sm font-medium">Foto del personaje</Label>
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor="avatar-upload"
+                        className="flex items-center gap-2 cursor-pointer text-sm px-3 py-1.5 rounded-md border border-dark-border bg-dark-card hover:bg-dark-border transition-colors text-gray-300"
+                      >
+                        <Camera className="w-4 h-4" />
+                        {avatarPreview ? "Cambiar foto" : "Subir foto"}
+                      </label>
+                      {avatarPreview && (
+                        <button
+                          type="button"
+                          onClick={() => { setAvatarPreview(undefined); setAvatarFile(null); setAvatarUrl(undefined); }}
+                          className="text-xs text-red-400 hover:text-red-300"
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">JPG, PNG o WEBP. Máx 2 MB.</p>
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 2 * 1024 * 1024) {
+                          setError("La imagen no puede superar 2 MB");
+                          return;
+                        }
+                        setAvatarFile(file);
+                        setAvatarPreview(URL.createObjectURL(file));
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">{ts.fieldName}</Label>

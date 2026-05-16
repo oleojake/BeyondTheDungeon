@@ -49,15 +49,15 @@
 
 ### 🖥️ Desarrollo (Frontend / Backend)
 
-| Requisito                  | Estado      | Notas                                                                                                                                                                                                                    |
-| -------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Frontend en React          | ✅ Completo | React 18 + TypeScript + Vite                                                                                                                                                                                             |
-| Backend con Node.js        | ✅ Completo | Express en puerto 3000                                                                                                                                                                                                   |
-| Conexión con base de datos | ✅ Completo | Supabase PostgreSQL                                                                                                                                                                                                      |
-| Desarrollo de API REST     | ✅ Completo | ~50 endpoints documentados en backend/src/index.js                                                                                                                                                                       |
-| Consumir APIs externas     | ⚠️ Parcial  | Solo Supabase y hCaptcha. Los datos D&D son JSON locales (no llama a api.open5e.com ni dnd5eapi.co). **Para marcar completo**: integrar al menos una API externa real (p.ej. D&D 5e API pública para datos actualizados) |
-| Diseño web responsive      | ✅ Completo | TailwindCSS con breakpoints móvil/tablet/desktop                                                                                                                                                                         |
-| Framework de diseño        | ✅ Completo | TailwindCSS + shadcn/ui                                                                                                                                                                                                  |
+| Requisito                  | Estado      | Notas                                                                                                                                                                                                                                              |
+| -------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend en React          | ✅ Completo | React 18 + TypeScript + Vite                                                                                                                                                                                                                       |
+| Backend con Node.js        | ✅ Completo | Express en puerto 3000                                                                                                                                                                                                                             |
+| Conexión con base de datos | ✅ Completo | Supabase PostgreSQL                                                                                                                                                                                                                                |
+| Desarrollo de API REST     | ✅ Completo | ~50 endpoints documentados en backend/src/index.js                                                                                                                                                                                                 |
+| Consumir APIs externas     | ✅ Completo | Supabase, hCaptcha, y **dnd5eapi.co** para imágenes del bestiario. El campo `image` de los monstruos almacena rutas relativas (`/api/images/monsters/...`) que el frontend completa con `https://www.dnd5eapi.co` en `bestiario-detalle.scene.tsx` |
+| Diseño web responsive      | ✅ Completo | TailwindCSS con breakpoints móvil/tablet/desktop                                                                                                                                                                                                   |
+| Framework de diseño        | ✅ Completo | TailwindCSS + shadcn/ui                                                                                                                                                                                                                            |
 
 ---
 
@@ -72,21 +72,21 @@
 
 ### 🌍 Internacionalización y sostenibilidad
 
-| Requisito                                          | Estado            | Notas                                                                                                                                                                                                    |
-| -------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Internacionalización (mínimo 2 idiomas)            | ✅ Completo       | Sistema i18n propio con Context. ES (principal) + EN. Selector de idioma en UI. Translations en `frontend/src/i18n/translations.ts`                                                                      |
-| Buenas prácticas de sostenibilidad (ODS 9, 12, 13) | ✅ Completo       | Documentado en **MEMORIA.md § 4.6**: ODS 9 (Docker, CI/CD, arquitectura modular), ODS 12 (lazy loading, Vite tree-shaking, TailwindCSS purge, sin CDN externo, modo oscuro), ODS 13 (VPS europeo, servidor compartido, Nginx gzip, sin cron jobs innecesarios) |
+| Requisito                                          | Estado      | Notas                                                                                                                                                                                                                                                          |
+| -------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Internacionalización (mínimo 2 idiomas)            | ✅ Completo | Sistema i18n propio con Context. ES (principal) + EN. Selector de idioma en UI. Translations en `frontend/src/i18n/translations.ts`                                                                                                                            |
+| Buenas prácticas de sostenibilidad (ODS 9, 12, 13) | ✅ Completo | Documentado en **MEMORIA.md § 4.6**: ODS 9 (Docker, CI/CD, arquitectura modular), ODS 12 (lazy loading, Vite tree-shaking, TailwindCSS purge, sin CDN externo, modo oscuro), ODS 13 (VPS europeo, servidor compartido, Nginx gzip, sin cron jobs innecesarios) |
 
 ---
 
 ### 🧪 Calidad y documentación
 
-| Requisito                          | Estado             | Notas                                                                                                                                                                               |
-| ---------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Requisito                          | Estado             | Notas                                                                                                                                                                                                                             |
+| ---------------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Documentación de análisis y diseño | ✅ Completo        | Existe BBDD.md, SETUP.md, README.md, PRODUCCION.md. **Creado MEMORIA.md** con introducción, antecedentes, análisis de requisitos (RF+RNF), diseño (metodología, módulos, casos de uso, ER, interfaz), conclusiones y bibliografía |
-| Realización de pruebas             | ❌ No implementado | **Cero archivos de test** en frontend ni backend. No hay Jest/Vitest configurado. **A implementar**: tests unitarios mínimos (validaciones de formularios, lógica de autenticación) |
-| Manual de usuario                  | ✅ Completo        | Sección `/guias` dentro de la app con guías interactivas por tema (campañas, fichas, VTT, dados, etc.). El `README.md` cubre el manual técnico de despliegue                        |
-| Investigación de IAs aplicables    | ✅ Completo        | Documentado (según backlog)                                                                                                                                                         |
+| Realización de pruebas             | ❌ No implementado | **Cero archivos de test** en frontend ni backend. No hay Jest/Vitest configurado. **A implementar**: tests unitarios mínimos (validaciones de formularios, lógica de autenticación)                                               |
+| Manual de usuario                  | ✅ Completo        | Sección `/guias` dentro de la app con guías interactivas por tema (campañas, fichas, VTT, dados, etc.). El `README.md` cubre el manual técnico de despliegue                                                                      |
+| Investigación de IAs aplicables    | ✅ Completo        | Documentado (según backlog)                                                                                                                                                                                                       |
 
 ---
 
@@ -105,52 +105,7 @@
 
 ## 🆕 Nuevas funcionalidades a implementar
 
-### 1. 📷 Foto de personaje en la creación/edición de ficha
-
-**Contexto:** El campo `avatar_url` ya existe en la tabla `characters` (BBDD). La infraestructura de Supabase Storage ya funciona para avatares de perfil (`avatars` bucket en `migration_avatar_storage.sql`).
-
-**Qué falta:**
-
-- Crear un bucket `character-avatars` en Supabase Storage (o reusar `avatars` con subcarpeta)
-- Añadir RLS policies para ese bucket (similar a `migration_avatar_storage.sql`)
-- En `mi-ficha.scene.tsx`: añadir componente de upload de imagen (input file + preview)
-- Llamar a `supabase.storage.from('character-avatars').upload(...)` y guardar la URL pública en `avatar_url`
-- En `mis-fichas.scene.tsx`: mostrar el avatar en la tarjeta de cada personaje
-
-**Referencia de código existente:**
-
-- Upload de avatar de perfil: `frontend/src/core/api/profile.service.ts` (función `uploadAvatar`)
-- El patrón es exactamente el mismo, solo cambia el bucket y la ruta
-
----
-
-### 2. 🖼️ Adjuntar fotos en el foro y visualización en mensajes
-
-**Contexto:** El foro existe (`foro.scene.tsx`, `foro-hilo.scene.tsx`, tablas `forum_threads` y `forum_posts`). Actualmente solo admite texto plano.
-
-**Qué falta:**
-
-**Backend:**
-
-- Endpoint `POST /api/forum-posts/:id/image` para subir imagen a un post
-- O aceptar `image_url` al crear/editar post en los endpoints existentes
-- Añadir columna `image_url` a `forum_posts` y `forum_threads` si no existe
-
-**Frontend:**
-
-- En el formulario de creación de post/hilo: añadir input de imagen con preview
-- Subir a Supabase Storage bucket `forum-images`
-- En la vista del hilo (`foro-hilo.scene.tsx`): renderizar `<img>` si el post tiene `image_url`
-- Lightbox/modal para ver imagen a tamaño completo (opcional pero recomendado)
-
-**Supabase:**
-
-- Crear bucket `forum-images` (public read, authenticated write)
-- RLS: solo el autor del post puede subir/eliminar su imagen
-
----
-
-### 3. 🤖 Captcha en login y registro (completar el deploy)
+### 1. 🤖 Captcha en login y registro (completar el deploy)
 
 **Contexto:** El captcha (hCaptcha) ya está **completamente implementado en la rama `dev`** pero **no se ha mergeado a `main`** (producción). El Dockerfile y docker-compose.yml ya tienen la variable `VITE_HCAPTCHA_SITE_KEY` correctamente configurada en `main`.
 
@@ -170,25 +125,19 @@
 
 ---
 
-### 4. ✅ Crear y añadir fotos para las cards de la Home que tienen el mock (OBJETOS Y EQUIPO) (INVENTARIO)
-
-**Completado:** Se generaron imágenes con estilo *dark fantasy* y se añadieron a `frontend/public/` como `items.png` e `inventory.png`. Se actualizaron los paths en `features.component.tsx` (líneas `icon: "/items.png"` e `icon: "/inventory.png"`). Las cards ahora muestran imagen correctamente.
-
----
-
 ## 📌 Resumen de prioridades
 
-| Prioridad | Tarea                                                             | Esfuerzo estimado |
-| --------- | ----------------------------------------------------------------- | ----------------- |
-| 🔴 Alta   | Merge `dev` → `main` (desbloquea captcha + otras features de dev) | 30 min            |
-| 🔴 Alta   | Tests unitarios mínimos (Vitest + React Testing Library)          | 2-3 días          |
-| 🟡 Media  | Foto de personaje (upload en mi-ficha)                            | 1 día             |
-| 🟡 Media  | Imágenes en foro                                                  | 1-2 días          |
-| ✅ Hecho  | Documento análisis/diseño formal → **MEMORIA.md creado**          | —                 |
-| 🟠 Baja   | Pasarela de pago (Stripe)                                         | 3-4 días          |
-| 🟠 Baja   | Análisis nube vs local (documento)                                | 2-3 horas         |
-| ✅ Hecho  | Documentar sostenibilidad (ODS) → **MEMORIA.md § 4.6**          | —                 |
-| 🟠 Baja   | Consumir API externa D&D real                                     | 1-2 días          |
+| Prioridad | Tarea                                                              | Esfuerzo estimado |
+| --------- | ------------------------------------------------------------------ | ----------------- |
+| 🔴 Alta   | Captcha en login y registro (deploy `dev` → `main`)                | 30 min            |
+| 🔴 Alta   | Tests unitarios mínimos (Vitest + React Testing Library)           | 2-3 días          |
+| 🟠 Baja   | Pasarela de pago (Stripe)                                          | 3-4 días          |
+| 🟠 Baja   | Análisis nube vs local (documento)                                 | 2-3 horas         |
+| ✅ Hecho  | Foto de personaje (upload en mi-ficha)                             | ~~1 día~~         |
+| ✅ Hecho  | Imágenes en foro (hilos + posts)                                   | ~~1-2 días~~      |
+| ✅ Hecho  | Consumir API externa D&D real (imágenes bestiario vía dnd5eapi.co) | ~~1-2 días~~      |
+| ✅ Hecho  | Documento análisis/diseño formal → **MEMORIA.md creado**           | —                 |
+| ✅ Hecho  | Documentar sostenibilidad (ODS) → **MEMORIA.md § 4.6**             | —                 |
 
 ---
 

@@ -32,6 +32,7 @@ export interface CharacterSheetListItem {
   classes: CharacterClass | CharacterClass[];
   race: string;
   level: number;
+  avatar_url?: string;
   created_at: string;
   updated_at: string;
 }
@@ -174,6 +175,31 @@ export async function updateCharacterSheet(id: string, data: CharacterFormData):
     }
     throw err;
   }
+}
+
+/**
+ * Sube una imagen de avatar para un personaje a Supabase Storage
+ * y devuelve la URL pública.
+ */
+export async function uploadCharacterAvatar(
+  userId: string,
+  characterId: string,
+  file: File
+): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const path = `${userId}/${characterId}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("character-avatars")
+    .upload(path, file, { upsert: true });
+
+  if (error) throw new Error(`Error al subir la imagen: ${error.message}`);
+
+  const { data } = supabase.storage
+    .from("character-avatars")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
 }
 
 /**

@@ -21,8 +21,10 @@ interface SwitchRoutes {
 	partida: string;
 	authCallback: string;
 	admin: string;
-	guias: string;
-	guiaDetalle: string;
+  guias: string;
+  guiaDetalle: string;
+  foro: string;
+  foroHilo: string;
 }
 
 export const switchRoutes: SwitchRoutes = {
@@ -50,6 +52,8 @@ export const switchRoutes: SwitchRoutes = {
 	admin: "/admin",
 	guias: "/guias",
 	guiaDetalle: "/guias/:slug",
+	foro: "/foro",
+	foroHilo: "/foro/:id",
 };
 
 type Routes = SwitchRoutes;

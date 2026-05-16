@@ -114,6 +114,7 @@ export type CharacterFormData = {
   equipment: string;
   notes: string;
   is_public: boolean;
+  avatar_url?: string;
 }
 
 // Valores por defecto para un nuevo personaje

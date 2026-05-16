@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { BookOpen, ArrowRight, MessageSquare } from "lucide-react";
 import { GUIDES } from "@/pods/guias/guias-data";
+import { switchRoutes } from "@/router/routes";
 
 export const GuiasScene = () => {
 	return (
@@ -81,6 +82,28 @@ export const GuiasScene = () => {
 							pronto, aventurero.
 						</span>
 					</p>
+				</div>
+
+				{/* ── Foro CTA ─────────────────────────────────────── */}
+				<div className="mt-10 rounded-2xl border border-amber-800/30 bg-amber-900/10 p-8 flex flex-col sm:flex-row items-center gap-6">
+					<div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-600/20 border border-amber-600/30 shrink-0">
+						<MessageSquare className="w-7 h-7 text-amber-400" />
+					</div>
+					<div className="text-center sm:text-left flex-1">
+						<h3 className="text-lg font-bold text-amber-100 mb-1">
+							¿Tienes dudas o quieres compartir tu experiencia?
+						</h3>
+						<p className="text-stone-400 text-sm">
+							Visita el foro de la comunidad: pregunta, debate y conecta con otros aventureros.
+						</p>
+					</div>
+					<Link
+						to={switchRoutes.foro}
+						className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl transition-colors text-sm"
+					>
+						Ir al foro
+						<ArrowRight className="w-4 h-4" />
+					</Link>
 				</div>
 			</div>
 		</div>
