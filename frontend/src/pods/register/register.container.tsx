@@ -62,7 +62,8 @@ export const RegisterContainer = () => {
     setErrors({});
 
     try {
-      const captchaToken = await captchaRef.current?.execute({ async: true });
+      const isDev = import.meta.env.DEV;
+      const captchaToken = isDev ? undefined : await captchaRef.current?.execute({ async: true });
       await signUp({
         email: formData.email,
         username: formData.username,
