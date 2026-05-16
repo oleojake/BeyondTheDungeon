@@ -1057,4 +1057,4 @@ export const translations = {
 } as const;
 
 export type Locale = keyof typeof translations;
-export type Translations = typeof translations.es;
+export type Translations = typeof translations.es | typeof translations.en;
