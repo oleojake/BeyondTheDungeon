@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Settings, ScrollText, Map, Scroll, Dices, Home, Package } from "lucide-react";
+import { Settings, ScrollText, Map, Scroll, Dices, Home, Package, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { NavMain } from "@/components/nav-main";
@@ -85,6 +85,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			url: "/dados",
 			icon: Dices,
 			subtitle: t.sidebar.dice.subtitle,
+		},
+		{
+			title: t.sidebar.forum.title,
+			url: "/foro",
+			icon: MessageSquare,
+			subtitle: t.sidebar.forum.subtitle,
 		},
 		{
 			title: t.sidebar.settings.title,

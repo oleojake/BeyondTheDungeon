@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <!-- Parchment background gradient -->
+    <radialGradient id="parchment" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#f5e9c8"/>
+      <stop offset="60%" stop-color="#e8d49e"/>
+      <stop offset="100%" stop-color="#c9a96e"/>
+    </radialGradient>
+    <!-- Gold glow -->
+    <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffd700" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#b8860b" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Chest shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="3" dy="5" stdDeviation="6" flood-color="#5a3a1a" flood-opacity="0.5"/>
+    </filter>
+    <!-- Gem glow -->
+    <radialGradient id="gemBlue" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#a8d8ff"/>
+      <stop offset="100%" stop-color="#1a5f9e"/>
+    </radialGradient>
+    <radialGradient id="gemRed" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#ffaaaa"/>
+      <stop offset="100%" stop-color="#9e1a1a"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Parchment background -->
+  <rect width="400" height="400" fill="url(#parchment)"/>
+
+  <!-- Parchment texture lines -->
+  <line x1="0" y1="55" x2="400" y2="45" stroke="#c9a96e" stroke-width="0.8" opacity="0.4"/>
+  <line x1="0" y1="110" x2="400" y2="100" stroke="#c9a96e" stroke-width="0.6" opacity="0.3"/>
+  <line x1="0" y1="165" x2="400" y2="158" stroke="#c9a96e" stroke-width="0.8" opacity="0.4"/>
+  <line x1="0" y1="330" x2="400" y2="320" stroke="#c9a96e" stroke-width="0.6" opacity="0.3"/>
+  <line x1="0" y1="370" x2="400" y2="362" stroke="#c9a96e" stroke-width="0.8" opacity="0.4"/>
+
+  <!-- Torn/rough edges top -->
+  <path d="M0,0 Q20,8 40,3 Q60,0 80,5 Q100,10 130,2 Q160,-2 190,6 Q220,12 250,4 Q280,-2 310,5 Q340,10 370,2 Q390,-1 400,4 L400,0 Z" fill="#b8955a" opacity="0.5"/>
+
+  <!-- Gold glow halo behind chest -->
+  <ellipse cx="200" cy="260" rx="120" ry="80" fill="url(#goldGlow)"/>
+
+  <!-- Spilled coins background -->
+  <ellipse cx="185" cy="320" rx="85" ry="18" fill="#c8942a" opacity="0.35"/>
+
+  <!-- Coins scattered -->
+  <ellipse cx="115" cy="318" rx="16" ry="10" fill="#d4a520" stroke="#8b6914" stroke-width="1.5" transform="rotate(-15,115,318)"/>
+  <text x="113" y="321" font-size="8" fill="#8b6914" font-weight="bold" opacity="0.8">&#10050;</text>
+
+  <ellipse cx="148" cy="328" rx="16" ry="10" fill="#e8b820" stroke="#8b6914" stroke-width="1.5" transform="rotate(5,148,328)"/>
+  <text x="146" y="331" font-size="8" fill="#8b6914" font-weight="bold" opacity="0.8">&#10050;</text>
+
+  <ellipse cx="175" cy="322" rx="16" ry="10" fill="#d4a520" stroke="#8b6914" stroke-width="1.5" transform="rotate(-8,175,322)"/>
+  <ellipse cx="208" cy="330" rx="16" ry="10" fill="#e8c030" stroke="#8b6914" stroke-width="1.5" transform="rotate(12,208,330)"/>
+  <ellipse cx="240" cy="320" rx="16" ry="10" fill="#d4a520" stroke="#8b6914" stroke-width="1.5" transform="rotate(-5,240,320)"/>
+  <ellipse cx="268" cy="327" rx="14" ry="9" fill="#e0b020" stroke="#8b6914" stroke-width="1.5" transform="rotate(8,268,327)"/>
+
+  <!-- Treasure chest body -->
+  <g filter="url(#shadow)">
+    <!-- Chest bottom box -->
+    <rect x="95" y="255" width="210" height="100" rx="6" ry="6" fill="#6b3d0f" stroke="#3d1f06" stroke-width="3"/>
+    <!-- Chest lid -->
+    <path d="M90,255 Q200,190 310,255 Z" fill="#8b5220" stroke="#3d1f06" stroke-width="3"/>
+    <path d="M93,258 Q200,196 307,258" fill="none" stroke="#5a3410" stroke-width="1.5" opacity="0.6"/>
+
+    <!-- Wood planks on body -->
+    <line x1="95" y1="285" x2="305" y2="285" stroke="#5a3410" stroke-width="2" opacity="0.5"/>
+    <line x1="95" y1="315" x2="305" y2="315" stroke="#5a3410" stroke-width="2" opacity="0.5"/>
+    <line x1="140" y1="255" x2="140" y2="355" stroke="#5a3410" stroke-width="1.5" opacity="0.4"/>
+    <line x1="200" y1="255" x2="200" y2="355" stroke="#5a3410" stroke-width="1.5" opacity="0.4"/>
+    <line x1="260" y1="255" x2="260" y2="355" stroke="#5a3410" stroke-width="1.5" opacity="0.4"/>
+
+    <!-- Metal bands on chest body -->
+    <rect x="95" y="268" width="210" height="12" fill="#8a6a20" stroke="#5a4010" stroke-width="1"/>
+    <rect x="95" y="338" width="210" height="12" fill="#8a6a20" stroke="#5a4010" stroke-width="1"/>
+    <!-- Band highlights -->
+    <line x1="97" y1="272" x2="303" y2="272" stroke="#d4a820" stroke-width="1" opacity="0.6"/>
+    <line x1="97" y1="342" x2="303" y2="342" stroke="#d4a820" stroke-width="1" opacity="0.6"/>
+
+    <!-- Lid metal band -->
+    <path d="M92,250 Q200,188 308,250 Q200,260 92,250" fill="#8a6a20" stroke="#5a4010" stroke-width="1"/>
+
+    <!-- Corner rivets on body -->
+    <circle cx="107" cy="275" r="5" fill="#c8a020" stroke="#7a5a10" stroke-width="1.5"/>
+    <circle cx="293" cy="275" r="5" fill="#c8a020" stroke="#7a5a10" stroke-width="1.5"/>
+    <circle cx="107" cy="344" r="5" fill="#c8a020" stroke="#7a5a10" stroke-width="1.5"/>
+    <circle cx="293" cy="344" r="5" fill="#c8a020" stroke="#7a5a10" stroke-width="1.5"/>
+
+    <!-- Lock plate -->
+    <rect x="178" y="244" width="44" height="28" rx="3" fill="#c8a020" stroke="#7a5010" stroke-width="2"/>
+    <!-- Lock keyhole -->
+    <circle cx="200" cy="254" r="6" fill="#3d2008" stroke="#7a5010" stroke-width="1"/>
+    <rect x="197" y="254" width="6" height="10" rx="1" fill="#3d2008"/>
+    <!-- Lock highlights -->
+    <line x1="181" y1="247" x2="219" y2="247" stroke="#e8c840" stroke-width="1" opacity="0.7"/>
+    <line x1="181" y1="247" x2="181" y2="269" stroke="#e8c840" stroke-width="1" opacity="0.7"/>
+
+    <!-- Chest interior glow (open) -->
+    <ellipse cx="200" cy="250" rx="80" ry="12" fill="#ffd700" opacity="0.25"/>
+  </g>
+
+  <!-- Spilling treasures from chest opening -->
+  <!-- Glowing sword -->
+  <g transform="translate(130, 210) rotate(-30)">
+    <rect x="-3" y="-60" width="6" height="80" rx="2" fill="#c8d8e8" stroke="#607080" stroke-width="1.5"/>
+    <polygon points="0,-80 -5,-60 5,-60" fill="#e0eaf5" stroke="#607080" stroke-width="1.5"/>
+    <rect x="-12" y="-10" width="24" height="6" rx="2" fill="#c8a020" stroke="#7a5010" stroke-width="1.5"/>
+    <rect x="-4" y="-5" width="8" height="20" rx="2" fill="#8b5e20" stroke="#5a3810" stroke-width="1"/>
+    <!-- Sword glow -->
+    <line x1="0" y1="-75" x2="0" y2="-15" stroke="#aac8e8" stroke-width="2" opacity="0.6"/>
+  </g>
+
+  <!-- Emerald gem -->
+  <g transform="translate(255, 235)">
+    <polygon points="0,-18 14,-8 14,8 0,18 -14,8 -14,-8" fill="#20b844" stroke="#0a5c22" stroke-width="1.5"/>
+    <polygon points="0,-18 14,-8 0,-4" fill="#50e878" opacity="0.6"/>
+    <polygon points="-14,-8 0,-4 -14,8" fill="#0a8c32" opacity="0.5"/>
+  </g>
+
+  <!-- Ruby gem -->
+  <g transform="translate(160, 238)">
+    <polygon points="0,-14 10,-6 10,6 0,14 -10,6 -10,-6" fill="#c82030" stroke="#6a0010" stroke-width="1.5"/>
+    <polygon points="0,-14 10,-6 0,-3" fill="#f05068" opacity="0.6"/>
+  </g>
+
+  <!-- Magic scroll spilling out -->
+  <g transform="translate(270, 255) rotate(20)">
+    <rect x="-10" y="-30" width="20" height="50" rx="3" fill="#f0e0b0" stroke="#8b6030" stroke-width="1.5"/>
+    <circle cx="0" cy="-30" r="5" fill="#d4b070" stroke="#8b6030" stroke-width="1.5"/>
+    <circle cx="0" cy="20" r="5" fill="#d4b070" stroke="#8b6030" stroke-width="1.5"/>
+    <line x1="-6" y1="-20" x2="6" y2="-20" stroke="#8b6030" stroke-width="1" opacity="0.5"/>
+    <line x1="-6" y1="-12" x2="6" y2="-12" stroke="#8b6030" stroke-width="1" opacity="0.5"/>
+    <line x1="-6" y1="-4" x2="6" y2="-4" stroke="#8b6030" stroke-width="1" opacity="0.5"/>
+    <line x1="-6" y1="4" x2="6" y2="4" stroke="#8b6030" stroke-width="1" opacity="0.5"/>
+  </g>
+
+  <!-- Sparkle particles -->
+  <g opacity="0.8">
+    <path d="M235,195 L237,200 L242,200 L238,203 L240,208 L235,205 L230,208 L232,203 L228,200 L233,200 Z" fill="#ffd700" stroke="#c8a000" stroke-width="0.5"/>
+    <path d="M155,205 L156.5,209 L161,209 L157.5,211.5 L158.5,216 L155,213.5 L151.5,216 L152.5,211.5 L149,209 L153.5,209 Z" fill="#ffd700" stroke="#c8a000" stroke-width="0.5"/>
+    <circle cx="280" cy="215" r="2" fill="#ffd700" opacity="0.9"/>
+    <circle cx="120" cy="245" r="1.5" fill="#ffd700" opacity="0.8"/>
+    <circle cx="310" cy="245" r="2" fill="#ffd700" opacity="0.7"/>
+  </g>
+
+  <!-- Title scroll banner -->
+  <path d="M60,70 Q90,58 200,62 Q310,58 340,70 Q310,85 200,82 Q90,85 60,70 Z" fill="#e8d49e" stroke="#8b6030" stroke-width="2" opacity="0.9"/>
+  <path d="M60,70 Q55,75 60,82 Q90,90 200,86 Q310,90 340,82 Q345,75 340,70" fill="#d4b878" stroke="#8b6030" stroke-width="1.5" opacity="0.7"/>
+  <text x="200" y="78" text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="bold" fill="#5a3010" letter-spacing="1">OBJETOS Y EQUIPO</text>
+
+  <!-- Decorative corners -->
+  <path d="M15,15 L50,15 M15,15 L15,50" stroke="#8b6030" stroke-width="2" fill="none" opacity="0.5"/>
+  <circle cx="15" cy="15" r="5" fill="none" stroke="#8b6030" stroke-width="1.5" opacity="0.5"/>
+  <path d="M385,15 L350,15 M385,15 L385,50" stroke="#8b6030" stroke-width="2" fill="none" opacity="0.5"/>
+  <circle cx="385" cy="15" r="5" fill="none" stroke="#8b6030" stroke-width="1.5" opacity="0.5"/>
+  <path d="M15,385 L50,385 M15,385 L15,350" stroke="#8b6030" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M385,385 L350,385 M385,385 L385,350" stroke="#8b6030" stroke-width="2" fill="none" opacity="0.5"/>
+</svg>
