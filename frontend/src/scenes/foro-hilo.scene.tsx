@@ -117,7 +117,7 @@ const ForoHiloScene = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark flex justify-center items-center">
+      <div className="min-h-screen bg-dark flex justify-center items-center" data-testid="foro-hilo-loader">
         <Loader2 className="size-8 animate-spin text-amber-400" />
       </div>
     );
