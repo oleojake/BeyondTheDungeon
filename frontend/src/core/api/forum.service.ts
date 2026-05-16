@@ -1,9 +1,28 @@
 import { supabase } from "@/lib/supabase";
 
+export async function uploadForumImage(
+  userId: string,
+  contextId: string,
+  file: File
+): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const path = `${userId}/${contextId}-${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("forum-images")
+    .upload(path, file, { upsert: true });
+
+  if (error) throw new Error(`Error al subir la imagen: ${error.message}`);
+
+  const { data } = supabase.storage.from("forum-images").getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export interface ForumThread {
   id: string;
   title: string;
   content: string;
+  image_url?: string | null;
   author_id: string;
   created_at: string;
   updated_at: string;
@@ -15,6 +34,7 @@ export interface ForumPost {
   id: string;
   thread_id: string;
   content: string;
+  image_url?: string | null;
   author_id: string;
   created_at: string;
   profiles: { username: string; avatar_url: string | null };
@@ -66,11 +86,15 @@ export const getThread = async (
 export const createThread = async (
   title: string,
   content: string,
-  authorId: string
+  authorId: string,
+  imageUrl?: string
 ): Promise<ForumThread> => {
+  const payload: Record<string, unknown> = { title, content, author_id: authorId };
+  if (imageUrl) payload.image_url = imageUrl;
+
   const { data, error } = await supabase
     .from("forum_threads")
-    .insert({ title, content, author_id: authorId })
+    .insert(payload)
     .select(`*, profiles:author_id ( username, avatar_url )`)
     .single();
 
@@ -81,11 +105,15 @@ export const createThread = async (
 export const createPost = async (
   threadId: string,
   content: string,
-  authorId: string
+  authorId: string,
+  imageUrl?: string
 ): Promise<ForumPost> => {
+  const payload: Record<string, unknown> = { thread_id: threadId, content, author_id: authorId };
+  if (imageUrl) payload.image_url = imageUrl;
+
   const { data, error } = await supabase
     .from("forum_posts")
-    .insert({ thread_id: threadId, content, author_id: authorId })
+    .insert(payload)
     .select(`*, profiles:author_id ( username, avatar_url )`)
     .single();
 

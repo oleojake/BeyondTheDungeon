@@ -105,33 +105,7 @@
 
 ## 🆕 Nuevas funcionalidades a implementar
 
-### 1. 🖼️ Adjuntar fotos en el foro y visualización en mensajes
-
-**Contexto:** El foro existe (`foro.scene.tsx`, `foro-hilo.scene.tsx`, tablas `forum_threads` y `forum_posts`). Actualmente solo admite texto plano.
-
-**Qué falta:**
-
-**Backend:**
-
-- Endpoint `POST /api/forum-posts/:id/image` para subir imagen a un post
-- O aceptar `image_url` al crear/editar post en los endpoints existentes
-- Añadir columna `image_url` a `forum_posts` y `forum_threads` si no existe
-
-**Frontend:**
-
-- En el formulario de creación de post/hilo: añadir input de imagen con preview
-- Subir a Supabase Storage bucket `forum-images`
-- En la vista del hilo (`foro-hilo.scene.tsx`): renderizar `<img>` si el post tiene `image_url`
-- Lightbox/modal para ver imagen a tamaño completo (opcional pero recomendado)
-
-**Supabase:**
-
-- Crear bucket `forum-images` (public read, authenticated write)
-- RLS: solo el autor del post puede subir/eliminar su imagen
-
----
-
-### 3. 🤖 Captcha en login y registro (completar el deploy)
+### 1. 🤖 Captcha en login y registro (completar el deploy)
 
 **Contexto:** El captcha (hCaptcha) ya está **completamente implementado en la rama `dev`** pero **no se ha mergeado a `main`** (producción). El Dockerfile y docker-compose.yml ya tienen la variable `VITE_HCAPTCHA_SITE_KEY` correctamente configurada en `main`.
 
@@ -151,12 +125,6 @@
 
 ---
 
-### 4. ✅ Crear y añadir fotos para las cards de la Home que tienen el mock (OBJETOS Y EQUIPO) (INVENTARIO)
-
-**Completado:** Se generaron imágenes con estilo *dark fantasy* y se añadieron a `frontend/public/` como `items.png` e `inventory.png`. Se actualizaron los paths en `features.component.tsx` (líneas `icon: "/items.png"` e `icon: "/inventory.png"`). Las cards ahora muestran imagen correctamente.
-
----
-
 ## 📌 Resumen de prioridades
 
 | Prioridad | Tarea                                                             | Esfuerzo estimado |
@@ -164,7 +132,7 @@
 | 🔴 Alta   | Merge `dev` → `main` (desbloquea captcha + otras features de dev) | 30 min            |
 | 🔴 Alta   | Tests unitarios mínimos (Vitest + React Testing Library)          | 2-3 días          |
 | ✅ Hecho  | Foto de personaje (upload en mi-ficha)                            | ~~1 día~~         |
-| 🟡 Media  | Imágenes en foro                                                  | 1-2 días          |
+| ✅ Hecho  | Imágenes en foro (hilos + posts)                                  | ~~1-2 días~~      |
 | ✅ Hecho  | Documento análisis/diseño formal → **MEMORIA.md creado**          | —                 |
 | 🟠 Baja   | Pasarela de pago (Stripe)                                         | 3-4 días          |
 | 🟠 Baja   | Análisis nube vs local (documento)                                | 2-3 horas         |

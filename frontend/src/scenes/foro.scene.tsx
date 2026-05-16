@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MessageSquare, Plus, Loader2, AlertCircle, User } from "lucide-react";
+import { MessageSquare, Plus, Loader2, AlertCircle, User, Camera, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,7 @@ import { useAuth } from "@/core/auth/useAuth";
 import {
   listThreads,
   createThread,
+  uploadForumImage,
   type ForumThread,
 } from "@/core/api/forum.service";
 import { switchRoutes } from "@/router/routes";
@@ -36,6 +37,8 @@ const ForoScene = () => {
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     loadThreads();
@@ -62,11 +65,17 @@ const ForoScene = () => {
     try {
       setSubmitting(true);
       setFormError(null);
-      const newThread = await createThread(title.trim(), content.trim(), user.id);
+      let imageUrl: string | undefined;
+      if (imageFile) {
+        imageUrl = await uploadForumImage(user.id, `thread-${Date.now()}`, imageFile);
+      }
+      const newThread = await createThread(title.trim(), content.trim(), user.id, imageUrl);
       setThreads((prev) => [newThread, ...prev]);
       setDialogOpen(false);
       setTitle("");
       setContent("");
+      setImageFile(null);
+      setImagePreview(null);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Error al crear el hilo");
     } finally {
@@ -153,6 +162,14 @@ const ForoScene = () => {
                   <p className="text-sm text-stone-400 line-clamp-2 mt-2 mb-3">
                     {thread.content}
                   </p>
+                  {thread.image_url && (
+                    <img
+                      src={thread.image_url}
+                      alt=""
+                      className="mt-2 mb-3 max-h-36 rounded-lg border border-dark-border object-cover"
+                      onClick={(e) => e.preventDefault()}
+                    />
+                  )}
                   <div className="flex items-center gap-2.5 mt-3">
                     <div className="shrink-0">
                       {thread.profiles?.avatar_url ? (
@@ -200,6 +217,43 @@ const ForoScene = () => {
                 placeholder={tf.form.contentPlaceholder}
                 rows={5}
               />
+            </div>
+            {/* Image upload */}
+            <div className="space-y-1">
+              <Label>Imagen (opcional)</Label>
+              {imagePreview ? (
+                <div className="relative inline-block">
+                  <img src={imagePreview} alt="preview" className="max-h-40 rounded-lg border border-dark-border object-contain" />
+                  <button
+                    type="button"
+                    onClick={() => { setImageFile(null); setImagePreview(null); }}
+                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 rounded-full p-0.5 text-white"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <label
+                  htmlFor="thread-image"
+                  className="flex items-center gap-2 cursor-pointer text-sm px-3 py-2 rounded-md border border-dark-border bg-dark-card hover:bg-dark-border transition-colors text-gray-300 w-fit"
+                >
+                  <Camera className="size-4" />
+                  Adjuntar imagen
+                  <input
+                    id="thread-image"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 5 * 1024 * 1024) { setFormError("La imagen no puede superar 5 MB"); return; }
+                      setImageFile(file);
+                      setImagePreview(URL.createObjectURL(file));
+                    }}
+                  />
+                </label>
+              )}
             </div>
             {formError && (
               <p className="text-sm text-destructive">{formError}</p>

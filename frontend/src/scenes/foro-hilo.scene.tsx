@@ -7,6 +7,8 @@ import {
   User,
   Send,
   Trash2,
+  Camera,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +19,7 @@ import {
   createPost,
   deletePost,
   deleteThread,
+  uploadForumImage,
   type ForumThread,
   type ForumPost,
 } from "@/core/api/forum.service";
@@ -38,6 +41,8 @@ const ForoHiloScene = () => {
   const [reply, setReply] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [replyError, setReplyError] = useState<string | null>(null);
+  const [replyImageFile, setReplyImageFile] = useState<File | null>(null);
+  const [replyImagePreview, setReplyImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) loadThread();
@@ -66,9 +71,15 @@ const ForoHiloScene = () => {
     try {
       setSubmitting(true);
       setReplyError(null);
-      const newPost = await createPost(thread.id, reply.trim(), user.id);
+      let imageUrl: string | undefined;
+      if (replyImageFile) {
+        imageUrl = await uploadForumImage(user.id, `post-${thread.id}`, replyImageFile);
+      }
+      const newPost = await createPost(thread.id, reply.trim(), user.id, imageUrl);
       setPosts((prev) => [...prev, newPost]);
       setReply("");
+      setReplyImageFile(null);
+      setReplyImagePreview(null);
     } catch (err) {
       setReplyError(err instanceof Error ? err.message : "Error al enviar el mensaje");
     } finally {
@@ -160,6 +171,14 @@ const ForoHiloScene = () => {
             )}
           </div>
           <p className="text-stone-300 whitespace-pre-wrap mb-4">{thread.content}</p>
+          {thread.image_url && (
+            <img
+              src={thread.image_url}
+              alt=""
+              className="mb-4 max-h-80 rounded-xl border border-amber-800/30 object-contain cursor-zoom-in"
+              onClick={() => window.open(thread.image_url!, "_blank")}
+            />
+          )}
           <div className="flex items-center gap-3 mt-4 pt-4 border-t border-amber-800/20">
             <div className="shrink-0">
               {thread.profiles?.avatar_url ? (
@@ -214,6 +233,14 @@ const ForoHiloScene = () => {
                       )}
                     </div>
                     <p className="text-sm text-stone-300 whitespace-pre-wrap">{post.content}</p>
+                    {post.image_url && (
+                      <img
+                        src={post.image_url}
+                        alt=""
+                        className="mt-2 max-h-64 rounded-lg border border-dark-border object-contain cursor-zoom-in"
+                        onClick={() => window.open(post.image_url!, "_blank")}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -236,6 +263,40 @@ const ForoHiloScene = () => {
               rows={4}
               className="bg-dark-card border-dark-border text-stone-200"
             />
+            {/* Image upload for reply */}
+            {replyImagePreview ? (
+              <div className="relative inline-block">
+                <img src={replyImagePreview} alt="preview" className="max-h-36 rounded-lg border border-dark-border object-contain" />
+                <button
+                  type="button"
+                  onClick={() => { setReplyImageFile(null); setReplyImagePreview(null); }}
+                  className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 rounded-full p-0.5 text-white"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
+            ) : (
+              <label
+                htmlFor="reply-image"
+                className="flex items-center gap-2 cursor-pointer text-sm px-3 py-1.5 rounded-md border border-dark-border bg-dark-card hover:bg-dark-border transition-colors text-gray-400 w-fit"
+              >
+                <Camera className="size-4" />
+                Adjuntar imagen
+                <input
+                  id="reply-image"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) { setReplyError("La imagen no puede superar 5 MB"); return; }
+                    setReplyImageFile(file);
+                    setReplyImagePreview(URL.createObjectURL(file));
+                  }}
+                />
+              </label>
+            )}
             {replyError && (
               <p className="text-sm text-destructive">{replyError}</p>
             )}
