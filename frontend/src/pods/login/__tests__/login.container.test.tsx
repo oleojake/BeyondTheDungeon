@@ -10,9 +10,9 @@ const mockResendConfirmation = vi.fn();
 const mockNavigate = vi.fn();
 
 vi.mock("@/core/auth/supabaseAuth", () => ({
-  signIn: (...args: unknown[]) => mockSignIn(...args),
-  signInWithGoogle: (...args: unknown[]) => mockSignInWithGoogle(...args),
-  resendSignUpConfirmation: (...args: unknown[]) => mockResendConfirmation(...args),
+  signIn: (email: string, password: string) => mockSignIn(email, password),
+  signInWithGoogle: () => mockSignInWithGoogle(),
+  resendSignUpConfirmation: (email: string) => mockResendConfirmation(email),
 }));
 
 vi.mock("../login.component", () => ({
