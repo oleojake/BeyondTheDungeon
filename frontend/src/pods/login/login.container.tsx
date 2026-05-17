@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
-import type HCaptcha from "@hcaptcha/react-hcaptcha";
+import { type TurnstileInstance } from "@marsidev/react-turnstile";
 import { LoginComponent } from "./login.component";
 import { routes } from "@/router";
 import { signIn, signInWithGoogle, resendSignUpConfirmation } from "@/core/auth/supabaseAuth";
@@ -13,7 +13,7 @@ interface FormData {
 export const LoginContainer = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const captchaRef = useRef<HCaptcha>(null);
+	const captchaRef = useRef<TurnstileInstance>(null);
 
 	const [formData, setFormData] = useState<FormData>({
 		email: (location.state as { email?: string })?.email || "",
@@ -44,11 +44,11 @@ export const LoginContainer = () => {
 		setLoading(true);
 		try {
 			const isDev = import.meta.env.DEV;
-			const captchaToken = isDev ? undefined : await captchaRef.current?.execute({ async: true });
-			await signIn(formData.email, formData.password, captchaToken?.response);
+			const captchaToken = isDev ? undefined : await captchaRef.current?.getResponsePromise();
+			await signIn(formData.email, formData.password, captchaToken);
 			navigate(routes.profileCampanas);
 		} catch (err) {
-			captchaRef.current?.resetCaptcha();
+			captchaRef.current?.reset();
 			const msg = err instanceof Error ? err.message : "Error desconocido";
 			if (msg.toLowerCase().includes("confirmar tu email")) {
 				setEmailNotConfirmed(true);
