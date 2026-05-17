@@ -172,11 +172,13 @@ export const LoginComponent = ({
                 </a>
               </div>
 
-              <Turnstile
-                ref={captchaRef}
-                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                options={{ size: "invisible" }}
-              />
+              {!import.meta.env.DEV && (
+                <Turnstile
+                  ref={captchaRef}
+                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                  options={{ size: "invisible" }}
+                />
+              )}
 
               {/* Submit Button */}
               <button
