@@ -172,7 +172,6 @@ export const LoginComponent = ({
                 </a>
               </div>
 
-              {/* Turnstile (only in production) */}
               {!import.meta.env.DEV && (
                 <Turnstile
                   ref={captchaRef}
