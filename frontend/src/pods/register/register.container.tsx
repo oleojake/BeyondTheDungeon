@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import type HCaptcha from "@hcaptcha/react-hcaptcha";
+import { type TurnstileInstance } from "@marsidev/react-turnstile";
 import { RegisterComponent } from "./register.component";
 import { routes } from "@/router";
 import type { FormData, FormErrors } from "@/interfaces/forms";
@@ -8,7 +8,7 @@ import { resendSignUpConfirmation, signUp, signInWithGoogle } from "@/core/auth/
 
 export const RegisterContainer = () => {
   const navigate = useNavigate();
-  const captchaRef = useRef<HCaptcha>(null);
+  const captchaRef = useRef<TurnstileInstance>(null);
   const [formData, setFormData] = useState<FormData>({
     username: "",
     displayName: "",
@@ -63,13 +63,13 @@ export const RegisterContainer = () => {
 
     try {
       const isDev = import.meta.env.DEV;
-      const captchaToken = isDev ? undefined : await captchaRef.current?.execute({ async: true });
+      const captchaToken = isDev ? undefined : await captchaRef.current?.getResponsePromise();
       await signUp({
         email: formData.email,
         username: formData.username,
         password: formData.password,
         displayName: formData.displayName || formData.username,
-        captchaToken: captchaToken?.response,
+        captchaToken,
       });
 
       setSuccess(
@@ -80,7 +80,7 @@ export const RegisterContainer = () => {
         2000
       );
     } catch (error) {
-      captchaRef.current?.resetCaptcha();
+      captchaRef.current?.reset();
       const message =
         error instanceof Error ? error.message : "Error al registrar usuario.";
 

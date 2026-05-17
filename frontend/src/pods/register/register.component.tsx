@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { routes } from "@/router";
 import type { RegisterComponentProps } from "@/interfaces/registerProps";
 import { useTranslation } from "@/i18n";
@@ -198,12 +198,12 @@ export const RegisterComponent = ({
                 {errors.terms && <p className="mt-1 text-sm text-error">{errors.terms}</p>}
               </div>
 
-              {/* hCaptcha (only in production) */}
+              {/* Turnstile (only in production) */}
               {!import.meta.env.DEV && (
-                <HCaptcha
+                <Turnstile
                   ref={captchaRef}
-                  sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
-                  size="invisible"
+                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                  options={{ size: "invisible" }}
                 />
               )}
 
