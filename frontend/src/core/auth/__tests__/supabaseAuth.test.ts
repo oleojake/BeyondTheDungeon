@@ -50,7 +50,7 @@ describe("mapSupabaseError", () => {
         "captcha: sitekey and secret key must be from the same account"
       )
     ).toBe(
-      "Error de captcha: la site key y el secret deben pertenecer a la misma cuenta de hCaptcha. Revisa la configuración en Supabase."
+      "Error de captcha. Revisa la configuración del captcha en Supabase."
     );
   });
 
