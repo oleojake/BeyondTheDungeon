@@ -6,56 +6,56 @@ export const Features = () => {
 
 	const FEATURES = [
 		{
-			icon: "/campaigns.png",
+			icon: "/campaigns.webp",
 			title: t.features.cards.campaigns.title,
 			description: t.features.cards.campaigns.description,
 			color: "from-primary to-primary-dark",
 			url: "/profile/campanas",
 		},
 		{
-			icon: "/characters.png",
+			icon: "/characters.webp",
 			title: t.features.cards.characters.title,
 			description: t.features.cards.characters.description,
 			color: "from-secondary to-secondary-dark",
 			url: "/fichas/nueva",
 		},
 		{
-			icon: "/dice.png",
+			icon: "/dice.webp",
 			title: t.features.cards.dice.title,
 			description: t.features.cards.dice.description,
 			color: "from-accent to-accent-dark",
 			url: "/dados",
 		},
 		{
-			icon: "/maps.png",
+			icon: "/maps.webp",
 			title: t.features.cards.battleMaps.title,
 			description: t.features.cards.battleMaps.description,
 			color: "from-primary to-accent",
 			url: "/mapa-batalla",
 		},
 		{
-			icon: "/creatures.png",
+			icon: "/creatures.webp",
 			title: t.features.cards.bestiary.title,
 			description: t.features.cards.bestiary.description,
 			color: "from-secondary to-primary",
 			url: "/bestiario",
 		},
 		{
-			icon: "/magic.png",
+			icon: "/magic.webp",
 			title: t.features.cards.spells.title,
 			description: t.features.cards.spells.description,
 			color: "from-accent to-secondary",
 			url: "/hechizos",
 		},
 		{
-			icon: "/items.png",
+			icon: "/items.webp",
 			title: t.features.cards.items.title,
 			description: t.features.cards.items.description,
 			color: "from-yellow-700 to-amber-900",
 			url: "/objetos",
 		},
 		{
-			icon: "/inventory.png",
+			icon: "/inventory.webp",
 			title: t.features.cards.inventory.title,
 			description: t.features.cards.inventory.description,
 			color: "from-amber-800 to-orange-900",
@@ -70,7 +70,7 @@ export const Features = () => {
 		>
 			<div className="container mx-auto max-w-6xl">
 				<div className="text-center mb-16 space-y-4">
-					<h1 className="text-5xl md:text-6xl font-bold text-stone-800 dark:text-amber-50">
+					<h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-stone-800 dark:text-amber-50">
 						{t.features.heading}
 						<br />
 						<span className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 dark:from-amber-300 dark:via-yellow-200 dark:to-amber-300 bg-clip-text text-transparent">
@@ -80,7 +80,7 @@ export const Features = () => {
 					<p className="text-xl text-stone-700 dark:text-stone-300 max-w-2xl mx-auto">
 						{t.features.subheading}
 					</p>
-					<h2 className="text-3xl font-bold text-stone-800 dark:text-amber-50 pt-8">
+					<h2 className="text-xl sm:text-3xl font-bold text-stone-800 dark:text-amber-50 pt-8">
 						{t.features.toolsHeading}
 					</h2>
 					<p className="text-stone-600 dark:text-stone-300 text-lg">
@@ -103,11 +103,12 @@ export const Features = () => {
 									<img
 										src={feature.icon}
 										alt={feature.title}
+										loading="lazy"
 										className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 									/>
 								)}
 							</div>
-							<div className="p-6">
+							<div className="p-4 sm:p-6">
 								<h3 className="text-xl font-bold text-stone-800 dark:text-amber-50 mb-3">
 									{feature.title}
 								</h3>
