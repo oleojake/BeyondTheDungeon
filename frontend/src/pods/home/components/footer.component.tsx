@@ -9,11 +9,11 @@ export const Footer = () => {
 	return (
 		<footer className="bg-stone-100 dark:bg-dark-lighter border-t border-stone-300 dark:border-dark-border py-12 px-6 transition-colors duration-300">
 			<div className="container mx-auto max-w-6xl">
-				<div className="grid md:grid-cols-5 gap-8 mb-8">
-					{/* Brand */}
-					<div className="space-y-4">
+				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-8 mb-8">
+					{/* Brand — full width on the smallest breakpoint */}
+					<div className="col-span-2 sm:col-span-3 md:col-span-1 space-y-4">
 						<Link to={routes.root} className="flex items-center gap-2">
-							<img src="/logo.png" alt="Beyond the Dungeon" className="w-8 h-8 object-contain" />
+							<img src="/logo.webp" alt="Beyond the Dungeon" className="w-8 h-8 object-contain" />
 							<span className="text-stone-800 dark:text-amber-50 font-bold">
 								Beyond the Dungeon
 							</span>
