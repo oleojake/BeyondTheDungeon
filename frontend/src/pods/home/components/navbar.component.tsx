@@ -69,7 +69,7 @@ export const Navbar = () => {
 
 	return (
 		<nav className="fixed top-0 w-full bg-amber-50/95 dark:bg-dark/95 backdrop-blur-md border-b border-stone-300 dark:border-dark-border z-50 transition-colors duration-300">
-			<div className="container mx-auto px-6 py-4">
+			<div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
 				<div className="flex items-center justify-between">
 					{/* Logo */}
 					<Link
@@ -77,7 +77,7 @@ export const Navbar = () => {
 						onClick={() => setMobileOpen(false)}
 						className="flex items-center gap-2 shrink-0"
 					>
-						<img src="/logo.png" alt="Beyond the Dungeon" className="w-8 h-8 object-contain" />
+						<img src="/logo.webp" alt="Beyond the Dungeon" className="w-8 h-8 object-contain" />
 						<span className="text-stone-800 dark:text-amber-50 font-bold text-xl hidden sm:block">
 							Beyond the Dungeon
 						</span>
@@ -102,8 +102,8 @@ export const Navbar = () => {
 					</div>
 
 				{/* Right side */}
-				<div className="flex items-center gap-2">
-					<LanguageSwitcher />
+				<div className="flex items-center gap-1 sm:gap-2">
+					<div className="hidden md:block"><LanguageSwitcher /></div>
 					<ThemeToggle />
 					{loading ? null : user ? (						<>								<Link
 									to={routes.profileCampanas}
@@ -137,7 +137,7 @@ export const Navbar = () => {
 
 						{/* Mobile hamburger */}
 						<button
-							className="md:hidden p-2 rounded-lg hover:bg-stone-200 dark:hover:bg-dark-card transition-colors"
+							className="md:hidden p-2 rounded-lg hover:bg-stone-200 dark:hover:bg-dark-card transition-colors text-stone-700 dark:text-stone-200"
 							onClick={() => setMobileOpen((o) => !o)}
 							aria-label={mobileOpen ? t.nav.closeMenu : t.nav.openMenu}
 						>
