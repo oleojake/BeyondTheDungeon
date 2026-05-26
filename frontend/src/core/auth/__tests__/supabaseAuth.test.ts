@@ -44,16 +44,6 @@ describe("mapSupabaseError", () => {
     expect(mapSupabaseError("Invalid email")).toBe("El email no es válido.");
   });
 
-  it("maps captcha error", () => {
-    expect(
-      mapSupabaseError(
-        "captcha: sitekey and secret key must be from the same account"
-      )
-    ).toBe(
-      "Error de captcha. Revisa la configuración del captcha en Supabase."
-    );
-  });
-
   it("returns the original message if no mapping matches", () => {
     expect(mapSupabaseError("Some random error")).toBe("Some random error");
   });

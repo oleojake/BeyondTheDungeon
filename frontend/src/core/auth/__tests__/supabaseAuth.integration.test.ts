@@ -37,24 +37,8 @@ describe("signIn", () => {
     expect(mockSignInWithPassword).toHaveBeenCalledWith({
       email: "test@test.com",
       password: "password123",
-      options: undefined,
     });
     expect(result).toEqual({ id: "123", email: "test@test.com" });
-  });
-
-  it("passes captchaToken when provided", async () => {
-    mockSignInWithPassword.mockResolvedValue({
-      data: { user: { id: "1", email: "a@b.com" } },
-      error: null,
-    });
-
-    await signIn("a@b.com", "pass", "captcha-token-123");
-
-    expect(mockSignInWithPassword).toHaveBeenCalledWith({
-      email: "a@b.com",
-      password: "pass",
-      options: { captchaToken: "captcha-token-123" },
-    });
   });
 
   it("throws mapped error on invalid credentials", async () => {
@@ -104,23 +88,6 @@ describe("signUp", () => {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-  });
-
-  it("passes captchaToken when provided", async () => {
-    mockSignUp.mockResolvedValue({
-      data: { user: { id: "1", email: "a@b.com", identities: [{ id: "1" }] } },
-      error: null,
-    });
-
-    await signUp({ ...validParams, captchaToken: "captcha-abc" });
-
-    expect(mockSignUp).toHaveBeenCalledWith(
-      expect.objectContaining({
-        options: expect.objectContaining({
-          captchaToken: "captcha-abc",
-        }),
-      })
-    );
   });
 
   it("throws error when user already exists (empty identities)", async () => {

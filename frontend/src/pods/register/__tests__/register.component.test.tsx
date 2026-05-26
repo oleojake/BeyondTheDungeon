@@ -1,8 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
-import type { RefObject } from "react";
-import type HCaptcha from "@hcaptcha/react-hcaptcha";
 import type { FormData, FormErrors } from "@/interfaces/forms";
 import { RegisterComponent } from "../register.component";
 
@@ -57,13 +55,10 @@ const defaultFormData: FormData = {
 
 const defaultErrors: FormErrors = {};
 
-const defaultCaptchaRef: RefObject<HCaptcha | null> = { current: null };
-
 const defaultProps = {
   formData: defaultFormData,
   errors: defaultErrors,
   loading: false,
-  captchaRef: defaultCaptchaRef,
   onChange: vi.fn() as (field: keyof FormData, value: string | boolean) => void,
   onSubmit: vi.fn() as (e: React.FormEvent) => void,
   onGoogleSignIn: vi.fn() as () => void,

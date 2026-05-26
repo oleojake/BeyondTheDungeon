@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
-import { type TurnstileInstance } from "@marsidev/react-turnstile";
 import { LoginComponent } from "./login.component";
 import { routes } from "@/router";
+import { useCaptcha } from "@/core/captcha/useCaptcha";
 import { signIn, signInWithGoogle, resendSignUpConfirmation } from "@/core/auth/supabaseAuth";
 
 interface FormData {
@@ -13,7 +13,7 @@ interface FormData {
 export const LoginContainer = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const captchaRef = useRef<TurnstileInstance>(null);
+	const captcha = useCaptcha();
 
 	const [formData, setFormData] = useState<FormData>({
 		email: (location.state as { email?: string })?.email || "",
@@ -41,14 +41,16 @@ export const LoginContainer = () => {
 			return;
 		}
 
+		if (!captcha.valid) {
+			setError("La respuesta del captcha no es correcta");
+			return;
+		}
+
 		setLoading(true);
 		try {
-			const isDev = import.meta.env.DEV;
-			const captchaToken = isDev ? undefined : await captchaRef.current?.getResponsePromise();
-			await signIn(formData.email, formData.password, captchaToken);
+			await signIn(formData.email, formData.password);
 			navigate(routes.profileCampanas);
 		} catch (err) {
-			captchaRef.current?.reset();
 			const msg = err instanceof Error ? err.message : "Error desconocido";
 			if (msg.toLowerCase().includes("confirmar tu email")) {
 				setEmailNotConfirmed(true);
@@ -87,11 +89,14 @@ export const LoginContainer = () => {
 			formData={formData}
 			loading={loading}
 			error={error}
-			captchaRef={captchaRef}
 			emailNotConfirmed={emailNotConfirmed}
 			resendLoading={resendLoading}
 			resendSuccess={resendSuccess}
+			captchaQuestion={captcha.question}
+			captchaValue={captcha.value}
 			onChange={handleChange}
+			onCaptchaChange={captcha.setValue}
+			onCaptchaRefresh={captcha.refresh}
 			onSubmit={handleSubmit}
 			onGoogleSignIn={handleGoogleSignIn}
 			onResendConfirmation={handleResendConfirmation}
