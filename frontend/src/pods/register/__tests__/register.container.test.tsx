@@ -8,6 +8,16 @@ const mockSignUp = vi.fn();
 const mockSignInWithGoogle = vi.fn();
 const mockResendSignUpConfirmation = vi.fn();
 
+vi.mock("@/core/captcha/useCaptcha", () => ({
+  useCaptcha: () => ({
+    question: "Test question",
+    value: "",
+    setValue: vi.fn(),
+    valid: true,
+    refresh: vi.fn(),
+  }),
+}));
+
 vi.mock("@/core/auth/supabaseAuth", () => ({
   signUp: (...args: unknown[]) => mockSignUp(...args),
   signInWithGoogle: (...args: unknown[]) => mockSignInWithGoogle(...args),
@@ -115,7 +125,6 @@ describe("RegisterContainer", () => {
       username: "hero123",
       password: "password123",
       displayName: "hero123",
-      captchaToken: undefined,
     });
   });
 

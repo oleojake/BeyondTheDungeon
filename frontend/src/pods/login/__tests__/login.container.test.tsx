@@ -7,7 +7,16 @@ import { LoginContainer } from "../login.container";
 const mockSignIn = vi.fn();
 const mockSignInWithGoogle = vi.fn();
 const mockResendConfirmation = vi.fn();
-const mockNavigate = vi.fn();
+
+vi.mock("@/core/captcha/useCaptcha", () => ({
+  useCaptcha: () => ({
+    question: "Test question",
+    value: "",
+    setValue: vi.fn(),
+    valid: true,
+    refresh: vi.fn(),
+  }),
+}));
 
 vi.mock("@/core/auth/supabaseAuth", () => ({
   signIn: (email: string, password: string) => mockSignIn(email, password),

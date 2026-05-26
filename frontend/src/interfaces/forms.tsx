@@ -14,6 +14,7 @@ export interface FormErrors {
   password?: string;
   confirmPassword?: string;
   terms?: string;
+  captcha?: string;
   general?: string;
 }
 

@@ -1,7 +1,7 @@
 import { Link } from "react-router";
-import { Turnstile } from "@marsidev/react-turnstile";
 import { routes } from "@/router";
 import type { RegisterComponentProps } from "@/interfaces/registerProps";
+import { CaptchaField } from "@/core/captcha/CaptchaField";
 import { useTranslation } from "@/i18n";
 
 export const RegisterComponent = ({
@@ -9,8 +9,12 @@ export const RegisterComponent = ({
   errors,
   loading,
   successMessage,
-  captchaRef,
+  captchaQuestion,
+  captchaValue,
+  captchaError,
   onChange,
+  onCaptchaChange,
+  onCaptchaRefresh,
   onSubmit,
   onGoogleSignIn,
 }: RegisterComponentProps) => {
@@ -198,13 +202,14 @@ export const RegisterComponent = ({
                 {errors.terms && <p className="mt-1 text-sm text-error">{errors.terms}</p>}
               </div>
 
-              {!import.meta.env.DEV && (
-                <Turnstile
-                  ref={captchaRef}
-                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                  options={{ size: "invisible" }}
-                />
-              )}
+              {/* Captcha */}
+              <CaptchaField
+                question={captchaQuestion}
+                value={captchaValue}
+                onChange={onCaptchaChange}
+                onRefresh={onCaptchaRefresh}
+                error={captchaError}
+              />
 
               {/* Submit Button */}
               <button

@@ -30,7 +30,6 @@ export default defineConfig(({ mode }) => {
 			env: {
 				VITE_SUPABASE_URL: env.VITE_SUPABASE_URL || '',
 				VITE_SUPABASE_ANON_KEY: env.VITE_SUPABASE_ANON_KEY || '',
-				VITE_TURNSTILE_SITE_KEY: env.VITE_TURNSTILE_SITE_KEY || '',
 			},
 
 		},

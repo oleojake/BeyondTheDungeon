@@ -1,7 +1,7 @@
-import { type RefObject, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
-import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { routes } from "@/router";
+import { CaptchaField } from "@/core/captcha/CaptchaField";
 import { useTranslation } from "@/i18n";
 
 interface FormData {
@@ -13,11 +13,14 @@ interface LoginProps {
   formData: FormData;
   loading: boolean;
   error: string | null;
-  captchaRef: RefObject<TurnstileInstance | null>;
   emailNotConfirmed: boolean;
   resendLoading: boolean;
   resendSuccess: boolean;
+  captchaQuestion: string;
+  captchaValue: string;
   onChange: (field: keyof FormData, value: string) => void;
+  onCaptchaChange: (value: string) => void;
+  onCaptchaRefresh: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onGoogleSignIn: () => void;
   onResendConfirmation: () => void;
@@ -27,11 +30,14 @@ export const LoginComponent = ({
   formData,
   loading,
   error,
-  captchaRef,
   emailNotConfirmed,
   resendLoading,
   resendSuccess,
+  captchaQuestion,
+  captchaValue,
   onChange,
+  onCaptchaChange,
+  onCaptchaRefresh,
   onSubmit,
   onGoogleSignIn,
   onResendConfirmation,
@@ -181,13 +187,13 @@ export const LoginComponent = ({
                 </a>
               </div>
 
-              {!import.meta.env.DEV && (
-                <Turnstile
-                  ref={captchaRef}
-                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                  options={{ size: "invisible" }}
-                />
-              )}
+              {/* Captcha */}
+              <CaptchaField
+                question={captchaQuestion}
+                value={captchaValue}
+                onChange={onCaptchaChange}
+                onRefresh={onCaptchaRefresh}
+              />
 
               {/* Submit Button */}
               <button

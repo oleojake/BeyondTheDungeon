@@ -17,17 +17,14 @@ export function mapSupabaseError(msg?: string) {
   if (m.includes("password") && m.includes("length"))
     return "La contraseña no cumple la longitud mínima.";
   if (m.includes("invalid email")) return "El email no es válido.";
-  if (m.includes("captcha"))
-    return "Error de captcha. Revisa la configuración del captcha en Supabase.";
 
   return msg || "Ha ocurrido un error inesperado.";
 }
 
-export async function signIn(email: string, password: string, captchaToken?: string) {
+export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
-    options: captchaToken ? { captchaToken } : undefined,
   });
 
   if (error) throw new Error(mapSupabaseError(error.message));
@@ -44,7 +41,6 @@ export async function signUp(params: {
   password: string;
   username: string;
   displayName: string;
-  captchaToken?: string;
 }) {
   const { data, error } = await supabase.auth.signUp({
     email: params.email,
@@ -55,11 +51,12 @@ export async function signUp(params: {
         displayName: params.displayName,
       },
       emailRedirectTo: `${window.location.origin}/auth/callback`,
-      ...(params.captchaToken ? { captchaToken: params.captchaToken } : {}),
     },
   });
 
-  if (error) throw new Error(mapSupabaseError(error.message));
+  if (error) {
+    throw new Error(mapSupabaseError(error.message));
+  }
 
   // Supabase can return success with an empty identities array when the user
   // already exists and email enumeration protection is enabled.
