@@ -80,9 +80,12 @@ async function fetchCampaignCharacter(campaignId: string) {
 		data: { session },
 	} = await supabase.auth.getSession();
 	const API_URL = import.meta.env.VITE_API_URL || "";
-	const res = await fetch(`${API_URL}/api/campaigns/${campaignId}/my-character`, {
-		headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
-	});
+	const res = await fetch(
+		`${API_URL}/api/campaigns/${campaignId}/my-character`,
+		{
+			headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+		},
+	);
 	if (!res.ok) return null;
 	const data = await res.json();
 	return (data.character as Record<string, unknown> | null) ?? null;
@@ -101,7 +104,10 @@ async function fetchMyCharacters() {
 	return (data.characters ?? []) as CharacterListItem[];
 }
 
-async function assignCharacterToCampaign(characterId: string, campaignId: string) {
+async function assignCharacterToCampaign(
+	characterId: string,
+	campaignId: string,
+) {
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
@@ -132,7 +138,9 @@ export function MisCampanasScene() {
 	const [userId, setUserId] = useState<string>("");
 
 	// Session status per campaign
-	const [sessionMap, setSessionMap] = useState<Record<string, GameSession | null>>({});
+	const [sessionMap, setSessionMap] = useState<
+		Record<string, GameSession | null>
+	>({});
 	const [startingSession, setStartingSession] = useState<string | null>(null);
 
 	// Player character-sheet modal
@@ -175,8 +183,8 @@ export function MisCampanasScene() {
 					campaignsData.map((c: Campaign) =>
 						getCampaignSession(c.id)
 							.then((s) => ({ id: c.id, session: s }))
-							.catch(() => ({ id: c.id, session: null }))
-					)
+							.catch(() => ({ id: c.id, session: null })),
+					),
 				);
 				const map: Record<string, GameSession | null> = {};
 				sessions.forEach(({ id, session }) => {
@@ -248,7 +256,10 @@ export function MisCampanasScene() {
 	};
 
 	// DM: start or resume the session then navigate to the game
-	const handleStartOrResumeSession = async (e: React.MouseEvent, campaign: Campaign) => {
+	const handleStartOrResumeSession = async (
+		e: React.MouseEvent,
+		campaign: Campaign,
+	) => {
 		e.stopPropagation();
 		setStartingSession(campaign.id);
 		try {
@@ -284,7 +295,10 @@ export function MisCampanasScene() {
 		if (!fichaModalData || !selectedCharacterId) return;
 		setAssigningCharacter(true);
 		try {
-			await assignCharacterToCampaign(selectedCharacterId, fichaModalData.campaign.id);
+			await assignCharacterToCampaign(
+				selectedCharacterId,
+				fichaModalData.campaign.id,
+			);
 			const char = await fetchCampaignCharacter(fichaModalData.campaign.id);
 			setFichaModalData({
 				campaign: fichaModalData.campaign,
@@ -314,7 +328,10 @@ export function MisCampanasScene() {
 			);
 		if (sess.status === "paused")
 			return (
-				<Badge variant="outline" className="text-amber-400 border-amber-600 text-xs">
+				<Badge
+					variant="outline"
+					className="text-amber-400 border-amber-600 text-xs"
+				>
 					{tc.paused} {sess.session_number}
 				</Badge>
 			);
@@ -333,9 +350,7 @@ export function MisCampanasScene() {
 								<Scroll className="h-8 w-8 text-amber-200" />
 								<h1 className="text-3xl font-bold text-amber-50">{tc.title}</h1>
 							</div>
-							<p className="text-sm text-amber-100/90">
-								{tc.subtitle}
-							</p>
+							<p className="text-sm text-amber-100/90">{tc.subtitle}</p>
 						</div>
 						<Dialog open={createOpen} onOpenChange={setCreateOpen}>
 							<DialogTrigger asChild>
@@ -344,57 +359,76 @@ export function MisCampanasScene() {
 									{tc.newCampaign}
 								</Button>
 							</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>{tc.createTitle}</DialogTitle>
-								<DialogDescription>
-									{tc.createSubtitle}
-								</DialogDescription>
-							</DialogHeader>
-							<div className="space-y-4 py-4">
-								<div>
-									<label className="text-sm font-medium">{tc.fieldTitle}</label>
-									<Input
-										value={newCampaign.title}
-										onChange={(e) =>
-											setNewCampaign({ ...newCampaign, title: e.target.value })
-										}
-										placeholder={tc.fieldTitlePlaceholder}
-									/>
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>{tc.createTitle}</DialogTitle>
+									<DialogDescription>{tc.createSubtitle}</DialogDescription>
+								</DialogHeader>
+								<div className="space-y-4 py-4">
+									<div>
+										<label className="text-sm font-medium">
+											{tc.fieldTitle}
+										</label>
+										<Input
+											value={newCampaign.title}
+											onChange={(e) =>
+												setNewCampaign({
+													...newCampaign,
+													title: e.target.value,
+												})
+											}
+											placeholder={tc.fieldTitlePlaceholder}
+										/>
+									</div>
+									<div>
+										<label className="text-sm font-medium">
+											{tc.fieldDescription}
+										</label>
+										<Textarea
+											value={newCampaign.description}
+											onChange={(e) =>
+												setNewCampaign({
+													...newCampaign,
+													description: e.target.value,
+												})
+											}
+											placeholder={tc.fieldDescriptionPlaceholder}
+											rows={3}
+										/>
+									</div>
+									<div>
+										<label className="text-sm font-medium">
+											{tc.fieldNotes}
+										</label>
+										<Textarea
+											value={newCampaign.notes}
+											onChange={(e) =>
+												setNewCampaign({
+													...newCampaign,
+													notes: e.target.value,
+												})
+											}
+											placeholder={tc.fieldNotesPlaceholder}
+											rows={3}
+										/>
+									</div>
 								</div>
-								<div>
-									<label className="text-sm font-medium">{tc.fieldDescription}</label>
-									<Textarea
-										value={newCampaign.description}
-										onChange={(e) =>
-											setNewCampaign({ ...newCampaign, description: e.target.value })
-										}
-										placeholder={tc.fieldDescriptionPlaceholder}
-										rows={3}
-									/>
-								</div>
-								<div>
-									<label className="text-sm font-medium">{tc.fieldNotes}</label>
-									<Textarea
-										value={newCampaign.notes}
-										onChange={(e) =>
-											setNewCampaign({ ...newCampaign, notes: e.target.value })
-										}
-										placeholder={tc.fieldNotesPlaceholder}
-										rows={3}
-									/>
-								</div>
-							</div>
-							<DialogFooter>
-								<Button variant="outline" onClick={() => setCreateOpen(false)}>
-									{tc.cancel}
-								</Button>
-								<Button onClick={handleCreateCampaign} disabled={createLoading}>
-									{createLoading ? tc.creating : tc.create}
-								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
+								<DialogFooter>
+									<Button
+										variant="outline"
+										onClick={() => setCreateOpen(false)}
+									>
+										{tc.cancel}
+									</Button>
+									<Button
+										onClick={handleCreateCampaign}
+										disabled={createLoading}
+									>
+										{createLoading ? tc.creating : tc.create}
+									</Button>
+								</DialogFooter>
+							</DialogContent>
+						</Dialog>
 					</div>
 				</section>
 
@@ -412,9 +446,7 @@ export function MisCampanasScene() {
 										<CardTitle className="text-lg">
 											{invitation.campaigns?.title || "Campaña"}
 										</CardTitle>
-										<CardDescription>
-											{tc.invitedTo}
-										</CardDescription>
+										<CardDescription>{tc.invitedTo}</CardDescription>
 									</CardHeader>
 									<CardFooter className="gap-2">
 										<Button
@@ -456,9 +488,7 @@ export function MisCampanasScene() {
 					<div className="text-center py-12">
 						<Scroll className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
 						<h3 className="text-lg font-semibold mb-2">{tc.noCampaigns}</h3>
-						<p className="text-muted-foreground mb-4">
-							{tc.noCampaignsHint}
-						</p>
+						<p className="text-muted-foreground mb-4">{tc.noCampaignsHint}</p>
 						<Button onClick={() => setCreateOpen(true)}>
 							<Plus className="mr-2 h-4 w-4" />
 							{tc.createFirst}
@@ -483,11 +513,11 @@ export function MisCampanasScene() {
 								>
 									<CardHeader>
 										<div className="flex items-start justify-between gap-2 flex-wrap">
-											<CardTitle className="text-xl">{campaign.title}</CardTitle>
+											<CardTitle className="text-xl">
+												{campaign.title}
+											</CardTitle>
 											<div className="flex items-center gap-1.5">
-												{userIsDM && (
-													<Badge variant="default">DM</Badge>
-												)}
+												{userIsDM && <Badge variant="default">DM</Badge>}
 												{getSessionBadge(campaign.id)}
 											</div>
 										</div>
@@ -626,9 +656,7 @@ export function MisCampanasScene() {
 						<DialogTitle>
 							{fichaModalData?.campaign.title} – {tc.myCharacter}
 						</DialogTitle>
-						<DialogDescription>
-							{tc.myCharacter}
-						</DialogDescription>
+						<DialogDescription>{tc.myCharacter}</DialogDescription>
 					</DialogHeader>
 
 					<div className="rounded-md border border-border bg-muted/20 p-3 text-sm mb-3">
@@ -662,7 +690,9 @@ export function MisCampanasScene() {
 
 							{myCharacters.length > 0 ? (
 								<div className="space-y-2">
-									<label className="text-sm font-medium">{tc.assignSheet}</label>
+									<label className="text-sm font-medium">
+										{tc.assignSheet}
+									</label>
 									<select
 										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 										value={selectedCharacterId}
@@ -686,7 +716,9 @@ export function MisCampanasScene() {
 								</div>
 							) : (
 								<div className="text-center">
-									<p className="text-sm text-muted-foreground mb-3">{tc.noSheets}</p>
+									<p className="text-sm text-muted-foreground mb-3">
+										{tc.noSheets}
+									</p>
 									<Button variant="outline" onClick={() => navigate("/fichas")}>
 										{tc.goToSheets}
 									</Button>
@@ -741,24 +773,31 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 
 				<TabsContent value="info">
 					<div className="grid grid-cols-3 gap-2 text-sm">
-						{["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"].map(
-							(key) => (
-								<div
-									key={key}
-									className="bg-muted rounded p-2 text-center"
-								>
-									<div className="text-xs text-muted-foreground capitalize">
-										{key === "strength" ? tc.statStr
-											: key === "dexterity" ? tc.statDex
-											: key === "constitution" ? tc.statCon
-											: key === "intelligence" ? tc.statInt
-											: key === "wisdom" ? tc.statWis
-											: tc.statCha}
-									</div>
-									<div className="font-bold">{Number(stats[key] ?? 10)}</div>
+						{[
+							"strength",
+							"dexterity",
+							"constitution",
+							"intelligence",
+							"wisdom",
+							"charisma",
+						].map((key) => (
+							<div key={key} className="bg-muted rounded p-2 text-center">
+								<div className="text-xs text-muted-foreground capitalize">
+									{key === "strength"
+										? tc.statStr
+										: key === "dexterity"
+											? tc.statDex
+											: key === "constitution"
+												? tc.statCon
+												: key === "intelligence"
+													? tc.statInt
+													: key === "wisdom"
+														? tc.statWis
+														: tc.statCha}
 								</div>
-							)
-						)}
+								<div className="font-bold">{Number(stats[key] ?? 10)}</div>
+							</div>
+						))}
 					</div>
 				</TabsContent>
 
@@ -780,7 +819,7 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 				</TabsContent>
 
 				<TabsContent value="equipo">
-					<div className="space-y-2 text-sm">
+					<div className="space-y-3 text-sm">
 						<div>
 							<p className="font-medium mb-1">{tc.equipment}</p>
 							<p className="text-muted-foreground whitespace-pre-wrap">
@@ -789,9 +828,85 @@ function CharacterSummary({ char }: { char: Record<string, unknown> }) {
 						</div>
 						<div>
 							<p className="font-medium mb-1">{tc.inventory}</p>
-							<p className="text-muted-foreground whitespace-pre-wrap">
-								{(char.inventory as string) || tc.emptyInventory}
-							</p>
+							{(() => {
+								let inv: {
+									equipped?: Record<string, { name: string } | null>;
+									potions?: { name: string; quantity: number }[];
+									scrolls?: { name: string; quantity: number }[];
+									ammo?: { name: string; quantity: number }[];
+									bag?: { name: string; quantity: number }[];
+									currency?: Record<string, number>;
+								} | null = null;
+								try {
+									const raw = char.inventory as string;
+									if (raw && raw.trim().startsWith("{")) inv = JSON.parse(raw);
+								} catch {
+									/* not JSON */
+								}
+
+								if (!inv)
+									return (
+										<p className="text-muted-foreground whitespace-pre-wrap">
+											{(char.inventory as string) || tc.emptyInventory}
+										</p>
+									);
+
+								const equippedItems = Object.entries(inv.equipped ?? {})
+									.filter(([, v]) => v !== null)
+									.map(([slot, v]) => `${slot}: ${v!.name}`);
+
+								const listItems = [
+									...(inv.potions ?? []).map((i) => `${i.name} x${i.quantity}`),
+									...(inv.scrolls ?? []).map((i) => `${i.name} x${i.quantity}`),
+									...(inv.ammo ?? []).map((i) => `${i.name} x${i.quantity}`),
+									...(inv.bag ?? []).map((i) => `${i.name} x${i.quantity}`),
+								];
+
+								const currency = inv.currency ?? {};
+								const currencyStr = Object.entries(currency)
+									.filter(([, v]) => v > 0)
+									.map(([k, v]) => `${v} ${k}`)
+									.join(", ");
+
+								const hasAnything =
+									equippedItems.length > 0 ||
+									listItems.length > 0 ||
+									currencyStr;
+
+								if (!hasAnything)
+									return (
+										<p className="text-muted-foreground">{tc.emptyInventory}</p>
+									);
+
+								return (
+									<div className="space-y-1 text-muted-foreground">
+										{equippedItems.length > 0 && (
+											<div>
+												<span className="text-xs font-medium text-foreground">
+													Equipado:{" "}
+												</span>
+												{equippedItems.join(", ")}
+											</div>
+										)}
+										{listItems.length > 0 && (
+											<div>
+												<span className="text-xs font-medium text-foreground">
+													Objetos:{" "}
+												</span>
+												{listItems.join(", ")}
+											</div>
+										)}
+										{currencyStr && (
+											<div>
+												<span className="text-xs font-medium text-foreground">
+													Monedas:{" "}
+												</span>
+												{currencyStr}
+											</div>
+										)}
+									</div>
+								);
+							})()}
 						</div>
 						<div>
 							<p className="font-medium mb-1">{tc.spells}</p>
