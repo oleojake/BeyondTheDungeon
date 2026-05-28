@@ -22,6 +22,7 @@ import {
 	Plus,
 	Minus,
 	Package,
+	Archive,
 	Sword,
 	Shield,
 	FlaskConical,
@@ -33,15 +34,22 @@ import {
 
 const ITEM_ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
 	package: Package,
+	chest: Archive,
 	sword: Sword,
 	shield: Shield,
 	flask: FlaskConical,
 	gem: Gem,
 	scroll: ScrollText,
+	user: User,
 	key: Key,
 	wand: Wand2,
 };
-import type { SessionToken, CombatState, MapViewState, SessionMember } from "../partida.vm";
+import type {
+	SessionToken,
+	CombatState,
+	MapViewState,
+	SessionMember,
+} from "../partida.vm";
 
 export interface MapaPartidaRef {
 	getView: () => MapViewState;
@@ -233,13 +241,16 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 		// ── Token drag ────────────────────────────────────────────────────────
 		const canDragToken = (token: SessionToken): boolean => {
 			if (isDM) return true;
-			// Player can only drag their own token on their turn
+			// Outside combat: player can only drag their own token
 			if (token.token_type !== "player") return false;
 			if (token.user_id !== currentUserId) return false;
-			if (!combatState || !combatState.is_active) return false;
-			const currentTokenId =
-				combatState.initiative_order[combatState.current_turn_index];
-			return currentTokenId === token.id;
+			// During combat: only on their turn
+			if (combatState?.is_active) {
+				const currentTokenId =
+					combatState.initiative_order[combatState.current_turn_index];
+				return currentTokenId === token.id;
+			}
+			return true;
 		};
 
 		const handleTokenMouseDown = (e: React.MouseEvent, token: SessionToken) => {
@@ -554,13 +565,21 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 									{(() => {
 										let displayImage = token.entity_image;
 										let displayLabel = token.entity_name;
-										
+
 										// Si es jugador, intentar usar los datos de su personaje
 										if (token.token_type === "player" && members) {
-											const member = members.find(m => m.user_id === token.user_id);
+											const member = members.find(
+												(m) => m.user_id === token.user_id,
+											);
 											if (member) {
-												displayImage = member.character?.avatar_url || member.profile?.avatar_url || token.entity_image;
-												displayLabel = member.character?.name || member.profile?.display_name || token.entity_name;
+												displayImage =
+													member.character?.avatar_url ||
+													member.profile?.avatar_url ||
+													token.entity_image;
+												displayLabel =
+													member.character?.name ||
+													member.profile?.display_name ||
+													token.entity_name;
 											}
 										}
 
@@ -607,9 +626,14 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 								{(() => {
 									let displayLabel = token.entity_name;
 									if (token.token_type === "player" && members) {
-										const member = members.find(m => m.user_id === token.user_id);
+										const member = members.find(
+											(m) => m.user_id === token.user_id,
+										);
 										if (member) {
-											displayLabel = member.character?.name || member.profile?.display_name || token.entity_name;
+											displayLabel =
+												member.character?.name ||
+												member.profile?.display_name ||
+												token.entity_name;
 										}
 									}
 									return displayLabel;

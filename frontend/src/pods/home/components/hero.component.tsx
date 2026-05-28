@@ -8,7 +8,7 @@ export const Hero = () => {
 	return (
 		<section className="relative overflow-hidden min-h-[100svh] sm:min-h-[90vh] flex flex-col">
 			{/* Background Image */}
-			<div className="absolute inset-0 flex items-center justify-center">
+			<div className="absolute inset-0 flex items-center justify-center pb-20 sm:pb-0 sm:pt-20">
 				<img
 					src="/logo.webp"
 					alt="Beyond the Dungeon"
