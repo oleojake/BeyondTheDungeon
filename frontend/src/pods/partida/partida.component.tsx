@@ -7,6 +7,7 @@
 // ================================================
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type {
 	GameSession,
 	SessionToken,
@@ -90,6 +91,28 @@ interface Props {
 		updates: CharacterUpdates,
 	) => Promise<void>;
 	onCancelCombatDialog: () => void;
+}
+
+function PlayerExitButton() {
+	const navigate = useNavigate();
+	return (
+		<button
+			onClick={() => {
+				if (confirm("¿Salir de la partida? Podrás volver a unirte más tarde.")) {
+					navigate("/profile/campanas");
+				}
+			}}
+			className="absolute top-3 right-3 z-20 flex items-center gap-1.5 px-3 h-8 rounded border border-red-700 bg-red-900/80 text-red-100 hover:bg-red-800 text-xs font-medium transition-colors"
+			title="Salir de la partida"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+				<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+				<polyline points="16 17 21 12 16 7" />
+				<line x1="21" y1="12" x2="9" y2="12" />
+			</svg>
+			Salir
+		</button>
+	);
 }
 
 export function PartidaComponent({
@@ -187,6 +210,7 @@ export function PartidaComponent({
 
 			{/* ── Main area: player panel + map + DM panel ── */}
 			<div className="relative flex flex-1 overflow-hidden">
+				{/* Toggle DM panel (DM only) */}
 				{isDM && (
 					<button
 						onClick={() => setShowDMPanel((prev) => !prev)}
@@ -200,6 +224,9 @@ export function PartidaComponent({
 						)}
 					</button>
 				)}
+
+				{/* Exit button for non-DM players */}
+				{!isDM && <PlayerExitButton />}
 
 				{/* Left: player avatars */}
 				<PanelJugadores
@@ -223,6 +250,7 @@ export function PartidaComponent({
 					onTokenRemove={isDM ? onTokenRemove : undefined}
 					onTokenHpChange={isDM ? onTokenHpChange : undefined}
 					onTokenSelect={isDM ? onTokenSelect : undefined}
+					members={members}
 				/>
 
 				{/* Right: DM panel (DM only) */}

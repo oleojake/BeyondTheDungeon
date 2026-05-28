@@ -9,7 +9,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { getBattleMap, listBattleMaps } from "@/core/api/battle-map.service";
+import { getBattleMap, getSessionMap, listBattleMaps } from "@/core/api/battle-map.service";
 import { listChapters } from "@/core/api/chapter.service";
 import { listScenes } from "@/core/api/scene.service";
 import { listSceneEntities } from "@/core/api/scene-entity.service";
@@ -176,6 +176,8 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 
 	// ── Bootstrap ──────────────────────────────────────────────────────────────
 
+	const prevMapIdRef = useRef<string | null>(null);
+
 	useEffect(() => {
 		let unsubTokens: (() => void) | null = null;
 		let unsubCombat: (() => void) | null = null;
@@ -208,7 +210,8 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 
 					// Load map if one was active
 					if (sess.current_map_id) {
-						loadMap(sess.current_map_id);
+						prevMapIdRef.current = sess.current_map_id;
+						loadMap(sess.current_map_id, sess.id);
 					}
 
 					if (sess.current_scene_id) {
@@ -245,12 +248,29 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					);
 				}
 
-				// Subscribe to session changes (so player knows when DM starts)
+				// Subscribe to session changes (so all participants see map/scene changes in realtime)
 				unsubSession = subscribeToSession(campaignId, (updated) => {
 					setSession(updated);
 					if (updated.status === "active" && !sess) {
 						// DM just started the session – reload
 						window.location.reload();
+					}
+					// Sync map for ALL participants when DM changes it
+					if (
+						updated.current_map_id &&
+						updated.current_map_id !== prevMapIdRef.current
+					) {
+						prevMapIdRef.current = updated.current_map_id;
+						loadMap(updated.current_map_id, updated.id);
+					}
+					// Sync map view state (pan/zoom/grid) for players
+					if (!isDM && updated.session_state) {
+						setMapView((prev) => ({
+							...prev,
+							gridSize: updated.session_state.mapGridSize ?? prev.gridSize,
+							gridColor: updated.session_state.mapGridColor ?? prev.gridColor,
+							showGrid: updated.session_state.mapShowGrid ?? prev.showGrid,
+						}));
 					}
 				});
 
@@ -328,14 +348,30 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 
 	// ── Load map ───────────────────────────────────────────────────────────────
 
-	const loadMap = async (mapId: string) => {
+	const loadMap = async (mapId: string, sessionId?: string) => {
 		try {
-			const { map } = await getBattleMap(mapId);
-			setMapImageData(map.image_data);
+			let mapData: { image_data: string; grid_size?: number; grid_color?: string } | null = null;
+
+			if (isDM) {
+				// El DM siempre usa su propio endpoint (es el propietario)
+				const { map } = await getBattleMap(mapId);
+				mapData = map;
+			} else if (sessionId) {
+				// Jugador: usa el endpoint de sesión que no requiere ser propietario
+				const result = await getSessionMap(sessionId);
+				if (result) mapData = result.map;
+			} else {
+				// Fallback: intenta con el endpoint normal (puede fallar si no es propietario)
+				const { map } = await getBattleMap(mapId);
+				mapData = map;
+			}
+
+			if (!mapData) return;
+			setMapImageData(mapData.image_data);
 			setMapView((prev) => ({
 				...prev,
-				gridSize: map.grid_size ?? 50,
-				gridColor: map.grid_color ?? "rgba(255,255,255,0.3)",
+				gridSize: mapData!.grid_size ?? 50,
+				gridColor: mapData!.grid_color ?? "rgba(255,255,255,0.3)",
 			}));
 		} catch (err) {
 			console.error("[Partida] loadMap error", err);

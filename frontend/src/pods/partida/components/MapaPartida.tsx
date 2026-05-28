@@ -41,7 +41,7 @@ const ITEM_ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
 	key: Key,
 	wand: Wand2,
 };
-import type { SessionToken, CombatState, MapViewState } from "../partida.vm";
+import type { SessionToken, CombatState, MapViewState, SessionMember } from "../partida.vm";
 
 export interface MapaPartidaRef {
 	getView: () => MapViewState;
@@ -59,6 +59,7 @@ interface Props {
 	onTokenRemove?: (tokenId: string) => void;
 	onTokenHpChange?: (tokenId: string, delta: number) => void;
 	onTokenSelect?: (token: SessionToken | null) => void;
+	members?: SessionMember[];
 }
 
 const GRID_ALPHA_PATTERN = /rgba?\([^,]+,[^,]+,[^,]+,?\s*([\d.]+)?\)/;
@@ -95,6 +96,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 			onTokenRemove,
 			onTokenHpChange,
 			onTokenSelect,
+			members,
 		},
 		ref,
 	) => {
@@ -537,8 +539,8 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 										isActive
 											? "border-yellow-400 shadow-lg shadow-yellow-400/50"
 											: isSelected
-												? "shadow-lg shadow-white/30"
-												: ""
+												? "border-2 border-white shadow-lg shadow-white/30"
+												: "border-2"
 									}`}
 									style={{
 										width: tokenSize,
@@ -550,24 +552,36 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 									}}
 								>
 									{(() => {
-										if (token.entity_image?.startsWith("icon:")) {
-											const iconKey = token.entity_image.slice(5);
-											const IconComp = ITEM_ICON_MAP[iconKey] ?? Package;
-											return (
-												<IconComp
-													className="text-amber-300"
-													style={{
-														width: tokenSize * 0.5,
-														height: tokenSize * 0.5,
-													}}
-												/>
-											);
+										let displayImage = token.entity_image;
+										let displayLabel = token.entity_name;
+										
+										// Si es jugador, intentar usar los datos de su personaje
+										if (token.token_type === "player" && members) {
+											const member = members.find(m => m.user_id === token.user_id);
+											if (member) {
+												displayImage = member.character?.avatar_url || member.profile?.avatar_url || token.entity_image;
+												displayLabel = member.character?.name || member.profile?.display_name || token.entity_name;
+											}
 										}
-										if (token.entity_image) {
+
+										if (displayImage) {
+											if (displayImage.startsWith("icon:")) {
+												const iconKey = displayImage.split(":")[1];
+												const Ico = ITEM_ICON_MAP[iconKey] ?? Package;
+												return (
+													<Ico
+														className="text-white drop-shadow-md"
+														style={{
+															width: tokenSize * 0.6,
+															height: tokenSize * 0.6,
+														}}
+													/>
+												);
+											}
 											return (
 												<img
-													src={token.entity_image}
-													alt={token.entity_name}
+													src={displayImage}
+													alt={displayLabel}
 													className="w-full h-full object-cover"
 												/>
 											);
@@ -590,7 +604,16 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 								className="text-center text-xs text-white font-semibold leading-tight truncate mt-0.5 drop-shadow-sm"
 								style={{ maxWidth: tokenSize }}
 							>
-								{token.entity_name}
+								{(() => {
+									let displayLabel = token.entity_name;
+									if (token.token_type === "player" && members) {
+										const member = members.find(m => m.user_id === token.user_id);
+										if (member) {
+											displayLabel = member.character?.name || member.profile?.display_name || token.entity_name;
+										}
+									}
+									return displayLabel;
+								})()}
 							</div>
 
 							{/* ── HP bar ── */}
@@ -619,7 +642,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 
 				{/* DM Controls overlay (bottom-left of map) */}
 				{isDM && (
-					<div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm rounded-xl p-3 flex flex-col gap-2 w-52 text-xs">
+					<div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm rounded-xl p-4 flex flex-col gap-3 w-64 text-xs">
 						<div className="flex items-center justify-between text-gray-300">
 							<span>Cuadrícula</span>
 							<button
@@ -642,7 +665,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 								max={200}
 								value={mapView.gridSize}
 								onChange={(e) => onGridSizeChange(parseInt(e.target.value))}
-								className="flex-1"
+								className="flex-1 min-w-0 cursor-pointer"
 							/>
 							<span className="w-8 text-right">{mapView.gridSize}</span>
 						</div>
@@ -665,7 +688,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 								max={100}
 								value={Math.round(getAlpha(mapView.gridColor) * 100)}
 								onChange={(e) => onGridAlphaChange(parseInt(e.target.value))}
-								className="flex-1"
+								className="flex-1 min-w-0 cursor-pointer"
 							/>
 						</div>
 

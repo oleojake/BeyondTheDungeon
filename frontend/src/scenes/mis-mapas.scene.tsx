@@ -82,7 +82,7 @@ const MisMapasContent = () => {
       <ProfileTabs />
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Map className="h-8 w-8 text-amber-200" />
@@ -94,7 +94,7 @@ const MisMapasContent = () => {
           </div>
           <Button
             onClick={() => navigate(switchRoutes.mapaBatalla)}
-            className="bg-amber-600 hover:bg-amber-700 text-white"
+            className="bg-amber-600 hover:bg-amber-700 text-white w-full sm:w-auto"
           >
             <Plus className="mr-2 h-4 w-4" />
             {tm.newMap}

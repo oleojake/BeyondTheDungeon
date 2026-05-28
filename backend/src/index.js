@@ -1515,7 +1515,26 @@ app.delete("/api/campaigns/:campaignId/members/:userId", async (req, res) => {
 			},
 		);
 
-		const { error } = await authenticatedSupabase
+		const {
+			data: { user },
+		} = await authenticatedSupabase.auth.getUser();
+
+		if (!user) {
+			return res.status(401).json({ error: "No autorizado" });
+		}
+
+		// Verificar que el usuario que solicita el borrado es el DM
+		const { data: campaign } = await authenticatedSupabase
+			.from("campaigns")
+			.select("dm_id")
+			.eq("id", campaignId)
+			.single();
+
+		if (!campaign || campaign.dm_id !== user.id) {
+			return res.status(403).json({ error: "Solo el DM puede eliminar miembros" });
+		}
+
+		const { error } = await supabaseAdmin
 			.from("campaign_members")
 			.delete()
 			.eq("campaign_id", campaignId)
@@ -1645,67 +1664,25 @@ app.post("/api/campaigns/:id/invitations", async (req, res) => {
 			});
 		}
 
-		// Check if invitation already exists (match by user_id since email may be null)
-		const { data: existingInvitation } = await authenticatedSupabase
-			.from("campaign_invitations")
-			.select("*")
-			.eq("campaign_id", id)
-			.eq("invited_user_id", invitedUser.id)
-			.eq("status", "pending")
-			.single();
-
-		if (existingInvitation) {
-			return res.status(400).json({
-				error: "Ya existe una invitación pendiente para este usuario",
-			});
-		}
-
-		// Fetch campaign title and DM display name for the email
-		const { data: campaign } = await authenticatedSupabase
-			.from("campaigns")
-			.select("title")
-			.eq("id", id)
-			.single();
-
-		const { data: dmProfile } = await authenticatedSupabase
-			.from("profiles")
-			.select("display_name, username")
-			.eq("id", user.id)
-			.single();
-
-		const dmName = dmProfile?.display_name || dmProfile?.username || "El DM";
-
-		// Insert into campaign_invitations
-		const { data, error } = await authenticatedSupabase
-			.from("campaign_invitations")
+		// Añadir el usuario directamente a la campaña mediante supabaseAdmin (evita RLS que bloquea la inserción por parte del DM a otro usuario)
+		const { data, error } = await supabaseAdmin
+			.from("campaign_members")
 			.insert({
 				campaign_id: id,
-				invited_by: user.id,
-				invited_user_id: invitedUser.id,
-				email: invitedUser.email || "",
+				user_id: invitedUser.id,
+				role: "player",
 			})
 			.select()
 			.single();
 
 		if (error) {
 			return res.status(500).json({
-				error: "Error al crear invitación",
+				error: "Error al añadir jugador a la campaña",
 				details: error.message,
 			});
 		}
 
-		// Send email (fire-and-forget – failure doesn't block the response)
-		if (invitedUser.email) {
-			const appUrl = process.env.APP_URL || "https://beyondthedungeon.org";
-			sendInvitationEmail(
-				invitedUser.email,
-				campaign?.title || "una campaña",
-				dmName,
-				appUrl,
-			);
-		}
-
-		res.json({ invitation: data });
+		res.json({ invitation: data }); // Mantenemos el nombre 'invitation' en la respuesta por compatibilidad con el frontend
 	} catch (err) {
 		res.status(500).json({
 			error: "Error interno",
@@ -2552,7 +2529,66 @@ app.put("/api/sessions/:id/state", requireAuth, async (req, res) => {
 	}
 });
 
+// ── GET /api/sessions/:id/map ─────────────────────────────────────────────────
+// Devuelve el mapa activo de la sesión a cualquier miembro de la campaña.
+// Usa supabaseAdmin para bypasear RLS (el mapa pertenece al DM, no al jugador).
+app.get("/api/sessions/:id/map", requireAuth, async (req, res) => {
+	try {
+		const { id: sessionId } = req.params;
+		const userId = req.user.id;
+
+		// 1. Obtener la sesión usando supabaseAdmin (bypasa RLS)
+		const { data: session, error: sessionError } = await supabaseAdmin
+			.from("game_sessions")
+			.select("id, campaign_id, current_map_id, dm_id")
+			.eq("id", sessionId)
+			.single();
+
+		if (sessionError || !session) {
+			return res.status(404).json({ error: "Sesión no encontrada" });
+		}
+
+		if (!session.current_map_id) {
+			return res.json({ map: null });
+		}
+
+		// 2. Verificar membresía en la campaña (DM o jugador registrado)
+		const isDM = session.dm_id === userId;
+		if (!isDM) {
+			const { data: membership } = await supabaseAdmin
+				.from("campaign_members")
+				.select("user_id")
+				.eq("campaign_id", session.campaign_id)
+				.eq("user_id", userId)
+				.maybeSingle();
+
+			if (!membership) {
+				return res.status(403).json({ error: "No eres miembro de esta campaña" });
+			}
+		}
+
+		// 3. Obtener el mapa con supabaseAdmin (bypasa RLS de battle_maps)
+		const { data: map, error: mapError } = await supabaseAdmin
+			.from("battle_maps")
+			.select("*")
+			.eq("id", session.current_map_id)
+			.single();
+
+		if (mapError || !map) {
+			console.error("[sessions/:id/map] Error:", mapError?.message);
+			return res.status(404).json({ error: "Mapa no encontrado" });
+		}
+
+		res.json({ map });
+	} catch (err) {
+		console.error("[sessions/:id/map] Exception:", err.message);
+		res.status(500).json({ error: err.message });
+	}
+});
+
+
 // ── PUT /api/sessions/:id/end ─────────────────────────────────────────────────
+
 // El DM termina la sesión guardando el estado final.
 app.put("/api/sessions/:id/end", requireAuth, async (req, res) => {
 	try {
