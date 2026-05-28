@@ -12,7 +12,7 @@ import {
 	ChevronRight,
 	Map,
 	Sword,
-	Package,
+	Archive,
 	Users,
 	Sparkles,
 	Play,
@@ -23,7 +23,6 @@ import {
 	Shield,
 	FlaskConical,
 	Gem,
-	ScrollText,
 	Key,
 	Wand2,
 } from "lucide-react";
@@ -45,6 +44,7 @@ import type {
 } from "../partida.vm";
 import type { BattleMapListItem } from "@/core/api/battle-map.service";
 type BattleMap = BattleMapListItem;
+import { User } from "lucide-react";
 
 interface Props {
 	chapters: ChapterWithScenes[];
@@ -75,12 +75,12 @@ interface Props {
 type EntityTab = "map" | "monster" | "npc" | "item" | "spell";
 
 const ITEM_ICONS = [
-	{ key: "package", label: "Caja", Icon: Package },
+	{ key: "chest", label: "Cofre", Icon: Archive },
 	{ key: "sword", label: "Espada", Icon: Sword },
 	{ key: "shield", label: "Escudo", Icon: Shield },
 	{ key: "flask", label: "Poción", Icon: FlaskConical },
 	{ key: "gem", label: "Joya", Icon: Gem },
-	{ key: "scroll", label: "Pergam.", Icon: ScrollText },
+	{ key: "user", label: "Persona", Icon: User },
 	{ key: "key", label: "Llave", Icon: Key },
 	{ key: "wand", label: "Varita", Icon: Wand2 },
 ] as const;
@@ -113,7 +113,7 @@ const ENTITY_TABS: { key: EntityTab; label: string; icon: React.ReactNode }[] =
 		{ key: "map", label: "Mapas", icon: <Map className="w-3 h-3" /> },
 		{ key: "monster", label: "Enemigos", icon: <Sword className="w-3 h-3" /> },
 		{ key: "npc", label: "NPCs", icon: <Users className="w-3 h-3" /> },
-		{ key: "item", label: "Objetos", icon: <Package className="w-3 h-3" /> },
+		{ key: "item", label: "Objetos", icon: <Archive className="w-3 h-3" /> },
 		{ key: "spell", label: "Hechizos", icon: <Sparkles className="w-3 h-3" /> },
 	];
 
@@ -255,7 +255,7 @@ export function PanelDM({
 	};
 
 	return (
-		<aside className="w-72 flex flex-col bg-[#120a04] border-l border-amber-900/30 text-sm overflow-hidden shrink-0 pt-10">
+		<aside className="w-72 h-full flex flex-col bg-[#120a04] border-l border-amber-900/30 text-sm overflow-hidden shrink-0 pt-10">
 			{/* ─ Session controls ─ */}
 			<div className="p-3 border-b border-amber-900/30 flex flex-col gap-2">
 				{combatState?.is_active ? (
@@ -320,8 +320,8 @@ export function PanelDM({
 				</div>
 			</div>
 
-			{/* ─ Chapters / Scenes tree ─ */}
-			<div className="flex-1 overflow-y-auto">
+			{/* ─ Scrollable content ─ */}
+			<div className="flex-1 overflow-y-auto min-h-0">
 				<div className="p-3 border-b border-amber-900/30">
 					<h3 className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-2">
 						Historia
@@ -520,133 +520,140 @@ export function PanelDM({
 						)}
 					</div>
 				)}
+				{/* ─ Selected token panel ─ */}
+				{selectedToken && (
+					<div className="border-t border-amber-900/30 p-3 space-y-3">
+						<h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wide truncate">
+							{selectedToken.entity_name}
+						</h3>
+
+						{/* Icon picker — only for icon-based tokens */}
+						{(selectedToken.entity_image?.startsWith("icon:") ||
+							!selectedToken.entity_image) && (
+							<div>
+								<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+									Icono
+								</p>
+								<div className="grid grid-cols-4 gap-1">
+									{ITEM_ICONS.map(({ key, label, Icon }) => {
+										const activeKey = selectedToken.entity_image?.startsWith(
+											"icon:",
+										)
+											? selectedToken.entity_image.slice(5)
+											: "package";
+										return (
+											<button
+												key={key}
+												title={label}
+												onClick={() => onChangeTokenIcon(selectedToken.id, key)}
+												className={`flex flex-col items-center gap-0.5 p-1.5 rounded border text-xs transition-colors ${
+													activeKey === key
+														? "border-amber-500 bg-amber-900/30 text-amber-300"
+														: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+												}`}
+											>
+												<Icon className="w-3.5 h-3.5" />
+												<span className="text-[9px] leading-tight">
+													{label}
+												</span>
+											</button>
+										);
+									})}
+								</div>
+							</div>
+						)}
+
+						{/* Shape picker — only for shape-based tokens (spells) */}
+						{selectedToken.entity_image?.startsWith("shape:") && (
+							<div>
+								<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+									Forma del área
+								</p>
+								<div className="grid grid-cols-4 gap-1">
+									{SPELL_SHAPES.map(({ key, label }) => {
+										const activeKey = selectedToken.entity_image!.slice(6);
+										return (
+											<button
+												key={key}
+												title={label}
+												onClick={() =>
+													onChangeTokenIcon(selectedToken.id, `shape:${key}`)
+												}
+												className={`flex flex-col items-center gap-1 p-1.5 rounded border text-xs transition-colors ${
+													activeKey === key
+														? "border-purple-500 bg-purple-900/30 text-purple-300"
+														: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+												}`}
+											>
+												<ShapePreview
+													shapeKey={key}
+													active={activeKey === key}
+												/>
+												<span className="text-[9px] leading-tight">
+													{label}
+												</span>
+											</button>
+										);
+									})}
+								</div>
+							</div>
+						)}
+
+						{/* Color picker */}
+						<div>
+							<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+								{selectedToken.entity_image?.startsWith("shape:")
+									? "Color de la figura"
+									: "Color del círculo"}
+							</p>
+							<div className="grid grid-cols-6 gap-1">
+								{TOKEN_COLORS.map(({ value, label }) => (
+									<button
+										key={value}
+										title={label}
+										onClick={() =>
+											onUpdateToken(selectedToken.id, { token_color: value })
+										}
+										className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
+										style={{
+											backgroundColor: value,
+											borderColor:
+												selectedToken.token_color === value
+													? "white"
+													: "transparent",
+										}}
+									/>
+								))}
+							</div>
+						</div>
+
+						{/* Size selector */}
+						<div>
+							<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+								Tamaño
+							</p>
+							<div className="flex gap-1">
+								{SIZE_OPTIONS.map(({ value, label }) => (
+									<button
+										key={value}
+										onClick={() =>
+											onUpdateToken(selectedToken.id, { token_size: value })
+										}
+										className={`flex-1 py-1 rounded border text-xs font-semibold transition-colors ${
+											(selectedToken.token_size ?? "M") === value
+												? "border-amber-500 bg-amber-900/30 text-amber-300"
+												: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+										}`}
+									>
+										{label}
+									</button>
+								))}
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
-
-			{/* ─ Selected token panel ─ */}
-			{selectedToken && (
-				<div className="border-t border-amber-900/30 p-3 shrink-0 space-y-3">
-					<h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wide truncate">
-						{selectedToken.entity_name}
-					</h3>
-
-					{/* Icon picker — only for icon-based tokens */}
-					{(selectedToken.entity_image?.startsWith("icon:") ||
-						!selectedToken.entity_image) && (
-						<div>
-							<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
-								Icono
-							</p>
-							<div className="grid grid-cols-4 gap-1">
-								{ITEM_ICONS.map(({ key, label, Icon }) => {
-									const activeKey = selectedToken.entity_image?.startsWith(
-										"icon:",
-									)
-										? selectedToken.entity_image.slice(5)
-										: "package";
-									return (
-										<button
-											key={key}
-											title={label}
-											onClick={() => onChangeTokenIcon(selectedToken.id, key)}
-											className={`flex flex-col items-center gap-0.5 p-1.5 rounded border text-xs transition-colors ${
-												activeKey === key
-													? "border-amber-500 bg-amber-900/30 text-amber-300"
-													: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
-											}`}
-										>
-											<Icon className="w-3.5 h-3.5" />
-											<span className="text-[9px] leading-tight">{label}</span>
-										</button>
-									);
-								})}
-							</div>
-						</div>
-					)}
-
-					{/* Shape picker — only for shape-based tokens (spells) */}
-					{selectedToken.entity_image?.startsWith("shape:") && (
-						<div>
-							<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
-								Forma del área
-							</p>
-							<div className="grid grid-cols-4 gap-1">
-								{SPELL_SHAPES.map(({ key, label }) => {
-									const activeKey = selectedToken.entity_image!.slice(6);
-									return (
-										<button
-											key={key}
-											title={label}
-											onClick={() =>
-												onChangeTokenIcon(selectedToken.id, `shape:${key}`)
-											}
-											className={`flex flex-col items-center gap-1 p-1.5 rounded border text-xs transition-colors ${
-												activeKey === key
-													? "border-purple-500 bg-purple-900/30 text-purple-300"
-													: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
-											}`}
-										>
-											<ShapePreview shapeKey={key} active={activeKey === key} />
-											<span className="text-[9px] leading-tight">{label}</span>
-										</button>
-									);
-								})}
-							</div>
-						</div>
-					)}
-
-					{/* Color picker */}
-					<div>
-						<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
-							{selectedToken.entity_image?.startsWith("shape:")
-								? "Color de la figura"
-								: "Color del círculo"}
-						</p>
-						<div className="grid grid-cols-6 gap-1">
-							{TOKEN_COLORS.map(({ value, label }) => (
-								<button
-									key={value}
-									title={label}
-									onClick={() =>
-										onUpdateToken(selectedToken.id, { token_color: value })
-									}
-									className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
-									style={{
-										backgroundColor: value,
-										borderColor:
-											selectedToken.token_color === value
-												? "white"
-												: "transparent",
-									}}
-								/>
-							))}
-						</div>
-					</div>
-
-					{/* Size selector */}
-					<div>
-						<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
-							Tamaño
-						</p>
-						<div className="flex gap-1">
-							{SIZE_OPTIONS.map(({ value, label }) => (
-								<button
-									key={value}
-									onClick={() =>
-										onUpdateToken(selectedToken.id, { token_size: value })
-									}
-									className={`flex-1 py-1 rounded border text-xs font-semibold transition-colors ${
-										(selectedToken.token_size ?? "M") === value
-											? "border-amber-500 bg-amber-900/30 text-amber-300"
-											: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
-									}`}
-								>
-									{label}
-								</button>
-							))}
-						</div>
-					</div>
-				</div>
-			)}
+			{/* end scrollable */}
 		</aside>
 	);
 }
