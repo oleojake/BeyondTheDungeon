@@ -397,3 +397,90 @@ export function subscribeToSession(
 		supabase.removeChannel(channel);
 	};
 }
+
+/**
+ * Broadcast channel for real-time session updates.
+ * Uses Supabase Broadcast (peer-to-peer, bypasses DB) for low-latency sync.
+ * Handles position moves, token additions/removals, and combat state changes.
+ */
+export function createTokenBroadcastChannel(
+	sessionId: string,
+	handlers: {
+		onMove: (tokenId: string, x: number, y: number) => void;
+		onAdd: (token: SessionToken) => void;
+		onRemove: (tokenId: string) => void;
+		onCombatUpdate: (combat: CombatState) => void;
+	}
+): {
+	sendMove: (tokenId: string, x: number, y: number) => void;
+	sendAdd: (token: SessionToken) => void;
+	sendRemove: (tokenId: string) => void;
+	sendCombatUpdate: (combat: CombatState) => void;
+	unsub: () => void;
+} {
+	const channel = supabase
+		.channel(`token-moves:${sessionId}`)
+		.on(
+			"broadcast",
+			{ event: "token-move" },
+			({ payload }: { payload: { tokenId: string; x: number; y: number } }) => {
+				handlers.onMove(payload.tokenId, payload.x, payload.y);
+			}
+		)
+		.on(
+			"broadcast",
+			{ event: "token-add" },
+			({ payload }: { payload: { token: SessionToken } }) => {
+				handlers.onAdd(payload.token);
+			}
+		)
+		.on(
+			"broadcast",
+			{ event: "token-remove" },
+			({ payload }: { payload: { tokenId: string } }) => {
+				handlers.onRemove(payload.tokenId);
+			}
+		)
+		.on(
+			"broadcast",
+			{ event: "combat-update" },
+			({ payload }: { payload: { combat: CombatState } }) => {
+				handlers.onCombatUpdate(payload.combat);
+			}
+		)
+		.subscribe();
+
+	return {
+		sendMove: (tokenId: string, x: number, y: number) => {
+			channel.send({
+				type: "broadcast",
+				event: "token-move",
+				payload: { tokenId, x, y },
+			});
+		},
+		sendAdd: (token: SessionToken) => {
+			channel.send({
+				type: "broadcast",
+				event: "token-add",
+				payload: { token },
+			});
+		},
+		sendRemove: (tokenId: string) => {
+			channel.send({
+				type: "broadcast",
+				event: "token-remove",
+				payload: { tokenId },
+			});
+		},
+		sendCombatUpdate: (combat: CombatState) => {
+			channel.send({
+				type: "broadcast",
+				event: "combat-update",
+				payload: { combat },
+			});
+		},
+		unsub: () => {
+			supabase.removeChannel(channel);
+		},
+	};
+}

@@ -9,7 +9,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { getBattleMap, getSessionMap, listBattleMaps } from "@/core/api/battle-map.service";
+import {
+	getBattleMap,
+	getSessionMap,
+	listBattleMaps,
+} from "@/core/api/battle-map.service";
 import { listChapters } from "@/core/api/chapter.service";
 import { listScenes } from "@/core/api/scene.service";
 import { listSceneEntities } from "@/core/api/scene-entity.service";
@@ -28,6 +32,7 @@ import {
 	subscribeToTokens,
 	subscribeToCombat,
 	subscribeToSession,
+	createTokenBroadcastChannel,
 	type GameSession,
 	type SessionToken,
 	type CombatState,
@@ -173,6 +178,17 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 	// Pending token position updates (debounced writes)
 	const pendingMoves = useRef<Map<string, { x: number; y: number }>>(new Map());
 	const moveFlushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	// Broadcast send function for real-time token position sync
+	const tokenBroadcastSend = useRef<
+		((tokenId: string, x: number, y: number) => void) | null
+	>(null);
+	const tokenBroadcastAdd = useRef<((token: SessionToken) => void) | null>(
+		null,
+	);
+	const tokenBroadcastRemove = useRef<((tokenId: string) => void) | null>(null);
+	const combatBroadcastSend = useRef<((combat: CombatState) => void) | null>(
+		null,
+	);
 
 	// ── Bootstrap ──────────────────────────────────────────────────────────────
 
@@ -182,6 +198,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		let unsubTokens: (() => void) | null = null;
 		let unsubCombat: (() => void) | null = null;
 		let unsubSession: (() => void) | null = null;
+		let unsubTokenBroadcast: (() => void) | null = null;
 
 		const init = async () => {
 			setLoading(true);
@@ -246,6 +263,37 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					unsubCombat = subscribeToCombat(sess.id, (combat) =>
 						setCombatState(combat),
 					);
+
+					// Broadcast channel for low-latency bidirectional token sync
+					const bc = createTokenBroadcastChannel(sess.id, {
+						onMove: (tokenId, x, y) => {
+							setTokens((prev) =>
+								prev.map((t) => (t.id === tokenId ? { ...t, x, y } : t)),
+							);
+						},
+						onAdd: (token) => {
+							setTokens((prev) => {
+								const idx = prev.findIndex((t) => t.id === token.id);
+								if (idx >= 0) {
+									const next = [...prev];
+									next[idx] = token;
+									return next;
+								}
+								return [...prev, token];
+							});
+						},
+						onRemove: (tokenId) => {
+							setTokens((prev) => prev.filter((t) => t.id !== tokenId));
+						},
+						onCombatUpdate: (combat) => {
+							setCombatState(combat);
+						},
+					});
+					tokenBroadcastSend.current = bc.sendMove;
+					tokenBroadcastAdd.current = bc.sendAdd;
+					tokenBroadcastRemove.current = bc.sendRemove;
+					combatBroadcastSend.current = bc.sendCombatUpdate;
+					unsubTokenBroadcast = bc.unsub;
 				}
 
 				// Subscribe to session changes (so all participants see map/scene changes in realtime)
@@ -300,6 +348,11 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			unsubTokens?.();
 			unsubCombat?.();
 			unsubSession?.();
+			unsubTokenBroadcast?.();
+			tokenBroadcastSend.current = null;
+			tokenBroadcastAdd.current = null;
+			tokenBroadcastRemove.current = null;
+			combatBroadcastSend.current = null;
 		};
 	}, [campaignId, isDM]);
 
@@ -350,7 +403,11 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 
 	const loadMap = async (mapId: string, sessionId?: string) => {
 		try {
-			let mapData: { image_data: string; grid_size?: number; grid_color?: string } | null = null;
+			let mapData: {
+				image_data: string;
+				grid_size?: number;
+				grid_color?: string;
+			} | null = null;
 
 			if (isDM) {
 				// El DM siempre usa su propio endpoint (es el propietario)
@@ -431,12 +488,15 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		}
 	};
 
-	// Optimistic local update + debounced DB write
+	// Optimistic local update + broadcast to all participants + debounced DB write
 	const handleTokenMove = useCallback(
 		(tokenId: string, x: number, y: number) => {
 			setTokens((prev) =>
 				prev.map((t) => (t.id === tokenId ? { ...t, x, y } : t)),
 			);
+			// Broadcast immediately so all participants see the move in real-time
+			tokenBroadcastSend.current?.(tokenId, x, y);
+
 			pendingMoves.current.set(tokenId, { x, y });
 
 			if (moveFlushTimer.current) clearTimeout(moveFlushTimer.current);
@@ -449,6 +509,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		async (tokenId: string) => {
 			if (!session) return;
 			setTokens((prev) => prev.filter((t) => t.id !== tokenId));
+			tokenBroadcastRemove.current?.(tokenId);
 			await deleteToken(session.id, tokenId);
 		},
 		[session],
@@ -570,6 +631,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				token_size: null,
 			});
 			setTokens((prev) => [...prev, token]);
+			tokenBroadcastAdd.current?.(token);
 			handleTokenSelect(token);
 		},
 		[session],
@@ -848,6 +910,10 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				for (const t of participantTokens) map.set(t.id, t);
 				return Array.from(map.values());
 			});
+			// Broadcast all newly created/updated combat tokens to other participants
+			for (const t of participantTokens) {
+				tokenBroadcastAdd.current?.(t);
+			}
 
 			// Sort by initiative (descending), applying D&D 5e surprise rules
 			const sorted = [...participantTokens].sort((a, b) => {
@@ -881,6 +947,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				surprise,
 			});
 			setCombatState(updated);
+			combatBroadcastSend.current?.(updated);
 		},
 		[session, combatState, tokens, combatCandidates, members],
 	);
@@ -894,16 +961,9 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			round_number: 1,
 		});
 		setCombatState(updated);
-
-		// Remove enemy/npc tokens from map
-		const enemiesToRemove = tokens.filter(
-			(t) => t.is_on_map && t.token_type !== "player",
-		);
-		for (const tok of enemiesToRemove) {
-			await deleteToken(session.id, tok.id);
-		}
-		setTokens((prev) => prev.filter((t) => t.token_type === "player"));
-	}, [session, combatState, tokens]);
+		combatBroadcastSend.current?.(updated);
+		// Tokens remain on the map; DM must use the X button to remove them individually
+	}, [session, combatState]);
 
 	const handleReorderInitiative = useCallback(
 		async (newOrder: string[]) => {
@@ -912,6 +972,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				initiative_order: newOrder,
 			});
 			setCombatState(updated);
+			combatBroadcastSend.current?.(updated);
 		},
 		[session, combatState],
 	);
@@ -928,6 +989,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			round_number: newRound,
 		});
 		setCombatState(updated);
+		combatBroadcastSend.current?.(updated);
 	}, [session, combatState]);
 
 	const handleRemoveFromCombat = useCallback(
@@ -944,6 +1006,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				),
 			});
 			setCombatState(updated);
+			combatBroadcastSend.current?.(updated);
 		},
 		[session, combatState],
 	);
@@ -1023,6 +1086,56 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			}, 1000);
 		},
 		[session, isDM],
+	);
+
+	// ── Deploy player token to map (before or outside combat) ───────────────
+
+	const handleDeployPlayer = useCallback(
+		async (member: SessionMember) => {
+			if (!session) return;
+			if (!session.current_map_id) {
+				alert("Primero despliega un mapa antes de colocar el personaje.");
+				return;
+			}
+			const existing = tokens.find((t) => t.user_id === member.user_id);
+			if (existing) {
+				if (existing.is_on_map) return;
+				const updated = await updateToken(session.id, existing.id, {
+					is_on_map: true,
+				});
+				setTokens((prev) =>
+					prev.map((t) => (t.id === existing.id ? updated : t)),
+				);
+				tokenBroadcastAdd.current?.(updated);
+			} else {
+				const char = member.character;
+				if (!char) return;
+				const maxHp = (char.stats as { max_hp?: number } | null)?.max_hp ?? 0;
+				const currentHp =
+					(char.stats as { current_hp?: number } | null)?.current_hp ?? maxHp;
+				const initVal =
+					(char.stats as { initiative?: number } | null)?.initiative ?? 0;
+				const tok = await createToken(session.id, {
+					token_type: "player",
+					character_id: char.id,
+					user_id: member.user_id,
+					entity_ref_id: null,
+					entity_name: char.name,
+					entity_image: char.avatar_url,
+					x: 40,
+					y: 40,
+					current_hp: currentHp,
+					max_hp: maxHp,
+					initiative_value: initVal,
+					is_on_map: true,
+					token_color: null,
+					token_size: null,
+				});
+				setTokens((prev) => [...prev, tok]);
+				tokenBroadcastAdd.current?.(tok);
+			}
+		},
+		[session, tokens],
 	);
 
 	// ── Ensure player tokens exist on session start ───────────────────────────
@@ -1114,6 +1227,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			onEndSession={handleEndSession}
 			onOpenDados={() => setShowDados(true)}
 			onCloseDados={() => setShowDados(false)}
+			onDeployPlayer={handleDeployPlayer}
 			onOpenFicha={(member) => setFichaTarget(member)}
 			onCloseFicha={() => setFichaTarget(null)}
 			onSaveFicha={handleSaveFicha}

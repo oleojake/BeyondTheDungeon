@@ -6,7 +6,7 @@
 // Players can only open their own. DM can open everyone's.
 // ================================================
 
-import { User } from "lucide-react";
+import { User, MapPin } from "lucide-react";
 import type { SessionMember, SessionToken } from "../partida.vm";
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
 	tokens: SessionToken[];
 	isDM: boolean;
 	currentUserId: string;
+	onDeployPlayer: (member: SessionMember) => void;
 	onOpenFicha: (member: SessionMember) => void;
 }
 
@@ -22,6 +23,7 @@ export function PanelJugadores({
 	tokens,
 	isDM,
 	currentUserId,
+	onDeployPlayer,
 	onOpenFicha,
 }: Props) {
 	// Only show non-DM members (players) in this panel
@@ -32,6 +34,8 @@ export function PanelJugadores({
 			{players.map((member) => {
 				const token = tokens.find((t) => t.user_id === member.user_id);
 				const canOpen = isDM || member.user_id === currentUserId;
+				const canDeploy =
+					(isDM || member.user_id === currentUserId) && !token?.is_on_map;
 				const displayName =
 					member.character?.name ||
 					member.profile?.display_name ||
@@ -70,6 +74,19 @@ export function PanelJugadores({
 							</div>
 							{/* Online indicator */}
 							<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-[#120a04]" />
+							{/* Deploy to map button */}
+							{canDeploy && (
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										onDeployPlayer(member);
+									}}
+									className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-600 hover:bg-amber-400 flex items-center justify-center shadow-lg transition-colors"
+									title="Poner en el mapa"
+								>
+									<MapPin className="w-3 h-3 text-white" />
+								</button>
+							)}
 						</div>
 
 						{/* HP */}

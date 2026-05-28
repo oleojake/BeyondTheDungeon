@@ -241,13 +241,16 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 		// ── Token drag ────────────────────────────────────────────────────────
 		const canDragToken = (token: SessionToken): boolean => {
 			if (isDM) return true;
-			// Player can only drag their own token on their turn
+			// Outside combat: player can only drag their own token
 			if (token.token_type !== "player") return false;
 			if (token.user_id !== currentUserId) return false;
-			if (!combatState || !combatState.is_active) return false;
-			const currentTokenId =
-				combatState.initiative_order[combatState.current_turn_index];
-			return currentTokenId === token.id;
+			// During combat: only on their turn
+			if (combatState?.is_active) {
+				const currentTokenId =
+					combatState.initiative_order[combatState.current_turn_index];
+				return currentTokenId === token.id;
+			}
+			return true;
 		};
 
 		const handleTokenMouseDown = (e: React.MouseEvent, token: SessionToken) => {
