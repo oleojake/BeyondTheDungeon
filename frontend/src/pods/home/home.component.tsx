@@ -1,4 +1,4 @@
-import { CTA, Features, Footer, Hero, Navbar } from "./components";
+import { Features, Footer, Hero, Navbar } from "./components";
 
 export const HomeComponent = () => {
 	return (
@@ -6,7 +6,6 @@ export const HomeComponent = () => {
 			<Navbar />
 			<Hero />
 			<Features />
-			<CTA />
 			<Footer />
 		</div>
 	);

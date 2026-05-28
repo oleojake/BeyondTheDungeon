@@ -277,7 +277,7 @@ export const MiFichaScene = () => {
       {user && <ProfileTabs />}
       {/* Header */}
       <section className="rounded-2xl bg-gradient-to-r from-amber-600/30 via-yellow-500/20 to-amber-600/30 p-6 shadow-xl border border-amber-600/20">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <UserCircle className="h-8 w-8 text-amber-200" />
@@ -290,7 +290,7 @@ export const MiFichaScene = () => {
           <Button
             onClick={handleSave}
             disabled={saving || uploadingAvatar || !user}
-            className="bg-amber-600 hover:bg-amber-700 text-white"
+            className="bg-amber-600 hover:bg-amber-700 text-white w-full sm:w-auto"
           >
             {uploadingAvatar ? (
               <>
@@ -332,24 +332,24 @@ export const MiFichaScene = () => {
       )}
 
       <Tabs defaultValue="info" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="info">
+        <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1 rounded-lg">
+          <TabsTrigger value="info" className="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-none sm:min-w-0">
             <User className="mr-2 h-4 w-4" />
             {ts.tabInfo}
           </TabsTrigger>
-          <TabsTrigger value="stats">
+          <TabsTrigger value="stats" className="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-none sm:min-w-0">
             <Sword className="mr-2 h-4 w-4" />
             {ts.tabStats}
           </TabsTrigger>
-          <TabsTrigger value="combat">
+          <TabsTrigger value="combat" className="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-none sm:min-w-0">
             <Shield className="mr-2 h-4 w-4" />
             {ts.tabCombat}
           </TabsTrigger>
-          <TabsTrigger value="skills">
+          <TabsTrigger value="skills" className="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-none sm:min-w-0">
             <Heart className="mr-2 h-4 w-4" />
             {ts.tabSkills}
           </TabsTrigger>
-          <TabsTrigger value="inventario">
+          <TabsTrigger value="inventario" className="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-none sm:min-w-0">
             <Package className="mr-2 h-4 w-4" />
             {ts.tabInventory}
           </TabsTrigger>
@@ -648,7 +648,7 @@ export const MiFichaScene = () => {
               <CardDescription>{ts.statsDesc}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 {(["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] as const).map((attr) => {
                   const value = stats[attr];
                   const modifier = calculateModifier(value);

@@ -135,6 +135,17 @@ export const Navbar = () => {
 							</>
 						)}
 
+						{/* Mobile: login button visible without opening menu */}
+						{!loading && !user && (
+							<Link
+								to={routes.login}
+								onClick={() => setMobileOpen(false)}
+								className="md:hidden px-3 py-1.5 text-stone-800 dark:text-amber-50 border border-stone-300 dark:border-dark-border font-medium rounded-lg hover:border-primary transition-all text-sm"
+							>
+								{t.nav.login}
+							</Link>
+						)}
+
 						{/* Mobile hamburger */}
 						<button
 							className="md:hidden p-2 rounded-lg hover:bg-stone-200 dark:hover:bg-dark-card transition-colors text-stone-700 dark:text-stone-200"
