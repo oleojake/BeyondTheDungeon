@@ -226,3 +226,29 @@ export async function deleteBattleMap(id: string): Promise<void> {
     throw err;
   }
 }
+/**
+ * Obtiene el mapa activo de una sesión (accesible para cualquier miembro de la campaña,
+ * incluyendo jugadores que no son propietarios del mapa).
+ */
+export async function getSessionMap(sessionId: string): Promise<BattleMapResponse | null> {
+  const token = await getAuthToken();
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/sessions/${sessionId}/map`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    if (!data.map) return null;
+    return data as BattleMapResponse;
+  } catch {
+    return null;
+  }
+}
