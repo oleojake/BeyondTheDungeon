@@ -151,12 +151,12 @@ export function DialogoIniciarCombate({
 						<SelectTrigger className="bg-gray-800 border-gray-600 text-gray-200 h-8 text-sm">
 							<SelectValue />
 						</SelectTrigger>
-						<SelectContent className="bg-gray-800 border-gray-600">
-							<SelectItem value="none">Sin sorpresa</SelectItem>
-							<SelectItem value="heroes">
+						<SelectContent className="bg-gray-800 border-gray-600 text-gray-200">
+							<SelectItem value="none" className="text-gray-200 focus:bg-amber-900/40 focus:text-white">Sin sorpresa</SelectItem>
+							<SelectItem value="heroes" className="text-gray-200 focus:bg-amber-900/40 focus:text-white">
 								Los héroes pillan por sorpresa a los enemigos
 							</SelectItem>
-							<SelectItem value="enemies">
+							<SelectItem value="enemies" className="text-gray-200 focus:bg-amber-900/40 focus:text-white">
 								Los enemigos pillan por sorpresa a los héroes
 							</SelectItem>
 						</SelectContent>

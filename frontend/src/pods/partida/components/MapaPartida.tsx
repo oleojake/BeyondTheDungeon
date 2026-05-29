@@ -68,6 +68,7 @@ interface Props {
 	onTokenHpChange?: (tokenId: string, delta: number) => void;
 	onTokenSelect?: (token: SessionToken | null) => void;
 	members?: SessionMember[];
+	onAddToCombat?: (tokenId: string) => void;
 }
 
 const GRID_ALPHA_PATTERN = /rgba?\([^,]+,[^,]+,[^,]+,?\s*([\d.]+)?\)/;
@@ -105,6 +106,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 			onTokenHpChange,
 			onTokenSelect,
 			members,
+			onAddToCombat,
 		},
 		ref,
 	) => {
@@ -385,6 +387,11 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 								? "#ef4444"
 								: "#a855f7");
 
+					// Token NOT in combat initiative (show + button for DM)
+					const isInCombat = combatState?.is_active
+						? combatState.initiative_order.includes(token.id)
+						: true;
+
 					return (
 						<div
 							key={token.id}
@@ -441,6 +448,30 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 									</>
 								)}
 							</div>
+
+					{/* ── "Entrar al combate" badge – visible only when combat active and token not in order ── */}
+					{isDM && combatState?.is_active && !isInCombat && onAddToCombat && (
+						<button
+							onClick={(e) => {
+								e.stopPropagation();
+								onAddToCombat(token.id);
+							}}
+							onMouseDown={(e) => e.stopPropagation()}
+							className="absolute z-10 flex items-center justify-center rounded-full shadow-lg animate-pulse"
+							style={{
+								top: CONTROLS_H - 6,
+								right: -6,
+								width: 18,
+								height: 18,
+								background: "linear-gradient(135deg,#2563eb,#1d4ed8)",
+								border: "2px solid #93c5fd",
+								cursor: "pointer",
+							}}
+							title="Añadir al combate (al final)"
+						>
+							<Plus className="w-2.5 h-2.5 text-white" />
+						</button>
+					)}
 
 							{/* ── Avatar circle / Spell shape ── */}
 							{token.entity_image?.startsWith("shape:") ? (

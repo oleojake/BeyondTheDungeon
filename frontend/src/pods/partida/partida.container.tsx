@@ -633,8 +633,19 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			setTokens((prev) => [...prev, token]);
 			tokenBroadcastAdd.current?.(token);
 			handleTokenSelect(token);
+
+			// Si hay combate activo, añadir el nuevo token AL FINAL del orden
+			if (combatState?.is_active && session) {
+				const newOrder = [...combatState.initiative_order, token.id];
+				updateCombatState(session.id, { initiative_order: newOrder }).then(
+					(updated) => {
+						setCombatState(updated);
+						combatBroadcastSend.current?.(updated);
+					},
+				);
+			}
 		},
-		[session],
+		[session, combatState, tokens],
 	);
 
 	// ── Change icon of an item token already on map ───────────────────────────
@@ -807,7 +818,31 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				};
 			});
 
-		return [...playerCandidates, ...entityCandidates];
+		// Tokens enemy/npc ya en el tablero que NO provienen de la escena
+		// (e.g. añadidos desde el bestiario libre) — evitamos duplicados
+		const sceneEntityIds = new Set(
+			(scene?.entities ?? []).map((e) => e.id)
+		);
+		const extraMapCandidates: SceneCombatCandidate[] = tokens
+			.filter(
+				(t) =>
+					(t.token_type === "enemy" || t.token_type === "npc") &&
+					t.is_on_map &&
+					// no está ya cubierto por entityCandidates
+					!(t.entity_ref_id && sceneEntityIds.has(t.entity_ref_id)),
+			)
+			.map((t) => ({
+				id: t.id,
+				label: t.entity_name,
+				tokenType: t.token_type as "enemy" | "npc",
+				image: t.entity_image,
+				tokenId: t.id,
+				initiative: t.initiative_value ?? 0,
+				currentHp: t.current_hp,
+				maxHp: t.max_hp,
+			}));
+
+		return [...playerCandidates, ...entityCandidates, ...extraMapCandidates];
 	}, [chapters, selectedSceneId, tokens, members]);
 
 	const handleStartCombat = useCallback(() => {
@@ -1004,6 +1039,21 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					combatState.current_turn_index,
 					Math.max(0, newOrder.length - 1),
 				),
+			});
+			setCombatState(updated);
+			combatBroadcastSend.current?.(updated);
+		},
+		[session, combatState],
+	);
+
+	const handleAddToCombat = useCallback(
+		async (tokenId: string) => {
+			if (!session || !combatState?.is_active) return;
+			// Evitar duplicados
+			if (combatState.initiative_order.includes(tokenId)) return;
+			const newOrder = [...combatState.initiative_order, tokenId];
+			const updated = await updateCombatState(session.id, {
+				initiative_order: newOrder,
 			});
 			setCombatState(updated);
 			combatBroadcastSend.current?.(updated);
@@ -1232,6 +1282,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			onCloseFicha={() => setFichaTarget(null)}
 			onSaveFicha={handleSaveFicha}
 			onCancelCombatDialog={() => setShowCombatDialog(false)}
+			onAddToCombat={isDM ? handleAddToCombat : undefined}
 		/>
 	);
 }

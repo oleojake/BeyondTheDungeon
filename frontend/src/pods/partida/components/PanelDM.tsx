@@ -6,7 +6,7 @@
 // Has Comenzar/Terminar enfrentamiento and Terminar sesión buttons.
 // ================================================
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
 	ChevronDown,
 	ChevronRight,
@@ -44,7 +44,14 @@ import type {
 } from "../partida.vm";
 import type { BattleMapListItem } from "@/core/api/battle-map.service";
 type BattleMap = BattleMapListItem;
-import { User } from "lucide-react";
+import { User, Search } from "lucide-react";
+
+interface BestiaryMonster {
+	id: string;
+	name: string;
+	stats?: { hit_points?: number; [key: string]: unknown };
+	[key: string]: unknown;
+}
 
 interface Props {
 	chapters: ChapterWithScenes[];
@@ -203,6 +210,53 @@ export function PanelDM({
 	const [selectedItemIcon, setSelectedItemIcon] = useState<string>("package");
 	const [selectedSpellShape, setSelectedSpellShape] =
 		useState<string>("circle");
+
+	// ── Bestiary search state ──────────────────────────────────────────────────
+	const [bestiaryOpen, setBestiaryOpen] = useState(false);
+	const [bestiaryAll, setBestiaryAll] = useState<BestiaryMonster[]>([]);
+	const [bestiaryLoading, setBestiaryLoading] = useState(false);
+	const [bestiaryQuery, setBestiaryQuery] = useState("");
+	const [selectedBestiary, setSelectedBestiary] = useState<BestiaryMonster | null>(null);
+	const bestiaryFetched = useRef(false);
+
+	useEffect(() => {
+		if (!bestiaryOpen || bestiaryFetched.current) return;
+		bestiaryFetched.current = true;
+		setBestiaryLoading(true);
+		const API_URL = import.meta.env.VITE_API_URL || "";
+		fetch(`${API_URL}/api/compendium-bestiary`)
+			.then((r) => r.json())
+			.then((data) => {
+				const list: BestiaryMonster[] = (data.characters ?? []).map(
+					(m: BestiaryMonster) => ({ id: m.id ?? m.name, name: m.name, ...m })
+				);
+				setBestiaryAll(list);
+			})
+			.catch(console.error)
+			.finally(() => setBestiaryLoading(false));
+	}, [bestiaryOpen]);
+
+	const bestiaryFiltered = bestiaryQuery.trim().length >= 2
+		? bestiaryAll.filter((m) =>
+				m.name.toLowerCase().includes(bestiaryQuery.toLowerCase())
+		  )
+		: [];
+
+	const handleDeployBestiary = () => {
+		if (!selectedBestiary) return;
+		const stats = (selectedBestiary.stats as Record<string, unknown> | undefined) ?? {};
+		const hp = (stats.hit_points as number) ?? 10;
+		const syntheticEntity: SceneEntityBasic = {
+			id: `bestiary:${selectedBestiary.id}`,
+			entity_type: "monster",
+			entity_id: String(selectedBestiary.id),
+			entity_name: selectedBestiary.name,
+			entity_data: { ...selectedBestiary, hp, max_hp: hp, stats: { ...stats, hp, max_hp: hp } },
+		};
+		onDeployEntity(syntheticEntity);
+		setSelectedBestiary(null);
+		setBestiaryQuery("");
+	};
 
 	const toggleChapter = (id: string) =>
 		setExpandedChapters((prev) => {
@@ -520,6 +574,84 @@ export function PanelDM({
 						)}
 					</div>
 				)}
+
+				{/* ─ Bestiary search (free monsters) ─ */}
+				<div className="border-t border-amber-900/30">
+					<button
+						onClick={() => setBestiaryOpen((p) => !p)}
+						className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-amber-500 uppercase tracking-wide hover:bg-amber-900/10 transition-colors"
+					>
+						<span className="flex items-center gap-1">
+							<Sword className="w-3 h-3" />
+							Bestiario (búsqueda libre)
+						</span>
+						{bestiaryOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+					</button>
+
+					{bestiaryOpen && (
+						<div className="px-3 pb-3 space-y-2">
+							{bestiaryLoading ? (
+								<p className="text-xs text-gray-500 italic">Cargando bestiario…</p>
+							) : (
+								<>
+									<div className="relative">
+										<Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
+										<input
+											type="text"
+											value={bestiaryQuery}
+											onChange={(e) => {
+												setBestiaryQuery(e.target.value);
+												setSelectedBestiary(null);
+											}}
+											placeholder="Buscar enemigo… (mín. 2 letras)"
+											className="w-full pl-7 pr-2 py-1 rounded bg-gray-800 border border-gray-600 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
+										/>
+									</div>
+
+									{bestiaryQuery.trim().length >= 2 && (
+										<div className="flex flex-col gap-0.5 max-h-40 overflow-y-auto">
+											{bestiaryFiltered.length === 0 && (
+												<p className="text-xs text-gray-500 italic">Sin resultados.</p>
+											)}
+											{bestiaryFiltered.slice(0, 30).map((m) => (
+												<button
+													key={m.id}
+													onClick={() => setSelectedBestiary(m)}
+													className={`text-left px-2 py-1 rounded text-xs border transition-colors ${
+														selectedBestiary?.id === m.id
+															? "border-amber-500 bg-amber-900/20 text-amber-200"
+															: "border-gray-700 bg-gray-800/20 text-gray-300 hover:border-gray-600"
+													}`}
+												>
+													<span className="font-medium">{m.name}</span>
+													{m.stats?.hit_points ? (
+														<span className="ml-1 text-red-400">
+															· {m.stats.hit_points} HP
+														</span>
+													) : null}
+												</button>
+											))}
+										</div>
+									)}
+
+									{selectedBestiary && (
+										<Button
+											size="sm"
+											disabled={!currentMapId}
+											onClick={handleDeployBestiary}
+											className="w-full h-7 text-xs bg-red-700 hover:bg-red-600 text-white"
+											title={!currentMapId ? "Primero carga un mapa" : ""}
+										>
+											<Rocket className="w-3 h-3 mr-1" />
+											Introducir {selectedBestiary.name}
+										</Button>
+									)}
+								</>
+							)}
+						</div>
+					)}
+				</div>
+
 				{/* ─ Selected token panel ─ */}
 				{selectedToken && (
 					<div className="border-t border-amber-900/30 p-3 space-y-3">
