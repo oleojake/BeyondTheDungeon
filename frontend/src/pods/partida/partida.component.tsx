@@ -92,6 +92,7 @@ interface Props {
 		updates: CharacterUpdates,
 	) => Promise<void>;
 	onCancelCombatDialog: () => void;
+	onAddToCombat?: (tokenId: string) => void;
 }
 
 function PlayerExitButton() {
@@ -172,6 +173,7 @@ export function PartidaComponent({
 	onCloseFicha,
 	onSaveFicha,
 	onCancelCombatDialog,
+	onAddToCombat,
 }: Props) {
 	const [showDMPanel, setShowDMPanel] = useState(true);
 
@@ -265,6 +267,7 @@ export function PartidaComponent({
 					onTokenHpChange={isDM ? onTokenHpChange : undefined}
 					onTokenSelect={isDM ? onTokenSelect : undefined}
 					members={members}
+					onAddToCombat={onAddToCombat}
 				/>
 
 				{/* Right: DM panel (DM only) */}
