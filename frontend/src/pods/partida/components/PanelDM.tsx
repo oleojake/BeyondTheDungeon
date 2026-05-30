@@ -228,7 +228,7 @@ export function PanelDM({
 			.then((r) => r.json())
 			.then((data) => {
 				const list: BestiaryMonster[] = (data.characters ?? []).map(
-					(m: BestiaryMonster) => ({ id: m.id ?? m.name, name: m.name, ...m })
+					(m: BestiaryMonster) => ({ ...m, id: m.id ?? m.name, name: m.name })
 				);
 				setBestiaryAll(list);
 			})

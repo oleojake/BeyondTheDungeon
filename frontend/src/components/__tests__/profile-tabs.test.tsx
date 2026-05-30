@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { ProfileTabs } from "../profile-tabs";
 import { renderWithProviders } from "@/test/test-utils";
 
@@ -9,10 +9,13 @@ describe("ProfileTabs", () => {
       initialEntries: ["/profile/campanas"],
     });
 
-    expect(screen.getByText("Campañas")).toBeTruthy();
-    expect(screen.getByText("Fichas")).toBeTruthy();
-    expect(screen.getByText("Mapas")).toBeTruthy();
-    expect(screen.getByText("Ajustes")).toBeTruthy();
+    // The component renders both desktop nav and a mobile trigger bar.
+    // Scope to the desktop <nav> to avoid duplicate-text errors on the active label.
+    const nav = screen.getByRole("navigation");
+    expect(within(nav).getByText("Campañas")).toBeTruthy();
+    expect(within(nav).getByText("Fichas")).toBeTruthy();
+    expect(within(nav).getByText("Mapas")).toBeTruthy();
+    expect(within(nav).getByText("Ajustes")).toBeTruthy();
   });
 
   it("does not render admin tab for regular users", () => {
@@ -43,7 +46,8 @@ describe("ProfileTabs", () => {
       initialEntries: ["/fichas"],
     });
 
-    const charsLink = screen.getByText("Fichas").closest("a");
+    const nav = screen.getByRole("navigation");
+    const charsLink = within(nav).getByText("Fichas").closest("a");
     expect(charsLink?.className).toContain("border-amber-500");
   });
 
@@ -59,7 +63,8 @@ describe("ProfileTabs", () => {
       },
     });
 
-    const adminLink = screen.getByText("Admin").closest("a");
+    const nav = screen.getByRole("navigation");
+    const adminLink = within(nav).getByText("Admin").closest("a");
     expect(adminLink?.className).toContain("border-purple-500");
   });
 });

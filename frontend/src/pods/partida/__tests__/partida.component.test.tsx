@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { PartidaComponent } from "../partida.component";
 import type {
   GameSession,
@@ -103,14 +104,20 @@ function createMockSession(overrides: Partial<GameSession> = {}): GameSession {
   } as GameSession;
 }
 
+// PlayerExitButton inside PartidaComponent calls useNavigate, so renders that
+// include an active session need a Router context.
+function renderInRouter(ui: React.ReactElement) {
+  return render(<MemoryRouter>{ui}</MemoryRouter>);
+}
+
 describe("PartidaComponent", () => {
   it("renders loading spinner when loading is true", () => {
-    render(<PartidaComponent {...baseProps} loading={true} />);
+    renderInRouter(<PartidaComponent {...baseProps} loading={true} />);
     expect(screen.getByText("Cargando partida...")).toBeTruthy();
   });
 
   it("renders waiting message when there is no session", () => {
-    render(<PartidaComponent {...baseProps} loading={false} session={null} />);
+    renderInRouter(<PartidaComponent {...baseProps} loading={false} session={null} />);
     expect(
       screen.getByText("La sesión aún no ha comenzado."),
     ).toBeTruthy();
@@ -118,7 +125,7 @@ describe("PartidaComponent", () => {
   });
 
   it("renders main game UI when session is active", () => {
-    render(
+    renderInRouter(
       <PartidaComponent
         {...baseProps}
         loading={false}
@@ -132,7 +139,7 @@ describe("PartidaComponent", () => {
   });
 
   it("renders DM panel when isDM is true", () => {
-    render(
+    renderInRouter(
       <PartidaComponent
         {...baseProps}
         isDM={true}
@@ -144,7 +151,7 @@ describe("PartidaComponent", () => {
   });
 
   it("does not render DM panel when isDM is false", () => {
-    render(
+    renderInRouter(
       <PartidaComponent
         {...baseProps}
         isDM={false}
@@ -164,7 +171,7 @@ describe("PartidaComponent", () => {
       surprise: "none",
     };
 
-    render(
+    renderInRouter(
       <PartidaComponent
         {...baseProps}
         session={createMockSession()}
@@ -176,7 +183,7 @@ describe("PartidaComponent", () => {
   });
 
   it("does not render combat order bar when combat is not active", () => {
-    render(
+    renderInRouter(
       <PartidaComponent
         {...baseProps}
         session={createMockSession()}
@@ -188,7 +195,7 @@ describe("PartidaComponent", () => {
   });
 
   it("renders dados overlay when showDados is true", () => {
-    render(
+    renderInRouter(
       <PartidaComponent
         {...baseProps}
         session={createMockSession()}
@@ -207,7 +214,7 @@ describe("PartidaComponent", () => {
       joined_at: "2025-01-01T00:00:00Z",
     };
 
-    render(
+    renderInRouter(
       <PartidaComponent
         {...baseProps}
         session={createMockSession()}
@@ -219,7 +226,7 @@ describe("PartidaComponent", () => {
   });
 
   it("renders combat dialog when showCombatDialog is true", () => {
-    render(
+    renderInRouter(
       <PartidaComponent
         {...baseProps}
         session={createMockSession()}
