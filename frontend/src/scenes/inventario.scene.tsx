@@ -983,7 +983,7 @@ export const InventarioScene = () => {
 	// Scroll to top + fetch all compendium items via backend (service role, no RLS cap)
 	useEffect(() => {
 		window.scrollTo({ top: 0 });
-		const API_URL = import.meta.env.VITE_API_URL || "";
+		const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 		fetch(`${API_URL}/api/compendium-items`)
 			.then((r) => r.json())
 			.then(({ items }) => {
@@ -996,7 +996,7 @@ export const InventarioScene = () => {
 
 	// ── Fetch characters when user logs in (including cross-tab login via Supabase onAuthStateChange)
 	const fetchCharacters = (token: string) => {
-		const API_URL = import.meta.env.VITE_API_URL || "";
+		const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 		setCharsLoading(true);
 		fetch(`${API_URL}/api/character-sheets`, {
 			headers: { Authorization: `Bearer ${token}` },
@@ -1161,7 +1161,7 @@ export const InventarioScene = () => {
 	const loadCharInventory = async (id: string, name: string) => {
 		const token = session?.access_token;
 		if (!token) return;
-		const API_URL = import.meta.env.VITE_API_URL || "";
+		const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 		try {
 			const res = await fetch(`${API_URL}/api/character-sheet/${id}`, {
 				headers: { Authorization: `Bearer ${token}` },
@@ -1199,7 +1199,7 @@ export const InventarioScene = () => {
 		if (!linkedCharId) return;
 		const token = session?.access_token;
 		if (!token) return;
-		const API_URL = import.meta.env.VITE_API_URL || "";
+		const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 		setSaveStatus("saving");
 		try {
 			const res = await fetch(

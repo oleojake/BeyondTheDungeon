@@ -34,7 +34,9 @@ const MisFichasContent = () => {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  // Cargar lista de fichas al montar (solo si logueado)
+  // Cargar lista de fichas al montar (solo si logueado).
+  // Dependemos de user?.id y no del objeto user para evitar re-renders
+  // múltiples causados por onAuthStateChange emitiendo varias veces.
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -42,7 +44,8 @@ const MisFichasContent = () => {
       return;
     }
     loadCharacters();
-  }, [user, authLoading]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, authLoading]);
 
   const loadCharacters = async () => {
     try {

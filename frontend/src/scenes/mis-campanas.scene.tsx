@@ -79,7 +79,7 @@ async function fetchCampaignCharacter(campaignId: string) {
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
-	const API_URL = import.meta.env.VITE_API_URL || "";
+	const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 	const res = await fetch(
 		`${API_URL}/api/campaigns/${campaignId}/my-character`,
 		{
@@ -95,7 +95,7 @@ async function fetchMyCharacters() {
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
-	const API_URL = import.meta.env.VITE_API_URL || "";
+	const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 	const res = await fetch(`${API_URL}/api/character-sheets`, {
 		headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
 	});
@@ -111,7 +111,7 @@ async function assignCharacterToCampaign(
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
-	const API_URL = import.meta.env.VITE_API_URL || "";
+	const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 	const res = await fetch(`${API_URL}/api/character-sheet/${characterId}`, {
 		method: "PUT",
 		headers: {

@@ -4,7 +4,7 @@
 
 import { supabase } from "@/lib/supabase";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || "http://localhost:3000").replace(/\/$/, "");
 
 /**
  * Obtiene el token de sesión del usuario autenticado

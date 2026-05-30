@@ -98,7 +98,7 @@ export const MiFichaScene = () => {
 
   // Fetch compendium items for autocomplete
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL || "";
+    const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
     fetch(`${API_URL}/api/compendium-items`)
       .then((r) => r.json())
       .then(({ items }) => {
