@@ -368,7 +368,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 							const entities: SceneEntityBasic[] = (scene.entities ?? []).map(
 								(e) => ({
 									id: e.id,
-									entity_type: e.entity_type,
+									entity_type: e.entity_type as SceneEntityBasic["entity_type"],
 									entity_id: e.entity_id,
 									entity_name: e.entity_name,
 									entity_data: e.entity_data ?? null,
