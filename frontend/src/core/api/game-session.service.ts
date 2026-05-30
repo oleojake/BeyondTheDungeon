@@ -120,6 +120,24 @@ export async function getCampaignSession(
 	return data.session;
 }
 
+/**
+ * Devuelve el estado de sesión de múltiples campañas en una sola request.
+ * Mucho más eficiente que llamar a getCampaignSession una vez por campaña.
+ */
+export async function getSessionsBulk(
+	campaignIds: string[]
+): Promise<Record<string, GameSession | null>> {
+	if (campaignIds.length === 0) return {};
+	const headers = await getAuthHeaders();
+	const ids = campaignIds.join(",");
+	const res = await fetch(`${API_URL}/api/campaigns/sessions/bulk?ids=${encodeURIComponent(ids)}`, {
+		headers,
+	});
+	if (!res.ok) return Object.fromEntries(campaignIds.map((id) => [id, null]));
+	const data = await res.json();
+	return data.sessions;
+}
+
 /** El DM inicia o reanuda la sesión. */
 export async function startSession(campaignId: string): Promise<GameSession> {
 	const headers = await getAuthHeaders();

@@ -47,7 +47,7 @@ import {
 	type CampaignInvitation,
 } from "@/core/api/campaign-invitation.service";
 import {
-	getCampaignSession,
+	getSessionsBulk,
 	startSession,
 	type GameSession,
 } from "@/core/api/game-session.service";
@@ -177,19 +177,11 @@ export function MisCampanasScene() {
 			const campaignsData = await listCampaigns();
 			setCampaigns(campaignsData);
 
-			// Fetch session status for every campaign (non-blocking)
+			// Fetch session status for all campaigns in a single bulk request
 			if (campaignsData.length > 0) {
-				const sessions = await Promise.all(
-					campaignsData.map((c: Campaign) =>
-						getCampaignSession(c.id)
-							.then((s) => ({ id: c.id, session: s }))
-							.catch(() => ({ id: c.id, session: null })),
-					),
-				);
-				const map: Record<string, GameSession | null> = {};
-				sessions.forEach(({ id, session }) => {
-					map[id] = session;
-				});
+				const map = await getSessionsBulk(
+					campaignsData.map((c: Campaign) => c.id),
+				).catch(() => ({}) as Record<string, GameSession | null>);
 				setSessionMap(map);
 			}
 
