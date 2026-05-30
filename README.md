@@ -272,11 +272,11 @@ import { AppLayout } from "@/layout";
 import { HomeContainer } from "@/pods/home";
 
 export const HomeScene = () => {
-	return (
-		<AppLayout>
-			<HomeContainer />
-		</AppLayout>
-	);
+  return (
+    <AppLayout>
+      <HomeContainer />
+    </AppLayout>
+  );
 };
 ```
 
@@ -660,19 +660,19 @@ Obtiene todos los mapas de batalla del usuario autenticado.
 
 ```json
 {
-	"maps": [
-		{
-			"id": "uuid",
-			"user_id": "uuid",
-			"name": "Cueva del Dragón",
-			"image_data": "data:image/png;base64,...",
-			"grid_size": 50,
-			"grid_color": "rgba(255, 255, 255, 0.3)",
-			"created_at": "2026-03-15T10:30:00Z",
-			"updated_at": "2026-03-15T14:20:00Z"
-		}
-	],
-	"count": 1
+  "maps": [
+    {
+      "id": "uuid",
+      "user_id": "uuid",
+      "name": "Cueva del Dragón",
+      "image_data": "data:image/png;base64,...",
+      "grid_size": 50,
+      "grid_color": "rgba(255, 255, 255, 0.3)",
+      "created_at": "2026-03-15T10:30:00Z",
+      "updated_at": "2026-03-15T14:20:00Z"
+    }
+  ],
+  "count": 1
 }
 ```
 
@@ -702,10 +702,10 @@ Crea un nuevo mapa de batalla.
 
 ```json
 {
-	"name": "Cueva del Dragón",
-	"image_data": "data:image/png;base64,iVBORw0KGgo...",
-	"grid_size": 50,
-	"grid_color": "rgba(255, 255, 255, 0.3)"
+  "name": "Cueva del Dragón",
+  "image_data": "data:image/png;base64,iVBORw0KGgo...",
+  "grid_size": 50,
+  "grid_color": "rgba(255, 255, 255, 0.3)"
 }
 ```
 
@@ -760,18 +760,18 @@ Obtiene todas las campañas donde el usuario es DM o jugador.
 
 ```json
 {
-	"campaigns": [
-		{
-			"id": "uuid",
-			"dm_id": "uuid",
-			"title": "La Mina Perdida de Phandelver",
-			"description": "Aventura para niveles 1-5",
-			"notes": "Notas privadas del DM...",
-			"created_at": "2026-03-10T10:00:00Z",
-			"updated_at": "2026-03-10T14:00:00Z"
-		}
-	],
-	"count": 1
+  "campaigns": [
+    {
+      "id": "uuid",
+      "dm_id": "uuid",
+      "title": "La Mina Perdida de Phandelver",
+      "description": "Aventura para niveles 1-5",
+      "notes": "Notas privadas del DM...",
+      "created_at": "2026-03-10T10:00:00Z",
+      "updated_at": "2026-03-10T14:00:00Z"
+    }
+  ],
+  "count": 1
 }
 ```
 
@@ -787,9 +787,9 @@ Crea una nueva campaña. El usuario creador se convierte automáticamente en DM.
 
 ```json
 {
-	"title": "Mi Campaña",
-	"description": "Descripción...",
-	"notes": "Notas del DM..."
+  "title": "Mi Campaña",
+  "description": "Descripción...",
+  "notes": "Notas del DM..."
 }
 ```
 
@@ -840,7 +840,7 @@ DELETE /api/campaign-invitations/:id               # Eliminar invitación (DM)
 
 ```json
 {
-	"email": "jugador@ejemplo.com"
+  "email": "jugador@ejemplo.com"
 }
 ```
 
@@ -857,9 +857,9 @@ DELETE /api/chapters/:id                         # Eliminar capítulo
 
 ```json
 {
-	"title": "Capítulo 1: El Inicio",
-	"content": "Texto del capítulo con **negrita** y > diálogos",
-	"order_index": 0
+  "title": "Capítulo 1: El Inicio",
+  "content": "Texto del capítulo con **negrita** y > diálogos",
+  "order_index": 0
 }
 ```
 
@@ -876,12 +876,12 @@ DELETE /api/scenes/:id                           # Eliminar escena
 
 ```json
 {
-	"title": "La Emboscada",
-	"content": "Descripción general",
-	"narration_text": "**Os encontráis** en un claro del bosque cuando...\n> ¡Alto ahí, viajeros!",
-	"dm_notes": "3 goblins escondidos, DC 12 Percepción",
-	"battle_map_id": "uuid-del-mapa",
-	"order_index": 0
+  "title": "La Emboscada",
+  "content": "Descripción general",
+  "narration_text": "**Os encontráis** en un claro del bosque cuando...\n> ¡Alto ahí, viajeros!",
+  "dm_notes": "3 goblins escondidos, DC 12 Percepción",
+  "battle_map_id": "uuid-del-mapa",
+  "order_index": 0
 }
 ```
 
@@ -897,9 +897,9 @@ DELETE /api/scene-entities/:id                   # Eliminar entidad
 
 ```json
 {
-	"entity_type": "monster",
-	"entity_id": "goblin",
-	"entity_name": "Goblin Líder"
+  "entity_type": "monster",
+  "entity_id": "goblin",
+  "entity_name": "Goblin Líder"
 }
 ```
 
@@ -986,8 +986,8 @@ Los usuarios registrados pueden crear y gestionar su ficha de personaje de D&D 5
 
 ```json
 [
-	{ "name": "Guerrero", "level": 5 },
-	{ "name": "Pícaro", "level": 3 }
+  { "name": "Guerrero", "level": 5 },
+  { "name": "Pícaro", "level": 3 }
 ]
 ```
 
@@ -1064,14 +1064,14 @@ Los usuarios registrados pueden cargar y gestionar mapas de batalla interactivos
 
 ```json
 {
-	"id": "uuid",
-	"user_id": "uuid",
-	"name": "Cueva del Dragón",
-	"image_data": "data:image/png;base64,...",
-	"grid_size": 50,
-	"grid_color": "rgba(255, 255, 255, 0.3)",
-	"created_at": "timestamp",
-	"updated_at": "timestamp"
+  "id": "uuid",
+  "user_id": "uuid",
+  "name": "Cueva del Dragón",
+  "image_data": "data:image/png;base64,...",
+  "grid_size": 50,
+  "grid_color": "rgba(255, 255, 255, 0.3)",
+  "created_at": "timestamp",
+  "updated_at": "timestamp"
 }
 ```
 
@@ -1247,11 +1247,11 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
 ```json
 {
-	"id": "uuid",
-	"dm_id": "uuid",
-	"title": "La Mina Perdida de Phandelver",
-	"description": "Aventura inicial para nuevos jugadores",
-	"notes": "Recordar: Gundren está capturado en Cragmaw Castle"
+  "id": "uuid",
+  "dm_id": "uuid",
+  "title": "La Mina Perdida de Phandelver",
+  "description": "Aventura inicial para nuevos jugadores",
+  "notes": "Recordar: Gundren está capturado en Cragmaw Castle"
 }
 ```
 
@@ -1259,11 +1259,11 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
 ```json
 {
-	"id": "uuid",
-	"campaign_id": "uuid",
-	"title": "Capítulo 1: El Camino a Phandalin",
-	"content": "Los personajes son contratados para escoltar un carro...",
-	"order_index": 0
+  "id": "uuid",
+  "campaign_id": "uuid",
+  "title": "Capítulo 1: El Camino a Phandalin",
+  "content": "Los personajes son contratados para escoltar un carro...",
+  "order_index": 0
 }
 ```
 
@@ -1271,13 +1271,13 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
 ```json
 {
-	"id": "uuid",
-	"chapter_id": "uuid",
-	"title": "Emboscada Goblin",
-	"narration_text": "**Veis dos caballos** muertos en el camino...\n> ¡Atacad!",
-	"dm_notes": "4 goblins (HP:7 cada uno). DC 15 Percepción para detectar la trampa.",
-	"battle_map_id": "uuid",
-	"order_index": 0
+  "id": "uuid",
+  "chapter_id": "uuid",
+  "title": "Emboscada Goblin",
+  "narration_text": "**Veis dos caballos** muertos en el camino...\n> ¡Atacad!",
+  "dm_notes": "4 goblins (HP:7 cada uno). DC 15 Percepción para detectar la trampa.",
+  "battle_map_id": "uuid",
+  "order_index": 0
 }
 ```
 
@@ -1285,16 +1285,16 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
 ```json
 {
-	"id": "uuid",
-	"scene_id": "uuid",
-	"entity_type": "monster",
-	"entity_id": "goblin",
-	"entity_name": "Goblin Arquero",
-	"entity_data": {
-		"quantity": 4,
-		"hp_current": 7,
-		"notes": "Escondidos detrás de las rocas"
-	}
+  "id": "uuid",
+  "scene_id": "uuid",
+  "entity_type": "monster",
+  "entity_id": "goblin",
+  "entity_name": "Goblin Arquero",
+  "entity_data": {
+    "quantity": 4,
+    "hp_current": 7,
+    "notes": "Escondidos detrás de las rocas"
+  }
 }
 ```
 
@@ -1306,9 +1306,9 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
    ```json
    {
-   	"entity_type": "monster",
-   	"entity_id": "ancient-red-dragon",
-   	"entity_name": "Smaug el Terrible"
+     "entity_type": "monster",
+     "entity_id": "ancient-red-dragon",
+     "entity_name": "Smaug el Terrible"
    }
    ```
 
@@ -1316,9 +1316,9 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
    ```json
    {
-   	"entity_type": "npc",
-   	"entity_id": "tabernero-willem",
-   	"entity_name": "Tabernero Willem"
+     "entity_type": "npc",
+     "entity_id": "tabernero-willem",
+     "entity_name": "Tabernero Willem"
    }
    ```
 
@@ -1326,18 +1326,18 @@ Al fondo, sobre un montículo de oro, veis la silueta de un **enorme dragón roj
 
    ```json
    {
-   	"entity_type": "item",
-   	"entity_id": "longsword",
-   	"entity_name": "Espada Larga"
+     "entity_type": "item",
+     "entity_id": "longsword",
+     "entity_name": "Espada Larga"
    }
    ```
 
 4. **Mapa de batalla**:
    ```json
    {
-   	"entity_type": "map",
-   	"entity_id": "uuid-del-mapa",
-   	"entity_name": "Cueva del Dragón"
+     "entity_type": "map",
+     "entity_id": "uuid-del-mapa",
+     "entity_name": "Cueva del Dragón"
    }
    ```
 
@@ -1536,23 +1536,23 @@ También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta c
 
 ```json
 {
-	"id": "uuid",
-	"campaign_id": "uuid",
-	"dm_id": "uuid",
-	"status": "active | paused | ended",
-	"session_number": 3,
-	"current_scene_id": "uuid | null",
-	"current_map_id": "uuid | null",
-	"session_state": {
-		"mapPanX": 0,
-		"mapPanY": 0,
-		"mapZoom": 1,
-		"mapGridSize": 50,
-		"mapGridColor": "rgba(255,255,255,0.3)",
-		"mapShowGrid": true
-	},
-	"started_at": "timestamp",
-	"ended_at": "timestamp | null"
+  "id": "uuid",
+  "campaign_id": "uuid",
+  "dm_id": "uuid",
+  "status": "active | paused | ended",
+  "session_number": 3,
+  "current_scene_id": "uuid | null",
+  "current_map_id": "uuid | null",
+  "session_state": {
+    "mapPanX": 0,
+    "mapPanY": 0,
+    "mapZoom": 1,
+    "mapGridSize": 50,
+    "mapGridColor": "rgba(255,255,255,0.3)",
+    "mapShowGrid": true
+  },
+  "started_at": "timestamp",
+  "ended_at": "timestamp | null"
 }
 ```
 
@@ -1560,17 +1560,17 @@ También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta c
 
 ```json
 {
-	"id": "uuid",
-	"session_id": "uuid",
-	"token_type": "player | enemy | npc",
-	"entity_name": "Thorin Escudo de Roble",
-	"entity_image": "url | null",
-	"x": 320.5,
-	"y": 180.0,
-	"current_hp": 28,
-	"max_hp": 45,
-	"initiative_value": 14,
-	"is_on_map": true
+  "id": "uuid",
+  "session_id": "uuid",
+  "token_type": "player | enemy | npc",
+  "entity_name": "Thorin Escudo de Roble",
+  "entity_image": "url | null",
+  "x": 320.5,
+  "y": 180.0,
+  "current_hp": 28,
+  "max_hp": 45,
+  "initiative_value": 14,
+  "is_on_map": true
 }
 ```
 
@@ -1578,13 +1578,13 @@ También en "Mis Campañas" hay una suscripción a `game_sessions` que detecta c
 
 ```json
 {
-	"id": "uuid",
-	"session_id": "uuid",
-	"is_active": true,
-	"current_turn_index": 2,
-	"round_number": 1,
-	"initiative_order": ["token-uuid-1", "token-uuid-2", "token-uuid-3"],
-	"surprise": "none | heroes | enemies"
+  "id": "uuid",
+  "session_id": "uuid",
+  "is_active": true,
+  "current_turn_index": 2,
+  "round_number": 1,
+  "initiative_order": ["token-uuid-1", "token-uuid-2", "token-uuid-3"],
+  "surprise": "none | heroes | enemies"
 }
 ```
 
