@@ -70,6 +70,57 @@ export async function listChapters(campaignId: string): Promise<Chapter[]> {
 }
 
 /**
+ * Obtiene todos los capítulos con sus escenas y entidades en una sola request.
+ * Evita el N+1 de llamar a listChapters + listScenes + listSceneEntities por separado.
+ */
+export async function listChaptersFull(campaignId: string): Promise<
+	Array<Chapter & {
+		scenes: Array<{
+			id: string;
+			chapter_id: string;
+			title: string;
+			content?: string;
+			narration_text?: string;
+			dm_notes?: string;
+			battle_map_id?: string | null;
+			order_index: number;
+			entities: Array<{
+				id: string;
+				scene_id: string;
+				entity_type: string;
+				entity_id: string;
+				entity_name: string;
+				entity_data: Record<string, unknown> | null;
+			}>;
+		}>;
+	}>
+> {
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+
+	if (!session) throw new Error("No autenticado");
+
+	const response = await fetch(
+		`${API_URL}/api/campaigns/${campaignId}/chapters-full`,
+		{
+			headers: {
+				Authorization: `Bearer ${session.access_token}`,
+				"Content-Type": "application/json",
+			},
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.error || "Error al obtener capítulos completos");
+	}
+
+	const data = await response.json();
+	return data.chapters;
+}
+
+/**
  * Create new chapter
  */
 export async function createChapter(

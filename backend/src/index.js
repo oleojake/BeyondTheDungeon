@@ -1531,7 +1531,9 @@ app.delete("/api/campaigns/:campaignId/members/:userId", async (req, res) => {
 			.single();
 
 		if (!campaign || campaign.dm_id !== user.id) {
-			return res.status(403).json({ error: "Solo el DM puede eliminar miembros" });
+			return res
+				.status(403)
+				.json({ error: "Solo el DM puede eliminar miembros" });
 		}
 
 		const { error } = await supabaseAdmin
@@ -1858,6 +1860,37 @@ app.delete("/api/campaign-invitations/:id", async (req, res) => {
 // ================================================
 // CHAPTERS ENDPOINTS
 // ================================================
+
+// GET /api/campaigns/:campaignId/chapters-full
+// Devuelve todos los capítulos con sus escenas y entidades en una sola query (evita N+1).
+app.get("/api/campaigns/:campaignId/chapters-full", async (req, res) => {
+	try {
+		const { campaignId } = req.params;
+		const token = req.headers.authorization?.split(" ")[1];
+		if (!token) return res.status(401).json({ error: "No autorizado" });
+
+		const authenticatedSupabase = createClient(
+			process.env.SUPABASE_URL,
+			process.env.SUPABASE_ANON_KEY,
+			{ global: { headers: { Authorization: `Bearer ${token}` } } },
+		);
+
+		const { data, error } = await authenticatedSupabase
+			.from("chapters")
+			.select(`*, scenes:scenes(*, entities:scene_entities(*))`)
+			.eq("campaign_id", campaignId)
+			.order("order_index", { ascending: true });
+
+		if (error)
+			return res
+				.status(500)
+				.json({ error: error.message, details: error.message });
+
+		res.json({ chapters: data ?? [] });
+	} catch (err) {
+		res.status(500).json({ error: "Error interno", details: err.message });
+	}
+});
 
 // 🆕 GET /api/campaigns/:campaignId/chapters - List chapters
 app.get("/api/campaigns/:campaignId/chapters", async (req, res) => {
@@ -2360,6 +2393,44 @@ const makeAuthClient = (token) =>
 		global: { headers: { Authorization: `Bearer ${token}` } },
 	});
 
+// ── GET /api/campaigns/sessions/bulk ────────────────────────────────────────
+// Devuelve el estado de sesión (activa o pausada) de múltiples campañas en
+// una sola query. Recibe ?ids=id1,id2,... y devuelve { sessions: { [campaignId]: session|null } }
+app.get("/api/campaigns/sessions/bulk", requireAuth, async (req, res) => {
+	try {
+		const ids = (req.query.ids || "")
+			.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean);
+		if (ids.length === 0) return res.json({ sessions: {} });
+
+		const db = makeAuthClient(req.headers.authorization.split(" ")[1]);
+		const { data, error } = await db
+			.from("game_sessions")
+			.select("*")
+			.in("campaign_id", ids)
+			.in("status", ["active", "paused"])
+			.order("created_at", { ascending: false });
+
+		if (error) return res.status(500).json({ error: error.message });
+
+		// Para cada campaña, tomar solo la sesión más reciente
+		const sessionMap = {};
+		ids.forEach((id) => {
+			sessionMap[id] = null;
+		});
+		(data || []).forEach((sess) => {
+			if (!sessionMap[sess.campaign_id]) {
+				sessionMap[sess.campaign_id] = sess;
+			}
+		});
+
+		res.json({ sessions: sessionMap });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
 // ── GET /api/campaigns/:id/session ──────────────────────────────────────────
 // Devuelve la sesión activa o pausada más reciente de la campaña.
 // Si no existe devuelve null.  Cualquier miembro puede consultarla.
@@ -2563,7 +2634,9 @@ app.get("/api/sessions/:id/map", requireAuth, async (req, res) => {
 				.maybeSingle();
 
 			if (!membership) {
-				return res.status(403).json({ error: "No eres miembro de esta campaña" });
+				return res
+					.status(403)
+					.json({ error: "No eres miembro de esta campaña" });
 			}
 		}
 
@@ -2585,7 +2658,6 @@ app.get("/api/sessions/:id/map", requireAuth, async (req, res) => {
 		res.status(500).json({ error: err.message });
 	}
 });
-
 
 // ── PUT /api/sessions/:id/end ─────────────────────────────────────────────────
 
@@ -2887,80 +2959,78 @@ const requireAdmin = async (req, res, next) => {
  */
 app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
 	try {
-		// Usuarios registrados (desde auth.users via admin API)
-		const { data: authData, error: authError } =
-			await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
-		const totalUsers = authError ? 0 : (authData?.users?.length ?? 0);
-
-		// Usuarios activos en los últimos 7 días
 		const sevenDaysAgo = new Date(
 			Date.now() - 7 * 24 * 60 * 60 * 1000,
 		).toISOString();
+
+		// Todas las queries independientes en paralelo
+		const [
+			authResult,
+			recentProfilesResult,
+			totalCampaignsResult,
+			activeCampaignsResult,
+			recentCampaignsResult,
+			totalCharactersResult,
+			totalBattleMapsResult,
+			totalSpellsResult,
+			totalMonstersResult,
+			totalItemsResult,
+		] = await Promise.all([
+			supabaseAdmin.auth.admin.listUsers({ perPage: 1000 }),
+			supabaseAdmin
+				.from("profiles")
+				.select("id, email, username, display_name, created_at, is_admin")
+				.order("created_at", { ascending: false })
+				.limit(10),
+			supabaseAdmin
+				.from("campaigns")
+				.select("id", { count: "exact", head: true }),
+			supabaseAdmin
+				.from("campaigns")
+				.select("id", { count: "exact", head: true })
+				.eq("is_active", true),
+			supabaseAdmin
+				.from("campaigns")
+				.select("id, title, created_at, is_active")
+				.order("created_at", { ascending: false })
+				.limit(10),
+			supabaseAdmin
+				.from("characters")
+				.select("id", { count: "exact", head: true })
+				.eq("is_npc", false),
+			supabaseAdmin
+				.from("battle_maps")
+				.select("id", { count: "exact", head: true }),
+			supabaseAdmin
+				.from("compendium_spells")
+				.select("id", { count: "exact", head: true }),
+			supabaseAdmin
+				.from("compendium_bestiary")
+				.select("id", { count: "exact", head: true }),
+			supabaseAdmin
+				.from("compendium_items")
+				.select("id", { count: "exact", head: true }),
+		]);
+
+		const { data: authData, error: authError } = authResult;
+		const totalUsers = authError ? 0 : (authData?.users?.length ?? 0);
 		const activeUsers = authError
 			? 0
 			: (authData?.users ?? []).filter(
 					(u) => u.last_sign_in_at && u.last_sign_in_at >= sevenDaysAgo,
 				).length;
 
-		// Perfiles recientes (últimos 10)
-		const { data: recentProfilesData } = await supabaseAdmin
-			.from("profiles")
-			.select("id, email, username, display_name, created_at, is_admin")
-			.order("created_at", { ascending: false })
-			.limit(10);
-
-		// Campañas
-		const { count: totalCampaigns } = await supabaseAdmin
-			.from("campaigns")
-			.select("id", { count: "exact", head: true });
-
-		const { count: activeCampaigns } = await supabaseAdmin
-			.from("campaigns")
-			.select("id", { count: "exact", head: true })
-			.eq("is_active", true);
-
-		// Últimas 10 campañas
-		const { data: recentCampaignsData } = await supabaseAdmin
-			.from("campaigns")
-			.select("id, title, created_at, is_active")
-			.order("created_at", { ascending: false })
-			.limit(10);
-
-		// Fichas de personaje (no NPCs)
-		const { count: totalCharacters } = await supabaseAdmin
-			.from("characters")
-			.select("id", { count: "exact", head: true })
-			.eq("is_npc", false);
-
-		// Mapas de batalla
-		const { count: totalBattleMaps } = await supabaseAdmin
-			.from("battle_maps")
-			.select("id", { count: "exact", head: true });
-
-		// Compendio
-		const { count: totalSpells } = await supabaseAdmin
-			.from("compendium_spells")
-			.select("id", { count: "exact", head: true });
-
-		const { count: totalMonsters } = await supabaseAdmin
-			.from("compendium_bestiary")
-			.select("id", { count: "exact", head: true });
-
-		const { count: totalItems } = await supabaseAdmin
-			.from("compendium_items")
-			.select("id", { count: "exact", head: true });
-
 		res.json({
 			totalUsers,
 			activeUsers,
-			totalCampaigns: totalCampaigns ?? 0,
-			activeCampaigns: activeCampaigns ?? 0,
-			totalCharacters: totalCharacters ?? 0,
-			totalBattleMaps: totalBattleMaps ?? 0,
-			totalSpells: totalSpells ?? 0,
-			totalMonsters: totalMonsters ?? 0,
-			totalItems: totalItems ?? 0,
-			recentUsers: (recentProfilesData ?? []).map((p) => ({
+			totalCampaigns: totalCampaignsResult.count ?? 0,
+			activeCampaigns: activeCampaignsResult.count ?? 0,
+			totalCharacters: totalCharactersResult.count ?? 0,
+			totalBattleMaps: totalBattleMapsResult.count ?? 0,
+			totalSpells: totalSpellsResult.count ?? 0,
+			totalMonsters: totalMonstersResult.count ?? 0,
+			totalItems: totalItemsResult.count ?? 0,
+			recentUsers: (recentProfilesResult.data ?? []).map((p) => ({
 				id: p.id,
 				email: p.email,
 				username: p.username,
@@ -2968,7 +3038,7 @@ app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
 				created_at: p.created_at,
 				is_admin: p.is_admin ?? false,
 			})),
-			recentCampaigns: (recentCampaignsData ?? []).map((c) => ({
+			recentCampaigns: (recentCampaignsResult.data ?? []).map((c) => ({
 				id: c.id,
 				title: c.title,
 				created_at: c.created_at,
@@ -3062,12 +3132,10 @@ app.delete(
 			await supabaseAdmin.auth.admin.deleteUser(targetId);
 
 		if (deleteError) {
-			return res
-				.status(500)
-				.json({
-					error: "Error al eliminar el usuario",
-					details: deleteError.message,
-				});
+			return res.status(500).json({
+				error: "Error al eliminar el usuario",
+				details: deleteError.message,
+			});
 		}
 
 		res.json({ success: true, message: "Usuario eliminado correctamente" });

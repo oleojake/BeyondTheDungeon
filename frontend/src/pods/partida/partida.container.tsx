@@ -14,9 +14,7 @@ import {
 	getSessionMap,
 	listBattleMaps,
 } from "@/core/api/battle-map.service";
-import { listChapters } from "@/core/api/chapter.service";
-import { listScenes } from "@/core/api/scene.service";
-import { listSceneEntities } from "@/core/api/scene-entity.service";
+import { listChaptersFull } from "@/core/api/chapter.service";
 import {
 	getCampaignSession,
 	startSession,
@@ -209,9 +207,13 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				if (!user) return;
 				setUserId(user.id);
 
-				// Load current session
-				const sess = await getCampaignSession(campaignId);
+				// Cargar sesión y miembros en paralelo (son independientes)
+				const [sess, mems] = await Promise.all([
+					getCampaignSession(campaignId),
+					getCampaignMembersWithCharacters(campaignId),
+				]);
 				setSession(sess);
+				setMembers(mems);
 
 				if (sess) {
 					// Restore map view from session state
@@ -225,22 +227,20 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 						showGrid: sess.session_state.mapShowGrid ?? true,
 					});
 
-					// Load map if one was active
-					if (sess.current_map_id) {
-						prevMapIdRef.current = sess.current_map_id;
-						loadMap(sess.current_map_id, sess.id);
-					}
-
 					if (sess.current_scene_id) {
 						setSelectedSceneId(sess.current_scene_id);
 					}
 
-					// Load tokens
-					const toks = await listTokens(sess.id);
+					// Cargar tokens, combate y mapa en paralelo
+					const [toks, combat] = await Promise.all([
+						listTokens(sess.id),
+						getCombatState(sess.id),
+						sess.current_map_id
+							? ((prevMapIdRef.current = sess.current_map_id),
+								loadMap(sess.current_map_id, sess.id))
+							: Promise.resolve(),
+					]);
 					setTokens(toks);
-
-					// Load combat state
-					const combat = await getCombatState(sess.id);
 					setCombatState(combat);
 
 					// Subscribe to realtime
@@ -322,18 +322,17 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					}
 				});
 
-				// Load members
-				const mems = await getCampaignMembersWithCharacters(campaignId);
-				setMembers(mems);
-
-				// Load chapters + scenes and available maps (DM only)
+				// Cargar capítulos y mapas disponibles en paralelo (DM only)
 				if (isDM) {
-					await loadChapters();
-					const mapsRes = await listBattleMaps();
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					setAvailableMaps(
-						(mapsRes.maps ?? []).map((m: any) => m as BattleMap),
-					);
+					await Promise.all([
+						loadChapters(),
+						listBattleMaps().then((mapsRes) =>
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							setAvailableMaps(
+								(mapsRes.maps ?? []).map((m: any) => m as BattleMap),
+							),
+						),
+					]);
 				}
 			} catch (err) {
 				console.error("[Partida] init error", err);
@@ -360,38 +359,37 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 
 	const loadChapters = async () => {
 		try {
-			const chaptersData = await listChapters(campaignId);
-			const chaptersWithScenes: ChapterWithScenes[] = await Promise.all(
-				chaptersData.map(async (chapter) => {
-					const scenesData = await listScenes(chapter.id);
-					const scenesWithEntities: SceneWithEntities[] = await Promise.all(
-						scenesData.map(async (scene) => {
-							const entities = await listSceneEntities(scene.id);
+			// Una sola request con JOIN en lugar de N+1 (chapters → scenes → entities)
+			const chaptersData = await listChaptersFull(campaignId);
+			const chaptersWithScenes: ChapterWithScenes[] = chaptersData.map(
+				(chapter) => {
+					const scenes: SceneWithEntities[] = (chapter.scenes ?? []).map(
+						(scene) => {
+							const entities: SceneEntityBasic[] = (scene.entities ?? []).map(
+								(e) => ({
+									id: e.id,
+									entity_type: e.entity_type,
+									entity_id: e.entity_id,
+									entity_name: e.entity_name,
+									entity_data: e.entity_data ?? null,
+								}),
+							);
 							return {
 								...scene,
 								content: scene.content ?? "",
 								narration_text: scene.narration_text ?? "",
 								dm_notes: scene.dm_notes ?? "",
 								battle_map_id: scene.battle_map_id ?? null,
-								entities: entities.map(
-									(e) =>
-										({
-											id: e.id,
-											entity_type: e.entity_type,
-											entity_id: e.entity_id,
-											entity_name: e.entity_name,
-											entity_data: e.entity_data ?? null,
-										}) satisfies SceneEntityBasic,
-								),
-							} satisfies SceneWithEntities;
-						}),
+								entities,
+							};
+						},
 					);
 					return {
 						...chapter,
 						content: chapter.content ?? "",
-						scenes: scenesWithEntities,
-					} satisfies ChapterWithScenes;
-				}),
+						scenes,
+					};
+				},
 			);
 			setChapters(chaptersWithScenes);
 		} catch (err) {
@@ -820,9 +818,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 
 		// Tokens enemy/npc ya en el tablero que NO provienen de la escena
 		// (e.g. añadidos desde el bestiario libre) — evitamos duplicados
-		const sceneEntityIds = new Set(
-			(scene?.entities ?? []).map((e) => e.id)
-		);
+		const sceneEntityIds = new Set((scene?.entities ?? []).map((e) => e.id));
 		const extraMapCandidates: SceneCombatCandidate[] = tokens
 			.filter(
 				(t) =>
