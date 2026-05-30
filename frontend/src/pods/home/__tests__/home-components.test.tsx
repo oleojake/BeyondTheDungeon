@@ -230,8 +230,8 @@ describe("Navbar", () => {
     expect(screen.getByText("Herramientas")).toBeTruthy();
     expect(screen.getByText("Guías")).toBeTruthy();
     expect(screen.getByText("Foro")).toBeTruthy();
-    expect(screen.getByText("Iniciar sesión")).toBeTruthy();
-    expect(screen.getByText("Crear cuenta")).toBeTruthy();
+    expect(screen.getAllByText("Iniciar sesión").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Crear cuenta").length).toBeGreaterThan(0);
   });
 
   it("renders theme toggle and language switcher", () => {
