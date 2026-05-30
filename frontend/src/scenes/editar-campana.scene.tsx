@@ -518,7 +518,7 @@ export function EditarCampanaScene() {
 				return;
 			}
 
-			const API_URL = import.meta.env.VITE_API_URL || "";
+			const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 			const response = await fetch(`${API_URL}/api/battle-maps`, {
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,

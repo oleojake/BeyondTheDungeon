@@ -46,7 +46,7 @@ import type {
 } from "./partida.vm";
 import type { CharacterUpdates } from "./components/FichaOverlay";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 import type { BattleMapListItem } from "@/core/api/battle-map.service";
 type BattleMap = BattleMapListItem;
@@ -529,7 +529,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			await updateToken(session.id, tokenId, { current_hp: newHp });
 			// Sync to character sheet if this is a player token
 			if (token.token_type === "player" && token.character_id) {
-				const API_URL = import.meta.env.VITE_API_URL || "";
+				const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 				const {
 					data: { session: authSession },
 				} = await supabase.auth.getSession();
@@ -1065,7 +1065,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			characterId: string,
 			updates: CharacterUpdates,
 		) => {
-			const API_URL = import.meta.env.VITE_API_URL || "";
+			const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 			const {
 				data: { session: authSession },
 			} = await supabase.auth.getSession();
