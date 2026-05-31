@@ -315,30 +315,6 @@ export function InventoryManager({
       </div>
 
       {/* ════════════════════════════════════════════════════════════
-				    MUNICIÓN
-				════════════════════════════════════════════════════════════ */}
-      <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
-        <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
-          <Target className="w-5 h-5" /> Munición
-        </h2>
-        <p className="text-xs text-amber-600/70 mb-3 italic">
-          Flechas, virotes, dagas arrojadizas…
-        </p>
-        <ConsumableSection
-          items={inv.ammo}
-          rowColor="bg-amber-900/25 border-amber-800/35"
-          allItems={compendiumItems}
-          categoryFilter={FILTER_AMMO}
-          inputPlaceholder="Busca munición…"
-          onSelect={(name, weight, srdIndex, tags) =>
-            handlers.addConsumable("ammo", name, weight, srdIndex, tags)
-          }
-          onChangeQty={(id, d) => handlers.changeQty("ammo", id, d)}
-          onRemove={(id) => handlers.removeItem("ammo", id)}
-        />
-      </section>
-
-      {/* ════════════════════════════════════════════════════════════
 				    BOLSA – ancho completo, dos columnas, con peso
 				════════════════════════════════════════════════════════════ */}
       <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
@@ -360,6 +336,30 @@ export function InventoryManager({
           onSelect={handlers.addBagItem}
           onChangeQty={(id, d) => handlers.changeQty("bag", id, d)}
           onRemove={(id) => handlers.removeItem("bag", id)}
+        />
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════
+				    MUNICIÓN
+				════════════════════════════════════════════════════════════ */}
+      <section className="rounded-xl border border-amber-800/30 bg-[#2a1204]/70 p-5">
+        <h2 className="text-xl font-semibold text-amber-300 mb-1 flex items-center gap-2">
+          <Target className="w-5 h-5" /> Munición
+        </h2>
+        <p className="text-xs text-amber-600/70 mb-3 italic">
+          Flechas, virotes, dagas arrojadizas…
+        </p>
+        <ConsumableSection
+          items={inv.ammo}
+          rowColor="bg-amber-900/25 border-amber-800/35"
+          allItems={compendiumItems}
+          categoryFilter={FILTER_AMMO}
+          inputPlaceholder="Busca munición…"
+          onSelect={(name, weight, srdIndex, tags) =>
+            handlers.addConsumable("ammo", name, weight, srdIndex, tags)
+          }
+          onChangeQty={(id, d) => handlers.changeQty("ammo", id, d)}
+          onRemove={(id) => handlers.removeItem("ammo", id)}
         />
       </section>
 
