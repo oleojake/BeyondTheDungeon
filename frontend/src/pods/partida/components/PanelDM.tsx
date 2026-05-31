@@ -216,7 +216,8 @@ export function PanelDM({
 	const [bestiaryAll, setBestiaryAll] = useState<BestiaryMonster[]>([]);
 	const [bestiaryLoading, setBestiaryLoading] = useState(false);
 	const [bestiaryQuery, setBestiaryQuery] = useState("");
-	const [selectedBestiary, setSelectedBestiary] = useState<BestiaryMonster | null>(null);
+	const [selectedBestiary, setSelectedBestiary] =
+		useState<BestiaryMonster | null>(null);
 	const bestiaryFetched = useRef(false);
 
 	useEffect(() => {
@@ -228,7 +229,7 @@ export function PanelDM({
 			.then((r) => r.json())
 			.then((data) => {
 				const list: BestiaryMonster[] = (data.characters ?? []).map(
-					(m: BestiaryMonster) => ({ ...m, id: m.id ?? m.name, name: m.name })
+					(m: BestiaryMonster) => ({ ...m, id: m.id ?? m.name, name: m.name }),
 				);
 				setBestiaryAll(list);
 			})
@@ -236,22 +237,29 @@ export function PanelDM({
 			.finally(() => setBestiaryLoading(false));
 	}, [bestiaryOpen]);
 
-	const bestiaryFiltered = bestiaryQuery.trim().length >= 2
-		? bestiaryAll.filter((m) =>
-				m.name.toLowerCase().includes(bestiaryQuery.toLowerCase())
-		  )
-		: [];
+	const bestiaryFiltered =
+		bestiaryQuery.trim().length >= 2
+			? bestiaryAll.filter((m) =>
+					m.name.toLowerCase().includes(bestiaryQuery.toLowerCase()),
+				)
+			: [];
 
 	const handleDeployBestiary = () => {
 		if (!selectedBestiary) return;
-		const stats = (selectedBestiary.stats as Record<string, unknown> | undefined) ?? {};
+		const stats =
+			(selectedBestiary.stats as Record<string, unknown> | undefined) ?? {};
 		const hp = (stats.hit_points as number) ?? 10;
 		const syntheticEntity: SceneEntityBasic = {
 			id: `bestiary:${selectedBestiary.id}`,
 			entity_type: "monster",
 			entity_id: String(selectedBestiary.id),
 			entity_name: selectedBestiary.name,
-			entity_data: { ...selectedBestiary, hp, max_hp: hp, stats: { ...stats, hp, max_hp: hp } },
+			entity_data: {
+				...selectedBestiary,
+				hp,
+				max_hp: hp,
+				stats: { ...stats, hp, max_hp: hp },
+			},
 		};
 		onDeployEntity(syntheticEntity);
 		setSelectedBestiary(null);
@@ -585,13 +593,19 @@ export function PanelDM({
 							<Sword className="w-3 h-3" />
 							Bestiario (búsqueda libre)
 						</span>
-						{bestiaryOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+						{bestiaryOpen ? (
+							<ChevronDown className="w-3 h-3" />
+						) : (
+							<ChevronRight className="w-3 h-3" />
+						)}
 					</button>
 
 					{bestiaryOpen && (
 						<div className="px-3 pb-3 space-y-2">
 							{bestiaryLoading ? (
-								<p className="text-xs text-gray-500 italic">Cargando bestiario…</p>
+								<p className="text-xs text-gray-500 italic">
+									Cargando bestiario…
+								</p>
 							) : (
 								<>
 									<div className="relative">
@@ -611,7 +625,9 @@ export function PanelDM({
 									{bestiaryQuery.trim().length >= 2 && (
 										<div className="flex flex-col gap-0.5 max-h-40 overflow-y-auto">
 											{bestiaryFiltered.length === 0 && (
-												<p className="text-xs text-gray-500 italic">Sin resultados.</p>
+												<p className="text-xs text-gray-500 italic">
+													Sin resultados.
+												</p>
 											)}
 											{bestiaryFiltered.slice(0, 30).map((m) => (
 												<button

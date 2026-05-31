@@ -396,7 +396,7 @@ export const HechizosScene = () => {
 							return (
 								<Link
 									key={spell.id}
-									to={`/hechizos/${spell.id}`}
+									to={`/hechizos/${spell.name.toLowerCase().replace(/\s+/g, '-')}`}
 									className="block transition-transform hover:scale-[1.02]"
 								>
 									{SpellCard}

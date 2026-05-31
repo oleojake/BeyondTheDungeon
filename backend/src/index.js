@@ -177,25 +177,25 @@ app.get("/api/compendium-bestiary", async (req, res) => {
 app.get("/api/compendium-bestiary/:id", async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { data, error } = await supabase
-			.from("compendium_bestiary")
-			.select("*")
-			.eq("id", id)
-			.single();
+		const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-		if (error) {
-			return res.status(404).json({
-				error: "Monstruo no encontrado",
-				details: error.message,
-			});
+		let query = supabaseAdmin.from("compendium_bestiary").select("*");
+		if (isUUID) {
+			query = query.eq("id", id);
+		} else {
+			// Slug lookup via stats.index (e.g. "aboleth")
+			query = query.contains("stats", JSON.stringify({ index: id }));
 		}
 
-		res.json(data);
+		const { data, error } = await query.limit(1);
+
+		if (error || !data || data.length === 0) {
+			return res.status(404).json({ error: "Monstruo no encontrado", details: error?.message });
+		}
+
+		res.json(data[0]);
 	} catch (err) {
-		res.status(500).json({
-			error: "Error interno",
-			details: err.message,
-		});
+		res.status(500).json({ error: "Error interno", details: err.message });
 	}
 });
 
@@ -224,6 +224,26 @@ app.get("/api/compendium-items", async (req, res) => {
 	}
 });
 
+// 🆕 Endpoint: obtener un item por edition + slug (ej: /api/compendium-items/dnd5e-2014/battleaxe)
+app.get("/api/compendium-items/:edition/:slug", async (req, res) => {
+	try {
+		const { edition, slug } = req.params;
+		const { data, error } = await supabaseAdmin
+			.from("compendium_items")
+			.select("*")
+			.eq("system_id", edition)
+			.contains("stats", JSON.stringify({ index: slug }))
+			.limit(1);
+
+		if (error || !data || data.length === 0) {
+			return res.status(404).json({ error: "Item no encontrado", details: error?.message });
+		}
+		return res.json(data[0]);
+	} catch (err) {
+		res.status(500).json({ error: "Error interno", details: err.message });
+	}
+});
+
 // 🆕 Endpoint: obtener un item específico por ID (UUID o slug SRD)
 app.get("/api/compendium-items/:id", async (req, res) => {
 	try {
@@ -233,24 +253,31 @@ app.get("/api/compendium-items/:id", async (req, res) => {
 				id,
 			);
 
-		let query = supabase.from("compendium_items").select("*");
+		// supabaseAdmin bypasa RLS — necesario para filtrar por campos JSONB
 		if (isUUID) {
-			query = query.eq("id", id);
+			const { data, error } = await supabaseAdmin
+				.from("compendium_items")
+				.select("*")
+				.eq("id", id)
+				.single();
+
+			if (error || !data) {
+				return res.status(404).json({ error: "Item no encontrado", details: error?.message });
+			}
+			return res.json(data);
 		} else {
-			// Buscar por el campo index dentro del JSONB stats
-			query = query.filter("stats->>index", "eq", id);
+			// Slug lookup: contains es el operador JSONB @> — puede haber duplicados (2014/2024)
+			const { data, error } = await supabaseAdmin
+				.from("compendium_items")
+				.select("*")
+				.contains("stats", JSON.stringify({ index: id }))
+				.limit(1);
+
+			if (error || !data || data.length === 0) {
+				return res.status(404).json({ error: "Item no encontrado", details: error?.message });
+			}
+			return res.json(data[0]);
 		}
-
-		const { data, error } = await query.single();
-
-		if (error || !data) {
-			return res.status(404).json({
-				error: "Item no encontrado",
-				details: error?.message,
-			});
-		}
-
-		res.json(data);
 	} catch (err) {
 		res.status(500).json({
 			error: "Error interno",
@@ -288,25 +315,26 @@ app.get("/api/compendium-spells", async (req, res) => {
 app.get("/api/compendium-spells/:id", async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { data, error } = await supabase
-			.from("compendium_spells")
-			.select("*")
-			.eq("id", id)
-			.single();
+		const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-		if (error) {
-			return res.status(404).json({
-				error: "Hechizo no encontrado",
-				details: error.message,
-			});
+		let query = supabaseAdmin.from("compendium_spells").select("*");
+		if (isUUID) {
+			query = query.eq("id", id);
+		} else {
+			// Slug: "acid-arrow" → nombre normalizado (reverse slug)
+			const name = id.replace(/-/g, " ");
+			query = query.ilike("name", name);
 		}
 
-		res.json(data);
+		const { data, error } = await query.limit(1);
+
+		if (error || !data || data.length === 0) {
+			return res.status(404).json({ error: "Hechizo no encontrado", details: error?.message });
+		}
+
+		res.json(data[0]);
 	} catch (err) {
-		res.status(500).json({
-			error: "Error interno",
-			details: err.message,
-		});
+		res.status(500).json({ error: "Error interno", details: err.message });
 	}
 });
 

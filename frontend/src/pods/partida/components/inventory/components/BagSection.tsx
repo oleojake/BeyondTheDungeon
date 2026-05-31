@@ -22,6 +22,7 @@ export function BagSection({
     weight?: number,
     srdIndex?: string,
     tags?: string[],
+    srdEdition?: string,
   ) => void;
   onChangeQty: (id: string, delta: number) => void;
   onRemove: (id: string) => void;
@@ -41,7 +42,7 @@ export function BagSection({
                 <div className="flex-1 min-w-0">
                   {item.srdIndex ? (
                     <Link
-                      to={`/objetos/${item.srdIndex}`}
+                      to={`/objetos/${item.srdEdition || 'dnd5e-2024'}/${item.srdIndex}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-amber-100 truncate block hover:text-amber-300 hover:underline"

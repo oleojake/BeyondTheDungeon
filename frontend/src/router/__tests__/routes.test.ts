@@ -28,7 +28,7 @@ describe("switchRoutes", () => {
     expect(switchRoutes.bestiario).toBe("/bestiario");
     expect(switchRoutes.bestiarioDetalle).toBe("/bestiario/:id");
     expect(switchRoutes.objetos).toBe("/objetos");
-    expect(switchRoutes.objetosDetalle).toBe("/objetos/:id");
+    expect(switchRoutes.objetosDetalle).toBe("/objetos/:edition/:slug");
   });
 
   it("has character and campaign routes", async () => {

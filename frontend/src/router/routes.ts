@@ -44,7 +44,7 @@ export const switchRoutes: SwitchRoutes = {
 	dados: "/dados",
 	inventario: "/inventario",
 	objetos: "/objetos",
-	objetosDetalle: "/objetos/:id",
+	objetosDetalle: "/objetos/:edition/:slug",
 	mapaBatalla: "/mapa-batalla",
 	editarCampana: "/editar-campana/:id",
 	partida: "/partida/:id",

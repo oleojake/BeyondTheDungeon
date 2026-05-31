@@ -27,6 +27,7 @@ export function ConsumableSection({
     weight?: number,
     srdIndex?: string,
     tags?: string[],
+    srdEdition?: string,
   ) => void;
   onChangeQty: (id: string, delta: number) => void;
   onRemove: (id: string) => void;
@@ -44,7 +45,7 @@ export function ConsumableSection({
             <div className="flex items-center justify-between gap-2">
               {item.srdIndex ? (
                 <Link
-                  to={`/objetos/${item.srdIndex}`}
+                  to={`/objetos/${item.srdEdition || 'dnd5e-2024'}/${item.srdIndex}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-amber-100 truncate flex-1 hover:text-amber-300 hover:underline"

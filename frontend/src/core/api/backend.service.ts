@@ -82,6 +82,7 @@ export async function fetchMonsterById(id: string): Promise<Monster> {
 export interface Item {
   id: string;
   name: string;
+  system_id?: string;
   equipment_category?: any;
   weapon_category?: string;
   weapon_range?: string;
@@ -120,10 +121,11 @@ export async function fetchItems(): Promise<ItemsResponse> {
 }
 
 /**
- * Obtiene un item específico por ID
+ * Obtiene un item específico por edition+slug o UUID
  */
-export async function fetchItemById(id: string): Promise<Item> {
-  const response = await fetch(`${BACKEND_URL}/api/compendium-items/${id}`);
+export async function fetchItemById(id: string, edition?: string): Promise<Item> {
+  const path = edition ? `${edition}/${id}` : id;
+  const response = await fetch(`${BACKEND_URL}/api/compendium-items/${path}`);
   
   if (!response.ok) {
     throw new Error(`Error ${response.status}: ${response.statusText}`);

@@ -335,7 +335,7 @@ export const BestiarioScene = () => {
 							return (
 								<Link
 									key={monster.id}
-									to={`/bestiario/${monster.id}`}
+									to={`/bestiario/${monster.stats?.index || monster.id}`}
 									className="block transition-transform hover:scale-[1.02]"
 								>
 									{MonsterCard}

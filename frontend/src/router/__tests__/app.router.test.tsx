@@ -126,7 +126,7 @@ vi.mock("@/router/routes", () => ({
     bestiario: "/bestiario",
     bestiarioDetalle: "/bestiario/:id",
     objetos: "/objetos",
-    objetosDetalle: "/objetos/:id",
+    objetosDetalle: "/objetos/:edition/:slug",
     guias: "/guias",
     guiaDetalle: "/guias/:slug",
     dados: "/dados",
