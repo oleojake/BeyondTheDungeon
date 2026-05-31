@@ -22,8 +22,33 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { User } from "lucide-react";
+import {
+	User,
+	Archive,
+	Sword,
+	Shield,
+	FlaskConical,
+	Gem,
+	ScrollText,
+	Key,
+	Wand2,
+	Package,
+} from "lucide-react";
+import type { LucideProps } from "lucide-react";
 import type { CombatParticipantCandidate } from "../partida.vm";
+
+const ITEM_ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
+	chest: Archive,
+	sword: Sword,
+	shield: Shield,
+	flask: FlaskConical,
+	gem: Gem,
+	scroll: ScrollText,
+	user: User,
+	key: Key,
+	wand: Wand2,
+	package: Package,
+};
 
 interface Props {
 	open: boolean;
@@ -94,7 +119,11 @@ export function DialogoIniciarCombate({
 							/>
 							<div className="flex items-center gap-1.5 min-w-0">
 								<div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center bg-gray-700 shrink-0">
-									{token.image ? (
+									{token.image?.startsWith("icon:") ? (() => {
+										const iconKey = token.image!.split(":")[1];
+										const Ico = ITEM_ICON_MAP[iconKey] ?? Package;
+										return <Ico className="w-4 h-4 text-white" />;
+									})() : token.image ? (
 										<img
 											src={token.image}
 											alt={token.label}

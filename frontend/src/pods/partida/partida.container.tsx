@@ -240,7 +240,20 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 								loadMap(sess.current_map_id, sess.id))
 							: Promise.resolve(),
 					]);
-					setTokens(toks);
+					// Deduplicar tokens de jugador en memoria: por cada user_id,
+					// quedarse solo con el que tiene is_on_map=true, o si no hay ninguno,
+					// con el último. No borramos nada de la BD aquí — la limpieza ocurre
+					// al confirmar combate, evitando borrar el token desplegado en el mapa.
+					const seenUsers = new Map<string, (typeof toks)[number]>();
+					for (const tok of toks) {
+						if (tok.token_type !== "player" || !tok.user_id) continue;
+						const prev = seenUsers.get(tok.user_id);
+						if (!prev || (!prev.is_on_map && tok.is_on_map)) {
+							seenUsers.set(tok.user_id, tok);
+						}
+					}
+					const playerDeduped = new Set(seenUsers.values());
+					setTokens(toks.filter((t) => t.token_type !== "player" || !t.user_id || playerDeduped.has(t)));
 					setCombatState(combat);
 
 					// Subscribe to realtime
@@ -633,7 +646,8 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			handleTokenSelect(token);
 
 			// Si hay combate activo, añadir el nuevo token AL FINAL del orden
-			if (combatState?.is_active && session) {
+			// Los hechizos e ítems no participan en la iniciativa
+			if (combatState?.is_active && session && entity.entity_type !== "spell" && entity.entity_type !== "item") {
 				const newOrder = [...combatState.initiative_order, token.id];
 				updateCombatState(session.id, { initiative_order: newOrder }).then(
 					(updated) => {
@@ -724,8 +738,16 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 	// ── Combat ────────────────────────────────────────────────────────────────
 
 	const buildSceneCombatCandidates = useCallback((): SceneCombatCandidate[] => {
-		const playerTokenCandidates: SceneCombatCandidate[] = tokens
-			.filter((t) => t.token_type === "player")
+		// Deduplicate player tokens by user_id: prefer is_on_map=true, then last seen
+		const bestPlayerToken = new Map<string, (typeof tokens)[number]>();
+		for (const t of tokens) {
+			if (t.token_type !== "player" || !t.user_id) continue;
+			const prev = bestPlayerToken.get(t.user_id);
+			if (!prev || (!prev.is_on_map && t.is_on_map)) {
+				bestPlayerToken.set(t.user_id, t);
+			}
+		}
+		const playerTokenCandidates: SceneCombatCandidate[] = [...bestPlayerToken.values()]
 			.map((t) => ({
 				id: t.id,
 				label: t.entity_name,
@@ -819,13 +841,23 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		// Tokens enemy/npc ya en el tablero que NO provienen de la escena
 		// (e.g. añadidos desde el bestiario libre) — evitamos duplicados
 		const sceneEntityIds = new Set((scene?.entities ?? []).map((e) => e.id));
+		// IDs de entidades tipo spell/item en TODOS los capítulos — no deben ir al combate
+		const spellEntityIds = new Set(
+			chapters
+				.flatMap((c) => (c.scenes as { entities?: { id: string; entity_type: string }[] }[] ?? []))
+				.flatMap((s) => s.entities ?? [])
+				.filter((e) => e.entity_type === "spell" || e.entity_type === "item")
+				.map((e) => e.id),
+		);
 		const extraMapCandidates: SceneCombatCandidate[] = tokens
 			.filter(
 				(t) =>
 					(t.token_type === "enemy" || t.token_type === "npc") &&
 					t.is_on_map &&
 					// no está ya cubierto por entityCandidates
-					!(t.entity_ref_id && sceneEntityIds.has(t.entity_ref_id)),
+					!(t.entity_ref_id && sceneEntityIds.has(t.entity_ref_id)) &&
+					// excluir tokens de hechizos u objetos
+					!(t.entity_ref_id && spellEntityIds.has(t.entity_ref_id)),
 			)
 			.map((t) => ({
 				id: t.id,
@@ -865,6 +897,19 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					const memberUserId = candidate.id.replace("member:", "");
 					const member = members.find((m) => m.user_id === memberUserId);
 					if (!member) continue;
+					// Eliminar tokens de jugador duplicados para este usuario antes de crear uno nuevo
+					const duplicates = tokens.filter(
+						(t) => t.token_type === "player" && t.user_id === memberUserId,
+					);
+					for (const dup of duplicates) {
+						await deleteToken(session.id, dup.id);
+					}
+					setTokens((prev) =>
+						prev.filter(
+							(t) =>
+								!(t.token_type === "player" && t.user_id === memberUserId),
+						),
+					);
 					const createdPlayer = await createToken(session.id, {
 						token_type: "player",
 						character_id: member.character?.id ?? null,
@@ -888,8 +933,35 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				if (candidate.tokenId) {
 					const existingToken = tokens.find((t) => t.id === candidate.tokenId);
 					if (existingToken) {
+						// Eliminar duplicados del mismo jugador (salvo el que vamos a usar)
+						if (existingToken.token_type === "player" && existingToken.user_id) {
+							const dupes = tokens.filter(
+								(t) =>
+									t.token_type === "player" &&
+									t.user_id === existingToken.user_id &&
+									t.id !== existingToken.id,
+							);
+							for (const dup of dupes) {
+								await deleteToken(session.id, dup.id);
+							}
+							setTokens((prev) =>
+								prev.filter(
+									(t) =>
+										!(t.token_type === "player" &&
+										t.user_id === existingToken.user_id &&
+									t.id !== existingToken.id),
+								),
+							);
+						}
 						const resolvedCandidateImage =
 							candidate.image ||
+							// Fallback: avatar del miembro si es token de jugador
+							(existingToken.token_type === "player" && existingToken.user_id
+								? (() => {
+										const m = members.find((mb) => mb.user_id === existingToken.user_id);
+										return m?.character?.avatar_url ?? m?.profile?.avatar_url ?? null;
+									})()
+								: null) ||
 							(candidate.entity
 								? await resolveCompendiumEntityImage(candidate.entity)
 								: null);
@@ -1279,6 +1351,13 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			onSaveFicha={handleSaveFicha}
 			onCancelCombatDialog={() => setShowCombatDialog(false)}
 			onAddToCombat={isDM ? handleAddToCombat : undefined}
+			spellEntityRefIds={new Set(
+				chapters
+					.flatMap((c) => (c.scenes as { entities?: { id: string; entity_type: string }[] }[] ?? []))
+					.flatMap((s) => s.entities ?? [])
+					.filter((e) => e.entity_type === "spell" || e.entity_type === "item")
+					.map((e) => e.id),
+			)}
 		/>
 	);
 }

@@ -7,9 +7,36 @@
 // DM can remove tokens by clicking the X.
 // ================================================
 
-import { X, User } from "lucide-react";
+import {
+	X,
+	User,
+	Skull,
+	Archive,
+	Sword,
+	Shield,
+	FlaskConical,
+	Gem,
+	ScrollText,
+	Key,
+	Wand2,
+	Package,
+} from "lucide-react";
+import type { LucideProps } from "lucide-react";
 import { useState } from "react";
 import type { SessionToken, CombatState } from "../partida.vm";
+
+const ITEM_ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
+	chest: Archive,
+	sword: Sword,
+	shield: Shield,
+	flask: FlaskConical,
+	gem: Gem,
+	scroll: ScrollText,
+	user: User,
+	key: Key,
+	wand: Wand2,
+	package: Package,
+};
 
 interface Props {
 	tokens: SessionToken[];
@@ -45,6 +72,12 @@ export function OrdenCombate({
 		if (!isDM) return;
 		setDraggedId(tokenId);
 		e.dataTransfer.effectAllowed = "move";
+		// Usar imagen fantasma transparente para evitar el drag nativo de img
+		const ghost = document.createElement("div");
+		ghost.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;";
+		document.body.appendChild(ghost);
+		e.dataTransfer.setDragImage(ghost, 0, 0);
+		requestAnimationFrame(() => document.body.removeChild(ghost));
 	};
 
 	const handleDrop = (e: React.DragEvent, targetId: string) => {
@@ -89,14 +122,21 @@ export function OrdenCombate({
 									isActive ? "border-yellow-400" : "border-gray-600"
 								} bg-gray-800`}
 							>
-								{token.entity_image ? (
+								{token.entity_image?.startsWith("icon:") ? (() => {
+									const iconKey = token.entity_image.split(":")[1];
+									const Ico = ITEM_ICON_MAP[iconKey] ?? Package;
+									return <Ico className="w-5 h-5 text-white" />;
+								})() : token.entity_image ? (
 									<img
 										src={token.entity_image}
 										alt={token.entity_name}
+										draggable={false}
 										className="w-full h-full object-cover"
 									/>
+								) : token.token_type === "player" ? (
+									<User className="w-5 h-5 text-blue-400" />
 								) : (
-									<User className="w-5 h-5 text-gray-400" />
+									<Skull className="w-5 h-5 text-red-400" />
 								)}
 							</div>
 

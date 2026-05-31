@@ -69,6 +69,7 @@ interface Props {
 	onTokenSelect?: (token: SessionToken | null) => void;
 	members?: SessionMember[];
 	onAddToCombat?: (tokenId: string) => void;
+	spellEntityRefIds?: Set<string>;
 }
 
 const GRID_ALPHA_PATTERN = /rgba?\([^,]+,[^,]+,[^,]+,?\s*([\d.]+)?\)/;
@@ -107,6 +108,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 			onTokenSelect,
 			members,
 			onAddToCombat,
+			spellEntityRefIds,
 		},
 		ref,
 	) => {
@@ -404,8 +406,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 								height: CONTROLS_H + tokenSize + BELOW_H,
 								cursor: draggable ? "grab" : "default",
 							}}
-							onMouseDown={(e) => handleTokenMouseDown(e, token)}
-							onClick={(e) => handleTokenClick(e, token.id)}
+							onMouseDown={(e) => handleTokenMouseDown(e, token)}						onDragStart={(e) => e.preventDefault()}							onClick={(e) => handleTokenClick(e, token.id)}
 						>
 							{/* ── DM controls (above avatar, only when selected) ── */}
 							<div
@@ -450,7 +451,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 							</div>
 
 					{/* ── "Entrar al combate" badge – visible only when combat active and token not in order ── */}
-					{isDM && combatState?.is_active && !isInCombat && onAddToCombat && (
+					{isDM && combatState?.is_active && !isInCombat && onAddToCombat && !(token.entity_ref_id && spellEntityRefIds?.has(token.entity_ref_id)) && (
 						<button
 							onClick={(e) => {
 								e.stopPropagation();
