@@ -4,6 +4,7 @@ export interface EquippedItem {
   type: string;
   weight?: number;
   srdIndex?: string;
+  srdEdition?: string;
   tags?: string[];
   capacity?: string;
 }
@@ -13,6 +14,7 @@ export interface ConsumableItem {
   name: string;
   quantity: number;
   srdIndex?: string;
+  srdEdition?: string;
   tags?: string[];
 }
 
@@ -22,6 +24,7 @@ export interface BagItem {
   quantity: number;
   weight?: number;
   srdIndex?: string;
+  srdEdition?: string;
   tags?: string[];
 }
 
@@ -48,6 +51,7 @@ export interface CompendiumItem {
   type: string;
   weight: string | null;
   rarity: string | null;
+  system_id?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   stats: Record<string, any>;
 }

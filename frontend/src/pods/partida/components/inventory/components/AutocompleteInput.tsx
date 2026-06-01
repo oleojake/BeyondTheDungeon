@@ -21,6 +21,7 @@ export function AutocompleteInput({
     weight?: number,
     srdIndex?: string,
     tags?: string[],
+    srdEdition?: string,
   ) => void;
   hideSearchAll?: boolean;
 }) {
@@ -58,6 +59,7 @@ export function AutocompleteInput({
       w !== undefined && !isNaN(w) && w > 0 ? w : undefined,
       item.stats?.index as string | undefined,
       tags.length > 0 ? tags : undefined,
+      item.system_id,
     );
     setQuery("");
     setOpen(false);

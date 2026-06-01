@@ -30,6 +30,7 @@ import {
 	subscribeToTokens,
 	subscribeToCombat,
 	subscribeToSession,
+	subscribeToCharacters,
 	createTokenBroadcastChannel,
 	type GameSession,
 	type SessionToken,
@@ -197,6 +198,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		let unsubCombat: (() => void) | null = null;
 		let unsubSession: (() => void) | null = null;
 		let unsubTokenBroadcast: (() => void) | null = null;
+		let unsubCharacters: (() => void) | null = null;
 
 		const init = async () => {
 			setLoading(true);
@@ -214,6 +216,38 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				]);
 				setSession(sess);
 				setMembers(mems);
+
+				// Suscribir a cambios en tiempo real de los personajes de los miembros
+				const characterIds = mems
+					.map((m) => m.character?.id)
+					.filter((id): id is string => !!id);
+				unsubCharacters = subscribeToCharacters(characterIds, (updatedChar) => {
+					// Actualizar el personaje en la lista de miembros
+					setMembers((prev) =>
+						prev.map((m) => {
+							if (m.character?.id !== updatedChar.id) return m;
+							return {
+								...m,
+								character: {
+									...m.character!,
+									name: updatedChar.name,
+									avatar_url: updatedChar.avatar_url,
+									stats: updatedChar.stats,
+								},
+							};
+						}),
+					);
+					// Actualizar también el token del jugador si está en partida
+					setTokens((prev) =>
+						prev.map((t) => {
+							if (t.character_id !== updatedChar.id) return t;
+							const stats = updatedChar.stats as Record<string, unknown>;
+							const maxHp = (stats.max_hp as number | undefined) ?? t.max_hp;
+							const currentHp = (stats.current_hp as number | undefined) ?? t.current_hp;
+							return { ...t, max_hp: maxHp, current_hp: currentHp };
+						}),
+					);
+				});
 
 				if (sess) {
 					// Restore map view from session state
@@ -240,7 +274,20 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 								loadMap(sess.current_map_id, sess.id))
 							: Promise.resolve(),
 					]);
-					setTokens(toks);
+					// Deduplicar tokens de jugador en memoria: por cada user_id,
+					// quedarse solo con el que tiene is_on_map=true, o si no hay ninguno,
+					// con el último. No borramos nada de la BD aquí — la limpieza ocurre
+					// al confirmar combate, evitando borrar el token desplegado en el mapa.
+					const seenUsers = new Map<string, (typeof toks)[number]>();
+					for (const tok of toks) {
+						if (tok.token_type !== "player" || !tok.user_id) continue;
+						const prev = seenUsers.get(tok.user_id);
+						if (!prev || (!prev.is_on_map && tok.is_on_map)) {
+							seenUsers.set(tok.user_id, tok);
+						}
+					}
+					const playerDeduped = new Set(seenUsers.values());
+					setTokens(toks.filter((t) => t.token_type !== "player" || !t.user_id || playerDeduped.has(t)));
 					setCombatState(combat);
 
 					// Subscribe to realtime
@@ -348,6 +395,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			unsubCombat?.();
 			unsubSession?.();
 			unsubTokenBroadcast?.();
+			unsubCharacters?.();
 			tokenBroadcastSend.current = null;
 			tokenBroadcastAdd.current = null;
 			tokenBroadcastRemove.current = null;
@@ -611,17 +659,17 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 						(entity.entity_data as { current_hp?: unknown } | null)?.current_hp,
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp,
-						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)
-							?.max_hp,
+						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)?.max_hp,
+						(entity.entity_data?.stats as { hit_points?: unknown } | undefined)?.hit_points,
 					) ?? 10,
 				max_hp:
 					pickNumber(
 						(entity.entity_data as { max_hp?: unknown } | null)?.max_hp,
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
-						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)
-							?.max_hp,
+						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)?.max_hp,
 						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp,
+						(entity.entity_data?.stats as { hit_points?: unknown } | undefined)?.hit_points,
 					) ?? 10,
 				initiative_value: 0,
 				is_on_map: true,
@@ -633,7 +681,8 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			handleTokenSelect(token);
 
 			// Si hay combate activo, añadir el nuevo token AL FINAL del orden
-			if (combatState?.is_active && session) {
+			// Los hechizos e ítems no participan en la iniciativa
+			if (combatState?.is_active && session && entity.entity_type !== "spell" && entity.entity_type !== "item") {
 				const newOrder = [...combatState.initiative_order, token.id];
 				updateCombatState(session.id, { initiative_order: newOrder }).then(
 					(updated) => {
@@ -724,8 +773,16 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 	// ── Combat ────────────────────────────────────────────────────────────────
 
 	const buildSceneCombatCandidates = useCallback((): SceneCombatCandidate[] => {
-		const playerTokenCandidates: SceneCombatCandidate[] = tokens
-			.filter((t) => t.token_type === "player")
+		// Deduplicate player tokens by user_id: prefer is_on_map=true, then last seen
+		const bestPlayerToken = new Map<string, (typeof tokens)[number]>();
+		for (const t of tokens) {
+			if (t.token_type !== "player" || !t.user_id) continue;
+			const prev = bestPlayerToken.get(t.user_id);
+			if (!prev || (!prev.is_on_map && t.is_on_map)) {
+				bestPlayerToken.set(t.user_id, t);
+			}
+		}
+		const playerTokenCandidates: SceneCombatCandidate[] = [...bestPlayerToken.values()]
 			.map((t) => ({
 				id: t.id,
 				label: t.entity_name,
@@ -792,6 +849,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						stats.max_hp,
 						stats.hp,
+						stats.hit_points,
 						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
 					) ?? 10;
 				const currentHp =
@@ -800,6 +858,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 						(entity.entity_data as { current_hp?: unknown } | null)?.current_hp,
 						stats.current_hp,
 						stats.hp,
+						stats.hit_points,
 						maxHp,
 					) ?? maxHp;
 
@@ -819,13 +878,25 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		// Tokens enemy/npc ya en el tablero que NO provienen de la escena
 		// (e.g. añadidos desde el bestiario libre) — evitamos duplicados
 		const sceneEntityIds = new Set((scene?.entities ?? []).map((e) => e.id));
+		// IDs de entidades tipo spell/item en TODOS los capítulos — no deben ir al combate
+		const spellEntityIds = new Set(
+			chapters
+				.flatMap((c) => (c.scenes as { entities?: { id: string; entity_type: string }[] }[] ?? []))
+				.flatMap((s) => s.entities ?? [])
+				.filter((e) => e.entity_type === "spell" || e.entity_type === "item")
+				.map((e) => e.id),
+		);
 		const extraMapCandidates: SceneCombatCandidate[] = tokens
 			.filter(
 				(t) =>
 					(t.token_type === "enemy" || t.token_type === "npc") &&
 					t.is_on_map &&
 					// no está ya cubierto por entityCandidates
-					!(t.entity_ref_id && sceneEntityIds.has(t.entity_ref_id)),
+					!(t.entity_ref_id && sceneEntityIds.has(t.entity_ref_id)) &&
+					// excluir tokens de hechizos u objetos (escena o compendio libre)
+					!(t.entity_ref_id && spellEntityIds.has(t.entity_ref_id)) &&
+					!t.entity_ref_id?.startsWith("spell:") &&
+					!t.entity_ref_id?.startsWith("item:"),
 			)
 			.map((t) => ({
 				id: t.id,
@@ -865,6 +936,19 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					const memberUserId = candidate.id.replace("member:", "");
 					const member = members.find((m) => m.user_id === memberUserId);
 					if (!member) continue;
+					// Eliminar tokens de jugador duplicados para este usuario antes de crear uno nuevo
+					const duplicates = tokens.filter(
+						(t) => t.token_type === "player" && t.user_id === memberUserId,
+					);
+					for (const dup of duplicates) {
+						await deleteToken(session.id, dup.id);
+					}
+					setTokens((prev) =>
+						prev.filter(
+							(t) =>
+								!(t.token_type === "player" && t.user_id === memberUserId),
+						),
+					);
 					const createdPlayer = await createToken(session.id, {
 						token_type: "player",
 						character_id: member.character?.id ?? null,
@@ -888,8 +972,35 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				if (candidate.tokenId) {
 					const existingToken = tokens.find((t) => t.id === candidate.tokenId);
 					if (existingToken) {
+						// Eliminar duplicados del mismo jugador (salvo el que vamos a usar)
+						if (existingToken.token_type === "player" && existingToken.user_id) {
+							const dupes = tokens.filter(
+								(t) =>
+									t.token_type === "player" &&
+									t.user_id === existingToken.user_id &&
+									t.id !== existingToken.id,
+							);
+							for (const dup of dupes) {
+								await deleteToken(session.id, dup.id);
+							}
+							setTokens((prev) =>
+								prev.filter(
+									(t) =>
+										!(t.token_type === "player" &&
+										t.user_id === existingToken.user_id &&
+									t.id !== existingToken.id),
+								),
+							);
+						}
 						const resolvedCandidateImage =
 							candidate.image ||
+							// Fallback: avatar del miembro si es token de jugador
+							(existingToken.token_type === "player" && existingToken.user_id
+								? (() => {
+										const m = members.find((mb) => mb.user_id === existingToken.user_id);
+										return m?.character?.avatar_url ?? m?.profile?.avatar_url ?? null;
+									})()
+								: null) ||
 							(candidate.entity
 								? await resolveCompendiumEntityImage(candidate.entity)
 								: null);
@@ -1087,23 +1198,31 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					};
 				}),
 			);
-			// Sync HP to token if character sheet includes stats.current_hp
-			const newCurrentHp = (
-				updates.stats as { current_hp?: number } | undefined
-			)?.current_hp;
-			if (newCurrentHp !== undefined && session) {
+			// Sync relevant token fields when character sheet is saved from within the session
+			const updatedStats = updates.stats as {
+				current_hp?: number;
+				max_hp?: number;
+				initiative?: number;
+			} | undefined;
+			if (session && updatedStats) {
 				const playerToken = tokens.find(
 					(t) => t.token_type === "player" && t.character_id === characterId,
 				);
 				if (playerToken) {
-					setTokens((prev) =>
-						prev.map((t) =>
-							t.id === playerToken.id ? { ...t, current_hp: newCurrentHp } : t,
-						),
-					);
-					await updateToken(session.id, playerToken.id, {
-						current_hp: newCurrentHp,
-					});
+					const tokenPatch: Record<string, unknown> = {};
+					if (updatedStats.current_hp !== undefined)
+						tokenPatch.current_hp = updatedStats.current_hp;
+					if (updatedStats.max_hp !== undefined)
+						tokenPatch.max_hp = updatedStats.max_hp;
+					if (updatedStats.initiative !== undefined)
+						tokenPatch.initiative_value = updatedStats.initiative;
+					if (Object.keys(tokenPatch).length > 0) {
+						const updated = await updateToken(session.id, playerToken.id, tokenPatch);
+						setTokens((prev) =>
+							prev.map((t) => (t.id === playerToken.id ? updated : t)),
+						);
+						tokenBroadcastAdd.current?.(updated);
+					}
 				}
 			}
 		},
@@ -1146,8 +1265,15 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			const existing = tokens.find((t) => t.user_id === member.user_id);
 			if (existing) {
 				if (existing.is_on_map) return;
+				const char = member.character;
+				const maxHp = (char?.stats as { max_hp?: number } | null)?.max_hp ?? existing.max_hp;
+				const currentHp = (char?.stats as { current_hp?: number } | null)?.current_hp ?? Math.min(existing.current_hp, maxHp);
 				const updated = await updateToken(session.id, existing.id, {
 					is_on_map: true,
+					max_hp: maxHp,
+					current_hp: currentHp,
+					entity_name: char?.name ?? existing.entity_name,
+					entity_image: char?.avatar_url ?? existing.entity_image,
 				});
 				setTokens((prev) =>
 					prev.map((t) => (t.id === existing.id ? updated : t)),
@@ -1223,6 +1349,42 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		ensurePlayerTokens();
 	}, [session, isDM, members]);
 
+	// ── Sync player token HP from character sheet (single source of truth) ────
+	// When tokens and members are both loaded, update any player token whose
+	// max_hp differs from the character's current stats. This ensures that if
+	// a player edited their sheet while offline or between sessions, the token
+	// always reflects the character sheet — not a stale cached value.
+	useEffect(() => {
+		if (!session || tokens.length === 0 || members.length === 0) return;
+
+		const syncPlayerTokenHp = async () => {
+			for (const tok of tokens) {
+				if (tok.token_type !== "player" || !tok.character_id) continue;
+				const member = members.find((m) => m.character?.id === tok.character_id);
+				if (!member?.character) continue;
+				const charStats = member.character.stats as { max_hp?: number; current_hp?: number } | null;
+				const charMaxHp = charStats?.max_hp;
+				const charCurrentHp = charStats?.current_hp;
+				if (charMaxHp === undefined) continue;
+				// Only update if max_hp differs (sheet is the truth for max_hp)
+				if (tok.max_hp === charMaxHp) continue;
+				const newCurrentHp = charCurrentHp !== undefined
+					? Math.min(charCurrentHp, charMaxHp)
+					: Math.min(tok.current_hp, charMaxHp);
+				const updated = await updateToken(session.id, tok.id, {
+					max_hp: charMaxHp,
+					current_hp: newCurrentHp,
+				});
+				setTokens((prev) => prev.map((t) => (t.id === tok.id ? updated : t)));
+				tokenBroadcastAdd.current?.(updated);
+			}
+		};
+
+		syncPlayerTokenHp();
+	// Only run when tokens or members first become available, not on every change
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [session?.id, tokens.length > 0, members.length > 0]);
+
 	// ── Render ─────────────────────────────────────────────────────────────────
 
 	return (
@@ -1279,6 +1441,13 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			onSaveFicha={handleSaveFicha}
 			onCancelCombatDialog={() => setShowCombatDialog(false)}
 			onAddToCombat={isDM ? handleAddToCombat : undefined}
+			spellEntityRefIds={new Set(
+				chapters
+					.flatMap((c) => (c.scenes as { entities?: { id: string; entity_type: string }[] }[] ?? []))
+					.flatMap((s) => s.entities ?? [])
+					.filter((e) => e.entity_type === "spell" || e.entity_type === "item")
+					.map((e) => e.id),
+			)}
 		/>
 	);
 }

@@ -45,6 +45,8 @@ import type {
 import type { BattleMapListItem } from "@/core/api/battle-map.service";
 type BattleMap = BattleMapListItem;
 import { User, Search } from "lucide-react";
+import { fetchItems, fetchSpells } from "@/core/api/backend.service";
+import type { Item, Spell } from "@/core/api/backend.service";
 
 interface BestiaryMonster {
 	id: string;
@@ -211,50 +213,124 @@ export function PanelDM({
 	const [selectedSpellShape, setSelectedSpellShape] =
 		useState<string>("circle");
 
-	// ── Bestiary search state ──────────────────────────────────────────────────
+	// ── Compendium free-search state ──────────────────────────────────────────
 	const [bestiaryOpen, setBestiaryOpen] = useState(false);
+	const [compendiumTab, setCompendiumTab] = useState<"monster" | "item" | "spell">("monster");
 	const [bestiaryAll, setBestiaryAll] = useState<BestiaryMonster[]>([]);
+	const [itemsAll, setItemsAll] = useState<Item[]>([]);
+	const [spellsAll, setSpellsAll] = useState<Spell[]>([]);
 	const [bestiaryLoading, setBestiaryLoading] = useState(false);
 	const [bestiaryQuery, setBestiaryQuery] = useState("");
+	const [bestiaryFocused, setBestiaryFocused] = useState(false);
 	const [selectedBestiary, setSelectedBestiary] = useState<BestiaryMonster | null>(null);
+	const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+	const [selectedSpell, setSelectedSpell] = useState<Spell | null>(null);
 	const bestiaryFetched = useRef(false);
+	const itemsFetched = useRef(false);
+	const spellsFetched = useRef(false);
 
 	useEffect(() => {
-		if (!bestiaryOpen || bestiaryFetched.current) return;
-		bestiaryFetched.current = true;
-		setBestiaryLoading(true);
-		const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
-		fetch(`${API_URL}/api/compendium-bestiary`)
-			.then((r) => r.json())
-			.then((data) => {
-				const list: BestiaryMonster[] = (data.characters ?? []).map(
-					(m: BestiaryMonster) => ({ ...m, id: m.id ?? m.name, name: m.name })
-				);
-				setBestiaryAll(list);
-			})
-			.catch(console.error)
-			.finally(() => setBestiaryLoading(false));
-	}, [bestiaryOpen]);
+		if (!bestiaryOpen) return;
+		if (compendiumTab === "monster" && !bestiaryFetched.current) {
+			bestiaryFetched.current = true;
+			setBestiaryLoading(true);
+			const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+			fetch(`${API_URL}/api/compendium-bestiary`)
+				.then((r) => r.json())
+				.then((data) => {
+					const list: BestiaryMonster[] = (data.characters ?? []).map(
+						(m: BestiaryMonster) => ({ ...m, id: m.id ?? m.name, name: m.name }),
+					);
+					setBestiaryAll(list);
+				})
+				.catch(console.error)
+				.finally(() => setBestiaryLoading(false));
+		} else if (compendiumTab === "item" && !itemsFetched.current) {
+			itemsFetched.current = true;
+			setBestiaryLoading(true);
+			fetchItems()
+				.then((data) => setItemsAll(data.items ?? []))
+				.catch(console.error)
+				.finally(() => setBestiaryLoading(false));
+		} else if (compendiumTab === "spell" && !spellsFetched.current) {
+			spellsFetched.current = true;
+			setBestiaryLoading(true);
+			fetchSpells()
+				.then((data) => setSpellsAll(data.spells ?? []))
+				.catch(console.error)
+				.finally(() => setBestiaryLoading(false));
+		}
+	}, [bestiaryOpen, compendiumTab]);
 
-	const bestiaryFiltered = bestiaryQuery.trim().length >= 2
-		? bestiaryAll.filter((m) =>
-				m.name.toLowerCase().includes(bestiaryQuery.toLowerCase())
-		  )
-		: [];
+	const compendiumAllItems: { id: string; name: string; subtitle?: string }[] = (() => {
+		if (compendiumTab === "monster") return bestiaryAll.map((m) => ({ id: String(m.id), name: m.name, subtitle: m.stats?.hit_points ? `${m.stats.hit_points} HP` : undefined }));
+		if (compendiumTab === "item") return itemsAll.map((i) => ({
+			id: i.id,
+			name: i.name,
+			subtitle: i.armor_category ?? i.weapon_category ?? (typeof i.equipment_category === "object" ? i.equipment_category?.name : i.equipment_category) ?? undefined,
+		}));
+		return spellsAll.map((s) => ({ id: s.id, name: s.name, subtitle: `Nv.${s.level}` }));
+	})();
+
+	const compendiumFiltered = (() => {
+		const q = bestiaryQuery.trim().toLowerCase();
+		const list = q.length >= 1
+			? compendiumAllItems.filter((m) => m.name.toLowerCase().includes(q))
+			: [...compendiumAllItems].sort((a, b) => a.name.localeCompare(b.name));
+		return list;
+	})();
+	const showBestiaryList = bestiaryFocused || bestiaryQuery.trim().length >= 1;
+
+	const selectedCompendiumId = compendiumTab === "monster" ? selectedBestiary?.id : compendiumTab === "item" ? selectedItem?.id : selectedSpell?.id;
+
+	const handleSelectCompendiumItem = (id: string) => {
+		if (compendiumTab === "monster") setSelectedBestiary(bestiaryAll.find((m) => String(m.id) === id) ?? null);
+		else if (compendiumTab === "item") setSelectedItem(itemsAll.find((i) => i.id === id) ?? null);
+		else setSelectedSpell(spellsAll.find((s) => s.id === id) ?? null);
+	};
 
 	const handleDeployBestiary = () => {
-		if (!selectedBestiary) return;
-		const stats = (selectedBestiary.stats as Record<string, unknown> | undefined) ?? {};
-		const hp = (stats.hit_points as number) ?? 10;
-		const syntheticEntity: SceneEntityBasic = {
-			id: `bestiary:${selectedBestiary.id}`,
-			entity_type: "monster",
-			entity_id: String(selectedBestiary.id),
-			entity_name: selectedBestiary.name,
-			entity_data: { ...selectedBestiary, hp, max_hp: hp, stats: { ...stats, hp, max_hp: hp } },
-		};
-		onDeployEntity(syntheticEntity);
-		setSelectedBestiary(null);
+		if (compendiumTab === "monster") {
+			if (!selectedBestiary) return;
+			const stats = (selectedBestiary.stats as Record<string, unknown> | undefined) ?? {};
+			const hp = (stats.hit_points as number) ?? 10;
+			onDeployEntity({
+				id: `bestiary:${selectedBestiary.id}`,
+				entity_type: "monster",
+				entity_id: String(selectedBestiary.id),
+				entity_name: selectedBestiary.name,
+				entity_data: { ...selectedBestiary, hp, max_hp: hp, stats: { ...stats, hp, max_hp: hp } },
+			});
+			setSelectedBestiary(null);
+		} else if (compendiumTab === "item") {
+			if (!selectedItem) return;
+			onDeployEntity(
+				{
+					id: `item:${selectedItem.id}`,
+					entity_type: "item",
+					entity_id: selectedItem.id,
+					entity_name: selectedItem.name,
+					entity_data: { ...selectedItem },
+				},
+				selectedItemIcon,
+			);
+			setSelectedItem(null);
+			setSelectedItemIcon("package");
+		} else {
+			if (!selectedSpell) return;
+			onDeployEntity(
+				{
+					id: `spell:${selectedSpell.id}`,
+					entity_type: "spell",
+					entity_id: selectedSpell.id,
+					entity_name: selectedSpell.name,
+					entity_data: { ...selectedSpell },
+				},
+				`shape:${selectedSpellShape}`,
+			);
+			setSelectedSpell(null);
+			setSelectedSpellShape("circle");
+		}
 		setBestiaryQuery("");
 	};
 
@@ -575,23 +651,59 @@ export function PanelDM({
 					</div>
 				)}
 
-				{/* ─ Bestiary search (free monsters) ─ */}
+				{/* ─ Compendium free-search ─ */}
 				<div className="border-t border-amber-900/30">
 					<button
 						onClick={() => setBestiaryOpen((p) => !p)}
 						className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-amber-500 uppercase tracking-wide hover:bg-amber-900/10 transition-colors"
 					>
 						<span className="flex items-center gap-1">
-							<Sword className="w-3 h-3" />
-							Bestiario (búsqueda libre)
+							<Search className="w-3 h-3" />
+							Compendio (búsqueda libre)
 						</span>
-						{bestiaryOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+						{bestiaryOpen ? (
+							<ChevronDown className="w-3 h-3" />
+						) : (
+							<ChevronRight className="w-3 h-3" />
+						)}
 					</button>
 
 					{bestiaryOpen && (
 						<div className="px-3 pb-3 space-y-2">
+							{/* Tabs */}
+							<div className="flex gap-1">
+								{(["monster", "item", "spell"] as const).map((tab) => {
+									const labels = { monster: "Monstruos", item: "Objetos", spell: "Hechizos" };
+									const icons = {
+										monster: <Sword className="w-3 h-3" />,
+										item: <Archive className="w-3 h-3" />,
+										spell: <Sparkles className="w-3 h-3" />,
+									};
+									return (
+										<button
+											key={tab}
+											onClick={() => {
+												setCompendiumTab(tab);
+												setBestiaryQuery("");
+												setSelectedBestiary(null);
+												setSelectedItem(null);
+												setSelectedSpell(null);
+											}}
+											className={`flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-semibold border transition-colors ${
+												compendiumTab === tab
+													? "border-amber-500 bg-amber-900/30 text-amber-300"
+													: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-500"
+											}`}
+										>
+											{icons[tab]}
+											{labels[tab]}
+										</button>
+									);
+								})}
+							</div>
+
 							{bestiaryLoading ? (
-								<p className="text-xs text-gray-500 italic">Cargando bestiario…</p>
+								<p className="text-xs text-gray-500 italic">Cargando…</p>
 							) : (
 								<>
 									<div className="relative">
@@ -602,39 +714,99 @@ export function PanelDM({
 											onChange={(e) => {
 												setBestiaryQuery(e.target.value);
 												setSelectedBestiary(null);
+												setSelectedItem(null);
+												setSelectedSpell(null);
 											}}
-											placeholder="Buscar enemigo… (mín. 2 letras)"
+											onFocus={() => setBestiaryFocused(true)}
+											onBlur={() => setTimeout(() => setBestiaryFocused(false), 150)}
+											placeholder={
+												compendiumTab === "monster"
+													? "Buscar monstruo…"
+													: compendiumTab === "item"
+													? "Buscar objeto…"
+													: "Buscar hechizo…"
+											}
 											className="w-full pl-7 pr-2 py-1 rounded bg-gray-800 border border-gray-600 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
 										/>
 									</div>
 
-									{bestiaryQuery.trim().length >= 2 && (
+									{showBestiaryList && (
 										<div className="flex flex-col gap-0.5 max-h-40 overflow-y-auto">
-											{bestiaryFiltered.length === 0 && (
+											{compendiumFiltered.length === 0 && (
 												<p className="text-xs text-gray-500 italic">Sin resultados.</p>
 											)}
-											{bestiaryFiltered.slice(0, 30).map((m) => (
+											{compendiumFiltered.slice(0, 50).map((entry) => (
 												<button
-													key={m.id}
-													onClick={() => setSelectedBestiary(m)}
+													key={entry.id}
+													onClick={() => handleSelectCompendiumItem(entry.id)}
 													className={`text-left px-2 py-1 rounded text-xs border transition-colors ${
-														selectedBestiary?.id === m.id
+														selectedCompendiumId === entry.id
 															? "border-amber-500 bg-amber-900/20 text-amber-200"
 															: "border-gray-700 bg-gray-800/20 text-gray-300 hover:border-gray-600"
 													}`}
 												>
-													<span className="font-medium">{m.name}</span>
-													{m.stats?.hit_points ? (
-														<span className="ml-1 text-red-400">
-															· {m.stats.hit_points} HP
-														</span>
-													) : null}
+													<span className="font-medium">{entry.name}</span>
+													{entry.subtitle && (
+														<span className={`ml-1 ${compendiumTab === "monster" ? "text-red-400" : "text-gray-400"}`}>· {entry.subtitle}</span>
+													)}
 												</button>
 											))}
 										</div>
 									)}
 
-									{selectedBestiary && (
+									{/* Icon picker — items */}
+									{compendiumTab === "item" && selectedCompendiumId && (
+										<div>
+											<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+												Icono al introducir
+											</p>
+											<div className="grid grid-cols-4 gap-1">
+												{ITEM_ICONS.map(({ key, label, Icon }) => (
+													<button
+														key={key}
+														title={label}
+														onClick={() => setSelectedItemIcon(key)}
+														className={`flex flex-col items-center gap-0.5 p-1.5 rounded border text-xs transition-colors ${
+															selectedItemIcon === key
+																? "border-amber-500 bg-amber-900/30 text-amber-300"
+																: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+														}`}
+													>
+														<Icon className="w-3.5 h-3.5" />
+														<span className="text-[9px] leading-tight">{label}</span>
+													</button>
+												))}
+											</div>
+										</div>
+									)}
+
+									{/* Shape picker — spells */}
+									{compendiumTab === "spell" && selectedCompendiumId && (
+										<div>
+											<p className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide">
+												Forma del área
+											</p>
+											<div className="grid grid-cols-4 gap-1">
+												{SPELL_SHAPES.map(({ key, label }) => (
+													<button
+														key={key}
+														title={label}
+														onClick={() => setSelectedSpellShape(key)}
+														className={`flex flex-col items-center gap-1 p-1.5 rounded border text-xs transition-colors ${
+															selectedSpellShape === key
+																? "border-purple-500 bg-purple-900/30 text-purple-300"
+																: "border-gray-700 bg-gray-800/20 text-gray-400 hover:border-gray-600"
+														}`}
+													>
+														<ShapePreview shapeKey={key} active={selectedSpellShape === key} />
+														<span className="text-[9px] leading-tight">{label}</span>
+													</button>
+												))}
+											</div>
+										</div>
+									)}
+
+									{selectedCompendiumId && (
 										<Button
 											size="sm"
 											disabled={!currentMapId}
@@ -643,7 +815,12 @@ export function PanelDM({
 											title={!currentMapId ? "Primero carga un mapa" : ""}
 										>
 											<Rocket className="w-3 h-3 mr-1" />
-											Introducir {selectedBestiary.name}
+											Introducir{" "}
+											{compendiumTab === "monster"
+												? selectedBestiary?.name
+												: compendiumTab === "item"
+												? selectedItem?.name
+												: selectedSpell?.name}
 										</Button>
 									)}
 								</>

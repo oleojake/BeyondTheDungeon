@@ -469,7 +469,7 @@ export const ObjetosScene = () => {
 					) : (
 						<Link
 							key={item.id}
-							to={`/objetos/${item.id}`}
+							to={`/objetos/${item.system_id || 'dnd5e-2014'}/${item.stats?.index || item.id}`}
 							className="block transition-transform hover:scale-[1.02]"
 						>
 							<Card className="bg-dark-card border-dark-border hover:border-amber-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-600/10 h-full">

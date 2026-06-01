@@ -75,6 +75,7 @@ import {
 	type SceneEntity,
 } from "@/core/api/scene-entity.service";
 import { supabase } from "@/lib/supabase";
+import { fetchBestiary, fetchItems, fetchSpells, type Monster, type Item, type Spell } from "@/core/api/backend.service";
 import {
 	getCampaignSession,
 	startSession,
@@ -161,6 +162,15 @@ export function EditarCampanaScene() {
 	} | null>(null); // Store full entity data from compendium
 	const [availableMaps, setAvailableMaps] = useState<Array<{id: string; name: string}>>([]);
 	const [loadingMaps, setLoadingMaps] = useState(false);
+
+	// Inline compendium search
+	const [entitySearch, setEntitySearch] = useState("");
+	const [entitySearchLoading, setEntitySearchLoading] = useState(false);
+	const [compendiumCache, setCompendiumCache] = useState<{
+		monster?: Monster[];
+		item?: Item[];
+		spell?: Spell[];
+	}>({});
 
 	useEffect(() => {
 		loadData();
@@ -1149,38 +1159,22 @@ export function EditarCampanaScene() {
 								</Select>
 							</div>
 
-							{/* Show compendium button for monster/item/spell */}
-							{(entityForm.entity_type === "monster" || entityForm.entity_type === "item" || entityForm.entity_type === "spell") && !selectedEntity && (
-								<div className="border rounded-md p-6 bg-muted/50">
-									<p className="text-sm text-muted-foreground mb-3">
-										Selecciona {
-											entityForm.entity_type === "monster" ? "un monstruo" :
-											entityForm.entity_type === "item" ? "un objeto" :
-											"un hechizo"
-										} del compendio
-									</p>
-									<Button
-										onClick={() => {
-											const targetPath = 
-												entityForm.entity_type === "monster" ? "/bestiario" :
-												entityForm.entity_type === "item" ? "/objetos" :
-												"/hechizos";
-											navigate(targetPath, { 
-												state: { 
-													selectMode: true, 
-													sceneId: currentSceneId,
-													campaignId: id 
-												} 
-											});
-										}}
-										className="w-full"
-									>
-										{entityForm.entity_type === "monster" && <Skull className="mr-2 h-4 w-4" />}
-										{entityForm.entity_type === "item" && <Package className="mr-2 h-4 w-4" />}
-										{entityForm.entity_type === "spell" && <Wand2 className="mr-2 h-4 w-4" />}
-										Ir al Compendio
-									</Button>
-								</div>
+{/* Inline compendium search */}
+					{(entityForm.entity_type === "monster" || entityForm.entity_type === "item" || entityForm.entity_type === "spell") && !selectedEntity && (
+						<InlineCompendiumSearch
+							type={entityForm.entity_type}
+							search={entitySearch}
+							onSearchChange={setEntitySearch}
+							loading={entitySearchLoading}
+							cache={compendiumCache}
+							onCacheUpdate={(type, data) => setCompendiumCache(prev => ({ ...prev, [type]: data }))}
+							onLoadingChange={setEntitySearchLoading}
+							onSelect={(entity) => {
+								setSelectedEntity(entity);
+								setEntityForm(prev => ({ ...prev, entity_id: entity.id, entity_name: entity.name }));
+								setEntitySearch("");
+							}}
+						/>
 							)}
 
 							{/* Show selected entity card */}
@@ -1189,7 +1183,6 @@ export function EditarCampanaScene() {
 									<div className="flex items-start justify-between mb-2">
 										<div>
 											<h4 className="font-semibold text-foreground">{selectedEntity.name}</h4>
-											<p className="text-xs text-muted-foreground">{selectedEntity.id}</p>
 										</div>
 										<Button
 											variant="ghost"
@@ -1339,5 +1332,109 @@ export function EditarCampanaScene() {
 					</DialogContent>
 				</Dialog>
 			</div>
+	);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// InlineCompendiumSearch — buscador inline para el diálogo de entidades
+// ─────────────────────────────────────────────────────────────────────────────
+interface InlineCompendiumSearchProps {
+	type: "monster" | "item" | "spell";
+	search: string;
+	onSearchChange: (v: string) => void;
+	loading: boolean;
+	cache: { monster?: Monster[]; item?: Item[]; spell?: Spell[] };
+	onCacheUpdate: (type: "monster" | "item" | "spell", data: Monster[] | Item[] | Spell[]) => void;
+	onLoadingChange: (v: boolean) => void;
+	onSelect: (entity: { id: string; name: string; entityType: "monster" | "item" | "spell"; data: Record<string, unknown> }) => void;
+}
+
+function InlineCompendiumSearch({
+	type, search, onSearchChange, loading, cache, onCacheUpdate, onLoadingChange, onSelect,
+}: InlineCompendiumSearchProps) {
+	const [focused, setFocused] = useState(false);
+
+	useEffect(() => {
+		if (cache[type]) return; // already loaded
+		onLoadingChange(true);
+		const loader =
+			type === "monster" ? fetchBestiary().then(r => r.characters) :
+			type === "item"    ? fetchItems().then(r => r.items) :
+			                     fetchSpells().then(r => r.spells);
+		loader
+			.then(data => { onCacheUpdate(type, data as Monster[] & Item[] & Spell[]); })
+			.catch(console.error)
+			.finally(() => onLoadingChange(false));
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [type]);
+
+	const list = (cache[type] ?? []).slice().sort((a, b) => a.name.localeCompare(b.name));
+	const filtered = search.trim().length > 0
+		? list.filter(e => e.name.toLowerCase().includes(search.toLowerCase()))
+		: list;
+	const showList = focused && !loading;
+
+	const placeholder =
+		type === "monster" ? "Busca un monstruo…" :
+		type === "item"    ? "Busca un objeto…" :
+		                     "Busca un hechizo…";
+
+	return (
+		<div>
+			<div className="relative">
+				<Input
+					value={search}
+					onChange={e => onSearchChange(e.target.value)}
+					onFocus={() => setFocused(true)}
+					onBlur={() => setTimeout(() => setFocused(false), 150)}
+					placeholder={loading ? "Cargando compendio…" : placeholder}
+					disabled={loading}
+					autoFocus
+				/>
+			</div>
+			{showList && (
+				<div className="mt-2 border rounded-md overflow-y-auto max-h-56 bg-background">
+					{filtered.length === 0 ? (
+						<p className="text-sm text-muted-foreground p-3">Sin resultados</p>
+					) : (
+						filtered.map(e => (
+							<button
+								key={e.id}
+								type="button"
+								onClick={() => onSelect({
+									id: e.id,
+									name: e.name,
+									entityType: type,
+									data: e as unknown as Record<string, unknown>,
+								})}
+								className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center justify-between group"
+							>
+								<span>{e.name}</span>
+								{type === "monster" && (
+									<span className="flex items-center gap-2 text-xs text-muted-foreground">
+										{(e as Monster).challenge_rating !== undefined && (
+											<span>CR {(e as Monster).challenge_rating}</span>
+										)}
+										{(e as Monster).stats?.hit_points !== undefined && (
+											<span className="text-red-400">{(e as Monster).stats.hit_points} HP</span>
+										)}
+									</span>
+								)}
+								{type === "item" && (
+									<span className="text-xs text-muted-foreground">
+										{(e as Item).armor_category ?? (e as Item).weapon_category ?? (typeof (e as Item).equipment_category === "object" ? (e as Item).equipment_category?.name : (e as Item).equipment_category)}
+									</span>
+								)}
+								{type === "spell" && (
+									<span className="text-xs text-muted-foreground">
+										{(e as Spell).level === 0 ? "Truco" : `Nv. ${(e as Spell).level}`}
+									</span>
+								)}
+							</button>
+						))
+					)}
+				</div>
+			)}
+		</div>
 	);
 }

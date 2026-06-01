@@ -1,4 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from "react-router-dom";
+
+/** Fallback: /objetos/:slug → /objetos/dnd5e-2024/:slug */
+const ObjetosSlugRedirect = () => {
+	const { slug } = useParams<{ slug: string }>();
+	return <Navigate to={`/objetos/dnd5e-2024/${slug}`} replace />;
+};
 import {
 	HomeScene,
 	AuthCallbackScene,
@@ -48,6 +54,8 @@ export const AppRouter = () => {
 				<Route path={switchRoutes.bestiarioDetalle} element={<AppLayout><BestiarioDetalleScene /></AppLayout>} />
 				<Route path={switchRoutes.objetos} element={<AppLayout><ObjetosScene /></AppLayout>} />
 				<Route path={switchRoutes.objetosDetalle} element={<AppLayout><ObjetosDetalleScene /></AppLayout>} />
+				{/* Fallback: /objetos/:slug → redirige a dnd5e-2024 */}
+				<Route path="/objetos/:slug" element={<ObjetosSlugRedirect />} />
 				<Route path={switchRoutes.guias} element={<AppLayout><GuiasScene /></AppLayout>} />
 				<Route path={switchRoutes.guiaDetalle} element={<AppLayout><GuiaDetalleScene /></AppLayout>} />
 				<Route path={switchRoutes.dados} element={<AppLayout><DadosScene /></AppLayout>} />

@@ -41,6 +41,7 @@ interface EquippedItem {
 	type: string;
 	weight?: number;
 	srdIndex?: string;
+	srdEdition?: string;
 	tags?: string[];
 	capacity?: string;
 }
@@ -50,6 +51,7 @@ interface ConsumableItem {
 	name: string;
 	quantity: number;
 	srdIndex?: string;
+	srdEdition?: string;
 	tags?: string[];
 }
 
@@ -59,6 +61,7 @@ interface BagItem {
 	quantity: number;
 	weight?: number;
 	srdIndex?: string;
+	srdEdition?: string;
 	tags?: string[];
 }
 
@@ -85,6 +88,7 @@ interface CompendiumItem {
 	type: string;
 	weight: string | null;
 	rarity: string | null;
+	system_id?: string;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	stats: Record<string, any>;
 }
@@ -372,6 +376,7 @@ function SlotPickerModal({
 		srdIndex?: string,
 		tags?: string[],
 		capacity?: string,
+		srdEdition?: string,
 	) => void;
 	onClose: () => void;
 }) {
@@ -411,6 +416,7 @@ function SlotPickerModal({
 			item.stats?.index as string | undefined,
 			tags.length > 0 ? tags : undefined,
 			capacity,
+			item.system_id,
 		);
 		onClose();
 	};
@@ -550,6 +556,7 @@ function AutocompleteInput({
 		weight?: number,
 		srdIndex?: string,
 		tags?: string[],
+		srdEdition?: string,
 	) => void;
 	hideSearchAll?: boolean;
 }) {
@@ -587,6 +594,7 @@ function AutocompleteInput({
 			w !== undefined && !isNaN(w) && w > 0 ? w : undefined,
 			item.stats?.index as string | undefined,
 			tags.length > 0 ? tags : undefined,
+			item.system_id,
 		);
 		setQuery("");
 		setOpen(false);
@@ -727,6 +735,7 @@ function ConsumableSection({
 		weight?: number,
 		srdIndex?: string,
 		tags?: string[],
+		srdEdition?: string,
 	) => void;
 	onChangeQty: (id: string, delta: number) => void;
 	onRemove: (id: string) => void;
@@ -743,7 +752,7 @@ function ConsumableSection({
 						<div className="flex items-center justify-between gap-2">
 							{item.srdIndex ? (
 								<Link
-									to={`/objetos/${item.srdIndex}`}
+									to={`/objetos/${item.srdEdition || 'dnd5e-2024'}/${item.srdIndex}`}
 									target="_blank"
 									rel="noopener noreferrer"
 									className="text-amber-100 truncate flex-1 hover:text-amber-300 hover:underline"
@@ -834,6 +843,7 @@ function BagSection({
 		weight?: number,
 		srdIndex?: string,
 		tags?: string[],
+		srdEdition?: string,
 	) => void;
 	onChangeQty: (id: string, delta: number) => void;
 	onRemove: (id: string) => void;
@@ -852,7 +862,7 @@ function BagSection({
 								<div className="flex-1 min-w-0">
 									{item.srdIndex ? (
 										<Link
-											to={`/objetos/${item.srdIndex}`}
+											to={`/objetos/${item.srdEdition || 'dnd5e-2024'}/${item.srdIndex}`}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="text-amber-100 truncate block hover:text-amber-300 hover:underline"
@@ -1052,6 +1062,7 @@ export const InventarioScene = () => {
 		srdIndex?: string,
 		tags?: string[],
 		capacity?: string,
+		srdEdition?: string,
 	) =>
 		setInventory((prev) => ({
 			...prev,
@@ -1063,6 +1074,7 @@ export const InventarioScene = () => {
 					type: srdIndex ?? "custom",
 					weight,
 					srdIndex,
+					srdEdition,
 					tags,
 					capacity,
 				} as EquippedItem,
@@ -1085,6 +1097,7 @@ export const InventarioScene = () => {
 		_weight?: number,
 		srdIndex?: string,
 		tags?: string[],
+		srdEdition?: string,
 	) => {
 		if (!name.trim()) return;
 		setInventory((prev) => ({
@@ -1096,6 +1109,7 @@ export const InventarioScene = () => {
 					name: name.trim(),
 					quantity: 1,
 					srdIndex,
+					srdEdition,
 					tags,
 				},
 			],
@@ -1132,6 +1146,7 @@ export const InventarioScene = () => {
 		weight?: number,
 		srdIndex?: string,
 		tags?: string[],
+		srdEdition?: string,
 	) => {
 		if (!name.trim()) return;
 		setInventory((prev) => ({
@@ -1144,6 +1159,7 @@ export const InventarioScene = () => {
 					quantity: 1,
 					weight,
 					srdIndex,
+					srdEdition,
 					tags,
 				},
 			],
@@ -1604,9 +1620,9 @@ export const InventarioScene = () => {
 							allItems={compendiumItems}
 							categoryFilter={FILTER_POTIONS}
 							inputPlaceholder="Busca pociones…"
-							onSelect={(name, weight, srdIndex, tags) =>
-								addConsumable("potions", name, weight, srdIndex, tags)
-							}
+							onSelect={(name, weight, srdIndex, tags, srdEdition) =>
+addConsumable("potions", name, weight, srdIndex, tags, srdEdition)
+}
 							onChangeQty={(id, d) => changeQty("potions", id, d)}
 							onRemove={(id) => removeItem("potions", id)}
 						/>
@@ -1625,9 +1641,9 @@ export const InventarioScene = () => {
 							allItems={compendiumItems}
 							categoryFilter={FILTER_SCROLLS}
 							inputPlaceholder="Busca pergaminos…"
-							onSelect={(name, weight, srdIndex, tags) =>
-								addConsumable("scrolls", name, weight, srdIndex, tags)
-							}
+							onSelect={(name, weight, srdIndex, tags, srdEdition) =>
+addConsumable("scrolls", name, weight, srdIndex, tags, srdEdition)
+}
 							onChangeQty={(id, d) => changeQty("scrolls", id, d)}
 							onRemove={(id) => removeItem("scrolls", id)}
 						/>
@@ -1675,8 +1691,8 @@ export const InventarioScene = () => {
 						allItems={compendiumItems}
 						categoryFilter={FILTER_AMMO}
 						inputPlaceholder="Busca munición…"
-						onSelect={(name, weight, srdIndex, tags) =>
-							addConsumable("ammo", name, weight, srdIndex, tags)
+						onSelect={(name, weight, srdIndex, tags, srdEdition) =>
+							addConsumable("ammo", name, weight, srdIndex, tags, srdEdition)
 						}
 						onChangeQty={(id, d) => changeQty("ammo", id, d)}
 						onRemove={(id) => removeItem("ammo", id)}

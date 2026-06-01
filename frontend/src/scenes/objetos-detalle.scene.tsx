@@ -28,21 +28,22 @@ const getCategoryColor = (category: any) => {
 };
 
 const ObjetosDetalleScene = () => {
-	const { id } = useParams<{ id: string }>();
+	const { edition, slug, id } = useParams<{ edition?: string; slug?: string; id?: string }>();
 	const navigate = useNavigate();
 	const [item, setItem] = useState<Item | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (id) loadItem(id);
-	}, [id]);
+		const itemId = slug || id;
+		if (itemId) loadItem(itemId, edition);
+	}, [slug, id, edition]);
 
-	const loadItem = async (itemId: string) => {
+	const loadItem = async (itemId: string, itemEdition?: string) => {
 		try {
 			setLoading(true);
 			setError(null);
-			const data = await fetchItemById(itemId);
+			const data = await fetchItemById(itemId, itemEdition);
 			const stats = data.stats || {};
 			const normalized: Item = {
 				...data,
