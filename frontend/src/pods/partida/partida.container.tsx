@@ -856,8 +856,10 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					t.is_on_map &&
 					// no está ya cubierto por entityCandidates
 					!(t.entity_ref_id && sceneEntityIds.has(t.entity_ref_id)) &&
-					// excluir tokens de hechizos u objetos
-					!(t.entity_ref_id && spellEntityIds.has(t.entity_ref_id)),
+					// excluir tokens de hechizos u objetos (escena o compendio libre)
+					!(t.entity_ref_id && spellEntityIds.has(t.entity_ref_id)) &&
+					!t.entity_ref_id?.startsWith("spell:") &&
+					!t.entity_ref_id?.startsWith("item:"),
 			)
 			.map((t) => ({
 				id: t.id,

@@ -451,7 +451,7 @@ export const MapaPartida = forwardRef<MapaPartidaRef, Props>(
 							</div>
 
 					{/* ── "Entrar al combate" badge – visible only when combat active and token not in order ── */}
-					{isDM && combatState?.is_active && !isInCombat && onAddToCombat && !(token.entity_ref_id && spellEntityRefIds?.has(token.entity_ref_id)) && (
+					{isDM && combatState?.is_active && !isInCombat && onAddToCombat && !(token.entity_ref_id && spellEntityRefIds?.has(token.entity_ref_id)) && !token.entity_ref_id?.startsWith("spell:") && !token.entity_ref_id?.startsWith("item:") && (
 						<button
 							onClick={(e) => {
 								e.stopPropagation();
