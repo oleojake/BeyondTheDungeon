@@ -30,6 +30,7 @@ import {
 	subscribeToTokens,
 	subscribeToCombat,
 	subscribeToSession,
+	subscribeToCharacters,
 	createTokenBroadcastChannel,
 	type GameSession,
 	type SessionToken,
@@ -197,6 +198,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		let unsubCombat: (() => void) | null = null;
 		let unsubSession: (() => void) | null = null;
 		let unsubTokenBroadcast: (() => void) | null = null;
+		let unsubCharacters: (() => void) | null = null;
 
 		const init = async () => {
 			setLoading(true);
@@ -214,6 +216,38 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 				]);
 				setSession(sess);
 				setMembers(mems);
+
+				// Suscribir a cambios en tiempo real de los personajes de los miembros
+				const characterIds = mems
+					.map((m) => m.character?.id)
+					.filter((id): id is string => !!id);
+				unsubCharacters = subscribeToCharacters(characterIds, (updatedChar) => {
+					// Actualizar el personaje en la lista de miembros
+					setMembers((prev) =>
+						prev.map((m) => {
+							if (m.character?.id !== updatedChar.id) return m;
+							return {
+								...m,
+								character: {
+									...m.character!,
+									name: updatedChar.name,
+									avatar_url: updatedChar.avatar_url,
+									stats: updatedChar.stats,
+								},
+							};
+						}),
+					);
+					// Actualizar también el token del jugador si está en partida
+					setTokens((prev) =>
+						prev.map((t) => {
+							if (t.character_id !== updatedChar.id) return t;
+							const stats = updatedChar.stats as Record<string, unknown>;
+							const maxHp = (stats.max_hp as number | undefined) ?? t.max_hp;
+							const currentHp = (stats.current_hp as number | undefined) ?? t.current_hp;
+							return { ...t, max_hp: maxHp, current_hp: currentHp };
+						}),
+					);
+				});
 
 				if (sess) {
 					// Restore map view from session state
@@ -361,6 +395,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			unsubCombat?.();
 			unsubSession?.();
 			unsubTokenBroadcast?.();
+			unsubCharacters?.();
 			tokenBroadcastSend.current = null;
 			tokenBroadcastAdd.current = null;
 			tokenBroadcastRemove.current = null;
@@ -1163,23 +1198,31 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 					};
 				}),
 			);
-			// Sync HP to token if character sheet includes stats.current_hp
-			const newCurrentHp = (
-				updates.stats as { current_hp?: number } | undefined
-			)?.current_hp;
-			if (newCurrentHp !== undefined && session) {
+			// Sync relevant token fields when character sheet is saved from within the session
+			const updatedStats = updates.stats as {
+				current_hp?: number;
+				max_hp?: number;
+				initiative?: number;
+			} | undefined;
+			if (session && updatedStats) {
 				const playerToken = tokens.find(
 					(t) => t.token_type === "player" && t.character_id === characterId,
 				);
 				if (playerToken) {
-					setTokens((prev) =>
-						prev.map((t) =>
-							t.id === playerToken.id ? { ...t, current_hp: newCurrentHp } : t,
-						),
-					);
-					await updateToken(session.id, playerToken.id, {
-						current_hp: newCurrentHp,
-					});
+					const tokenPatch: Record<string, unknown> = {};
+					if (updatedStats.current_hp !== undefined)
+						tokenPatch.current_hp = updatedStats.current_hp;
+					if (updatedStats.max_hp !== undefined)
+						tokenPatch.max_hp = updatedStats.max_hp;
+					if (updatedStats.initiative !== undefined)
+						tokenPatch.initiative_value = updatedStats.initiative;
+					if (Object.keys(tokenPatch).length > 0) {
+						const updated = await updateToken(session.id, playerToken.id, tokenPatch);
+						setTokens((prev) =>
+							prev.map((t) => (t.id === playerToken.id ? updated : t)),
+						);
+						tokenBroadcastAdd.current?.(updated);
+					}
 				}
 			}
 		},
@@ -1222,8 +1265,15 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 			const existing = tokens.find((t) => t.user_id === member.user_id);
 			if (existing) {
 				if (existing.is_on_map) return;
+				const char = member.character;
+				const maxHp = (char?.stats as { max_hp?: number } | null)?.max_hp ?? existing.max_hp;
+				const currentHp = (char?.stats as { current_hp?: number } | null)?.current_hp ?? Math.min(existing.current_hp, maxHp);
 				const updated = await updateToken(session.id, existing.id, {
 					is_on_map: true,
+					max_hp: maxHp,
+					current_hp: currentHp,
+					entity_name: char?.name ?? existing.entity_name,
+					entity_image: char?.avatar_url ?? existing.entity_image,
 				});
 				setTokens((prev) =>
 					prev.map((t) => (t.id === existing.id ? updated : t)),
@@ -1298,6 +1348,42 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 
 		ensurePlayerTokens();
 	}, [session, isDM, members]);
+
+	// ── Sync player token HP from character sheet (single source of truth) ────
+	// When tokens and members are both loaded, update any player token whose
+	// max_hp differs from the character's current stats. This ensures that if
+	// a player edited their sheet while offline or between sessions, the token
+	// always reflects the character sheet — not a stale cached value.
+	useEffect(() => {
+		if (!session || tokens.length === 0 || members.length === 0) return;
+
+		const syncPlayerTokenHp = async () => {
+			for (const tok of tokens) {
+				if (tok.token_type !== "player" || !tok.character_id) continue;
+				const member = members.find((m) => m.character?.id === tok.character_id);
+				if (!member?.character) continue;
+				const charStats = member.character.stats as { max_hp?: number; current_hp?: number } | null;
+				const charMaxHp = charStats?.max_hp;
+				const charCurrentHp = charStats?.current_hp;
+				if (charMaxHp === undefined) continue;
+				// Only update if max_hp differs (sheet is the truth for max_hp)
+				if (tok.max_hp === charMaxHp) continue;
+				const newCurrentHp = charCurrentHp !== undefined
+					? Math.min(charCurrentHp, charMaxHp)
+					: Math.min(tok.current_hp, charMaxHp);
+				const updated = await updateToken(session.id, tok.id, {
+					max_hp: charMaxHp,
+					current_hp: newCurrentHp,
+				});
+				setTokens((prev) => prev.map((t) => (t.id === tok.id ? updated : t)));
+				tokenBroadcastAdd.current?.(updated);
+			}
+		};
+
+		syncPlayerTokenHp();
+	// Only run when tokens or members first become available, not on every change
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [session?.id, tokens.length > 0, members.length > 0]);
 
 	// ── Render ─────────────────────────────────────────────────────────────────
 

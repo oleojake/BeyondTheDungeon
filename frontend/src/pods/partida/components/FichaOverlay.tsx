@@ -85,6 +85,19 @@ export function FichaOverlay({ member, canEdit, onClose, onSave }: Props) {
 			});
 	}, []);
 
+	// Si los stats del personaje se actualizan desde fuera (ej. DM edita otra ficha, realtime)
+	// y el usuario no tiene cambios sin guardar, sincronizar el formulario con los nuevos valores
+	useEffect(() => {
+		if (!hasUnsavedChanges) {
+			setEditStats({ ...stats });
+			setInventory(char?.inventory ?? "");
+			setEquipment(char?.equipment ?? "");
+			setNotes(char?.notes ?? "");
+			setExpPoints(char?.experience_points ?? 0);
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [char]);
+
 	// Detectar cambios
 	useEffect(() => {
 		const hasChanges =

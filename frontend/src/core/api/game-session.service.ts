@@ -417,6 +417,39 @@ export function subscribeToSession(
 }
 
 /**
+ * Suscribe a cambios en la tabla characters para una lista de IDs de personaje.
+ * Llama a onUpdate cuando un personaje cambia (stats, etc.).
+ */
+export function subscribeToCharacters(
+	characterIds: string[],
+	onUpdate: (character: { id: string; stats: Record<string, unknown>; name: string; avatar_url: string | null }) => void
+): () => void {
+	if (characterIds.length === 0) return () => {};
+
+	const channel = supabase
+		.channel(`characters:${characterIds.join("-")}`)
+		.on(
+			"postgres_changes",
+			{
+				event: "UPDATE",
+				schema: "public",
+				table: "characters",
+			},
+			(payload) => {
+				const updated = payload.new as { id: string; stats: Record<string, unknown>; name: string; avatar_url: string | null };
+				if (characterIds.includes(updated.id)) {
+					onUpdate(updated);
+				}
+			}
+		)
+		.subscribe();
+
+	return () => {
+		supabase.removeChannel(channel);
+	};
+}
+
+/**
  * Broadcast channel for real-time session updates.
  * Uses Supabase Broadcast (peer-to-peer, bypasses DB) for low-latency sync.
  * Handles position moves, token additions/removals, and combat state changes.
