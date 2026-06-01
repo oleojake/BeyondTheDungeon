@@ -1410,8 +1410,20 @@ function InlineCompendiumSearch({
 								className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center justify-between group"
 							>
 								<span>{e.name}</span>
-								{type === "monster" && (e as Monster).challenge_rating !== undefined && (
-									<span className="text-xs text-muted-foreground">CR {(e as Monster).challenge_rating}</span>
+								{type === "monster" && (
+									<span className="flex items-center gap-2 text-xs text-muted-foreground">
+										{(e as Monster).challenge_rating !== undefined && (
+											<span>CR {(e as Monster).challenge_rating}</span>
+										)}
+										{(e as Monster).stats?.hit_points !== undefined && (
+											<span className="text-red-400">{(e as Monster).stats.hit_points} HP</span>
+										)}
+									</span>
+								)}
+								{type === "item" && (
+									<span className="text-xs text-muted-foreground">
+										{(e as Item).armor_category ?? (e as Item).weapon_category ?? (typeof (e as Item).equipment_category === "object" ? (e as Item).equipment_category?.name : (e as Item).equipment_category)}
+									</span>
 								)}
 								{type === "spell" && (
 									<span className="text-xs text-muted-foreground">

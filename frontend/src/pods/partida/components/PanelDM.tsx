@@ -264,7 +264,11 @@ export function PanelDM({
 
 	const compendiumAllItems: { id: string; name: string; subtitle?: string }[] = (() => {
 		if (compendiumTab === "monster") return bestiaryAll.map((m) => ({ id: String(m.id), name: m.name, subtitle: m.stats?.hit_points ? `${m.stats.hit_points} HP` : undefined }));
-		if (compendiumTab === "item") return itemsAll.map((i) => ({ id: i.id, name: i.name }));
+		if (compendiumTab === "item") return itemsAll.map((i) => ({
+			id: i.id,
+			name: i.name,
+			subtitle: i.armor_category ?? i.weapon_category ?? (typeof i.equipment_category === "object" ? i.equipment_category?.name : i.equipment_category) ?? undefined,
+		}));
 		return spellsAll.map((s) => ({ id: s.id, name: s.name, subtitle: `Nv.${s.level}` }));
 	})();
 
@@ -743,7 +747,7 @@ export function PanelDM({
 												>
 													<span className="font-medium">{entry.name}</span>
 													{entry.subtitle && (
-														<span className="ml-1 text-gray-400">· {entry.subtitle}</span>
+														<span className={`ml-1 ${compendiumTab === "monster" ? "text-red-400" : "text-gray-400"}`}>· {entry.subtitle}</span>
 													)}
 												</button>
 											))}

@@ -624,17 +624,17 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 						(entity.entity_data as { current_hp?: unknown } | null)?.current_hp,
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp,
-						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)
-							?.max_hp,
+						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)?.max_hp,
+						(entity.entity_data?.stats as { hit_points?: unknown } | undefined)?.hit_points,
 					) ?? 10,
 				max_hp:
 					pickNumber(
 						(entity.entity_data as { max_hp?: unknown } | null)?.max_hp,
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
-						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)
-							?.max_hp,
+						(entity.entity_data?.stats as { max_hp?: unknown } | undefined)?.max_hp,
 						(entity.entity_data?.stats as { hp?: unknown } | undefined)?.hp,
+						(entity.entity_data?.stats as { hit_points?: unknown } | undefined)?.hit_points,
 					) ?? 10,
 				initiative_value: 0,
 				is_on_map: true,
@@ -814,6 +814,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 						(entity.entity_data as { hp?: unknown } | null)?.hp,
 						stats.max_hp,
 						stats.hp,
+						stats.hit_points,
 						(entity.entity_data as { hp_current?: unknown } | null)?.hp_current,
 					) ?? 10;
 				const currentHp =
@@ -822,6 +823,7 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 						(entity.entity_data as { current_hp?: unknown } | null)?.current_hp,
 						stats.current_hp,
 						stats.hp,
+						stats.hit_points,
 						maxHp,
 					) ?? maxHp;
 
