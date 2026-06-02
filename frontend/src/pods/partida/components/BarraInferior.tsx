@@ -7,6 +7,7 @@
 
 import { Dice5, BookOpen, Swords } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MusicPlayer } from "./MusicPlayer";
 
 interface Props {
 	onOpenDados: () => void;
@@ -67,6 +68,8 @@ export function BarraInferior({ onOpenDados, campaignTitle }: Props) {
 					<BookOpen className="w-4 h-4 mr-1" />
 					Objetos
 				</Button>
+
+				<MusicPlayer />
 			</div>
 		</footer>
 	);

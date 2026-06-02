@@ -461,12 +461,14 @@ export function createTokenBroadcastChannel(
 		onAdd: (token: SessionToken) => void;
 		onRemove: (tokenId: string) => void;
 		onCombatUpdate: (combat: CombatState) => void;
+		onMusicChange?: (trackId: string | null) => void;
 	}
 ): {
 	sendMove: (tokenId: string, x: number, y: number) => void;
 	sendAdd: (token: SessionToken) => void;
 	sendRemove: (tokenId: string) => void;
 	sendCombatUpdate: (combat: CombatState) => void;
+	sendMusicChange: (trackId: string | null) => void;
 	unsub: () => void;
 } {
 	const channel = supabase
@@ -499,6 +501,13 @@ export function createTokenBroadcastChannel(
 				handlers.onCombatUpdate(payload.combat);
 			}
 		)
+		.on(
+			"broadcast",
+			{ event: "music-change" },
+			({ payload }: { payload: { trackId: string | null } }) => {
+				handlers.onMusicChange?.(payload.trackId);
+			}
+		)
 		.subscribe();
 
 	return {
@@ -528,6 +537,13 @@ export function createTokenBroadcastChannel(
 				type: "broadcast",
 				event: "combat-update",
 				payload: { combat },
+			});
+		},
+		sendMusicChange: (trackId: string | null) => {
+			channel.send({
+				type: "broadcast",
+				event: "music-change",
+				payload: { trackId },
 			});
 		},
 		unsub: () => {

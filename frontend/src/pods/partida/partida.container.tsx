@@ -1229,6 +1229,21 @@ export function PartidaContainer({ campaignId, campaignTitle, isDM }: Props) {
 		[session, tokens],
 	);
 
+	// ── Music control (DM only: play/stop, broadcasts to all) ─────────────────
+
+	const handleMusicPlay = useCallback(
+		(trackId: string) => {
+			setMusicTrackId(trackId);
+			musicBroadcastSend.current?.(trackId);
+		},
+		[],
+	);
+
+	const handleMusicStop = useCallback(() => {
+		setMusicTrackId(null);
+		musicBroadcastSend.current?.(null);
+	}, []);
+
 	// ── Map view persistence (debounced) ──────────────────────────────────────
 
 	const viewTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
